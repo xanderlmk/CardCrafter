@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             FlashcardsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    view.Greeting("Android", Modifier.padding(innerPadding))
+                    view.DeckList("Android", Modifier.padding(innerPadding))
                 }
             }
         }
@@ -38,6 +38,6 @@ fun GreetingPreview() {
     FlashcardsTheme {
         var controller = MainController()
         var view = MainView(controller)
-        view.Greeting("Android")
+        view.DeckList("Android")
     }
 }
