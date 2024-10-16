@@ -7,12 +7,12 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 
 // setting up tables (for now Deck -> Decks)
-@Entity(tableName = "decks_table")
+@Entity (tableName = "decks")
 data class Decks(
-    @PrimaryKey @ColumnInfo(name = "id") val id : Int,
-    @ColumnInfo(name = "name") val name : String
+    @PrimaryKey(autoGenerate = true) val id : Int = 0,
+    val name : String
 )
-@Entity(tableName = "cards_table")
+/*@Entity(tableName = "cards_table")
 data class Card(
     @PrimaryKey @ColumnInfo(name = "id") val id: Int,
     @ColumnInfo(name = "deckId") val deckId : Int,
@@ -27,4 +27,4 @@ data class DeckWithCards(
         entityColumn = "deckId"
     )
     val cards: List<Card>
-)
+)*/

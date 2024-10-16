@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -41,14 +41,16 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.4.2"
     }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
 }
+
 
 dependencies {
 
@@ -72,7 +74,7 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
 
     implementation(libs.androidx.room.ktx)
-    kapt(libs.androidx.room.compiler)
+    annotationProcessor(libs.androidx.room.compiler)
     androidTestImplementation(libs.androidx.room.testing)
 
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
@@ -87,5 +89,6 @@ dependencies {
     api(libs.kotlinx.coroutines.android)
 
     androidTestImplementation(libs.androidx.arch.core.testing)
+
 
 }
