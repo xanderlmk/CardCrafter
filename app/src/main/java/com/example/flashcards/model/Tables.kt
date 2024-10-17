@@ -3,11 +3,13 @@ package com.example.flashcards.model
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 
 // setting up tables (for now Deck -> Decks)
-@Entity (tableName = "decks")
+@Entity (tableName = "decks")//,
+     //   indices = [Index(value = ["name"], unique = true)])
 data class Decks(
     @PrimaryKey(autoGenerate = true) val id : Int = 0,
     val name : String
