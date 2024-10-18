@@ -5,10 +5,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 
-@Database(entities = [Decks::class], version = 1, exportSchema = false)
+@Database(entities = [Decks::class, Card::class], version = 2, exportSchema = false)
 abstract class FlashCardDatabase : RoomDatabase() {
 
     abstract fun deckDao(): DeckDao
+    abstract fun cardDao(): CardDao
 
     companion object {
         @Volatile

@@ -9,15 +9,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import android.util.Log
 
 /**
  * ViewModel to retrieve all items in the Room database.
  */
-class MainViewModel(private val decksRepository: FlashCardRepository) : ViewModel() {
+class MainViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
 
 
     val mainUiState: StateFlow<MainUiState> =
-        decksRepository.getAllDecksStream().map { MainUiState(it) }
+        flashCardRepository.getAllDecksStream().map { MainUiState(it) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -47,7 +48,11 @@ class MainViewModel(private val decksRepository: FlashCardRepository) : ViewMode
     fun addDeck(name: String) {
         if (name.isNotEmpty()) {
             viewModelScope.launch {
-                decksRepository.insertDeck(Decks(name = name))
+                try {
+                    flashCardRepository.insertDeck(Decks(name = name))
+                } catch (e: SQLiteConstraintException) {
+                    Log.e("DatabaseError", "Deck with this name already exists.")
+                }
             }
         }
     }
@@ -55,7 +60,7 @@ class MainViewModel(private val decksRepository: FlashCardRepository) : ViewMode
         // Deleting a deck via the repository
         fun deleteDeck(deck: Decks) {
             viewModelScope.launch {
-                decksRepository.deleteDeck(deck)
+                flashCardRepository.deleteDeck(deck)
             }
         }
 

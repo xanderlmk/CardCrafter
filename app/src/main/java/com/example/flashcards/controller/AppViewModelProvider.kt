@@ -16,7 +16,7 @@ import com.example.flashcards.model.FlashCardApplication
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            MainViewModel(flashCardApplication().container.decksRepository)
+            MainViewModel(flashCardApplication().container.flashCardRepository)
         }
 
     }

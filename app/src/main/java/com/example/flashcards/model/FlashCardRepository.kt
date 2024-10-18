@@ -12,4 +12,12 @@ interface FlashCardRepository {
     suspend fun deleteDeck(decks: Decks)
 
     suspend fun updateDeck(decks: Decks)
+
+    suspend fun insert(card: Card)
+
+    suspend fun update(card: Card)
+
+    suspend fun delete(card: Card)
+
+    fun getDeckWithCards(deckId: Int): Flow<DeckWithCards>
 }
