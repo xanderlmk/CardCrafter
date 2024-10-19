@@ -8,38 +8,44 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 // Setting up some of the queries so we can use them
 // on our MainController
 @Dao
 interface DeckDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(decks: Decks)
+    suspend fun insertDeck(deck: Deck)
 
     @Update
-    suspend fun update(decks: Decks)
+    suspend fun updateDeck(deck: Deck)
 
     @Delete
-    suspend fun delete(decks: Decks)
+    suspend fun deleteDeck(deck: Deck)
 
     @Query("SELECT * from decks WHERE id = :id")
-    fun getDeck(id: Int): Flow<Decks>
+    fun getDeck(id: Int): Flow<Deck>
 
     @Query("SELECT * from decks ORDER BY name ASC")
-    fun getAllDecks(): Flow<List<Decks>>
+    fun getAllDecks(): Flow<List<Deck>>
 }
 @Dao
 interface CardDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(card: Card)
+    suspend fun insertCard(card: Card)
 
     @Update
-    suspend fun update(card: Card)
+    suspend fun updateCard(card: Card)
 
     @Delete
-    suspend fun delete(card: Card)
+    suspend fun deleteCard(card: Card)
 
     @Transaction
     @Query("SELECT * FROM decks WHERE id = :deckId")
     fun getDeckWithCards(deckId: Int): Flow<DeckWithCards>
+
+    @Query("SELECT * FROM cards WHERE deckId = :deckId AND nextReview <= :currentTime")
+    suspend fun getDueCards(deckId: Int, currentTime: Long = Date().time): List<Card>
+    @Query("DELETE FROM cards WHERE deckId = :deckId")
+    suspend fun deleteAllCards(deckId: Int)
 }

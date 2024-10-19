@@ -1,23 +1,28 @@
 package com.example.flashcards.model
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 interface FlashCardRepository {
 
-    fun getAllDecksStream(): Flow<List<Decks>>
+    fun getAllDecksStream(): Flow<List<Deck>>
 
-    fun getDeckStream(id: Int): Flow<Decks?>
+    fun getDeckStream(id: Int): Flow<Deck?>
 
-    suspend fun insertDeck(decks: Decks)
+    suspend fun insertDeck(deck: Deck)
 
-    suspend fun deleteDeck(decks: Decks)
+    suspend fun deleteDeck(deck: Deck)
 
-    suspend fun updateDeck(decks: Decks)
+    suspend fun updateDeck(deck: Deck)
 
-    suspend fun insert(card: Card)
+    suspend fun insertCard(card: Card)
 
-    suspend fun update(card: Card)
+    suspend fun updateCard(card: Card)
 
-    suspend fun delete(card: Card)
+    suspend fun deleteCard(card: Card)
 
     fun getDeckWithCards(deckId: Int): Flow<DeckWithCards>
+
+    suspend fun getDueCards(deckId: Int, currentTime: Long = Date().time): List<Card>
+
+    suspend fun deleteAllCards(deckId: Int)
 }

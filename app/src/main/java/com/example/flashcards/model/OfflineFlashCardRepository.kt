@@ -1,24 +1,30 @@
 package com.example.flashcards.model
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 class OfflineFlashCardRepository (private val deckDao: DeckDao,
     private val cardDao: CardDao) : FlashCardRepository {
-    override fun getAllDecksStream(): Flow<List<Decks>> = deckDao.getAllDecks()
+    override fun getAllDecksStream(): Flow<List<Deck>> = deckDao.getAllDecks()
 
-    override fun getDeckStream(id: Int): Flow<Decks?> = deckDao.getDeck(id)
+    override fun getDeckStream(id: Int): Flow<Deck?> = deckDao.getDeck(id)
 
-    override suspend fun insertDeck(decks: Decks) = deckDao.insert(decks)
+    override suspend fun insertDeck(deck: Deck) = deckDao.insertDeck(deck)
 
-    override suspend fun deleteDeck(decks: Decks) = deckDao.delete(decks)
+    override suspend fun deleteDeck(deck: Deck) = deckDao.deleteDeck(deck)
 
-    override suspend fun updateDeck(decks: Decks) = deckDao.update(decks)
+    override suspend fun updateDeck(deck: Deck) = deckDao.updateDeck(deck)
 
-    override suspend fun insert(card: Card) = cardDao.insert(card)
+    override suspend fun insertCard(card: Card) = cardDao.insertCard(card)
 
-    override suspend fun update(card: Card) = cardDao.update(card)
+    override suspend fun updateCard(card: Card) = cardDao.updateCard(card)
 
-    override suspend fun delete(card: Card) = cardDao.delete(card)
+    override suspend fun deleteCard(card: Card) = cardDao.deleteCard(card)
 
     override fun getDeckWithCards(deckId: Int):
             Flow<DeckWithCards> = cardDao.getDeckWithCards(deckId)
+
+    override suspend fun getDueCards(deckId: Int, currentTime: Long):
+            List<Card> = cardDao.getDueCards(deckId, currentTime)
+
+    override suspend fun deleteAllCards(deckId: Int) = cardDao.deleteAllCards(deckId)
 }

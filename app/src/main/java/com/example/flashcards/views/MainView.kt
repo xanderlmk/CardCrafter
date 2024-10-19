@@ -15,10 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,9 +31,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.controller.MainViewModel
-import com.example.flashcards.model.Decks
+import com.example.flashcards.model.Deck
 
-class MainView() {
+class MainView {
     @Composable
     fun DeckList(viewModel: MainViewModel,
                  modifier: Modifier = Modifier) {
@@ -46,18 +42,18 @@ class MainView() {
         val addDeckView = remember { AddDeckView(viewModel) }
         val deckView = remember { DeckView(viewModel) }
         var whichView by remember { mutableIntStateOf(0) }
-        var selectedDeck by remember { mutableStateOf<Decks?>(value = null) }
+        var selectedDeck by remember { mutableStateOf<Deck?>(value = null) }
 
         when (whichView) {
             1 -> {
-                addDeckView.addDeck {
+                addDeckView.AddDeck {
                     whichView = 0  // Go back to the main view after adding a deck
                 }
             }
 
             2 -> {
                 selectedDeck?.let { deck ->
-                    deckView.viewEditDeck(deck) {
+                    deckView.ViewEditDeck(deck) {
                         whichView = 0  // Go back after editing the deck
                     }
                 }
@@ -124,7 +120,7 @@ class MainView() {
                         Box(
                             modifier = bottomLeftModifier,
                         ) {
-                            Example(
+                            SmallAddButton(
                                 onClick = { whichView = 1 },
                             )
                         }
@@ -133,19 +129,6 @@ class MainView() {
                 }
             }
         }
-    }
-
-    @Composable
-    fun Example(onClick:() -> Unit) {
-            FloatingActionButton(
-                onClick = {
-                    onClick()
-                },
-                modifier = Modifier
-                    .padding(16.dp)
-            ) {
-                Icon(Icons.Filled.Add, "Floating action button.")
-            }
     }
 
 }
