@@ -28,6 +28,7 @@ class MainActivity : ComponentActivity() {
             FlashcardsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     view.DeckList(viewModel = viewModel, Modifier.padding(innerPadding))
+
                 }
             }
         }

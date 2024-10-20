@@ -3,9 +3,12 @@ package com.example.flashcards.views
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -41,5 +44,19 @@ fun SmallAddButton(onClick:() -> Unit) {
             .padding(16.dp)
     ) {
         Icon(Icons.Filled.Add, "Floating action button.")
+    }
+}
+
+
+@Composable
+fun BackButton(onBackClick: () -> Unit, modifier:
+ Modifier = Modifier) {
+    IconButton(onClick = onBackClick,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = "Back"
+        )
     }
 }

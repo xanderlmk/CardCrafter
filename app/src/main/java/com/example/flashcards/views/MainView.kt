@@ -46,6 +46,10 @@ class MainView {
 
         when (whichView) {
             1 -> {
+                BackButton (
+                    onBackClick = { whichView = 0},
+                    modifier = Modifier.padding(top = 16.dp)
+                )
                 addDeckView.AddDeck {
                     whichView = 0  // Go back to the main view after adding a deck
                 }
