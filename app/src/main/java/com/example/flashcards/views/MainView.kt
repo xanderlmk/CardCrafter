@@ -56,6 +56,10 @@ class MainView {
             }
 
             2 -> {
+                BackButton (
+                    onBackClick = { whichView = 0},
+                    modifier = Modifier.padding(top = 16.dp)
+                )
                 selectedDeck?.let { deck ->
                     deckView.ViewEditDeck(deck) {
                         whichView = 0  // Go back after editing the deck
