@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -43,12 +44,21 @@ class MainView {
         val deckView = remember { DeckView(viewModel) }
         var whichView by remember { mutableIntStateOf(0) }
         var selectedDeck by remember { mutableStateOf<Deck?>(value = null) }
-
+        var presetModifier = Modifier
+            .padding(top = 16.dp,start = 16.dp,end = 16.dp)
+            .size(54.dp)
+            .background(Color.Cyan)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
+                .background(Color.LightGray)
+        ) {
         when (whichView) {
             1 -> {
                 BackButton (
                     onBackClick = { whichView = 0},
-                    modifier = Modifier.padding(top = 16.dp)
+                    modifier = presetModifier
                 )
                 addDeckView.AddDeck {
                     whichView = 0  // Go back to the main view after adding a deck
@@ -58,7 +68,7 @@ class MainView {
             2 -> {
                 BackButton (
                     onBackClick = { whichView = 0},
-                    modifier = Modifier.padding(top = 16.dp)
+                    modifier = presetModifier
                 )
                 selectedDeck?.let { deck ->
                     deckView.ViewEditDeck(deck) {
@@ -70,9 +80,7 @@ class MainView {
             else -> {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp)
-                        .background(Color.LightGray),
+                        .fillMaxSize(),
                     verticalArrangement = Arrangement.SpaceBetween,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -134,6 +142,7 @@ class MainView {
                         }
                     }
 
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.example.flashcards.views
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,8 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import com.example.flashcards.controller.MainViewModel
 
 
-class AddDeckView(viewModel: MainViewModel) {
-    private val viewModel = viewModel
+class AddDeckView(private var viewModel: MainViewModel) {
+
 
     @Composable
     fun AddDeck(onDismiss: () -> Unit) {
@@ -34,8 +36,7 @@ class AddDeckView(viewModel: MainViewModel) {
 
             Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -47,7 +48,8 @@ class AddDeckView(viewModel: MainViewModel) {
             )
             Row (
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(start = 8.dp, end = 8.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 EditTextField(
@@ -57,23 +59,14 @@ class AddDeckView(viewModel: MainViewModel) {
                     },
                     labelStr = "Deck Name",
                     modifier = Modifier
-                        .padding(end = 8.dp)
                         .weight(1f)
                 )
             }
             Row (
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.Center
             ){
-                Button(
-                    onClick = {
-                    onDismiss()
-                    },
-                    modifier = Modifier.padding(top = 48.dp)
-                    ) {
-                    Text("Return")
-                }
                 Button(
                     onClick = {
                        /* if (viewModel.addDeck(deckName)) {

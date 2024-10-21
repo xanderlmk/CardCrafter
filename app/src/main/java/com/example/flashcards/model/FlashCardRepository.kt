@@ -22,7 +22,8 @@ interface FlashCardRepository {
 
     fun getDeckWithCards(deckId: Int): Flow<DeckWithCards>
 
-    suspend fun getDueCards(deckId: Int, currentTime: Long = Date().time): List<Card>
+    fun getDueCards(deckId: Int,
+                            currentTime: Long = Date().time): Flow<List<Card>>
 
     suspend fun deleteAllCards(deckId: Int)
 }

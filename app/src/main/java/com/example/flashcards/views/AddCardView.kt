@@ -1,5 +1,6 @@
 package com.example.flashcards.views
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,16 +21,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.controller.MainViewModel
 
-class AddCardView(viewModel: MainViewModel) {
-    private var viewModel = viewModel
+class AddCardView(private var viewModel: MainViewModel) {
+
     @Composable
-    fun AddCard(deckId: Int, onDismiss: () -> Unit) {
+    fun AddCard(deckId: Int,onDismiss:() -> Unit) {
         var question by remember { mutableStateOf("")  }
         var answer by remember { mutableStateOf("") }
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -41,8 +41,9 @@ class AddCardView(viewModel: MainViewModel) {
             )
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                    .fillMaxWidth()
+                    .padding(start = 8.dp, end = 8.dp),
+                horizontalArrangement = Arrangement.Center
             ) {
                 EditTextField(
                     value = question,
@@ -52,7 +53,6 @@ class AddCardView(viewModel: MainViewModel) {
                     },
                     labelStr = "Question",
                     modifier = Modifier
-                        .padding(end = 8.dp)
                         .weight(1f)
                 )
             }
@@ -64,8 +64,9 @@ class AddCardView(viewModel: MainViewModel) {
             )
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                    .fillMaxWidth()
+                    .padding(start = 8.dp, end = 8.dp),
+                horizontalArrangement = Arrangement.Center
             ) {
                 EditTextField(
                     value = answer,
@@ -75,7 +76,6 @@ class AddCardView(viewModel: MainViewModel) {
                     },
                     labelStr = "Answer",
                     modifier = Modifier
-                        .padding(end = 8.dp)
                         .weight(1f)
                 )
             }
@@ -83,16 +83,8 @@ class AddCardView(viewModel: MainViewModel) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.Center
             ) {
-                Button(
-                    onClick = {
-                        onDismiss()
-                    },
-                    modifier = Modifier.padding(top = 48.dp)
-                ) {
-                    Text("Return")
-                }
                 Button(
                     onClick = {
                         viewModel.addCard(deckId, question, answer)

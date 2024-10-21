@@ -1,6 +1,7 @@
 package com.example.flashcards.views
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -49,14 +50,18 @@ fun SmallAddButton(onClick:() -> Unit) {
 
 
 @Composable
-fun BackButton(onBackClick: () -> Unit, modifier:
- Modifier = Modifier) {
-    IconButton(onClick = onBackClick,
+fun BackButton(onBackClick: () -> Unit,
+               modifier: Modifier = Modifier) {
+    IconButton(
+        onClick = onBackClick,
         modifier = modifier
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            modifier = Modifier
+                .size(36.dp),
             contentDescription = "Back"
+
         )
     }
 }

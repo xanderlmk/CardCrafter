@@ -23,8 +23,8 @@ class OfflineFlashCardRepository (private val deckDao: DeckDao,
     override fun getDeckWithCards(deckId: Int):
             Flow<DeckWithCards> = cardDao.getDeckWithCards(deckId)
 
-    override suspend fun getDueCards(deckId: Int, currentTime: Long):
-            List<Card> = cardDao.getDueCards(deckId, currentTime)
+    override fun getDueCards(deckId: Int, currentTime: Long):
+            Flow<List<Card>> = cardDao.getDueCards(deckId, currentTime)
 
     override suspend fun deleteAllCards(deckId: Int) = cardDao.deleteAllCards(deckId)
 }

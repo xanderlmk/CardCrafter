@@ -11,12 +11,14 @@ import kotlinx.coroutines.launch
 import android.util.Log
 import com.example.flashcards.model.Card
 import com.example.flashcards.model.Deck
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.Date
 
 /**
  * ViewModel to retrieve all items in the Room database.
  */
 class MainViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
+
 
 
     val mainUiState: StateFlow<MainUiState> =
@@ -26,6 +28,8 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
                 initialValue = MainUiState()
             )
+
+    var cardUiState = MutableStateFlow(CardUiState())
 
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
@@ -50,9 +54,19 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
             flashCardRepository.deleteDeck(deck)
         }
     }
-    fun getCards(card: Card,deckId : Int){
+
+    fun getCards(deckId : Int){
         viewModelScope.launch {
             flashCardRepository.getDeckWithCards(deckId)
+        }
+    }
+
+    fun getDueCards(deckId : Int){
+        viewModelScope.launch {
+            flashCardRepository.getDueCards(deckId)
+                .collect { cards ->
+                    cardUiState.value = CardUiState(cardList = cards)
+                }
         }
     }
     fun addCard(deckId : Int, question:String, answer:String,) {
@@ -74,6 +88,35 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
 
 
 data class MainUiState(val deckList: List<Deck> = listOf())
+
+data class CardUiState(var cardList: List<Card> = listOf())
+/*
+data class CardDetails(
+    val id: Int = 0,
+    val deckId : Int = 0,
+    val question: String = "",
+    val answer: String = "",
+    val nextReview: Date? = null,
+    val passes: Int = 0
+)
+
+fun CardDetails.toCard(): Card = Card(
+    id = id,
+    deckId = deckId,
+    question = question,
+    answer = answer,
+    nextReview = nextReview,
+    passes = passes
+)
+
+fun Card.toCardDetails(): CardDetails = CardDetails(
+    id = id,
+    deckId = deckId,
+    question = question,
+    answer = answer,
+    nextReview = nextReview,
+    passes = passes
+)*/
 
 
 

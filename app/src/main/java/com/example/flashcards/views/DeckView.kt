@@ -1,10 +1,13 @@
 package com.example.flashcards.views
 
+import androidx.activity.viewModels
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,32 +19,51 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.flashcards.controller.AppViewModelProvider
+import com.example.flashcards.controller.CardViewModel
 import com.example.flashcards.controller.MainViewModel
+
 import com.example.flashcards.model.Deck
 
 
-class DeckView(viewModel: MainViewModel ) {
-    private val viewModel = viewModel
+class DeckView(private var mainViewModel: MainViewModel) {
 
 
     @Composable
     fun ViewEditDeck(deck: Deck, onDismiss: () -> Unit) {
-        val addCardView = remember { AddCardView(viewModel) }
+        val addCardView = remember { AddCardView(mainViewModel) }
+        val cardView = remember { CardDeckView(mainViewModel) }
         var whichView by remember { mutableIntStateOf(0) }
-
+        val presetModifier = Modifier
+            .padding(top = 16.dp,start = 16.dp, end = 16.dp)
+            .size(54.dp)
+            .background(Color.Cyan)
         when (whichView) {
             1 -> {
+                BackButton(
+                    onBackClick = { whichView = 0 },
+                    modifier = presetModifier
+                )
                 addCardView.AddCard(deck.id) {
                     whichView = 0
                 }
             }
+            2 -> {
+                BackButton(
+                    onBackClick = { whichView = 0 },
+                    modifier = presetModifier
+                )
+                cardView.ViewCard(deck.id)
+
+            }
             else -> {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -55,7 +77,8 @@ class DeckView(viewModel: MainViewModel ) {
                             text = deck.name,
                             fontSize = 40.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Blue
+                            color = Color.Blue,
+                            textAlign = TextAlign.Center,
                         )
                     }
 
@@ -66,15 +89,7 @@ class DeckView(viewModel: MainViewModel ) {
                     ) {
                         Button(
                             onClick = {
-                                onDismiss()
-                            },
-                            modifier = Modifier.padding(top = 48.dp)
-                        ) {
-                            Text("Return")
-                        }
-                        Button(
-                            onClick = {
-                                viewModel.deleteDeck(deck)
+                                mainViewModel.deleteDeck(deck)
                                 onDismiss()
                             },
                             modifier = Modifier.padding(top = 48.dp)
@@ -88,6 +103,14 @@ class DeckView(viewModel: MainViewModel ) {
                             modifier = Modifier.padding(top = 48.dp)
                         ) {
                             Text("Add Cards")
+                        }
+                        Button(
+                            onClick = {
+                                whichView = 2
+                            },
+                            modifier = Modifier.padding(top = 48.dp)
+                        ) {
+                            Text("Start Deck")
                         }
                     }
                 }
