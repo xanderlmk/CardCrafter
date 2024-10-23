@@ -27,6 +27,8 @@ class AddCardView(private var viewModel: MainViewModel) {
     fun AddCard(deckId: Int,onDismiss:() -> Unit) {
         var question by remember { mutableStateOf("")  }
         var answer by remember { mutableStateOf("") }
+        var errorMessage by remember { mutableStateOf("") }
+
         Column(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -80,6 +82,15 @@ class AddCardView(private var viewModel: MainViewModel) {
                 )
             }
 
+            if (errorMessage.isNotEmpty()) {
+                Text(
+                    text = errorMessage,
+                    color = androidx.compose.ui.graphics.Color.Red,
+                    modifier = Modifier.padding(8.dp),
+                    fontSize = 16.sp
+                )
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -87,9 +98,14 @@ class AddCardView(private var viewModel: MainViewModel) {
             ) {
                 Button(
                     onClick = {
-                        viewModel.addCard(deckId, question, answer)
-                        question = ""
-                        answer = ""
+                        if (question.isBlank() || answer.isBlank()) {
+                            errorMessage = "Both fields must be filled out"
+                        } else {
+                            viewModel.addCard(deckId, question, answer)
+                            question = ""
+                            answer = ""
+                            errorMessage = ""
+                        }
                     },
                     modifier = Modifier.padding(top = 48.dp)
                 ) {
