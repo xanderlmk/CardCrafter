@@ -74,7 +74,7 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
                 }
         }
     }
-    fun addCard(deckId : Int, question:String, answer:String,) {
+    fun addCard(deckId : Int, question:String, answer:String) {
         if(question.isNotEmpty() && answer.isNotEmpty()) {
             viewModelScope.launch {
                 flashCardRepository.insertCard(
@@ -106,9 +106,11 @@ fun updateCard(card: Card, isSuccess: Boolean) : Card {
 
 private fun timeCalculator (passes : Int, isSuccess: Boolean) : Date {
     val calendar = Calendar.getInstance()
-
     // Determine the multiplier based on success or hard pass
-    val multiplier = if (isSuccess) 1.5 else 0.5
+    val multiplier = when {
+        passes > 0 -> if (isSuccess) 1.5 else 0.5
+        else -> if (isSuccess) 1.5 else 0.0
+    }
 
     // Calculate days to add
     val daysToAdd = (passes * multiplier).toInt()

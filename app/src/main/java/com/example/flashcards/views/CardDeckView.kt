@@ -32,24 +32,21 @@ class CardDeckView(private var viewModel: MainViewModel) {
     @Composable
     fun ViewCard(deckId: Int,
                  cardUiState: CardUiState,
-                 hasCards : Boolean) {
-        var size by remember { mutableIntStateOf(0) }
+                 cards : List<Card>,
+                 size : Int) {
+        var currentSize by remember { mutableIntStateOf(size) }
         var index by remember { mutableIntStateOf(0) }
         var show by remember { mutableStateOf(false) }
-        var cardList = remember { mutableListOf<Card>() }
+        var cardList = remember { cards.toMutableList() }
 
-        if (hasCards) {
-            cardList = cardUiState.cardList
-            size = cardList.size
-        }
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            if (size > 0) {
-                if (index < size) {
+            if (cardList.isNotEmpty()) {
+                if (index < currentSize) {
                     val card: Card = cardList[index]
 
                     if (!show) {
@@ -96,8 +93,11 @@ class CardDeckView(private var viewModel: MainViewModel) {
                     viewModel.getDueCards(deckId)
                     index = 0
                     if (cardUiState.cardList.isNotEmpty()) {
-                        cardList = cardUiState.cardList
-                        size = cardUiState.cardList.size
+                        cardList = cardUiState.cardList.toMutableList()
+                        currentSize = cardUiState.cardList.size
+                    }
+                    else {
+                        cardList = mutableListOf()
                     }
                 }
             }

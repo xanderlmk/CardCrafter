@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.MainViewModel
+import com.example.flashcards.model.Card
 
 import com.example.flashcards.model.Deck
 
@@ -60,13 +61,13 @@ class DeckView(private var mainViewModel: MainViewModel) {
                     onBackClick = { whichView = 0 },
                     modifier = presetModifier
                 )
-                var hasCards by remember { mutableStateOf(false) }
+                var cardList = remember { mutableListOf<Card>() }
                 var size by remember { mutableIntStateOf(0) }
                 if (cardUiState.cardList.isNotEmpty()) {
-                    hasCards = true
+                    cardList = cardUiState.cardList
                     size = cardUiState.cardList.size
                 }
-                cardView.ViewCard(deck.id, cardUiState, hasCards)
+                cardView.ViewCard(deck.id, cardUiState, cardList, size)
 
             }
             else -> {

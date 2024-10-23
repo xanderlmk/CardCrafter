@@ -44,7 +44,7 @@ class MainView {
         val deckView = remember { DeckView(viewModel) }
         var whichView by remember { mutableIntStateOf(0) }
         var selectedDeck by remember { mutableStateOf<Deck?>(value = null) }
-        var presetModifier = Modifier
+        val presetModifier = Modifier
             .padding(top = 16.dp,start = 16.dp,end = 16.dp)
             .size(54.dp)
             .background(Color.Cyan)
