@@ -9,9 +9,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.example.flashcards.model.Card
 import com.example.flashcards.model.Deck
 import kotlinx.coroutines.flow.MutableStateFlow
+import java.util.Calendar
 import java.util.Date
 
 /**
@@ -55,9 +60,9 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
         }
     }
 
-    fun getCards(deckId : Int){
+    fun updateCard(card: Card){
         viewModelScope.launch {
-            flashCardRepository.getDeckWithCards(deckId)
+            flashCardRepository.updateCard(card)
         }
     }
 
@@ -65,7 +70,7 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
         viewModelScope.launch {
             flashCardRepository.getDueCards(deckId)
                 .collect { cards ->
-                    cardUiState.value = CardUiState(cardList = cards)
+                    cardUiState.value = CardUiState(cardList = cards.toMutableList())
                 }
         }
     }
@@ -89,34 +94,30 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
 
 data class MainUiState(val deckList: List<Deck> = listOf())
 
-data class CardUiState(var cardList: List<Card> = listOf())
-/*
-data class CardDetails(
-    val id: Int = 0,
-    val deckId : Int = 0,
-    val question: String = "",
-    val answer: String = "",
-    val nextReview: Date? = null,
-    val passes: Int = 0
-)
+data class CardUiState(var cardList: MutableList<Card> = mutableListOf())
 
-fun CardDetails.toCard(): Card = Card(
-    id = id,
-    deckId = deckId,
-    question = question,
-    answer = answer,
-    nextReview = nextReview,
-    passes = passes
-)
+fun updateCard(card: Card, isSuccess: Boolean) : Card {
+    if (isSuccess) {
+        card.passes += 1
+    }
+    card.nextReview = timeCalculator(card.passes, isSuccess)
+    return card
+}
 
-fun Card.toCardDetails(): CardDetails = CardDetails(
-    id = id,
-    deckId = deckId,
-    question = question,
-    answer = answer,
-    nextReview = nextReview,
-    passes = passes
-)*/
+private fun timeCalculator (passes : Int, isSuccess: Boolean) : Date {
+    val calendar = Calendar.getInstance()
 
+    // Determine the multiplier based on success or hard pass
+    val multiplier = if (isSuccess) 1.5 else 0.5
+
+    // Calculate days to add
+    val daysToAdd = (passes * multiplier).toInt()
+
+    // Add days to the current date
+    calendar.add(Calendar.DAY_OF_YEAR, daysToAdd)
+
+    // Return the updated date
+    return calendar.time
+}
 
 

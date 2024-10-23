@@ -44,8 +44,7 @@ interface CardDao {
     @Query("SELECT * FROM decks WHERE id = :deckId")
     fun getDeckWithCards(deckId: Int): Flow<DeckWithCards>
 
-    @Query("SELECT * FROM cards WHERE deckId = :deckId AND nextReview <= :currentTime " +
-            "ORDER BY RANDOM()")
+    @Query("SELECT * FROM cards WHERE deckId = :deckId AND nextReview <= :currentTime")
     fun getDueCards(deckId: Int, currentTime: Long = Date().time): Flow<List<Card>>
 
     @Query("DELETE FROM cards WHERE deckId = :deckId")

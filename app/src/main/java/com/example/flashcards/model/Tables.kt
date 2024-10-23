@@ -8,7 +8,6 @@ import androidx.room.Relation
 import androidx.room.TypeConverter
 import java.util.Date
 
-// setting up tables (for now Deck -> Decks)
 @Entity (tableName = "decks",
      indices = [Index(value = ["name"], unique = true)])
 data class Deck(
@@ -21,8 +20,8 @@ data class Card(
     val deckId : Int,
     val question : String,
     val answer : String,
-    val nextReview: Date?,
-    val passes: Int
+    var nextReview: Date?,
+    var passes: Int
 )
 // Decks has many cards, one card belongs to a deck
 data class DeckWithCards(
@@ -42,6 +41,6 @@ class Converters {
 
     @TypeConverter
     fun dateToTimestamp(date: Date?): Long? {
-        return date?.time?.toLong()
+        return date?.time
     }
 }

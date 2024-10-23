@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -24,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.flashcards.controller.AppViewModelProvider
-import com.example.flashcards.controller.CardViewModel
 import com.example.flashcards.controller.MainViewModel
 
 import com.example.flashcards.model.Deck
@@ -35,6 +36,8 @@ class DeckView(private var mainViewModel: MainViewModel) {
 
     @Composable
     fun ViewEditDeck(deck: Deck, onDismiss: () -> Unit) {
+        mainViewModel.getDueCards(deck.id)
+        val cardUiState by mainViewModel.cardUiState.collectAsState()
         val addCardView = remember { AddCardView(mainViewModel) }
         val cardView = remember { CardDeckView(mainViewModel) }
         var whichView by remember { mutableIntStateOf(0) }
@@ -57,7 +60,13 @@ class DeckView(private var mainViewModel: MainViewModel) {
                     onBackClick = { whichView = 0 },
                     modifier = presetModifier
                 )
-                cardView.ViewCard(deck.id)
+                var hasCards by remember { mutableStateOf(false) }
+                var size by remember { mutableIntStateOf(0) }
+                if (cardUiState.cardList.isNotEmpty()) {
+                    hasCards = true
+                    size = cardUiState.cardList.size
+                }
+                cardView.ViewCard(deck.id, cardUiState, hasCards)
 
             }
             else -> {
