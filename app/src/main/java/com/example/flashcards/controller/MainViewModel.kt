@@ -18,6 +18,7 @@ import com.example.flashcards.model.Deck
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.Calendar
 import java.util.Date
+import kotlin.random.Random
 
 /**
  * ViewModel to retrieve all items in the Room database.
@@ -122,4 +123,24 @@ private fun timeCalculator (passes : Int, isSuccess: Boolean) : Date {
     return calendar.time
 }
 
+fun moveToNextCard(
+    cardList: List<Card>,
+    onNextCard: (Card?) -> Unit
+) : Boolean{
+    if (cardList.isEmpty()) {
+        onNextCard(null) // No cards available, handle end state
+        return false
+    }
+
+    // Generate a random index within the bounds of the card list
+    val randomIndex = Random.nextInt(cardList.size)
+    onNextCard(cardList[randomIndex])
+    return true
+}
+
+// Helper to update the card state
+fun handleCardUpdate(card: Card, success: Boolean, viewModel: MainViewModel) {
+    val updatedCard = updateCard(card, success)
+    viewModel.updateCard(updatedCard)
+}
 

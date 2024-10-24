@@ -37,8 +37,6 @@ class DeckView(private var mainViewModel: MainViewModel) {
 
     @Composable
     fun ViewEditDeck(deck: Deck, onDismiss: () -> Unit) {
-        mainViewModel.getDueCards(deck.id)
-        val cardUiState by mainViewModel.cardUiState.collectAsState()
         val addCardView = remember { AddCardView(mainViewModel) }
         val cardView = remember { CardDeckView(mainViewModel) }
         var whichView by remember { mutableIntStateOf(0) }
@@ -61,13 +59,7 @@ class DeckView(private var mainViewModel: MainViewModel) {
                     onBackClick = { whichView = 0 },
                     modifier = presetModifier
                 )
-                var cardList = remember { mutableListOf<Card>() }
-                var size by remember { mutableIntStateOf(0) }
-                if (cardUiState.cardList.isNotEmpty()) {
-                    cardList = cardUiState.cardList
-                    size = cardUiState.cardList.size
-                }
-                cardView.ViewCard(deck.id, cardUiState, cardList, size)
+                cardView.ViewCard(deck.id)
 
             }
             else -> {

@@ -11,6 +11,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -21,33 +23,120 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.controller.CardUiState
 import com.example.flashcards.controller.MainViewModel
+import com.example.flashcards.controller.handleCardUpdate
+import com.example.flashcards.controller.moveToNextCard
 import com.example.flashcards.controller.updateCard
 import com.example.flashcards.model.Card
-
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class CardDeckView(private var viewModel: MainViewModel) {
     @Composable
-    fun ViewCard(deckId: Int,
-                 cardUiState: CardUiState,
-                 cards : List<Card>,
-                 size : Int) {
-        var currentSize by remember { mutableIntStateOf(size) }
+    fun ViewCard(deckId: Int) {
+        val cardUiState by viewModel.cardUiState.collectAsState()
+        var hasFetchedCard by remember { mutableStateOf(false) }
         var index by remember { mutableIntStateOf(0) }
         var show by remember { mutableStateOf(false) }
-        var cardList = remember { cards.toMutableList() }
+        var currentCard by remember { mutableStateOf<Card?>(null) }
+
+        /*if (!hasFetchedCards) {
+            viewModel.getDueCards(deckId)
+            hasFetchedCards = true
+            currentCard = cardUiState.cardList.firstOrNull()
+        }*/
+
+        if (cardUiState.cardList.isEmpty()) {
+            viewModel.getDueCards(deckId)
+        }
+            currentCard = cardUiState.cardList.firstOrNull() // Start with the first card
 
         Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (currentCard == null && cardUiState.cardList.size == 0) {
+                LaunchedEffect(currentCard == null) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(150) // Delay for smooth transition
+                    }
+                }
+                Text("No Due Cards")
+            } else {
+                if (!show) {
+                    show = frontCard(currentCard!!)
+                } else {
+                    BackCard(currentCard!!)
+                    Row {
+                        Button(
+                            onClick = {
+                                hasFetchedCard = moveToNextCard(
+                                    cardUiState.cardList,
+                                    onNextCard = { nextCard ->
+                                        currentCard = nextCard
+                                        if (hasFetchedCard){
+                                            CoroutineScope(Dispatchers.Main).launch {
+                                                delay(200) // Delay for smooth transition
+                                                show = !show // Toggle show after delay
+                                            }}
+                                    })
+                            },
+                            modifier = Modifier.padding(top = 48.dp)
+                        ) { Text("Again") }
+
+                        Button(
+                            onClick = {
+                                handleCardUpdate(currentCard!!, false, viewModel)
+                                hasFetchedCard = moveToNextCard(
+                                    cardUiState.cardList,
+                                    onNextCard = { nextCard ->
+                                        currentCard = nextCard
+                                        if (hasFetchedCard){
+                                            CoroutineScope(Dispatchers.Main).launch {
+                                                delay(200) // Delay for smooth transition
+                                                show = !show // Toggle show after delay
+                                            }
+                                        }
+                                    })
+                            },
+                            modifier = Modifier.padding(top = 48.dp)
+                        ) { Text("Hard") }
+
+                        Button(
+                            onClick = {
+                                handleCardUpdate(currentCard!!, true, viewModel)
+
+                                hasFetchedCard = moveToNextCard(
+                                    cardUiState.cardList,
+                                    onNextCard = { nextCard ->
+                                        currentCard = nextCard
+                                        if (hasFetchedCard){
+                                            CoroutineScope(Dispatchers.Main).launch {
+                                                delay(200) // Delay for smooth transition
+                                                show = !show // Toggle show after delay
+                                            }}
+                                    })
+                            },
+                            modifier = Modifier.padding(top = 48.dp)
+                        ) { Text("Good") }
+                    }
+                }
+            }
+        }
+
+            /*Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            if (cardList.isNotEmpty()) {
-                if (index < currentSize) {
-                    val card: Card = cardList[index]
+            if (cardUiState.cardList.isNotEmpty()) {
+                if (index < cardUiState.cardList.size) {
+                    val card: Card = cardUiState.cardList[index]
 
                     if (!show) {
                         show = frontCard(card)
@@ -65,8 +154,8 @@ class CardDeckView(private var viewModel: MainViewModel) {
                             }
                             Button(
                                 onClick = {
-                                    cardList[index] = updateCard(card,false)
-                                    viewModel.updateCard(cardList[index])
+                                    cardUiState.cardList[index] = updateCard(card,false)
+                                    viewModel.updateCard(cardUiState.cardList[index])
                                     index += 1
                                     show = !show
                                           },
@@ -76,8 +165,8 @@ class CardDeckView(private var viewModel: MainViewModel) {
                             }
                             Button(
                                 onClick = {
-                                    cardList[index] = updateCard(card,true)
-                                    viewModel.updateCard(cardList[index])
+                                    cardUiState.cardList[index] = updateCard(card,true)
+                                    viewModel.updateCard(cardUiState.cardList[index])
                                     index += 1
                                     show = !show
                                           },
@@ -89,75 +178,17 @@ class CardDeckView(private var viewModel: MainViewModel) {
                         }
                     }
                 }
-                else  {
+                else {
                     viewModel.getDueCards(deckId)
-                    index = 0
+                    hasFetchedCards = true
                     if (cardUiState.cardList.isNotEmpty()) {
-                        cardList = cardUiState.cardList.toMutableList()
-                        currentSize = cardUiState.cardList.size
-                    }
-                    else {
-                        cardList = mutableListOf()
+                        index = 0
                     }
                 }
             }
             else {
                 Text("No Due Cards")
             }
-        }
-    }
-
-    @Composable
-    fun frontCard(card: Card) : Boolean {
-        var clicked by remember { mutableStateOf(false ) }
-        Column (
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-        ){
-                Text(
-                    text = card.question ,
-                    fontSize = 30.sp,
-                    color = Color.Black,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier
-                        .padding(vertical = 4.dp)
-                )
-                Button(
-                    onClick = {
-                        clicked = true
-                    },
-                    modifier = Modifier
-                        .padding(top = 48.dp)
-                ) {
-                    Text("Show Answer")
-                }
-        }
-        return clicked
-    }
-    @Composable
-    fun BackCard(card: Card) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = card.question ,
-                fontSize = 30.sp,
-                color = Color.Black,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-            )
-            Text(
-                text = card.answer,
-                fontSize = 30.sp,
-                color = Color.Black,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-            )
-        }
+        }*/
     }
 }
