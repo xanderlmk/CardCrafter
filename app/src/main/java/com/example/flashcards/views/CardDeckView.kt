@@ -74,6 +74,8 @@ class CardDeckView(private var viewModel: MainViewModel) {
                     Row {
                         Button(
                             onClick = {
+                                currentCard!!.passes = 0
+                                handleCardUpdate(currentCard!!, false, viewModel)
                                 hasFetchedCard = moveToNextCard(
                                     cardUiState.cardList,
                                     onNextCard = { nextCard ->
