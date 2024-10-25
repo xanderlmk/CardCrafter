@@ -15,6 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.flashcards.model.Card
 import com.example.flashcards.model.Deck
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.Calendar
 import java.util.Date
@@ -142,5 +145,7 @@ fun moveToNextCard(
 fun handleCardUpdate(card: Card, success: Boolean, viewModel: MainViewModel) {
     val updatedCard = updateCard(card, success)
     viewModel.updateCard(updatedCard)
+
+
 }
 

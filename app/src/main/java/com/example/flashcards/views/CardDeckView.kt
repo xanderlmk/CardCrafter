@@ -76,16 +76,11 @@ class CardDeckView(private var viewModel: MainViewModel) {
                             onClick = {
                                 currentCard!!.passes = 0
                                 handleCardUpdate(currentCard!!, false, viewModel)
-                                hasFetchedCard = moveToNextCard(
-                                    cardUiState.cardList,
-                                    onNextCard = { nextCard ->
-                                        currentCard = nextCard
-                                        if (hasFetchedCard){
-                                            CoroutineScope(Dispatchers.Main).launch {
-                                                delay(200) // Delay for smooth transition
-                                                show = !show // Toggle show after delay
-                                            }}
-                                    })
+                                CoroutineScope(Dispatchers.Main).launch {
+                                   // delay(1000)
+                                    show = !show
+                                }
+
                             },
                             modifier = Modifier.padding(top = 48.dp)
                         ) { Text("Again") }
@@ -93,17 +88,13 @@ class CardDeckView(private var viewModel: MainViewModel) {
                         Button(
                             onClick = {
                                 handleCardUpdate(currentCard!!, false, viewModel)
-                                hasFetchedCard = moveToNextCard(
+                                moveToNextCard(
                                     cardUiState.cardList,
                                     onNextCard = { nextCard ->
                                         currentCard = nextCard
-                                        if (hasFetchedCard){
-                                            CoroutineScope(Dispatchers.Main).launch {
-                                                delay(200) // Delay for smooth transition
-                                                show = !show // Toggle show after delay
-                                            }
-                                        }
-                                    })
+                                        show = !show // Reset show state for new card
+                                    }
+                                )
                             },
                             modifier = Modifier.padding(top = 48.dp)
                         ) { Text("Hard") }
@@ -111,16 +102,11 @@ class CardDeckView(private var viewModel: MainViewModel) {
                         Button(
                             onClick = {
                                 handleCardUpdate(currentCard!!, true, viewModel)
-
-                                hasFetchedCard = moveToNextCard(
+                                moveToNextCard(
                                     cardUiState.cardList,
                                     onNextCard = { nextCard ->
                                         currentCard = nextCard
-                                        if (hasFetchedCard){
-                                            CoroutineScope(Dispatchers.Main).launch {
-                                                delay(200) // Delay for smooth transition
-                                                show = !show // Toggle show after delay
-                                            }}
+                                        show = !show // Toggle show after delay
                                     })
                             },
                             modifier = Modifier.padding(top = 48.dp)
