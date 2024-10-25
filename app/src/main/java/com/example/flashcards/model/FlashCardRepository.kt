@@ -4,6 +4,8 @@ import java.util.Date
 
 interface FlashCardRepository {
 
+    suspend fun checkIfDeckExists(deckName: String): Int
+
     fun getAllDecksStream(): Flow<List<Deck>>
 
     fun getDeckStream(id: Int): Flow<Deck?>

@@ -28,6 +28,9 @@ interface DeckDao {
 
     @Query("SELECT * from decks ORDER BY name ASC")
     fun getAllDecks(): Flow<List<Deck>>
+
+    @Query("SELECT COUNT(*) FROM decks WHERE LOWER(name) = LOWER(:deckName)")
+    fun checkIfDeckExists(deckName: String): Int
 }
 @Dao
 interface CardDao {

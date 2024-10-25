@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Date
 import kotlin.random.Random
@@ -27,6 +28,9 @@ import kotlin.random.Random
  * ViewModel to retrieve all items in the Room database.
  */
 class MainViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
 
 
 
@@ -44,13 +48,28 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
+
+
+    suspend fun checkIfDeckExists(name: String): Int {
+        return withContext(Dispatchers.IO) {
+            try {
+                flashCardRepository.checkIfDeckExists(name)
+            } catch (e: SQLiteConstraintException) {
+                _errorMessage.value = "Error checking deck existence: ${e.message}"
+                0
+            }
+        }
+    }
+
     fun addDeck(name: String) {
         if (name.isNotEmpty()) {
             viewModelScope.launch {
                 try {
                     flashCardRepository.insertDeck(Deck(name = name))
                 } catch (e: SQLiteConstraintException) {
-                    Log.e("DatabaseError", "Deck with this name already exists.")
+                    _errorMessage.value = "A deck with this name already exists"
+                } catch (e: Exception){
+                    _errorMessage.value = "error adding deck: ${e.message}"
                 }
             }
         }
@@ -63,6 +82,14 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
             flashCardRepository.deleteDeck(deck)
         }
     }
+
+    //this code will do a query that will check for a name of a database
+    //if its in it will return 1 if not in there it will return 0
+
+
+
+
+        //should return TRUE if a deck exists
 
     fun updateCard(card: Card){
         viewModelScope.launch {

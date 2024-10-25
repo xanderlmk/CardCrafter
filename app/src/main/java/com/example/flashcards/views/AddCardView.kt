@@ -100,7 +100,8 @@ class AddCardView(private var viewModel: MainViewModel) {
                     onClick = {
                         if (question.isBlank() || answer.isBlank()) {
                             errorMessage = "Both fields must be filled out"
-                        } else {
+                        }
+                        else {
                             viewModel.addCard(deckId, question, answer)
                             question = ""
                             answer = ""

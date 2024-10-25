@@ -1,9 +1,21 @@
 package com.example.flashcards.model
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import java.util.Date
 
-class OfflineFlashCardRepository (private val deckDao: DeckDao,
-    private val cardDao: CardDao) : FlashCardRepository {
+class OfflineFlashCardRepository(
+    private val deckDao: DeckDao,
+    private val cardDao: CardDao
+) : FlashCardRepository {
+
+    override suspend fun checkIfDeckExists(deckName: String): Int =
+        try {
+            deckDao.checkIfDeckExists(deckName)
+        } catch (e: Exception) {
+            throw e
+        }
+
     override fun getAllDecksStream(): Flow<List<Deck>> = deckDao.getAllDecks()
 
     override fun getDeckStream(id: Int): Flow<Deck?> = deckDao.getDeck(id)

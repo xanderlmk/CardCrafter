@@ -15,6 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +24,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.viewModelScope
 import com.example.flashcards.controller.MainViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 
 class AddDeckView(private var viewModel: MainViewModel) {
@@ -31,10 +35,11 @@ class AddDeckView(private var viewModel: MainViewModel) {
 
     @Composable
     fun AddDeck(onDismiss: () -> Unit) {
-        var errorMessage by remember { mutableStateOf<String?>(null) }
+        var errorMessage by remember { mutableStateOf("")}
         var deckName by remember {mutableStateOf("")  }
+        var coroutineScope =  rememberCoroutineScope()
 
-            Column(
+        Column(
             modifier = Modifier
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -62,28 +67,50 @@ class AddDeckView(private var viewModel: MainViewModel) {
                         .weight(1f)
                 )
             }
+
+
+
+
+
+
+
             Row (
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ){
                 Button(
                     onClick = {
-                       /* if (viewModel.addDeck(deckName)) {
-                            deckName = ""
-                            onDismiss()
+                        if (deckName.isBlank()) {
+                            errorMessage = "Deck must be filled out"
+                        } else {
+                            coroutineScope.launch {
+                                try {
+                                    val exists = viewModel.checkIfDeckExists(deckName)
+                                    if (exists > 0) {
+                                        errorMessage = "deck name already exists"
+                                    } else {
+                                        viewModel.addDeck(deckName)
+                                        deckName = ""
+                                        onDismiss()
+                                    }
+                                } catch (e: Exception) {
+                                errorMessage = "Error: ${e.message}"
+                            }
+                            }
                         }
-                        else {
-                            errorMessage = "Deck name must be unique"
-                        }*/
-                        viewModel.addDeck(deckName)
-                        deckName = ""
-                        onDismiss()
                     },
                     modifier = Modifier.padding(top = 48.dp)
                 ) {
                     Text("Submit")
                 }
+            }
+            if (errorMessage.isNotEmpty()) {
+                Text(
+                    text = errorMessage,
+                    color = androidx.compose.ui.graphics.Color.Red,
+                    modifier = Modifier.padding(8.dp),
+                    fontSize = 16.sp
+                )
             }
         }
     }
