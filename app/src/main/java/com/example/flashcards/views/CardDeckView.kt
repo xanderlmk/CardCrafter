@@ -38,16 +38,8 @@ class CardDeckView(private var viewModel: MainViewModel) {
     @Composable
     fun ViewCard(deckId: Int) {
         val cardUiState by viewModel.cardUiState.collectAsState()
-        var hasFetchedCard by remember { mutableStateOf(false) }
-        var index by remember { mutableIntStateOf(0) }
         var show by remember { mutableStateOf(false) }
         var currentCard by remember { mutableStateOf<Card?>(null) }
-
-        /*if (!hasFetchedCards) {
-            viewModel.getDueCards(deckId)
-            hasFetchedCards = true
-            currentCard = cardUiState.cardList.firstOrNull()
-        }*/
 
         if (cardUiState.cardList.isEmpty()) {
             viewModel.getDueCards(deckId)
@@ -62,7 +54,8 @@ class CardDeckView(private var viewModel: MainViewModel) {
             if (currentCard == null && cardUiState.cardList.size == 0) {
                 LaunchedEffect(currentCard == null) {
                     CoroutineScope(Dispatchers.Main).launch {
-                        delay(150) // Delay for smooth transition
+                        delay(200) // Delay for smooth transition
+                        viewModel.getDueCards(deckId)
                     }
                 }
                 Text("No Due Cards")
@@ -70,21 +63,27 @@ class CardDeckView(private var viewModel: MainViewModel) {
                 if (!show) {
                     show = frontCard(currentCard!!)
                 } else {
+                    val good = ((currentCard!!.passes+1) * 1.5).toInt()
+                    val hard = (currentCard!!.passes * 0.5).toInt()
                     BackCard(currentCard!!)
-                    Row {
+                    Row (
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
                         Button(
                             onClick = {
                                 currentCard!!.passes = 0
                                 handleCardUpdate(currentCard!!, false, viewModel)
                                 CoroutineScope(Dispatchers.Main).launch {
-                                   // delay(1000)
                                     show = !show
                                 }
 
                             },
                             modifier = Modifier.padding(top = 48.dp)
                         ) { Text("Again") }
-
+                        Column(
+                            verticalArrangement = Arrangement.Top,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
                         Button(
                             onClick = {
                                 handleCardUpdate(currentCard!!, false, viewModel)
@@ -98,19 +97,31 @@ class CardDeckView(private var viewModel: MainViewModel) {
                             },
                             modifier = Modifier.padding(top = 48.dp)
                         ) { Text("Hard") }
+                            Text(
+                                "$hard days"
+                            )
 
-                        Button(
-                            onClick = {
-                                handleCardUpdate(currentCard!!, true, viewModel)
-                                moveToNextCard(
-                                    cardUiState.cardList,
-                                    onNextCard = { nextCard ->
-                                        currentCard = nextCard
-                                        show = !show // Toggle show after delay
-                                    })
-                            },
-                            modifier = Modifier.padding(top = 48.dp)
-                        ) { Text("Good") }
+                        }
+                        Column(
+                            verticalArrangement = Arrangement.Top,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Button(
+                                onClick = {
+                                    handleCardUpdate(currentCard!!, true, viewModel)
+                                    moveToNextCard(
+                                        cardUiState.cardList,
+                                        onNextCard = { nextCard ->
+                                            currentCard = nextCard
+                                            show = !show // Toggle show after delay
+                                        })
+                                },
+                                modifier = Modifier.padding(top = 48.dp)
+                            ) { Text("Good") }
+                            Text(
+                                "$good days"
+                            )
+                        }
                     }
                 }
             }
