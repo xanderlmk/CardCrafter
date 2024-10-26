@@ -38,7 +38,7 @@ class DeckView(private var mainViewModel: MainViewModel) {
     @Composable
     fun ViewEditDeck(deck: Deck, onDismiss: () -> Unit) {
         val addCardView = remember { AddCardView(mainViewModel) }
-        val cardView = remember { CardDeckView(mainViewModel) }
+        val cardView = remember { CardDeckView() }
         var whichView by remember { mutableIntStateOf(0) }
         val presetModifier = Modifier
             .padding(top = 16.dp,start = 16.dp, end = 16.dp)

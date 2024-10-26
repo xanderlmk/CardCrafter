@@ -59,6 +59,7 @@ android {
 
 
 dependencies {
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -97,5 +98,6 @@ dependencies {
 
     androidTestImplementation(libs.androidx.arch.core.testing)
 
+    implementation("com.google.accompanist:accompanist-themeadapter-material3:0.28.0")
 
 }

@@ -18,6 +18,9 @@ object AppViewModelProvider {
         initializer {
             MainViewModel(flashCardApplication().container.flashCardRepository)
         }
+        initializer {
+            CardViewModel(flashCardApplication().container.flashCardRepository)
+        }
 
     }
 }

@@ -23,6 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.flashcards.controller.AppViewModelProvider
+import com.example.flashcards.controller.CardViewModel
 import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.controller.handleCardUpdate
 import com.example.flashcards.controller.moveToNextCard
@@ -34,9 +37,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-class CardDeckView(private var viewModel: MainViewModel) {
+class CardDeckView() {
     @Composable
     fun ViewCard(deckId: Int) {
+        val viewModel : CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val cardUiState by viewModel.cardUiState.collectAsState()
         var show by remember { mutableStateOf(false) }
         var currentCard by remember { mutableStateOf<Card?>(null) }
@@ -126,68 +130,5 @@ class CardDeckView(private var viewModel: MainViewModel) {
                 }
             }
         }
-
-            /*Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            if (cardUiState.cardList.isNotEmpty()) {
-                if (index < cardUiState.cardList.size) {
-                    val card: Card = cardUiState.cardList[index]
-
-                    if (!show) {
-                        show = frontCard(card)
-                    } else {
-                        BackCard(card)
-                        Row {
-                            Button(
-                                onClick = {
-                                    index += 1
-                                    show = !show
-                                },
-                                modifier = Modifier.padding(top = 48.dp)
-                            ) {
-                                Text("Again")
-                            }
-                            Button(
-                                onClick = {
-                                    cardUiState.cardList[index] = updateCard(card,false)
-                                    viewModel.updateCard(cardUiState.cardList[index])
-                                    index += 1
-                                    show = !show
-                                          },
-                                    modifier = Modifier.padding(top = 48.dp)
-                            ) {
-                                Text("Hard")
-                            }
-                            Button(
-                                onClick = {
-                                    cardUiState.cardList[index] = updateCard(card,true)
-                                    viewModel.updateCard(cardUiState.cardList[index])
-                                    index += 1
-                                    show = !show
-                                          },
-                                    modifier = Modifier
-                                        .padding(top = 48.dp)
-                            ) {
-                                Text("Good")
-                            }
-                        }
-                    }
-                }
-                else {
-                    viewModel.getDueCards(deckId)
-                    hasFetchedCards = true
-                    if (cardUiState.cardList.isNotEmpty()) {
-                        index = 0
-                    }
-                }
-            }
-            else {
-                Text("No Due Cards")
-            }
-        }*/
     }
 }

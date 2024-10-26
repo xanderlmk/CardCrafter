@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.model.Card
@@ -91,8 +92,10 @@ fun frontCard(card: Card) : Boolean {
             fontSize = 30.sp,
             color = Color.Black,
             style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(vertical = 4.dp)
+                .align(Alignment.CenterHorizontally)
         )
         Button(
             onClick = {
@@ -100,6 +103,7 @@ fun frontCard(card: Card) : Boolean {
             },
             modifier = Modifier
                 .padding(top = 48.dp)
+
         ) {
             Text("Show Answer")
         }
@@ -119,16 +123,20 @@ fun BackCard(card: Card) {
             fontSize = 30.sp,
             color = Color.Black,
             style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(vertical = 4.dp)
+                .align(Alignment.CenterHorizontally)
         )
         Text(
             text = card.answer,
             fontSize = 30.sp,
             color = Color.Black,
             style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(vertical = 4.dp)
+                .align(Alignment.CenterHorizontally)
         )
     }
 }

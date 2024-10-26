@@ -30,7 +30,6 @@ import kotlin.random.Random
 class MainViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
 
     private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage
 
 
 
@@ -41,9 +40,6 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
                 initialValue = MainUiState()
             )
-
-    var cardUiState = MutableStateFlow(CardUiState())
-
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
@@ -97,14 +93,6 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
         }
     }
 
-    fun getDueCards(deckId : Int){
-        viewModelScope.launch {
-            flashCardRepository.getDueCards(deckId)
-                .collect { cards ->
-                    cardUiState.value = CardUiState(cardList = cards.toMutableList())
-                }
-        }
-    }
     fun addCard(deckId : Int, question:String, answer:String) {
         if(question.isNotEmpty() && answer.isNotEmpty()) {
             viewModelScope.launch {
@@ -125,54 +113,4 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
 
 data class MainUiState(val deckList: List<Deck> = listOf())
 
-data class CardUiState(var cardList: MutableList<Card> = mutableListOf())
-
-fun updateCard(card: Card, isSuccess: Boolean) : Card {
-    if (isSuccess) {
-        card.passes += 1
-    }
-    card.nextReview = timeCalculator(card.passes, isSuccess)
-    return card
-}
-
-private fun timeCalculator (passes : Int, isSuccess: Boolean) : Date {
-    val calendar = Calendar.getInstance()
-    // Determine the multiplier based on success or hard pass
-    val multiplier = when {
-        passes > 0 -> if (isSuccess) 1.5 else 0.5
-        else -> if (isSuccess) 1.5 else 0.0
-    }
-
-    // Calculate days to add
-    val daysToAdd = (passes * multiplier).toInt()
-
-    // Add days to the current date
-    calendar.add(Calendar.DAY_OF_YEAR, daysToAdd)
-
-    // Return the updated date
-    return calendar.time
-}
-
-fun moveToNextCard(
-    cardList: List<Card>,
-    onNextCard: (Card?) -> Unit
-) : Boolean{
-    if (cardList.isEmpty()) {
-        onNextCard(null) // No cards available, handle end state
-        return false
-    }
-
-    // Generate a random index within the bounds of the card list
-    val randomIndex = Random.nextInt(cardList.size)
-    onNextCard(cardList[randomIndex])
-    return true
-}
-
-// Helper to update the card state
-fun handleCardUpdate(card: Card, success: Boolean, viewModel: MainViewModel) {
-    val updatedCard = updateCard(card, success)
-    viewModel.updateCard(updatedCard)
-
-
-}
 
