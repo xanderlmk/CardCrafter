@@ -8,28 +8,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.CardViewModel
-import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.controller.handleCardUpdate
 import com.example.flashcards.controller.moveToNextCard
-import com.example.flashcards.controller.updateCard
 import com.example.flashcards.model.Card
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +31,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-class CardDeckView() {
+class CardDeckView{
     @Composable
     fun ViewCard(deckId: Int) {
         val viewModel : CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -55,11 +49,11 @@ class CardDeckView() {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
         ) {
-            if (currentCard == null && cardUiState.cardList.size == 0) {
-                LaunchedEffect(currentCard == null) {
+            if (currentCard == null && cardUiState.cardList.isEmpty()) {
+                viewModel.getDueCards(deckId)
+                LaunchedEffect(cardUiState.cardList.isEmpty() && currentCard == null) {
                     CoroutineScope(Dispatchers.Main).launch {
                         delay(200) // Delay for smooth transition
-                        viewModel.getDueCards(deckId)
                     }
                 }
                 Text("No Due Cards")
@@ -71,7 +65,9 @@ class CardDeckView() {
                     val hard = (currentCard!!.passes * 0.5).toInt()
                     BackCard(currentCard!!)
                     Row (
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier
+                            .fillMaxWidth()
                     ) {
                         Button(
                             onClick = {
