@@ -128,7 +128,7 @@ fun BackCard(card: Card) {
         Text(
             text = card.question ,
             fontSize = 30.sp,
-            color = Color.Black,
+            color = textColor,
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -138,7 +138,7 @@ fun BackCard(card: Card) {
         Text(
             text = card.answer,
             fontSize = 30.sp,
-            color = Color.Black,
+            color = textColor,
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier
