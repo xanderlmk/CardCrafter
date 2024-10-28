@@ -47,8 +47,8 @@ class MainView {
                  modifier: Modifier = Modifier) {
 
         val uiState by viewModel.mainUiState.collectAsState()
-        val addDeckView = remember { AddDeckView(viewModel) }
-        val deckView = remember { DeckView(viewModel) }
+        val addDeckView = AddDeckView(viewModel)
+        val deckView = DeckView(viewModel)
         var whichView by remember { mutableIntStateOf(0) }
         var selectedDeck by remember { mutableStateOf<Deck?>(value = null) }
         val presetModifier = Modifier
@@ -135,7 +135,7 @@ class MainView {
                                             .padding(horizontal = 8.dp) // Optional: Add some padding for better aesthetics
                                     ) {
                                         Text(
-                                            text = "${deck.name}, ${deck.id}",
+                                            text = "${deck.name}",
                                             fontSize = 30.sp,
                                             color = textColor,
                                             style = MaterialTheme.typography.titleLarge

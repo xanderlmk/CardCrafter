@@ -35,7 +35,7 @@ class DeckView(private var mainViewModel: MainViewModel) {
 
     @Composable
     fun ViewEditDeck(deck: Deck, onDismiss: () -> Unit) {
-        val addCardView = remember { AddCardView(mainViewModel) }
+        val addCardView = AddCardView(mainViewModel)
         val cardView =  CardDeckView()
         var whichView by remember { mutableIntStateOf(0) }
         val presetModifier = Modifier

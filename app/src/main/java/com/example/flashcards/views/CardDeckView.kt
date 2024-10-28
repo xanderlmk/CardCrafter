@@ -116,7 +116,7 @@ class CardDeckView{
                                         //index = (index + 1) % cardUiState.cardList.size
                                         show = !show
                                         CoroutineScope(Dispatchers.Main).launch {
-                                            delay(100) // Adjust as needed
+                                            delay(150) // Adjust as needed
                                             index = (index + 1) % cardUiState.cardList.size // Move to next card after flip
                                         }
                                         /*moveToNextCard(
@@ -151,7 +151,7 @@ class CardDeckView{
                                         //index = (index + 1) % cardUiState.cardList.size
                                         show = !show
                                         CoroutineScope(Dispatchers.Main).launch {
-                                            delay(200)
+                                            delay(150)
                                             index = (index + 1) % cardUiState.cardList.size
                                         }
                                         /*moveToNextCard(
