@@ -9,3 +9,10 @@ val Pink80 = Color(0xFFEFB8C8)
 val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
+
+//color palette
+val backgroundColor = Color(212, 241, 244)
+val titleColor = Color(9, 98, 135)
+val borderColor = Color(8, 80, 114, 255)
+val textColor = Color(24, 154, 180)
+val buttonColor = Color(117, 230, 218)

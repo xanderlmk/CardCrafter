@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +34,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.model.Deck
+import com.example.flashcards.ui.theme.backgroundColor
+import com.example.flashcards.ui.theme.borderColor
+import com.example.flashcards.ui.theme.textColor
+import com.example.flashcards.ui.theme.buttonColor
+import com.example.flashcards.ui.theme.titleColor
 
 class MainView {
     @Composable
@@ -52,7 +58,7 @@ class MainView {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp)
-                .background(Color.LightGray)
+                .background(backgroundColor)
         ) {
         when (whichView) {
             1 -> {
@@ -94,45 +100,56 @@ class MainView {
                             text = "Decks",
                             fontSize = 40.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Blue
+                            color = titleColor
                         )
                     }
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(2f)
-                            .background(Color.LightGray)
+                            .background(backgroundColor)
                             .padding(16.dp)
                     ) {
 
                         LazyColumn {
                             items(uiState.deckList) { deck ->
-                                Text(
-                                    text = "${deck.name} , ${deck.id}",
-                                    fontSize = 30.sp,
-                                    color = Color.Black,
-                                    style = MaterialTheme.typography.titleLarge,
+                                Box(
                                     modifier = Modifier
+                                        .fillMaxWidth() // Fill the available width of the LazyColumn
                                         .padding(vertical = 4.dp)
-                                        .align(Alignment.Center)
+                                        .background(backgroundColor)
                                         .clickable {
                                             selectedDeck = deck
                                             whichView = 2
-                                        }
-                                        .border(width = 1.dp, color = Color.Blue)
-                                        .fillMaxWidth()
-                                )
+                                        },
+                                    contentAlignment = Alignment.Center // Center the content inside the Box
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .wrapContentWidth() // Wrap around the text
+                                            .border(width = 1.dp, color = borderColor) // Apply border to the inner Box
+                                            .padding(horizontal = 8.dp) // Optional: Add some padding for better aesthetics
+                                    ) {
+                                        Text(
+                                            text = "${deck.name}, ${deck.id}",
+                                            fontSize = 30.sp,
+                                            color = textColor,
+                                            style = MaterialTheme.typography.titleLarge
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.LightGray)
+                            .background(backgroundColor)
                     ) {
                         val bottomLeftModifier = Modifier
                             .padding(bottom = 12.dp)
                             .align(Alignment.End)
+
                         Box(
                             modifier = bottomLeftModifier,
                         ) {
