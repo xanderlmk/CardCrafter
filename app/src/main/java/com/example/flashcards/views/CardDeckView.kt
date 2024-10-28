@@ -12,41 +12,42 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.flashcards.controller.AppViewModelProvider
+import com.example.flashcards.controller.CardUiState
 import com.example.flashcards.controller.CardViewModel
 import com.example.flashcards.controller.handleCardUpdate
-import com.example.flashcards.controller.moveToNextCard
-import com.example.flashcards.model.Card
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-class CardDeckView{
+class CardDeckView(private val viewModel: CardViewModel){
     @Composable
-    fun ViewCard(deckId: Int) {
-        val viewModel : CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
-        val cardUiState by viewModel.cardUiState.collectAsState()
+    fun ViewCard(deckId: Int, cardUiState: CardUiState) {
+        //val viewModel : CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
+        //val cardUiState by viewModel.cardUiState.collectAsState()
         var show by remember { mutableStateOf(false) }
        // var currentCard by remember { mutableStateOf<Card?>(null) }
         var index by remember { mutableIntStateOf(0) }
         //var index = 0
+        val coroutineScope = rememberCoroutineScope()
 
        //if (cardUiState.cardList.isEmpty()) {
-            viewModel.getDueCards(deckId)
+        //LaunchedEffect(Unit) {
+         //  CoroutineScope(Dispatchers.IO).launch {
+        viewModel.getDueCards(deckId)
+         //   }
+        //}
+
         //}
             //currentCard = cardUiState.cardList.firstOrNull() // Start with the first card
 
@@ -57,10 +58,11 @@ class CardDeckView{
         ) {
             //if (currentCard == null && cardUiState.cardList.isEmpty()) {
             if (cardUiState.cardList.isEmpty()) {
-                //viewModel.getDueCards(deckId)
+               // viewModel.getDueCards(deckId)
                 LaunchedEffect(cardUiState.cardList.isEmpty()) {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        delay(250) // Delay for smooth transition
+                   coroutineScope.launch {
+                        viewModel.getDueCards(deckId)
+                        delay(100) // Delay for smooth transition
                     }
                 }
                 Text(
@@ -93,9 +95,8 @@ class CardDeckView{
                                     handleCardUpdate(cardUiState.cardList[index],
                                         false, viewModel)
                                     println(" index : $index")
-                                    CoroutineScope(Dispatchers.Main).launch {
                                         show = !show
-                                    }
+
 
                                 },
                                 modifier = Modifier.padding(top = 48.dp),
@@ -115,10 +116,10 @@ class CardDeckView{
                                             false, viewModel)
                                         //index = (index + 1) % cardUiState.cardList.size
                                         show = !show
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            delay(100) // Adjust as needed
+                                        //CoroutineScope(Dispatchers.Main).launch {
+                                         //   delay(150) // Adjust as needed
                                             index = (index + 1) % cardUiState.cardList.size // Move to next card after flip
-                                        }
+                                        //}
                                         /*moveToNextCard(
                                             cardUiState.cardList,
                                             onNextCard = { nextCard ->
@@ -150,10 +151,7 @@ class CardDeckView{
                                             true, viewModel)
                                         //index = (index + 1) % cardUiState.cardList.size
                                         show = !show
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            delay(200)
-                                            index = (index + 1) % cardUiState.cardList.size
-                                        }
+                                        index = (index + 1) % cardUiState.cardList.size
                                         /*moveToNextCard(
                                             cardUiState.cardList,
                                             onNextCard = { nextCard ->

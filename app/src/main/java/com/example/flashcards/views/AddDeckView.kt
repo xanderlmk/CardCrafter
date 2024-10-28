@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
@@ -31,6 +32,8 @@ import com.example.flashcards.ui.theme.titleColor
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.graphics.Color.Companion.Transparent
+import androidx.compose.ui.text.font.FontWeight
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 
@@ -46,17 +49,20 @@ class AddDeckView(private var viewModel: MainViewModel) {
 
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(backgroundColor),
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = "Add A Deck",
-                fontSize = 50.sp,
+                fontSize = 40.sp,
                 textAlign = TextAlign.Center,
                 lineHeight = 116.sp,
-                color = titleColor
+                color = titleColor,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .background(Transparent)
+                    //.padding(top=20.dp)
             )
             Row (
                 modifier = Modifier
@@ -72,7 +78,6 @@ class AddDeckView(private var viewModel: MainViewModel) {
                     labelStr = "Deck Name",
                     modifier = Modifier
                         .weight(1f)
-
                 )
             }
             Row (

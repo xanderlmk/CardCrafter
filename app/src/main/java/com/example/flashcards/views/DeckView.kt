@@ -12,12 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -26,8 +24,13 @@ import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.model.Deck
 import com.example.flashcards.ui.theme.titleColor
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.flashcards.controller.AppViewModelProvider
+import com.example.flashcards.controller.CardViewModel
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
+import kotlinx.coroutines.launch
 
 
 class DeckView(private var mainViewModel: MainViewModel) {
@@ -35,9 +38,12 @@ class DeckView(private var mainViewModel: MainViewModel) {
 
     @Composable
     fun ViewEditDeck(deck: Deck, onDismiss: () -> Unit) {
-        val addCardView = remember { AddCardView(mainViewModel) }
-        val cardView =  CardDeckView()
+        var addCardView = AddCardView(mainViewModel)
+        val cardViewModel : CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
+        val cardUiState by cardViewModel.cardUiState.collectAsState()
+        var cardView = remember {CardDeckView(cardViewModel)}
         var whichView by remember { mutableIntStateOf(0) }
+        val coroutineScope = rememberCoroutineScope()
         val presetModifier = Modifier
             .padding(top = 16.dp,start = 16.dp, end = 16.dp)
             .size(54.dp)
@@ -56,7 +62,8 @@ class DeckView(private var mainViewModel: MainViewModel) {
                     onBackClick = { whichView = 0 },
                     modifier = presetModifier
                 )
-                cardView.ViewCard(deck.id)
+
+                cardView.ViewCard(deck.id, cardUiState)
 
             }
             else -> {
@@ -115,6 +122,9 @@ class DeckView(private var mainViewModel: MainViewModel) {
                         Button(
                             onClick = {
                                 whichView = 2
+                                coroutineScope.launch {
+                                    cardViewModel.getDueCards(deck.id)
+                                }
                             },
                             modifier = Modifier.padding(top = 48.dp),
                             colors = ButtonDefaults.buttonColors(

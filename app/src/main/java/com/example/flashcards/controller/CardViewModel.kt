@@ -7,9 +7,9 @@ import com.example.flashcards.model.FlashCardRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import java.util.Calendar
 import java.util.Date
-import kotlin.random.Random
 
 class CardViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
     var cardUiState = MutableStateFlow(CardUiState())
@@ -26,14 +26,14 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
 
     fun getDueCards(deckId : Int){
         viewModelScope.launch {
-            flashCardRepository.getDueCards(deckId).map { cards ->
-                CardUiState(cardList = cards.toMutableList()) }
-                .collect { uiState ->
-                    cardUiState.value = uiState
+            withTimeout(TIMEOUT_MILLIS) {
+                flashCardRepository.getDueCards(deckId).map { cards ->
+                    CardUiState(cardList = cards.toMutableList())
                 }
-            /*.collect { cards ->
-                    cardUiState.value = CardUiState(cardList = cards.toMutableList())
-                }*/
+                    .collect { uiState ->
+                        cardUiState.value = uiState
+                    }
+            }
         }
     }
 }
@@ -66,7 +66,7 @@ private fun timeCalculator (passes : Int, isSuccess: Boolean) : Date {
     return calendar.time
 }
 
-fun moveToNextCard(
+/*fun moveToNextCard(
     cardList: List<Card>,
     onNextCard: (Card?) -> Unit
 ) : Boolean{
@@ -79,7 +79,7 @@ fun moveToNextCard(
     val randomIndex = Random.nextInt(cardList.size)
     onNextCard(cardList[randomIndex])
     return true
-}
+}*/
 
 // Helper to update the card state
 fun handleCardUpdate(card: Card, success: Boolean, viewModel: CardViewModel) {
