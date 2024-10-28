@@ -23,6 +23,9 @@ import androidx.compose.ui.unit.sp
 import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
+import com.example.flashcards.ui.theme.titleColor
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
 
 class AddCardView(private var viewModel: MainViewModel) {
 
@@ -31,6 +34,7 @@ class AddCardView(private var viewModel: MainViewModel) {
         var question by remember { mutableStateOf("")  }
         var answer by remember { mutableStateOf("") }
         var errorMessage by remember { mutableStateOf("") }
+        var successMessage by remember { mutableStateOf("") }
 
         Column(
             modifier = Modifier
@@ -43,7 +47,7 @@ class AddCardView(private var viewModel: MainViewModel) {
                 fontSize = 50.sp,
                 textAlign = TextAlign.Center,
                 lineHeight = 116.sp,
-                color = textColor
+                color = titleColor
             )
             Row(
                 modifier = Modifier
@@ -67,7 +71,7 @@ class AddCardView(private var viewModel: MainViewModel) {
                 fontSize = 50.sp,
                 textAlign = TextAlign.Center,
                 lineHeight = 116.sp,
-                color = textColor
+                color = titleColor
             )
             Row(
                 modifier = Modifier
@@ -95,6 +99,22 @@ class AddCardView(private var viewModel: MainViewModel) {
                     fontSize = 16.sp
                 )
             }
+            if (successMessage.isNotEmpty()) {
+                Text(
+                    text = successMessage,
+                    color = textColor,
+                    modifier = Modifier.padding(8.dp),
+                    fontSize = 16.sp
+                )
+            }
+            LaunchedEffect(successMessage) {
+                delay(1750)
+                successMessage = ""
+            }
+            LaunchedEffect(errorMessage) {
+                delay(1750)
+                errorMessage = ""
+            }
 
             Row(
                 modifier = Modifier
@@ -105,12 +125,14 @@ class AddCardView(private var viewModel: MainViewModel) {
                     onClick = {
                         if (question.isBlank() || answer.isBlank()) {
                             errorMessage = "Both fields must be filled out"
+                            successMessage = ""
                         }
                         else {
                             viewModel.addCard(deckId, question, answer)
                             question = ""
                             answer = ""
                             errorMessage = ""
+                            successMessage = "Card added!"
                         }
                     },
                     modifier = Modifier.padding(top = 48.dp),

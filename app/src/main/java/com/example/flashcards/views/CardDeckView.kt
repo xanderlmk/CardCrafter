@@ -134,7 +134,8 @@ class CardDeckView{
                                     )
                                 ) { Text("Hard") }
                                 Text(
-                                    "$hard days"
+                                    "$hard days",
+                                    color = textColor
                                 )
 
                             }
@@ -168,7 +169,8 @@ class CardDeckView{
                                     )
                                 ) { Text("Good") }
                                 Text(
-                                    "$good days"
+                                    "$good days",
+                                    color = textColor
                                 )
                             }
                         }
