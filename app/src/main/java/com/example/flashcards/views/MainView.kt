@@ -38,17 +38,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.borderColor
 import com.example.flashcards.ui.theme.textColor
-import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.titleColor
 
 class MainView {
     @Composable
     fun DeckList(viewModel: MainViewModel,
                  modifier: Modifier = Modifier) {
-
         val uiState by viewModel.mainUiState.collectAsState()
-        val addDeckView = AddDeckView(viewModel)
-        val deckView = DeckView(viewModel)
+        var addDeckView =  AddDeckView(viewModel)
+        var deckView = remember {DeckView(viewModel)}
+        //var deckView = DeckView(viewModel)
         var whichView by remember { mutableIntStateOf(0) }
         var selectedDeck by remember { mutableStateOf<Deck?>(value = null) }
         val presetModifier = Modifier
