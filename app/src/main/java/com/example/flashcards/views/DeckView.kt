@@ -24,6 +24,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.model.Deck
+import com.example.flashcards.ui.theme.titleColor
+import androidx.compose.material3.ButtonDefaults
+import com.example.flashcards.ui.theme.buttonColor
+import com.example.flashcards.ui.theme.textColor
 
 
 class DeckView(private var mainViewModel: MainViewModel) {
@@ -72,7 +76,7 @@ class DeckView(private var mainViewModel: MainViewModel) {
                             text = deck.name,
                             fontSize = 40.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Blue,
+                            color = titleColor,
                             textAlign = TextAlign.Center,
                         )
                     }
@@ -87,7 +91,12 @@ class DeckView(private var mainViewModel: MainViewModel) {
                                 mainViewModel.deleteDeck(deck)
                                 onDismiss()
                             },
-                            modifier = Modifier.padding(top = 48.dp)
+                            modifier = Modifier.padding(top = 48.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = buttonColor,
+                                contentColor = textColor
+                            )
+
                         ) {
                             Text("Delete Deck")
                         }
@@ -95,7 +104,11 @@ class DeckView(private var mainViewModel: MainViewModel) {
                             onClick = {
                                 whichView = 1
                             },
-                            modifier = Modifier.padding(top = 48.dp)
+                            modifier = Modifier.padding(top = 48.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                    containerColor = buttonColor,
+                            contentColor = textColor
+                        )
                         ) {
                             Text("Add Cards")
                         }
@@ -103,7 +116,12 @@ class DeckView(private var mainViewModel: MainViewModel) {
                             onClick = {
                                 whichView = 2
                             },
-                            modifier = Modifier.padding(top = 48.dp)
+                            modifier = Modifier.padding(top = 48.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = buttonColor,
+                                contentColor = textColor
+                            )
+
                         ) {
                             Text("Start Deck")
                         }

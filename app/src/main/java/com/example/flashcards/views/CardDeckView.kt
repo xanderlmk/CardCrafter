@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +27,8 @@ import com.example.flashcards.controller.CardViewModel
 import com.example.flashcards.controller.handleCardUpdate
 import com.example.flashcards.controller.moveToNextCard
 import com.example.flashcards.model.Card
+import com.example.flashcards.ui.theme.buttonColor
+import com.example.flashcards.ui.theme.textColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -60,7 +63,10 @@ class CardDeckView{
                         delay(250) // Delay for smooth transition
                     }
                 }
-                Text("No Due Cards")
+                Text(
+                    "No Due Cards",
+                    color= textColor
+                )
             } else {
                 if (index < cardUiState.cardList.size) {
                     if (!show) {
@@ -92,7 +98,11 @@ class CardDeckView{
                                     }
 
                                 },
-                                modifier = Modifier.padding(top = 48.dp)
+                                modifier = Modifier.padding(top = 48.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = buttonColor,
+                                            contentColor = textColor
+                                        )
                             ) { Text("Again") }
                             Column(
                                 verticalArrangement = Arrangement.Top,
@@ -117,7 +127,11 @@ class CardDeckView{
                                             }
                                         )*/
                                     },
-                                    modifier = Modifier.padding(top = 48.dp)
+                                    modifier = Modifier.padding(top = 48.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = buttonColor,
+                                        contentColor = textColor
+                                    )
                                 ) { Text("Hard") }
                                 Text(
                                     "$hard days"
@@ -147,7 +161,11 @@ class CardDeckView{
                                             }
                                             )*/
                                     },
-                                    modifier = Modifier.padding(top = 48.dp)
+                                    modifier = Modifier.padding(top = 48.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = buttonColor,
+                                        contentColor = textColor
+                                    )
                                 ) { Text("Good") }
                                 Text(
                                     "$good days"

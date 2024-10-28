@@ -26,8 +26,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewModelScope
 import com.example.flashcards.controller.MainViewModel
+import com.example.flashcards.ui.theme.backgroundColor
+import com.example.flashcards.ui.theme.titleColor
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import androidx.compose.material3.ButtonDefaults
+import com.example.flashcards.ui.theme.buttonColor
+import com.example.flashcards.ui.theme.textColor
 
 
 class AddDeckView(private var viewModel: MainViewModel) {
@@ -41,15 +46,17 @@ class AddDeckView(private var viewModel: MainViewModel) {
 
         Column(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .background(backgroundColor),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Add deck",
+                text = "Add A Deck",
                 fontSize = 50.sp,
                 textAlign = TextAlign.Center,
-                lineHeight = 116.sp
+                lineHeight = 116.sp,
+                color = titleColor
             )
             Row (
                 modifier = Modifier
@@ -58,22 +65,16 @@ class AddDeckView(private var viewModel: MainViewModel) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 EditTextField(
-                    value = deckName,
+                   value = deckName,
                     onValueChanged = { newText ->
                         deckName = newText
                     },
                     labelStr = "Deck Name",
                     modifier = Modifier
                         .weight(1f)
+
                 )
             }
-
-
-
-
-
-
-
             Row (
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
@@ -99,6 +100,10 @@ class AddDeckView(private var viewModel: MainViewModel) {
                             }
                         }
                     },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = buttonColor,  // Set your desired background color here
+                        contentColor = textColor
+                    ),
                     modifier = Modifier.padding(top = 48.dp)
                 ) {
                     Text("Submit")

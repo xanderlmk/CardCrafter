@@ -10,6 +10,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +30,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.model.Card
+import com.example.flashcards.ui.theme.backgroundColor
+import com.example.flashcards.ui.theme.buttonColor
+import com.example.flashcards.ui.theme.textColor
 
 
 @Composable
@@ -73,7 +77,7 @@ fun BackButton(onBackClick: () -> Unit,
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
             modifier = Modifier
                 .size(36.dp),
-            contentDescription = "Back"
+            contentDescription = "Back",
 
         )
     }
@@ -90,7 +94,7 @@ fun frontCard(card: Card) : Boolean {
         Text(
             text = card.question ,
             fontSize = 30.sp,
-            color = Color.Black,
+            color = textColor,
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -102,8 +106,11 @@ fun frontCard(card: Card) : Boolean {
                 clicked = true
             },
             modifier = Modifier
-                .padding(top = 48.dp)
-
+                .padding(top = 48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = buttonColor,
+                contentColor = textColor
+            )
         ) {
             Text("Show Answer")
         }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -20,6 +21,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.controller.MainViewModel
+import com.example.flashcards.ui.theme.buttonColor
+import com.example.flashcards.ui.theme.textColor
 
 class AddCardView(private var viewModel: MainViewModel) {
 
@@ -39,7 +42,8 @@ class AddCardView(private var viewModel: MainViewModel) {
                 text = "Question",
                 fontSize = 50.sp,
                 textAlign = TextAlign.Center,
-                lineHeight = 116.sp
+                lineHeight = 116.sp,
+                color = textColor
             )
             Row(
                 modifier = Modifier
@@ -62,7 +66,8 @@ class AddCardView(private var viewModel: MainViewModel) {
                 text = "Answer",
                 fontSize = 50.sp,
                 textAlign = TextAlign.Center,
-                lineHeight = 116.sp
+                lineHeight = 116.sp,
+                color = textColor
             )
             Row(
                 modifier = Modifier
@@ -108,7 +113,11 @@ class AddCardView(private var viewModel: MainViewModel) {
                             errorMessage = ""
                         }
                     },
-                    modifier = Modifier.padding(top = 48.dp)
+                    modifier = Modifier.padding(top = 48.dp),
+                            colors = ButtonDefaults.buttonColors(
+                            containerColor = buttonColor,
+                    contentColor = textColor
+                )
                 ) {
                     Text("Submit")
                 }
