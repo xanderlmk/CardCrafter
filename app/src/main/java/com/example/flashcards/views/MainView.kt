@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.model.Deck
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.borderColor
 import com.example.flashcards.ui.theme.textColor
@@ -127,7 +128,11 @@ class MainView {
                                     Box(
                                         modifier = Modifier
                                             .wrapContentWidth() // Wrap around the text
-                                            .border(width = 1.dp, color = borderColor) // Apply border to the inner Box
+                                            .border(
+                                                width = 2.dp,
+                                                color = borderColor,
+                                                shape = RoundedCornerShape(8.dp)
+                                            ) // Apply border to the inner Box
                                             .padding(horizontal = 8.dp) // Optional: Add some padding for better aesthetics
                                     ) {
                                         Text(
