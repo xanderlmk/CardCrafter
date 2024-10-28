@@ -87,12 +87,6 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
 
         //should return TRUE if a deck exists
 
-    fun updateCard(card: Card){
-        viewModelScope.launch {
-            flashCardRepository.updateCard(card)
-        }
-    }
-
     fun addCard(deckId : Int, question:String, answer:String) {
         if(question.isNotEmpty() && answer.isNotEmpty()) {
             viewModelScope.launch {

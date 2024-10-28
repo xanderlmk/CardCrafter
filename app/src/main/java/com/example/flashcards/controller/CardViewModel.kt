@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.Card
 import com.example.flashcards.model.FlashCardRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
@@ -25,10 +26,14 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
 
     fun getDueCards(deckId : Int){
         viewModelScope.launch {
-            flashCardRepository.getDueCards(deckId)
-                .collect { cards ->
-                    cardUiState.value = CardUiState(cardList = cards.toMutableList())
+            flashCardRepository.getDueCards(deckId).map { cards ->
+                CardUiState(cardList = cards.toMutableList()) }
+                .collect { uiState ->
+                    cardUiState.value = uiState
                 }
+            /*.collect { cards ->
+                    cardUiState.value = CardUiState(cardList = cards.toMutableList())
+                }*/
         }
     }
 }
