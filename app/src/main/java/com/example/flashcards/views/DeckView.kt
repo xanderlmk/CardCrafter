@@ -1,7 +1,5 @@
 package com.example.flashcards.views
 
-import androidx.activity.viewModels
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,11 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.MainViewModel
-import com.example.flashcards.model.Card
-
 import com.example.flashcards.model.Deck
 
 
@@ -38,12 +32,11 @@ class DeckView(private var mainViewModel: MainViewModel) {
     @Composable
     fun ViewEditDeck(deck: Deck, onDismiss: () -> Unit) {
         val addCardView = remember { AddCardView(mainViewModel) }
-        val cardView = remember { CardDeckView() }
+        val cardView =  CardDeckView()
         var whichView by remember { mutableIntStateOf(0) }
         val presetModifier = Modifier
             .padding(top = 16.dp,start = 16.dp, end = 16.dp)
             .size(54.dp)
-            .background(Color.Cyan)
         when (whichView) {
             1 -> {
                 BackButton(
