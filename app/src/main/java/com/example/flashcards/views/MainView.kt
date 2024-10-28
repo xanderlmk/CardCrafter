@@ -37,6 +37,7 @@ import com.example.flashcards.model.Deck
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.borderColor
+import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
 
@@ -53,6 +54,7 @@ class MainView {
         val presetModifier = Modifier
             .padding(top = 16.dp,start = 16.dp,end = 16.dp)
             .size(54.dp)
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -63,7 +65,7 @@ class MainView {
             1 -> {
                 BackButton (
                     onBackClick = { whichView = 0},
-                    modifier = presetModifier
+                    modifier = presetModifier,
                 )
                 addDeckView.AddDeck {
                     whichView = 0  // Go back to the main view after adding a deck

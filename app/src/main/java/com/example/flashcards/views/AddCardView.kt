@@ -25,6 +25,7 @@ import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
 import androidx.compose.runtime.LaunchedEffect
+import com.example.flashcards.ui.theme.backgroundColor
 import kotlinx.coroutines.delay
 
 class AddCardView(private var viewModel: MainViewModel) {
