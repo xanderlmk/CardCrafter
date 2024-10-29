@@ -115,24 +115,24 @@ class MainView {
                             items(uiState.deckList) { deck ->
                                 Box(
                                     modifier = Modifier
-                                        .fillMaxWidth() // Fill the available width of the LazyColumn
+                                        .fillMaxWidth()
                                         .padding(vertical = 4.dp)
                                         .background(backgroundColor)
                                         .clickable {
                                             selectedDeck = deck
                                             whichView = 2
                                         },
-                                    contentAlignment = Alignment.Center // Center the content inside the Box
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Box(
                                         modifier = Modifier
-                                            .wrapContentWidth() // Wrap around the text
+                                            .wrapContentWidth()
                                             .border(
                                                 width = 2.dp,
                                                 color = borderColor,
                                                 shape = RoundedCornerShape(8.dp)
-                                            ) // Apply border to the inner Box
-                                            .padding(horizontal = 8.dp) // Optional: Add some padding for better aesthetics
+                                            )
+                                            .padding(horizontal = 8.dp)
                                     ) {
                                         Text(
                                             text = "${deck.name}",

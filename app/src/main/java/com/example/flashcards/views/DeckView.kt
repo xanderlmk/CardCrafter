@@ -5,10 +5,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -101,7 +103,8 @@ class DeckView(private var mainViewModel: MainViewModel) {
                     Column(modifier = Modifier
                         .fillMaxSize(),
                         verticalArrangement = Arrangement.SpaceEvenly,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+
                     ) {
                         Row(
                             modifier = Modifier
@@ -128,68 +131,88 @@ class DeckView(private var mainViewModel: MainViewModel) {
                             Column {
                                 Row(
                                     modifier = Modifier
-                                        .fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                        .fillMaxWidth()
+                                        .padding(top = 48.dp, start = 45.dp),
+                                    horizontalArrangement = Arrangement.Center
                                 ) {
-                                    Button(
-                                        onClick = {
-                                            mainViewModel.deleteDeck(deck)
-                                            onDismiss()
-                                        },
-                                        modifier = Modifier.padding(top = 48.dp),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = buttonColor,
-                                            contentColor = textColor
-                                        )
-
+                                    Box(
+                                        modifier = Modifier.weight(1f)
                                     ) {
-                                        Text("Delete Deck")
+                                        Button(
+                                            onClick = {
+                                                mainViewModel.deleteDeck(deck)
+                                                onDismiss()
+                                            },
+                                            modifier = Modifier.width(300.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = buttonColor,
+                                                contentColor = textColor
+                                            )
+                                        ) {
+                                            Text("Delete Deck")
+                                        }
+                                        Spacer(modifier = Modifier.width(16.dp))
                                     }
-                                    Button(
-                                        onClick = {
-                                            whichView = 2
-                                            coroutineScope.launch {
-                                                cardViewModel.getDueCards(deck.id)
-                                            }
-                                        },
-                                        modifier = Modifier.padding(top = 48.dp),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = buttonColor,
-                                            contentColor = textColor
-                                        )
-
+                                    Box(
+                                        modifier = Modifier.weight(1f)
                                     ) {
-                                        Text("Start Deck")
+                                        Button(
+                                            onClick = {
+                                                whichView = 2
+                                                coroutineScope.launch {
+                                                    cardViewModel.getDueCards(deck.id)
+                                                }
+                                            },
+                                            modifier = Modifier.width(300.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = buttonColor,
+                                                contentColor = textColor
+                                            )
+                                        ) {
+                                            Text("Start Deck")
+                                        }
                                     }
                                 }
+
+// Repeat for the next row of buttons
                                 Row(
                                     modifier = Modifier
-                                        .fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                        .fillMaxWidth()
+                                        .padding(top = 48.dp, start = 45.dp),
+                                    horizontalArrangement = Arrangement.Center // Adjust the arrangement as needed
                                 ) {
-                                    Button(
-                                        onClick = {
-                                            whichView = 3
-                                        },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = buttonColor,
-                                            contentColor = textColor),
-
-                                        modifier = Modifier.padding(top = 48.dp)
+                                    Box(
+                                        modifier = Modifier.weight(1f) // Make the button take equal space
                                     ) {
-                                        Text("Edit Deck")
+                                        Button(
+                                            onClick = {
+                                                whichView = 3
+                                            },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = buttonColor,
+                                                contentColor = textColor
+                                            ),
+                                            modifier = Modifier.width(300.dp) // Fill the width of the Box
+                                        ) {
+                                            Text("Edit Deck")
+                                        }
                                     }
 
-                                    Button(
-                                        onClick = {
-                                            whichView = 4
-                                        },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = buttonColor,
-                                            contentColor = textColor),
-                                        modifier = Modifier.padding(top = 48.dp)
+                                    Box(
+                                        modifier = Modifier.weight(1f) // Make the button take equal space
                                     ) {
-                                        Text("Edit Flashcards")
+                                        Button(
+                                            onClick = {
+                                                whichView = 4
+                                            },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = buttonColor,
+                                                contentColor = textColor
+                                            ),
+                                            modifier = Modifier.width(300.dp) // Fill the width of the Box
+                                        ) {
+                                            Text("Edit Flashcards")
+                                        }
                                     }
                                 }
                             }
