@@ -20,6 +20,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.flashcards.controller.CardUiState
 import com.example.flashcards.controller.CardViewModel
@@ -72,15 +73,10 @@ class CardDeckView(private val viewModel: CardViewModel){
             } else {
                 if (index < cardUiState.cardList.size) {
                     if (!show) {
-                        //show = frontCard(currentCard!!)
                         show = frontCard(cardUiState.cardList[index])
                     } else {
-                        //val good = ((currentCard!!.passes + 1) * 1.5).toInt()
-                        //val hard = (currentCard!!.passes * 0.5).toInt()
-
                         val good = ((cardUiState.cardList[index].passes + 1) * 1.5).toInt()
                         val hard = (cardUiState.cardList[index].passes * 0.5).toInt()
-                        //BackCard(currentCard!!)
                         BackCard(cardUiState.cardList[index])
                         Row(
                             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -89,9 +85,7 @@ class CardDeckView(private val viewModel: CardViewModel){
                         ) {
                             Button(
                                 onClick = {
-                                    //currentCard!!.passes = 0
                                     cardUiState.cardList[index].passes = 0
-                                    //handleCardUpdate(currentCard!!, false, viewModel)
                                     handleCardUpdate(cardUiState.cardList[index],
                                         false, viewModel)
                                     println(" index : $index")
@@ -146,19 +140,12 @@ class CardDeckView(private val viewModel: CardViewModel){
                             ) {
                                 Button(
                                     onClick = {
-                                        //handleCardUpdate(currentCard!!, true, viewModel)
                                         handleCardUpdate(cardUiState.cardList[index],
                                             true, viewModel)
-                                        //index = (index + 1) % cardUiState.cardList.size
                                         show = !show
                                         index = (index + 1) % cardUiState.cardList.size
-                                        /*moveToNextCard(
-                                            cardUiState.cardList,
-                                            onNextCard = { nextCard ->
-                                                currentCard = nextCard
-                                                show = !show // Toggle show after delay
-                                            }
-                                            )*/
+                                          //  viewModel.getDueCards(deckId)
+
                                     },
                                     modifier = Modifier.padding(top = 48.dp),
                                     colors = ButtonDefaults.buttonColors(
@@ -173,6 +160,13 @@ class CardDeckView(private val viewModel: CardViewModel){
                             }
                         }
                     }
+                }
+                else {
+                    index = 0
+                    Text(
+                        "bye",
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }
