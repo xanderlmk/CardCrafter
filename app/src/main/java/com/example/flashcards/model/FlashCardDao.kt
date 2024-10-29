@@ -65,4 +65,8 @@ interface CardDao {
 
     @Query("DELETE FROM cards WHERE deckId = :deckId")
     suspend fun deleteAllCards(deckId: Int)
+
+    @Query("Update cards set question = :newQuestion, answer = :newAnswer where id = :cardID")
+    suspend fun updateCard(cardID: Int, newQuestion: String, newAnswer: String)
+
 }

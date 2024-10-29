@@ -80,11 +80,22 @@ class DeckView(private var mainViewModel: MainViewModel) {
 
             }
             3 -> {
+               /*
                 BackButton(
                     onBackClick = {whichView = 0},
                     modifier = presetModifier
                 )
+                */
                 deckEditView.ChangeDeckName(deck.name, deck.id, onDismiss)
+            }
+            4 -> {
+                /*
+                BackButton(
+                    onBackClick = {whichView = 0},
+                    modifier = presetModifier
+                )
+                */
+                deckEditView.ViewFlashCards(deck.id, onDismiss)
             }
             else -> {
                     Column(modifier = Modifier
@@ -160,9 +171,25 @@ class DeckView(private var mainViewModel: MainViewModel) {
                                         onClick = {
                                             whichView = 3
                                         },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = buttonColor,
+                                            contentColor = textColor),
+
                                         modifier = Modifier.padding(top = 48.dp)
                                     ) {
                                         Text("Edit Deck")
+                                    }
+
+                                    Button(
+                                        onClick = {
+                                            whichView = 4
+                                        },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = buttonColor,
+                                            contentColor = textColor),
+                                        modifier = Modifier.padding(top = 48.dp)
+                                    ) {
+                                        Text("Edit Flashcards")
                                     }
                                 }
                             }
