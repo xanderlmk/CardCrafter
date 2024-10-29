@@ -6,6 +6,8 @@ interface FlashCardRepository {
 
     suspend fun checkIfDeckExists(deckName: String): Int
 
+    suspend fun updateDeckName(newName: String, deckID: Int): Int
+
     fun getAllDecksStream(): Flow<List<Deck>>
 
     fun getDeckStream(id: Int): Flow<Deck?>

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -24,6 +23,7 @@ import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.model.Deck
 import com.example.flashcards.ui.theme.titleColor
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcards.controller.AppViewModelProvider
@@ -38,10 +38,11 @@ class DeckView(private var mainViewModel: MainViewModel) {
 
     @Composable
     fun ViewEditDeck(deck: Deck, onDismiss: () -> Unit) {
-        var addCardView = AddCardView(mainViewModel)
+        val addCardView = AddCardView(mainViewModel)
         val cardViewModel : CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val cardUiState by cardViewModel.cardUiState.collectAsState()
-        var cardView = remember {CardDeckView(cardViewModel)}
+        val cardView = remember { CardDeckView(cardViewModel) }
+        val deckEditView = DeckEditView(mainViewModel)
         var whichView by remember { mutableIntStateOf(0) }
         val coroutineScope = rememberCoroutineScope()
         val presetModifier = Modifier
@@ -62,9 +63,15 @@ class DeckView(private var mainViewModel: MainViewModel) {
                     onBackClick = { whichView = 0 },
                     modifier = presetModifier
                 )
-
                 cardView.ViewCard(deck.id, cardUiState)
 
+            }
+            3 -> {
+                BackButton(
+                    onBackClick = {whichView = 0},
+                    modifier = presetModifier
+                )
+                deckEditView.ChangeDeckName(deck.name, deck.id, onDismiss)
             }
             else -> {
                 Column(
@@ -134,6 +141,20 @@ class DeckView(private var mainViewModel: MainViewModel) {
 
                         ) {
                             Text("Start Deck")
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Button(
+                            onClick = {
+                                whichView = 3
+                            },
+                            modifier = Modifier.padding(top = 48.dp)
+                        ) {
+                            Text("Edit Deck")
                         }
                     }
                 }

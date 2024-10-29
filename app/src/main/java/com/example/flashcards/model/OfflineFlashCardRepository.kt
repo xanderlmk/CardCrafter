@@ -1,5 +1,9 @@
 package com.example.flashcards.model
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
+import java.util.Date
 
 class OfflineFlashCardRepository(
     private val deckDao: DeckDao,
@@ -22,6 +26,13 @@ class OfflineFlashCardRepository(
     override suspend fun deleteDeck(deck: Deck) = deckDao.deleteDeck(deck)
 
     override suspend fun updateDeck(deck: Deck) = deckDao.updateDeck(deck)
+
+    override suspend fun updateDeckName(newName: String, deckID: Int): Int =
+        try {
+            deckDao.updateDeckName(newName, deckID)
+        } catch (e: Exception) {
+            throw e
+        }
 
     override suspend fun insertCard(card: Card) = cardDao.insertCard(card)
 

@@ -48,7 +48,6 @@ class MainView {
         val uiState by viewModel.mainUiState.collectAsState()
         var addDeckView =  AddDeckView(viewModel)
         var deckView = remember {DeckView(viewModel)}
-        //var deckView = DeckView(viewModel)
         var whichView by remember { mutableIntStateOf(0) }
         var selectedDeck by remember { mutableStateOf<Deck?>(value = null) }
         val presetModifier = Modifier

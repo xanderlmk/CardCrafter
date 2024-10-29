@@ -45,7 +45,7 @@ class AddDeckView(private var viewModel: MainViewModel) {
     fun AddDeck(onDismiss: () -> Unit) {
         var errorMessage by remember { mutableStateOf("")}
         var deckName by remember {mutableStateOf("")  }
-        var coroutineScope =  rememberCoroutineScope()
+        val coroutineScope =  rememberCoroutineScope()
 
         Column(
             modifier = Modifier
