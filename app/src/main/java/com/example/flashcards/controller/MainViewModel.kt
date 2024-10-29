@@ -1,4 +1,5 @@
 package com.example.flashcards.controller
+import android.adservices.adid.AdId
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,22 +9,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import com.example.flashcards.model.Card
 import com.example.flashcards.model.Deck
-import kotlinx.coroutines.CoroutineScope
+import com.example.flashcards.model.DeckWithCards
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
-import java.util.Calendar
 import java.util.Date
-import kotlin.random.Random
 
 /**
  * ViewModel to retrieve all items in the Room database.
@@ -113,6 +106,16 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
                     )
                 )
             }
+        }
+    }
+
+    fun getDeckWithCards(deckId: Int): Flow<DeckWithCards> {
+        return flashCardRepository.getDeckWithCards(deckId)
+    }
+
+    fun updateCardDetails(cardID: Int, answer: String, question: String) {
+        viewModelScope.launch {
+          flashCardRepository.updateCardDetails(cardID, question, answer)
         }
     }
 }

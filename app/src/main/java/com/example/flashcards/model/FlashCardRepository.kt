@@ -24,6 +24,8 @@ interface FlashCardRepository {
 
     suspend fun deleteCard(card: Card)
 
+    suspend fun updateCardDetails(cardID: Int, newQuestion: String, newAnswer: String)
+
     fun getDeckWithCards(deckId: Int): Flow<DeckWithCards>
 
     fun getDueCards(deckId: Int,

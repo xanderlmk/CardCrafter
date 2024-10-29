@@ -19,6 +19,8 @@ class OfflineFlashCardRepository(
 
     override fun getAllDecksStream(): Flow<List<Deck>> = deckDao.getAllDecks()
 
+    override suspend fun updateCardDetails(cardID: Int, newQuestion: String, newAnswer: String) = cardDao.updateCard(cardID, newQuestion, newAnswer)
+
     override fun getDeckStream(id: Int): Flow<Deck?> = deckDao.getDeck(id)
 
     override suspend fun insertDeck(deck: Deck) = deckDao.insertDeck(deck)
@@ -37,6 +39,8 @@ class OfflineFlashCardRepository(
     override suspend fun insertCard(card: Card) = cardDao.insertCard(card)
 
     override suspend fun updateCard(card: Card) = cardDao.updateCard(card)
+
+
 
     override suspend fun deleteCard(card: Card) = cardDao.deleteCard(card)
 
