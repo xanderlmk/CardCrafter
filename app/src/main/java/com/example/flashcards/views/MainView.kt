@@ -72,7 +72,7 @@ class MainView {
             }
 
             2 -> {
-
+                println("in which 2")
                 BackButton (
                     onBackClick = { whichView = 0},
                     modifier = presetModifier

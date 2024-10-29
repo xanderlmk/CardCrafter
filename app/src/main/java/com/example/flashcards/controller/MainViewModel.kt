@@ -115,7 +115,7 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
 
     fun updateCardDetails(cardID: Int, answer: String, question: String) {
         viewModelScope.launch {
-          flashCardRepository.updateCardDetails(cardID, question, answer)
+          flashCardRepository.updateCardDetails(cardID, answer, question)
         }
     }
 }

@@ -57,7 +57,7 @@ class DeckView(private var mainViewModel: MainViewModel) {
             .size(54.dp)
         Box(
             modifier = Modifier
-                .fillMaxSize()
+               // .fillMaxSize()
             //horizontalAlignment = Alignment.CenterHorizontally,
             //verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -80,21 +80,21 @@ class DeckView(private var mainViewModel: MainViewModel) {
 
             }
             3 -> {
-               /*
+
                 BackButton(
                     onBackClick = {whichView = 0},
                     modifier = presetModifier
                 )
-                */
+
                 deckEditView.ChangeDeckName(deck.name, deck.id, onDismiss)
             }
             4 -> {
-                /*
+
                 BackButton(
                     onBackClick = {whichView = 0},
                     modifier = presetModifier
                 )
-                */
+
                 deckEditView.ViewFlashCards(deck.id, onDismiss)
             }
             else -> {

@@ -244,14 +244,16 @@ class DeckEditView(private var viewModel: MainViewModel){
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(50.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Edit Flashcard cardID: ${card.id} and deckID: ${card.deckId}",
+                text = "Edit Flashcard",
                 fontSize = 30.sp,
                 textAlign = TextAlign.Center,
-                color = titleColor
+                color = titleColor,
+                modifier = Modifier
+                .padding(start = 10.dp, end = 10.dp)
             )
 
             TextField(
