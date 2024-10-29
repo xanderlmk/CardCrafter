@@ -62,7 +62,7 @@ class AddDeckView(private var viewModel: MainViewModel) {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .background(Transparent)
-                    //.padding(top=20.dp)
+                    .padding(top=20.dp)
             )
             Row (
                 modifier = Modifier

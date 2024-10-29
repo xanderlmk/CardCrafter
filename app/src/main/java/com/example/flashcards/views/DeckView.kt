@@ -1,8 +1,11 @@
 package com.example.flashcards.views
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,11 +26,15 @@ import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.model.Deck
 import com.example.flashcards.ui.theme.titleColor
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.InspectableModifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.CardViewModel
+import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import kotlinx.coroutines.launch
@@ -48,6 +55,12 @@ class DeckView(private var mainViewModel: MainViewModel) {
         val presetModifier = Modifier
             .padding(top = 16.dp,start = 16.dp, end = 16.dp)
             .size(54.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+            //horizontalAlignment = Alignment.CenterHorizontally,
+            //verticalArrangement = Arrangement.SpaceBetween
+        ) {
         when (whichView) {
             1 -> {
                 BackButton(
@@ -74,87 +87,102 @@ class DeckView(private var mainViewModel: MainViewModel) {
                 deckEditView.ChangeDeckName(deck.name, deck.id, onDismiss)
             }
             else -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(
-                        modifier = Modifier
+                    Column(modifier = Modifier
+                        .fillMaxSize(),
+                        verticalArrangement = Arrangement.SpaceEvenly,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 20.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = deck.name,
+                                fontSize = 40.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = titleColor,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .padding(top = 50.dp)
+                            )
+                        }
+                        Box (
+                            modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 20.dp),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = deck.name,
-                            fontSize = 40.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = titleColor,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
+                            .weight(2f)
+                            .background(backgroundColor)
+                            .padding(16.dp)) {
+                            Column {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    Button(
+                                        onClick = {
+                                            mainViewModel.deleteDeck(deck)
+                                            onDismiss()
+                                        },
+                                        modifier = Modifier.padding(top = 48.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = buttonColor,
+                                            contentColor = textColor
+                                        )
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Button(
-                            onClick = {
-                                mainViewModel.deleteDeck(deck)
-                                onDismiss()
-                            },
-                            modifier = Modifier.padding(top = 48.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = buttonColor,
-                                contentColor = textColor
-                            )
+                                    ) {
+                                        Text("Delete Deck")
+                                    }
+                                    Button(
+                                        onClick = {
+                                            whichView = 2
+                                            coroutineScope.launch {
+                                                cardViewModel.getDueCards(deck.id)
+                                            }
+                                        },
+                                        modifier = Modifier.padding(top = 48.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = buttonColor,
+                                            contentColor = textColor
+                                        )
 
-                        ) {
-                            Text("Delete Deck")
-                        }
-                        Button(
-                            onClick = {
-                                whichView = 1
-                            },
-                            modifier = Modifier.padding(top = 48.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                    containerColor = buttonColor,
-                            contentColor = textColor
-                        )
-                        ) {
-                            Text("Add Cards")
-                        }
-                        Button(
-                            onClick = {
-                                whichView = 2
-                                coroutineScope.launch {
-                                    cardViewModel.getDueCards(deck.id)
+                                    ) {
+                                        Text("Start Deck")
+                                    }
                                 }
-                            },
-                            modifier = Modifier.padding(top = 48.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = buttonColor,
-                                contentColor = textColor
-                            )
-
-                        ) {
-                            Text("Start Deck")
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    Button(
+                                        onClick = {
+                                            whichView = 3
+                                        },
+                                        modifier = Modifier.padding(top = 48.dp)
+                                    ) {
+                                        Text("Edit Deck")
+                                    }
+                                }
+                            }
                         }
-                    }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Button(
-                            onClick = {
-                                whichView = 3
-                            },
-                            modifier = Modifier.padding(top = 48.dp)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(backgroundColor)
                         ) {
-                            Text("Edit Deck")
+                            val bottomLeftModifier = Modifier
+                                .padding(bottom = 12.dp)
+                                .align(Alignment.End)
+                            Box(
+                                modifier = bottomLeftModifier,
+                                contentAlignment = Alignment.BottomEnd
+                            ) {
+                                AddCardButton(
+                                    onClick = { whichView = 1 }
+                                )
+                            }
                         }
                     }
                 }

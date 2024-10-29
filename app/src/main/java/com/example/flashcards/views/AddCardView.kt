@@ -45,10 +45,12 @@ class AddCardView(private var viewModel: MainViewModel) {
         ) {
             Text(
                 text = "Question",
-                fontSize = 50.sp,
+                fontSize = 45.sp,
                 textAlign = TextAlign.Center,
                 lineHeight = 116.sp,
-                color = titleColor
+                color = titleColor,
+                modifier = Modifier
+                .padding(top=20.dp)
             )
             Row(
                 modifier = Modifier
@@ -69,7 +71,7 @@ class AddCardView(private var viewModel: MainViewModel) {
             }
             Text(
                 text = "Answer",
-                fontSize = 50.sp,
+                fontSize = 45.sp,
                 textAlign = TextAlign.Center,
                 lineHeight = 116.sp,
                 color = titleColor
