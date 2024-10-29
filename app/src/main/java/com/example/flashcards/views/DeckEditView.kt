@@ -62,7 +62,7 @@ class DeckEditView(private var viewModel: MainViewModel){
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "Change Deck Name $deckID",
+                    text = "Change Deck Name: $currentName",
                     fontSize = 30.sp,
                     textAlign = TextAlign.Center,
                     color = titleColor
