@@ -110,7 +110,6 @@ class MainView {
                             .background(backgroundColor)
                             .padding(16.dp)
                     ) {
-
                         LazyColumn {
                             items(uiState.deckList) { deck ->
                                 Box(

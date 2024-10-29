@@ -12,9 +12,11 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -27,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
@@ -35,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.example.flashcards.model.Card
 import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.borderColor
+import androidx.compose.material.icons.outlined.Add
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.iconColor
 import com.example.flashcards.ui.theme.textColor
@@ -73,12 +77,29 @@ fun SmallAddButton(
 
     ) {
         Icon(
-            Icons.Filled.Add,
-            "Floating action button.",
+            Icons.Outlined.Add,
+            "Add Deck",
             modifier = Modifier.size(iconSize.dp),
-            tint = iconColor
+            tint = borderColor,
             )
     }
+}
+
+@Composable
+fun AddCardButton (
+    onClick:() -> Unit,
+    backgroundColor: Color = titleColor,
+    iconSize: Int = 45
+){
+    ExtendedFloatingActionButton(
+        onClick = { onClick()},
+        modifier = Modifier
+            .padding(16.dp)
+    ) {
+        Icon(Icons.Filled.Add, "Add Card")
+        Text(text = "Add Card")
+    }
+
 }
 
 
