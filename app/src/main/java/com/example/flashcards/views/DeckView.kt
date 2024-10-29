@@ -132,7 +132,7 @@ class DeckView(private var mainViewModel: MainViewModel) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(top = 48.dp, start = 45.dp),
+                                        .padding(top = 48.dp, start = 20.dp, end = 20.dp),
                                     horizontalArrangement = Arrangement.Center
                                 ) {
                                     Box(
@@ -178,7 +178,7 @@ class DeckView(private var mainViewModel: MainViewModel) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(top = 48.dp, start = 45.dp),
+                                        .padding(top = 48.dp, start = 20.dp, end = 20.dp),
                                     horizontalArrangement = Arrangement.Center // Adjust the arrangement as needed
                                 ) {
                                     Box(

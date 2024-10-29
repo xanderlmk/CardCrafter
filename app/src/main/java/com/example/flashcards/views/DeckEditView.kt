@@ -192,11 +192,11 @@ class DeckEditView(private var viewModel: MainViewModel){
                     item {
                         Text(
                             text = "Deck: ${deckWithCards.deck.name}",
-                            fontSize = 40.sp,
+                            fontSize = 35.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .padding(top = 45.dp,start = 10.dp, end = 10.dp),
                             textAlign = TextAlign.Center,
                             color = titleColor
                         )
