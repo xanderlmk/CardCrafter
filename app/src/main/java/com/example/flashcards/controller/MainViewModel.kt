@@ -17,6 +17,7 @@ import com.example.flashcards.model.Card
 import com.example.flashcards.model.Deck
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
@@ -79,13 +80,25 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
         }
     }
 
-    //this code will do a query that will check for a name of a database
-    //if its in it will return 1 if not in there it will return 0
+    suspend fun updateDeckName(newName: String, deckID: Int): Int {
+        return withContext(Dispatchers.IO) {
+            try {
+                val rowsUpdated = flashCardRepository.updateDeckName(newName, deckID)
+                if (rowsUpdated == 0) {
+                    _errorMessage.value = "Failed to update deck name - name may already exist"
+                }
+                rowsUpdated
+            } catch (e: SQLiteConstraintException) {
+                _errorMessage.value = "A deck with this name already exists"
+                0
+            } catch (e: Exception) {
+                _errorMessage.value = "Error updating deck name: ${e.message}"
+                0
+            }
+        }
+    }
 
 
-
-
-        //should return TRUE if a deck exists
 
     fun addCard(deckId : Int, question:String, answer:String) {
         if(question.isNotEmpty() && answer.isNotEmpty()) {

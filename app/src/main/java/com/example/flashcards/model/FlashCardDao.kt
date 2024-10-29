@@ -31,6 +31,19 @@ interface DeckDao {
 
     @Query("SELECT COUNT(*) FROM decks WHERE LOWER(name) = LOWER(:deckName)")
     fun checkIfDeckExists(deckName: String): Int
+
+    @Query("""
+        UPDATE decks 
+        SET name = :newName 
+        WHERE id = :deckID 
+        AND NOT EXISTS (
+            SELECT 1 
+            FROM decks 
+            WHERE LOWER(name) = LOWER(:newName) 
+            AND id != :deckID
+        )
+    """)
+    fun updateDeckName(newName: String, deckID: Int): Int
 }
 @Dao
 interface CardDao {
