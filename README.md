@@ -1,8 +1,8 @@
 # WELCOME TO OUR FLASHCARDS APPLICATION
 Features : Room Database set up implementation
-          Tables with time variable
-          Two tables with the relationship 1 to many
-          A populated database on create app.
+          Tables with time variable\n
+          Two tables with the relationship 1 to many\n
+          A populated database on create app.\n
 
 # BUGS TO FIX 
 1. EditFlashCard button not working
