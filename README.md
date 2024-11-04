@@ -6,7 +6,7 @@ Features :
 - A populated database on create app.
 
 # BUGS TO FIX 
-1. EditFlashCard button not working
+1. EditFlashCard back button not working
 2. EditDeck has a hidden button that can be pressed, on the word Change.
 3. Glitchy UI when navigating/reviewing the Deck's Card
 
