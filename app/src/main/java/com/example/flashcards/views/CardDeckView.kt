@@ -29,6 +29,7 @@ import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 class CardDeckView(private val viewModel: CardViewModel){
@@ -45,7 +46,7 @@ class CardDeckView(private val viewModel: CardViewModel){
        //if (cardUiState.cardList.isEmpty()) {
         //LaunchedEffect(Unit) {
          //  CoroutineScope(Dispatchers.IO).launch {
-        viewModel.getDueCards(deckId)
+        //viewModel.getDueCards(deckId)
          //   }
         //}
 
@@ -60,10 +61,9 @@ class CardDeckView(private val viewModel: CardViewModel){
             //if (currentCard == null && cardUiState.cardList.isEmpty()) {
             if (cardUiState.cardList.isEmpty()) {
                // viewModel.getDueCards(deckId)
-                LaunchedEffect(cardUiState.cardList.isEmpty()) {
-                   coroutineScope.launch {
+                LaunchedEffect(Unit) {
+                    coroutineScope.launch {
                         viewModel.getDueCards(deckId)
-                        delay(100) // Delay for smooth transition
                     }
                 }
                 Text(
@@ -90,8 +90,9 @@ class CardDeckView(private val viewModel: CardViewModel){
                                         false, viewModel)
                                     println(" index : $index")
                                         show = !show
-
-
+                                    coroutineScope.launch {
+                                        viewModel.getDueCards(deckId)
+                                    }
                                 },
                                 modifier = Modifier.padding(top = 48.dp),
                                         colors = ButtonDefaults.buttonColors(
@@ -114,13 +115,9 @@ class CardDeckView(private val viewModel: CardViewModel){
                                          //   delay(150) // Adjust as needed
                                             index = (index + 1) % cardUiState.cardList.size // Move to next card after flip
                                         //}
-                                        /*moveToNextCard(
-                                            cardUiState.cardList,
-                                            onNextCard = { nextCard ->
-                                                currentCard = nextCard
-                                                show = !show // Reset show state for new card
-                                            }
-                                        )*/
+                                        coroutineScope.launch {
+                                            viewModel.getDueCards(deckId)
+                                        }
                                     },
                                     modifier = Modifier.padding(top = 48.dp),
                                     colors = ButtonDefaults.buttonColors(
@@ -144,7 +141,9 @@ class CardDeckView(private val viewModel: CardViewModel){
                                             true, viewModel)
                                         show = !show
                                         index = (index + 1) % cardUiState.cardList.size
-                                          //  viewModel.getDueCards(deckId)
+                                        coroutineScope.launch {
+                                            viewModel.getDueCards(deckId)
+                                        }
 
                                     },
                                     modifier = Modifier.padding(top = 48.dp),

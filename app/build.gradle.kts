@@ -36,6 +36,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    // Delete this kotlin section to run on Koala version
     kotlin{
         jvmToolchain {
             languageVersion.set(JavaLanguageVersion.of(17)) // or 1.8 if using an older JDK
