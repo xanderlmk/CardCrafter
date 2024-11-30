@@ -65,7 +65,23 @@ android {
 
 
 dependencies {
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+
+
+    // Jetpack Compose Integration
+    implementation(libs.androidx.navigation.compose)
+
+// Views/Fragments Integration
+    implementation(libs.androidx.navigation.fragment)
+    implementation(libs.androidx.navigation.ui)
+
+// Feature module support for Fragments
+    implementation(libs.androidx.navigation.dynamic.features.fragment)
+
+// Testing Navigation
+    androidTestImplementation(libs.androidx.navigation.testing)
+
+
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -104,6 +120,6 @@ dependencies {
 
     androidTestImplementation(libs.androidx.arch.core.testing)
 
-    implementation("com.google.accompanist:accompanist-themeadapter-material3:0.28.0")
+    //implementation("com.google.accompanist:accompanist-themeadapter-material3:0.28.0")
 
 }

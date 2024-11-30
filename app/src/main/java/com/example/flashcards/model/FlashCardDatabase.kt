@@ -75,7 +75,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                 Card(deckId = deckId, question = "What wall divided East and West Berlin?", answer = "Berlin Wall", nextReview = nextReviewDate, passes = 0),
                 Card(deckId = deckId, question = "What year did the Berlin Wall fall?", answer = "1989", nextReview = nextReviewDate, passes = 0),
                 Card(deckId = deckId, question = "Who wrote the Declaration of Independence?", answer = "Thomas Jefferson", nextReview = nextReviewDate, passes = 0),
-                /*Card(deckId = deckId, question = "In which year did the U.S. Civil War begin?", answer = "1861", nextReview = nextReviewDate, passes = 0),
+                Card(deckId = deckId, question = "In which year did the U.S. Civil War begin?", answer = "1861", nextReview = nextReviewDate, passes = 0),
                 Card(deckId = deckId, question = "What was the main cause of World War I?", answer = "Assassination of Archduke Franz Ferdinand", nextReview = nextReviewDate, passes = 0),
                 Card(deckId = deckId, question = "Who discovered America?", answer = "Christopher Columbus", nextReview = nextReviewDate, passes = 0),
                 Card(deckId = deckId, question = "What event started the Great Depression?", answer = "Stock Market Crash of 1929", nextReview = nextReviewDate, passes = 0),
@@ -88,7 +88,6 @@ abstract class FlashCardDatabase : RoomDatabase() {
                 Card(deckId = deckId, question = "Who was the first Emperor of Rome?", answer = "Augustus", nextReview = nextReviewDate, passes = 0),
                 Card(deckId = deckId, question = "What year did the French Revolution begin?", answer = "1789", nextReview = nextReviewDate, passes = 0),
                 Card(deckId = deckId, question = "What is the longest river in the world?", answer = "Nile River", nextReview = nextReviewDate, passes = 0)
-            */
             )
 
 // Insert all cards into the database

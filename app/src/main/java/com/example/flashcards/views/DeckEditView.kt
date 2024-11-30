@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.flashcards.controller.CardViewModel
 import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.model.Card
 import com.example.flashcards.model.Deck
@@ -45,133 +46,25 @@ import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
 import kotlinx.coroutines.launch
 
-class DeckEditView(private var viewModel: MainViewModel){
-        @Composable
-        fun ChangeDeckName(currentName: String, deckID: Int, onDismiss: () -> Unit) {
-            var newDeckName by remember { mutableStateOf(currentName) }
-            var errorMessage by remember { mutableStateOf("") }
-            var isSubmitting by remember { mutableStateOf(false) }
-            val coroutineScope = rememberCoroutineScope()
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(backgroundColor)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = "Change Deck Name: $currentName",
-                    fontSize = 30.sp,
-                    textAlign = TextAlign.Center,
-                    color = titleColor
-                )
-
-                EditTextField(
-                    value = newDeckName,
-                    onValueChanged = {
-                        newDeckName = it
-                        errorMessage = "" // Clear error when user types
-                    },
-                    labelStr = "Deck Name",
-                    modifier = Modifier.fillMaxWidth(),
-                   // isError = errorMessage.isNotEmpty()
-                )
-
-                if (errorMessage.isNotEmpty()) {
-                    Text(
-                        text = errorMessage,
-                        color = androidx.compose.ui.graphics.Color.Red,
-                        modifier = Modifier.fillMaxWidth(),
-                        fontSize = 16.sp
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = { onDismiss() },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = buttonColor,
-                            contentColor = textColor
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("Cancel")
-                    }
-
-                    Button(
-                        onClick = {
-                            coroutineScope.launch {
-                                if (newDeckName.isBlank()) {
-                                    errorMessage = "Deck name cannot be empty"
-                                    return@launch
-                                }
-
-                                if (newDeckName == currentName) {
-                                    onDismiss()
-                                   return@launch
-                                }
-
-                                isSubmitting = true
-                                try {
-                                    // First check if the deck name exists
-                                    val exists = viewModel.checkIfDeckExists(newDeckName)
-                                    if (exists > 0) {
-                                        errorMessage = "A deck with this name already exists"
-                                      return@launch
-                                    }
-
-                                    val result = viewModel.updateDeckName(newDeckName, deckID)
-                                    if (result > 0) {
-                                        onDismiss()
-                                    } else {
-                                        errorMessage = "Failed to update deck name"
-                                    }
-                                } catch (e: Exception) {
-                                    errorMessage = e.message ?: "An error occurred"
-                                } finally {
-                                    isSubmitting = false
-                                }
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = buttonColor,
-                            contentColor = textColor
-                        ),
-                        enabled = !isSubmitting,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        if (isSubmitting) {
-                            CircularProgressIndicator(
-                                color = textColor,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        } else {
-                            Text("Submit")
-                        }
-                    }
-                }
-            }
-        }
+class DeckEditView(private var viewModel: CardViewModel){
 
     @SuppressLint("CoroutineCreationDuringComposition")
 
     @Composable
-    fun ViewFlashCards(deckID: Int, onDismiss: () -> Unit) {
+    fun ViewFlashCards(deckId: Int, onNavigate: () -> Unit) {
         val coroutineScope = rememberCoroutineScope()
         var deckWithCards by remember { mutableStateOf(DeckWithCards(Deck(0, "Loading..."), emptyList())) }
         var selectedCard by remember { mutableStateOf<Card?>(null) }
         var isEditing by remember { mutableStateOf(false) }
 
         coroutineScope.launch {
-            viewModel.getDeckWithCards(deckID).collect { data ->
+            viewModel.getDeckWithCards(deckId).collect { data ->
                 deckWithCards = data
             }
         }
+        val presetModifier = Modifier
+            .padding(top = 16.dp,start = 16.dp, end = 16.dp)
+            .size(54.dp)
 
         if (isEditing && selectedCard != null) {
             EditFlashCardView(card = selectedCard!!, onDismiss = {
@@ -181,8 +74,9 @@ class DeckEditView(private var viewModel: MainViewModel){
         } else {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
+                    .fillMaxSize()
+                    .padding(24.dp)
+                    .background(backgroundColor),
                 contentAlignment = Alignment.Center
             ) {
                 LazyColumn(
@@ -190,13 +84,19 @@ class DeckEditView(private var viewModel: MainViewModel){
                     contentPadding = PaddingValues(vertical = 16.dp)
                 ) {
                     item {
+                        BackButton(
+                            onBackClick = { onNavigate() },
+                            modifier = presetModifier
+                        )
+                    }
+                    item {
                         Text(
                             text = "Deck: ${deckWithCards.deck.name}",
                             fontSize = 35.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 45.dp,start = 10.dp, end = 10.dp),
+                                .padding(top = 25.dp,start = 10.dp, end = 10.dp),
                             textAlign = TextAlign.Center,
                             color = titleColor
                         )
@@ -218,18 +118,6 @@ class DeckEditView(private var viewModel: MainViewModel){
                         }
                     }
                 }
-
-                Button(
-                    onClick = onDismiss,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = buttonColor,
-                        contentColor = textColor),
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp)
-                ) {
-                    Text("Dismiss")
-                }
             }
         }
     }
@@ -239,97 +127,95 @@ class DeckEditView(private var viewModel: MainViewModel){
         var question by remember { mutableStateOf(TextFieldValue(card.question)) }
         var answer by remember { mutableStateOf(TextFieldValue(card.answer)) }
         var errorMessage by remember { mutableStateOf("")}
-
-        /*
-        BackButton(
-            onBackClick = onDismiss,
-            modifier = Modifier
-        )
-*/
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(50.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-
-               Text(
-                   text = "Edit Flashcard",
-                   fontSize = 40.sp,
-                   textAlign = TextAlign.Center,
-                   color = titleColor,
-                   modifier = Modifier
-                       .fillMaxWidth()
-                       .padding(start = 10.dp, end = 10.dp)
-                       .wrapContentHeight(Alignment.CenterVertically)
-               )
-
-
-            TextField(
-                value = question,
-                onValueChange = { question = it },
-                label = { Text("Question") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            TextField(
-                value = answer,
-                onValueChange = { answer = it },
-                label = { Text("Answer") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            if (errorMessage.isNotEmpty()) {
-                Text(
-                    text = errorMessage,
-                    color = androidx.compose.ui.graphics.Color.Red,
-                    modifier = Modifier.padding(8.dp),
-                    fontSize = 16.sp
-                )
-            }
-
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp)
+            .background(backgroundColor)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(50.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Button(
-                    onClick = {
-                        // Handle updating the flashcard logic here
-                        // e.g., viewModel.updateCard(card.copy(question = question.text, answer = answer.text))
-                        if(question.text.isNotBlank() && answer.text.isNotBlank()) {
-                            viewModel.updateCardDetails(card.id, question.text, answer.text)
-                            onDismiss()
-                        } else {
-                            errorMessage = "please fill out all field"
-                        }
 
-
-                    },
+                Text(
+                    text = "Edit Flashcard",
+                    fontSize = 40.sp,
+                    textAlign = TextAlign.Center,
+                    color = titleColor,
                     modifier = Modifier
-                        .weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = buttonColor,
-                        contentColor = textColor
+                        .fillMaxWidth()
+                        .padding(start = 10.dp, end = 10.dp)
+                        .wrapContentHeight(Alignment.CenterVertically)
+                )
+
+
+                TextField(
+                    value = question,
+                    onValueChange = { question = it },
+                    label = { Text("Question") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                TextField(
+                    value = answer,
+                    onValueChange = { answer = it },
+                    label = { Text("Answer") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = androidx.compose.ui.graphics.Color.Red,
+                        modifier = Modifier.padding(8.dp),
+                        fontSize = 16.sp
                     )
+                }
+
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Save")
+                    Button(
+                        onClick = {
+                            // Handle updating the flashcard logic here
+                            // e.g., viewModel.updateCard(card.copy(question = question.text, answer = answer.text))
+                            if (question.text.isNotBlank() && answer.text.isNotBlank()) {
+                                viewModel.updateCardDetails(card.id, question.text, answer.text)
+                                onDismiss()
+                            } else {
+                                errorMessage = "please fill out all field"
+                            }
+
+
+                        },
+                        modifier = Modifier
+                            .weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = buttonColor,
+                            contentColor = textColor
+                        )
+                    ) {
+                        Text("Save")
+                    }
+
+
+
+                    Button(
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = buttonColor,
+                            contentColor = textColor
+                        )
+                    ) {
+                        Text("Cancel")
+                    }
+
+
                 }
-
-
-
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = buttonColor,
-                        contentColor = textColor
-                ) ){
-                    Text("Cancel")
-                }
-
-
-
             }
         }
 

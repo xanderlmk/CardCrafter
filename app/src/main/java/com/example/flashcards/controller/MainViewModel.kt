@@ -108,16 +108,6 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
             }
         }
     }
-
-    fun getDeckWithCards(deckId: Int): Flow<DeckWithCards> {
-        return flashCardRepository.getDeckWithCards(deckId)
-    }
-
-    fun updateCardDetails(cardID: Int, answer: String, question: String) {
-        viewModelScope.launch {
-          flashCardRepository.updateCardDetails(cardID, answer, question)
-        }
-    }
 }
 
 

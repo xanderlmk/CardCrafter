@@ -44,48 +44,17 @@ import com.example.flashcards.ui.theme.titleColor
 class MainView {
     @Composable
     fun DeckList(viewModel: MainViewModel,
-                 modifier: Modifier = Modifier) {
-        val uiState by viewModel.mainUiState.collectAsState()
-        var addDeckView =  AddDeckView(viewModel)
-        var deckView = remember {DeckView(viewModel)}
-        var whichView by remember { mutableIntStateOf(0) }
-        var selectedDeck by remember { mutableStateOf<Deck?>(value = null) }
-        val presetModifier = Modifier
-            .padding(top = 16.dp,start = 16.dp,end = 16.dp)
-            .size(54.dp)
+                 onNavigateToDeck : (Int) -> Unit,
+                 onNavigateToAddDeck  : () -> Unit) {
 
+        val uiState by viewModel.mainUiState.collectAsState()
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp)
                 .background(backgroundColor)
         ) {
-        when (whichView) {
-            1 -> {
-                BackButton (
-                    onBackClick = { whichView = 0},
-                    modifier = presetModifier,
-                )
-                addDeckView.AddDeck {
-                    whichView = 0  // Go back to the main view after adding a deck
-                }
-            }
-
-            2 -> {
-                println("in which 2")
-                BackButton (
-                    onBackClick = { whichView = 0},
-                    modifier = presetModifier
-                )
-                selectedDeck?.let { deck ->
-                    deckView.ViewEditDeck(deck) {
-                        whichView = 0  // Go back after editing the deck
-                    }
-                }
-            }
-
-            else -> {
-                Column(
+            Column(
                     modifier = Modifier
                         .fillMaxSize(),
                     verticalArrangement = Arrangement.SpaceBetween,
@@ -119,8 +88,7 @@ class MainView {
                                         .padding(vertical = 4.dp)
                                         .background(backgroundColor)
                                         .clickable {
-                                            selectedDeck = deck
-                                            whichView = 2
+                                            onNavigateToDeck(deck.id)
                                         },
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -158,15 +126,12 @@ class MainView {
                             modifier = bottomLeftModifier,
                         ) {
                             SmallAddButton(
-                                onClick = { whichView = 1 },
+                                onClick = { onNavigateToAddDeck() },
                             )
                         }
                     }
-
-                    }
                 }
             }
-        }
     }
 
 }

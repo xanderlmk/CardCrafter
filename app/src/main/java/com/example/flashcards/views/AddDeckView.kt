@@ -2,11 +2,13 @@ package com.example.flashcards.views
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -42,88 +44,98 @@ class AddDeckView(private var viewModel: MainViewModel) {
 
 
     @Composable
-    fun AddDeck(onDismiss: () -> Unit) {
+    fun AddDeck(onNavigate: () -> Unit) {
         var errorMessage by remember { mutableStateOf("")}
         var deckName by remember {mutableStateOf("")  }
         val coroutineScope =  rememberCoroutineScope()
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+        val presetModifier = Modifier
+            .padding(top = 16.dp,start = 16.dp, end = 16.dp)
+            .size(54.dp)
+        Box(
+            modifier = Modifier.fillMaxSize()
+                .padding(24.dp)
+                .background(backgroundColor)
         ) {
-            Text(
-                text = "Add A Deck",
-                fontSize = 40.sp,
-                textAlign = TextAlign.Center,
-                lineHeight = 116.sp,
-                color = titleColor,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .background(Transparent)
-                    .padding(top=20.dp)
+            BackButton(
+                onBackClick = { onNavigate() },
+                modifier = presetModifier
             )
-            Row (
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 8.dp, end = 8.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                EditTextField(
-                   value = deckName,
-                    onValueChanged = { newText ->
-                        deckName = newText
-                    },
-                    labelStr = "Deck Name",
-                    modifier = Modifier
-                        .weight(1f)
-                )
-            }
-            Row (
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ){
-                Button(
-                    onClick = {
-                        if (deckName.isBlank()) {
-                            errorMessage = "Deck must be filled out"
-                        } else {
-                            coroutineScope.launch {
-                                try {
-                                    val exists = viewModel.checkIfDeckExists(deckName)
-                                    if (exists > 0) {
-                                        errorMessage = "deck name already exists"
-                                    } else {
-                                        viewModel.addDeck(deckName)
-                                        deckName = ""
-                                        onDismiss()
-                                    }
-                                } catch (e: Exception) {
-                                errorMessage = "Error: ${e.message}"
-                            }
-                            }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = buttonColor,  // Set your desired background color here
-                        contentColor = textColor
-                    ),
-                    modifier = Modifier.padding(top = 48.dp)
-                ) {
-                    Text("Submit")
-                }
-            }
-            if (errorMessage.isNotEmpty()) {
                 Text(
-                    text = errorMessage,
-                    color = androidx.compose.ui.graphics.Color.Red,
-                    modifier = Modifier.padding(8.dp),
-                    fontSize = 16.sp
+                    text = "Add A Deck",
+                    fontSize = 40.sp,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 116.sp,
+                    color = titleColor,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .background(Transparent)
+                        .padding(top = 20.dp)
                 )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, end = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    EditTextField(
+                        value = deckName,
+                        onValueChanged = { newText ->
+                            deckName = newText
+                        },
+                        labelStr = "Deck Name",
+                        modifier = Modifier
+                            .weight(1f)
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        onClick = {
+                            if (deckName.isBlank()) {
+                                errorMessage = "Deck must be filled out"
+                            } else {
+                                coroutineScope.launch {
+                                    try {
+                                        val exists = viewModel.checkIfDeckExists(deckName)
+                                        if (exists > 0) {
+                                            errorMessage = "deck name already exists"
+                                        } else {
+                                            viewModel.addDeck(deckName)
+                                            deckName = ""
+                                            onNavigate()
+                                        }
+                                    } catch (e: Exception) {
+                                        errorMessage = "Error: ${e.message}"
+                                    }
+                                }
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = buttonColor,  // Set your desired background color here
+                            contentColor = textColor
+                        ),
+                        modifier = Modifier.padding(top = 48.dp)
+                    ) {
+                        Text("Submit")
+                    }
+                }
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = androidx.compose.ui.graphics.Color.Red,
+                        modifier = Modifier.padding(8.dp),
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
     }
-
-
 }

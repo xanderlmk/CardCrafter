@@ -1,8 +1,12 @@
 package com.example.flashcards.views
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -39,6 +42,9 @@ import com.example.flashcards.model.Card
 import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.borderColor
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.Alignment
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.iconColor
 import com.example.flashcards.ui.theme.textColor
@@ -128,11 +134,11 @@ fun BackButton(
 @Composable
 fun frontCard(card: Card) : Boolean {
     var clicked by remember { mutableStateOf(false ) }
-    Column (
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
-    ){
+            .fillMaxSize() // Fill the entire available space
+            .padding(16.dp)
+    ) {
         Text(
             text = card.question ,
             fontSize = 30.sp,
@@ -141,14 +147,15 @@ fun frontCard(card: Card) : Boolean {
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(vertical = 4.dp)
-                .align(Alignment.CenterHorizontally)
+                .align(Alignment.Center)
         )
         Button(
             onClick = {
                 clicked = true
             },
             modifier = Modifier
-                .padding(top = 48.dp),
+                .align(Alignment.BottomCenter) // Align to the bottom center
+                .padding(bottom = 16.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = buttonColor,
                 contentColor = textColor
@@ -162,30 +169,35 @@ fun frontCard(card: Card) : Boolean {
 
 @Composable
 fun BackCard(card: Card) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = card.question ,
-            fontSize = 30.sp,
-            color = textColor,
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier
-                .padding(vertical = 4.dp)
-                .align(Alignment.CenterHorizontally)
-        )
-        Text(
-            text = card.answer,
-            fontSize = 30.sp,
-            color = textColor,
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(vertical = 4.dp)
-                .align(Alignment.CenterHorizontally)
-        )
-    }
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            Text(
+                text = card.question,
+                fontSize = 30.sp,
+                color = textColor,
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Text(
+                text = card.answer,
+                fontSize = 30.sp,
+                color = textColor,
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+        }
+
 }
+
+

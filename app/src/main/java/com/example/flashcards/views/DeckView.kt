@@ -1,6 +1,7 @@
 package com.example.flashcards.views
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,8 +33,11 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.InspectableModifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.CardViewModel
 import com.example.flashcards.ui.theme.backgroundColor
@@ -42,198 +46,174 @@ import com.example.flashcards.ui.theme.textColor
 import kotlinx.coroutines.launch
 
 
-class DeckView(private var mainViewModel: MainViewModel) {
+class DeckView(private var mainViewModel: MainViewModel,
+    var navController: NavController) {
 
 
     @Composable
-    fun ViewEditDeck(deck: Deck, onDismiss: () -> Unit) {
-        val addCardView = AddCardView(mainViewModel)
-        val cardViewModel : CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    fun ViewEditDeck(deck: Deck, onNavigate: () -> Unit, whichView : View) {
+        val cardViewModel: CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val cardUiState by cardViewModel.cardUiState.collectAsState()
-        val cardView = remember { CardDeckView(cardViewModel) }
-        val deckEditView = DeckEditView(mainViewModel)
-        var whichView by remember { mutableIntStateOf(0) }
+        val view = remember {View()}
+        val choosingView = ChoosingView(navController)
+
         val coroutineScope = rememberCoroutineScope()
         val presetModifier = Modifier
             .padding(top = 16.dp,start = 16.dp, end = 16.dp)
             .size(54.dp)
-        Box(
-            modifier = Modifier
-               // .fillMaxSize()
-            //horizontalAlignment = Alignment.CenterHorizontally,
-            //verticalArrangement = Arrangement.SpaceBetween
-        ) {
-        when (whichView) {
+
+        when (view.whichView.intValue) {
+            0 -> {
+                view.onView.value = false
+            }
             1 -> {
-                BackButton(
-                    onBackClick = { whichView = 0 },
-                    modifier = presetModifier
-                )
-                addCardView.AddCard(deck.id) {
-                    whichView = 0
-                }
+                choosingView.WhichScreen(deck,view)
             }
             2 -> {
-                BackButton(
-                    onBackClick = { whichView = 0 },
-                    modifier = presetModifier
-                )
-                cardView.ViewCard(deck.id, cardUiState)
-
+                choosingView.WhichScreen(deck,view)
             }
             3 -> {
-
-                BackButton(
-                    onBackClick = {whichView = 0},
-                    modifier = presetModifier
-                )
-
-                deckEditView.ChangeDeckName(deck.name, deck.id, onDismiss)
+                choosingView.WhichScreen(deck,view)
             }
             4 -> {
-
-                BackButton(
-                    onBackClick = {whichView = 0},
-                    modifier = presetModifier
-                )
-
-                deckEditView.ViewFlashCards(deck.id, onDismiss)
+                choosingView.WhichScreen(deck,view)
             }
-            else -> {
-                    Column(modifier = Modifier
-                        .fillMaxSize(),
-                        verticalArrangement = Arrangement.SpaceEvenly,
-                        horizontalAlignment = Alignment.CenterHorizontally,
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
+                .background(backgroundColor)
+        ) {
+            BackButton(
+                onBackClick = { onNavigate() },
+                modifier = presetModifier
+            )
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally,
 
-                    ) {
+                ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = deck.name,
+                        fontSize = 40.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = titleColor,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(top = 50.dp)
+                    )
+                }
+                    Column(
+                        modifier = Modifier
+                        .weight(2f)) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 20.dp),
+                                .padding(top = 48.dp, start = 20.dp, end = 20.dp),
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            Text(
-                                text = deck.name,
-                                fontSize = 40.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = titleColor,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .padding(top = 50.dp)
-                            )
-                        }
-                        Box (
-                            modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(2f)
-                            .background(backgroundColor)
-                            .padding(16.dp)) {
-                            Column {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 48.dp, start = 20.dp, end = 20.dp),
-                                    horizontalArrangement = Arrangement.Center
+                            Box(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Button(
+                                    onClick = {
+                                        mainViewModel.deleteDeck(deck)
+                                        onNavigate()
+                                    },
+                                    modifier = Modifier.width(300.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = buttonColor,
+                                        contentColor = textColor
+                                    )
                                 ) {
-                                    Box(
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Button(
-                                            onClick = {
-                                                mainViewModel.deleteDeck(deck)
-                                                onDismiss()
-                                            },
-                                            modifier = Modifier.width(300.dp),
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = buttonColor,
-                                                contentColor = textColor
-                                            )
-                                        ) {
-                                            Text("Delete Deck")
-                                        }
-                                        Spacer(modifier = Modifier.width(16.dp))
-                                    }
-                                    Box(
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        Button(
-                                            onClick = {
-                                                whichView = 2
-                                                coroutineScope.launch {
-                                                    cardViewModel.getDueCards(deck.id)
-                                                }
-                                            },
-                                            modifier = Modifier.width(300.dp),
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = buttonColor,
-                                                contentColor = textColor
-                                            )
-                                        ) {
-                                            Text("Start Deck")
-                                        }
-                                    }
+                                    Text("Delete Deck")
                                 }
-
-// Repeat for the next row of buttons
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 48.dp, start = 20.dp, end = 20.dp),
-                                    horizontalArrangement = Arrangement.Center // Adjust the arrangement as needed
+                                Spacer(modifier = Modifier.width(16.dp))
+                            }
+                            Box(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Button(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            cardViewModel.getDueCards(deck.id)
+                                        }
+                                        view.whichView.intValue = 2
+                                    },
+                                    modifier = Modifier.width(300.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = buttonColor,
+                                        contentColor = textColor
+                                    )
                                 ) {
-                                    Box(
-                                        modifier = Modifier.weight(1f) // Make the button take equal space
-                                    ) {
-                                        Button(
-                                            onClick = {
-                                                whichView = 3
-                                            },
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = buttonColor,
-                                                contentColor = textColor
-                                            ),
-                                            modifier = Modifier.width(300.dp) // Fill the width of the Box
-                                        ) {
-                                            Text("Edit Deck")
-                                        }
-                                    }
-
-                                    Box(
-                                        modifier = Modifier.weight(1f) // Make the button take equal space
-                                    ) {
-                                        Button(
-                                            onClick = {
-                                                whichView = 4
-                                            },
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = buttonColor,
-                                                contentColor = textColor
-                                            ),
-                                            modifier = Modifier.width(300.dp) // Fill the width of the Box
-                                        ) {
-                                            Text("Edit Flashcards")
-                                        }
-                                    }
+                                    Text("Start Deck")
                                 }
                             }
                         }
-                        Column(
+
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(backgroundColor)
+                                .padding(top = 48.dp, start = 20.dp, end = 20.dp),
+                            horizontalArrangement = Arrangement.Center // Adjust the arrangement as needed
                         ) {
-                            val bottomLeftModifier = Modifier
-                                .padding(bottom = 12.dp)
-                                .align(Alignment.End)
                             Box(
-                                modifier = bottomLeftModifier,
-                                contentAlignment = Alignment.BottomEnd
+                                modifier = Modifier.weight(1f) // Make the button take equal space
                             ) {
-                                AddCardButton(
-                                    onClick = { whichView = 1 }
-                                )
+                                Button(
+                                    onClick = {
+                                        view.whichView.intValue = 3
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = buttonColor,
+                                        contentColor = textColor
+                                    ),
+                                    modifier = Modifier.width(300.dp) // Fill the width of the Box
+                                ) {
+                                    Text("Edit Deck")
+                                }
+                            }
+
+                            Box(
+                                modifier = Modifier.weight(1f) // Make the button take equal space
+                            ) {
+                                Button(
+                                    onClick = {
+                                        view.whichView.intValue = 4
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = buttonColor,
+                                        contentColor = textColor
+                                    ),
+                                    modifier = Modifier.width(300.dp) // Fill the width of the Box
+                                ) {
+                                    Text("Edit Flashcards")
+                                }
                             }
                         }
+                    }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(backgroundColor)
+                ) {
+                    val bottomLeftModifier = Modifier
+                        .padding(bottom = 12.dp)
+                        .align(Alignment.End)
+                    Box(
+                        modifier = bottomLeftModifier,
+                        contentAlignment = Alignment.BottomEnd
+                    ) {
+                        AddCardButton(
+                            onClick = { view.whichView.intValue = 1 }
+                        )
                     }
                 }
             }

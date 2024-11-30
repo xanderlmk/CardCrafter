@@ -3,7 +3,9 @@ package com.example.flashcards.controller
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.Card
+import com.example.flashcards.model.DeckWithCards
 import com.example.flashcards.model.FlashCardRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -34,6 +36,15 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
                         cardUiState.value = uiState
                     }
             }
+        }
+    }
+    fun getDeckWithCards(deckId: Int): Flow<DeckWithCards> {
+        return flashCardRepository.getDeckWithCards(deckId)
+    }
+
+    fun updateCardDetails(cardId: Int, answer: String, question: String) {
+        viewModelScope.launch {
+            flashCardRepository.updateCardDetails(cardId, answer, question)
         }
     }
 }
