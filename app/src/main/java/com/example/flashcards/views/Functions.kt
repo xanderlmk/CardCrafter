@@ -24,7 +24,6 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,23 +31,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.model.Card
-import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.borderColor
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.iconColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
+import kotlinx.coroutines.delay
 
 
 @Composable
@@ -201,3 +196,7 @@ fun BackCard(card: Card) {
 }
 
 
+suspend fun loading() : Boolean{
+    delay(50)
+    return false
+}

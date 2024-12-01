@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -81,13 +83,25 @@ class CardDeckView(private val viewModel: CardViewModel){
                         )
                     }
                 } else {
+                    val loading = remember { mutableStateOf(false) }
                     if (index < cardUiState.cardList.size) {
                         if (!show) {
-                            show = frontCard(cardUiState.cardList[index])
+                            if (!loading.value) {
+                                show = frontCard(cardUiState.cardList[index])
+                            }
+                            else {
+                                Text(
+                                    "...",
+                                    fontSize = 35.sp,
+                                    textAlign = TextAlign.Center,
+                                    color = textColor,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                            }
                         } else {
                             val good = ((cardUiState.cardList[index].passes + 1) * 1.5).toInt()
                             val hard = (cardUiState.cardList[index].passes * 0.5).toInt()
-
+                            loading.value = true
                             Box(modifier = Modifier
                                 .fillMaxSize()
                                 .padding(16.dp),
@@ -108,7 +122,11 @@ class CardDeckView(private val viewModel: CardViewModel){
                                                     cardUiState.cardList[index],
                                                     false, viewModel
                                                 )
-                                                show = loading(show, viewModel, deckId)
+                                                viewModel.getDueCards(deckId)
+                                                show = !show
+                                            }
+                                            coroutineScope.launch {
+                                                loading.value = loading()
                                             }
                                         },
                                         modifier = Modifier.padding(top = 48.dp),
@@ -130,7 +148,11 @@ class CardDeckView(private val viewModel: CardViewModel){
                                                         false, viewModel
                                                     )
                                                     index = (index + 1) % cardUiState.cardList.size
-                                                    show = loading(show, viewModel, deckId)
+                                                    viewModel.getDueCards(deckId)
+                                                    show = !show
+                                                }
+                                                coroutineScope.launch {
+                                                    loading.value = loading()
                                                 }
                                             },
                                             modifier = Modifier.padding(top = 48.dp),
@@ -156,10 +178,12 @@ class CardDeckView(private val viewModel: CardViewModel){
                                                         cardUiState.cardList[index],
                                                         true, viewModel
                                                     )
-                                                    index = (index + 1) % cardUiState.cardList.size
-                                                    show = loading(show, viewModel, deckId)
+                                                    viewModel.getDueCards(deckId)
+                                                    show = !show
                                                 }
-
+                                                coroutineScope.launch {
+                                                    loading.value = loading()
+                                                }
                                             },
                                             modifier = Modifier.padding(top = 48.dp),
                                             colors = ButtonDefaults.buttonColors(
@@ -181,9 +205,5 @@ class CardDeckView(private val viewModel: CardViewModel){
                 }
             }
         }
-    }
-    fun loading(show: Boolean, viewModel : CardViewModel,deckId : Int) : Boolean {
-        viewModel.getDueCards(deckId)
-        return !show
     }
 }
