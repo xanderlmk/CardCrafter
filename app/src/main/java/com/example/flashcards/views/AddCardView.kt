@@ -45,7 +45,7 @@ class AddCardView(private var viewModel: MainViewModel) {
 
         Box(
             modifier = Modifier.fillMaxSize()
-            .padding(24.dp)
+            .padding(8.dp)
             .background(backgroundColor)
         ) {
             BackButton(
@@ -54,7 +54,8 @@ class AddCardView(private var viewModel: MainViewModel) {
             )
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {

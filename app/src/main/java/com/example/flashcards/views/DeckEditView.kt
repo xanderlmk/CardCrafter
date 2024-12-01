@@ -75,7 +75,7 @@ class DeckEditView(private var viewModel: CardViewModel){
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp)
+                    .padding(8.dp)
                     .background(backgroundColor),
                 contentAlignment = Alignment.Center
             ) {
@@ -129,7 +129,7 @@ class DeckEditView(private var viewModel: CardViewModel){
         var errorMessage by remember { mutableStateOf("")}
         Box(modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(8.dp)
             .background(backgroundColor)) {
             Column(
                 modifier = Modifier

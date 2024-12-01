@@ -41,7 +41,7 @@ class EditDeckName(private var viewModel: MainViewModel) {
         Box(
             modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(8.dp)
         ) {
             Column(
                 modifier = Modifier

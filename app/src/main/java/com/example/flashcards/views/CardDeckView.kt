@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.example.flashcards.controller.CardUiState
 import com.example.flashcards.controller.CardViewModel
 import com.example.flashcards.controller.handleCardUpdate
+import com.example.flashcards.model.Card
 import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
@@ -46,9 +47,9 @@ class CardDeckView(private val viewModel: CardViewModel){
         //val viewModel : CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val cardUiState by viewModel.cardUiState.collectAsState()
         var show by remember { mutableStateOf(false) }
-       // var currentCard by remember { mutableStateOf<Card?>(null) }
-        var index by remember { mutableIntStateOf(0) }
-        //var index = 0
+       var currentCard by remember { mutableStateOf<Card?>(null) }
+        val index = remember { mutableIntStateOf(0) }
+        //var index.intValue = 0
         val coroutineScope = rememberCoroutineScope()
         val presetModifier = Modifier
             .padding(top = 16.dp,start = 16.dp, end = 16.dp)
@@ -56,7 +57,7 @@ class CardDeckView(private val viewModel: CardViewModel){
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
+                .padding(8.dp)
                 .background(backgroundColor)
         ){
             BackButton(
@@ -68,26 +69,35 @@ class CardDeckView(private val viewModel: CardViewModel){
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxSize()
             ) {
+                /*LaunchedEffect(Unit) {
+                    coroutineScope.launch {
+                        viewModel.getDueCards(deckId)
+                    }
+                }*/
                 //if (currentCard == null && cardUiState.cardList.isEmpty()) {
                 if (cardUiState.cardList.isEmpty()) {
-                    // viewModel.getDueCards(deckId)
-                    LaunchedEffect(Unit) {
-                        coroutineScope.launch {
-                            viewModel.getDueCards(deckId)
-                        }
-                    }
+                    viewModel.getDueCards(deckId)
                     if (cardUiState.cardList.isEmpty()) {
                         Text(
                             "No Due Cards",
                             color = textColor
                         )
-                    }
+                   }
                 } else {
                     val loading = remember { mutableStateOf(false) }
-                    if (index < cardUiState.cardList.size) {
+                    // any changes in size will make this launch.
+                    LaunchedEffect(cardUiState.cardList.size) {
+                        coroutineScope.launch {
+                            viewModel.getDueCards(deckId)
+                        }
+                    }
+                    if (index.intValue < cardUiState.cardList.size) {
                         if (!show) {
                             if (!loading.value) {
-                                show = frontCard(cardUiState.cardList[index])
+                                //currentCard = cardUiState.cardList[index.intValue]
+                                show = frontCard(cardUiState.cardList[index.intValue])
+                                //show = frontCard(currentCard!!)
+
                             }
                             else {
                                 Text(
@@ -99,15 +109,19 @@ class CardDeckView(private val viewModel: CardViewModel){
                                 )
                             }
                         } else {
-                            val good = ((cardUiState.cardList[index].passes + 1) * 1.5).toInt()
-                            val hard = (cardUiState.cardList[index].passes * 0.5).toInt()
+                            val good = ((cardUiState.cardList[index.intValue].passes + 1) * 1.5).toInt()
+                            val hard = (cardUiState.cardList[index.intValue].passes * 0.5).toInt()
                             loading.value = true
+                            println("Index : ${index.intValue}")
+                            println("${cardUiState.cardList.size}")
+
                             Box(modifier = Modifier
                                 .fillMaxSize()
                                 .padding(16.dp),
                                 contentAlignment = Alignment.BottomStart) {
                                 Column {
-                                    BackCard(cardUiState.cardList[index])
+                                    BackCard(cardUiState.cardList[index.intValue])
+                                    //BackCard(currentCard!!)
                                 }
                                 Row(
                                     horizontalArrangement = Arrangement.SpaceEvenly,
@@ -117,9 +131,9 @@ class CardDeckView(private val viewModel: CardViewModel){
                                     Button(
                                         onClick = {
                                             coroutineScope.launch {
-                                                cardUiState.cardList[index].passes = 0
+                                                cardUiState.cardList[index.intValue].passes = 0
                                                 handleCardUpdate(
-                                                    cardUiState.cardList[index],
+                                                    cardUiState.cardList[index.intValue],
                                                     false, viewModel
                                                 )
                                                 viewModel.getDueCards(deckId)
@@ -144,10 +158,10 @@ class CardDeckView(private val viewModel: CardViewModel){
                                             onClick = {
                                                 coroutineScope.launch {
                                                     handleCardUpdate(
-                                                        cardUiState.cardList[index],
+                                                        cardUiState.cardList[index.intValue],
                                                         false, viewModel
                                                     )
-                                                    index = (index + 1) % cardUiState.cardList.size
+                                                    index.intValue = (index.intValue + 1) % cardUiState.cardList.size
                                                     viewModel.getDueCards(deckId)
                                                     show = !show
                                                 }
@@ -175,7 +189,7 @@ class CardDeckView(private val viewModel: CardViewModel){
                                             onClick = {
                                                 coroutineScope.launch {
                                                     handleCardUpdate(
-                                                        cardUiState.cardList[index],
+                                                        cardUiState.cardList[index.intValue],
                                                         true, viewModel
                                                     )
                                                     viewModel.getDueCards(deckId)
@@ -200,7 +214,7 @@ class CardDeckView(private val viewModel: CardViewModel){
                             }
                         }
                     } else {
-                        index = 0
+                        index.intValue = 0
                     }
                 }
             }

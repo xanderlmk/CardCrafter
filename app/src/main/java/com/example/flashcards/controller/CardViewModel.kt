@@ -17,7 +17,7 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
     var cardUiState = MutableStateFlow(CardUiState())
 
     companion object {
-        private const val TIMEOUT_MILLIS = 5_000L
+        private const val TIMEOUT_MILLIS = 7_000L
     }
 
     fun updateCard(card: Card){
@@ -30,7 +30,7 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
         viewModelScope.launch {
             withTimeout(TIMEOUT_MILLIS) {
                 flashCardRepository.getDueCards(deckId).map { cards ->
-                    CardUiState(cardList = cards.toMutableList())
+                    CardUiState(cardList = cards)
                 }
                     .collect { uiState ->
                         cardUiState.value = uiState
@@ -49,7 +49,7 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
     }
 }
 
-data class CardUiState(var cardList: MutableList<Card> = mutableListOf())
+data class CardUiState(var cardList: List<Card> = emptyList())
 
 fun updateCard(card: Card, isSuccess: Boolean) : Card {
     if (isSuccess) {

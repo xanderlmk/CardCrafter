@@ -51,7 +51,7 @@ class MainView {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
+                .padding(8.dp)
                 .background(backgroundColor)
         ) {
             Column(

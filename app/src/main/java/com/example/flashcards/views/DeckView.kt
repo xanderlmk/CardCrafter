@@ -82,7 +82,7 @@ class DeckView(private var mainViewModel: MainViewModel,
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
+                .padding(8.dp)
                 .background(backgroundColor)
         ) {
             BackButton(
