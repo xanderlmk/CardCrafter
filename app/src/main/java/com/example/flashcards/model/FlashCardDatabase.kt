@@ -12,7 +12,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import java.util.Date
 
 @Database(entities = [Deck::class, Card::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)

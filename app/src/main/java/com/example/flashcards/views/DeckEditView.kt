@@ -1,6 +1,5 @@
 package com.example.flashcards.views
 
-//import androidx.compose.foundation.layout.ColumnScopeInstance.weight
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -8,21 +7,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,8 +33,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.flashcards.controller.CardViewModel
-import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.model.Card
 import com.example.flashcards.model.Deck
 import com.example.flashcards.model.DeckWithCards
@@ -46,7 +44,11 @@ import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
 import kotlinx.coroutines.launch
 
-class DeckEditView(private var viewModel: CardViewModel){
+class DeckEditView(private var viewModel: CardViewModel,
+                   var navController: NavController){
+    var selectedCard = mutableStateOf<Card?>(null)
+    var isEditing =  mutableStateOf(false)
+    var navigate = mutableStateOf(false)
 
     @SuppressLint("CoroutineCreationDuringComposition")
 
@@ -54,8 +56,6 @@ class DeckEditView(private var viewModel: CardViewModel){
     fun ViewFlashCards(deckId: Int, onNavigate: () -> Unit) {
         val coroutineScope = rememberCoroutineScope()
         var deckWithCards by remember { mutableStateOf(DeckWithCards(Deck(0, "Loading..."), emptyList())) }
-        var selectedCard by remember { mutableStateOf<Card?>(null) }
-        var isEditing by remember { mutableStateOf(false) }
 
         coroutineScope.launch {
             viewModel.getDeckWithCards(deckId).collect { data ->
@@ -66,11 +66,30 @@ class DeckEditView(private var viewModel: CardViewModel){
             .padding(top = 16.dp,start = 16.dp, end = 16.dp)
             .size(54.dp)
 
-        if (isEditing && selectedCard != null) {
-            EditFlashCardView(card = selectedCard!!, onDismiss = {
-                isEditing = false
-                selectedCard = null
-            })
+        if (isEditing.value && selectedCard.value != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
+                    .background(backgroundColor),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "Loading...",
+                    fontSize = 35.sp,
+                    textAlign = TextAlign.Center,
+                    color = textColor,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+            LaunchedEffect(navigate.value) {
+                if (!navigate.value) {
+                    navController.navigate("EditingCard/${selectedCard.value?.id}/$deckId")
+
+                } else {
+                    navigate.value = false
+                }
+            }
         } else {
             Box(
                 modifier = Modifier
@@ -104,8 +123,8 @@ class DeckEditView(private var viewModel: CardViewModel){
                     items(deckWithCards.cards) { card ->
                         Button(
                             onClick = {
-                                selectedCard = card // Set selected card to edit
-                                isEditing = true
+                                selectedCard.value = card // Set selected card to edit
+                                isEditing.value = true
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = buttonColor,
