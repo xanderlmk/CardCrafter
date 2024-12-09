@@ -85,7 +85,11 @@ class EditDeckName(private var viewModel: MainViewModel) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = { onNavigate() },
+                        onClick = {
+                            coroutineScope.launch {
+                                delayNavigate()
+                                onNavigate()
+                            }},
                         colors = ButtonDefaults.buttonColors(
                             containerColor = buttonColor,
                             contentColor = textColor

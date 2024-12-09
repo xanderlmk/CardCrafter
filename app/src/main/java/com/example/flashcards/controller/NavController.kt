@@ -71,10 +71,16 @@ fun AppNavHost(
         }
         composable("AddDeck"){
             BackHandler {
+                view.whichView.intValue = 0
+                view.onView.value = false
                 navController.popBackStack("DeckList", inclusive = false)
             }
             addDeckView.AddDeck (
-                onNavigate = {navController.navigate("DeckList")}
+                onNavigate = {
+                    view.whichView.intValue = 0
+                    view.onView.value = false
+                    navController.navigate("DeckList")
+                }
             )
         }
         composable(
@@ -84,13 +90,17 @@ fun AppNavHost(
             val deckId = backStackEntry.arguments?.getInt("deckId")
             val deck = uiState.deckList.find { it.id == deckId }
             BackHandler {
+                view.whichView.intValue = 0
+                view.onView.value = false
                 navController.popBackStack("DeckList", inclusive = false)
             }
 
             deck?.let {
                 deckView.ViewEditDeck(
                     deck = it,
-                    onNavigate = { navController.navigate("DeckList") },
+                    onNavigate = {view.whichView.intValue = 0
+                        view.onView.value = false
+                        navController.navigate("DeckList") },
                     whichView = view
                 )
             }
@@ -112,12 +122,15 @@ fun AppNavHost(
         composable("AddCard/{deckId}") { backStackEntry ->
             val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
             BackHandler {
+                view.whichView.intValue = 0
+                view.onView.value = false
                 navController.popBackStack("DeckView/$deckId", inclusive = false)
             }
             // Pass the deckId to AddCard composable
             addCardView.AddCard(
                 deckId = deckId ?: 0,
                 onNavigate = { view.whichView.intValue = 0
+                    view.onView.value = false
                     navController.navigate("DeckView/$deckId")
                 }
             )
@@ -125,6 +138,8 @@ fun AppNavHost(
         composable("ViewCard/{deckId}") { backStackEntry ->
             val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
             BackHandler {
+                view.whichView.intValue = 0
+                view.onView.value = false
                 navController.popBackStack("DeckView/$deckId", inclusive = false)
             }
             // Use your ViewCard composable here
@@ -132,6 +147,7 @@ fun AppNavHost(
                 deckId = deckId ?: 0,
                 onNavigate = {
                     view.whichView.intValue = 0
+                    view.onView.value = false
                     navController.navigate("DeckView/$deckId")
                 }
             )
@@ -141,18 +157,24 @@ fun AppNavHost(
             val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
             val currentName = backStackEntry.arguments?.getString("currentName")
             BackHandler {
+                view.whichView.intValue = 0
+                view.onView.value = false
                 navController.popBackStack("DeckView/$deckId", inclusive = false)
             }
             editDeckName.ChangeDeckName(
                 currentName = currentName ?: "",
                 deckId = deckId ?: 0,
-                onNavigate = { view.whichView.intValue = 0
+                onNavigate = {
+                    view.whichView.intValue = 0
+                    view.onView.value = false
                     navController.navigate("DeckView/$deckId") })
         }
 
         composable("ViewFlashCards/{deckId}") { backStackEntry ->
             val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
             BackHandler {
+                view.whichView.intValue = 0
+                view.onView.value = false
                 navController.popBackStack("DeckView/$deckId", inclusive = false)
             }
             deckEditView.ViewFlashCards(deckId = deckId ?: 0,
@@ -185,6 +207,7 @@ fun AppNavHost(
             }
             val card = deckWithCards.value.cards.find { it.id == cardId }
             BackHandler {
+                view.whichView.intValue = 0
                 deckEditView.navigate.value = false
                 deckEditView.isEditing.value = false
                 deckEditView.selectedCard.value = null
@@ -194,7 +217,7 @@ fun AppNavHost(
                deckEditView.EditFlashCardView(
                    card = it,
                    onDismiss = {
-                       println("in function")
+                       view.whichView.intValue = 0
                        deckEditView.navigate.value = false
                        deckEditView.isEditing.value = false
                        deckEditView.selectedCard.value = null

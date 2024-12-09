@@ -42,6 +42,8 @@ import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 class DeckEditView(private var viewModel: CardViewModel,
@@ -84,13 +86,12 @@ class DeckEditView(private var viewModel: CardViewModel,
             }
             LaunchedEffect(navigate.value) {
                 if (!navigate.value) {
-                    navController.navigate("EditingCard/${selectedCard.value?.id}/$deckId")
-
-                } else {
-                    navigate.value = false
+                        delayNavigate()
+                        navController.navigate("EditingCard/${selectedCard.value?.id}/$deckId")
                 }
             }
         } else {
+            navigate.value = false
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -146,6 +147,7 @@ class DeckEditView(private var viewModel: CardViewModel,
         var question by remember { mutableStateOf(TextFieldValue(card.question)) }
         var answer by remember { mutableStateOf(TextFieldValue(card.answer)) }
         var errorMessage by remember { mutableStateOf("")}
+        val coroutineScope = rememberCoroutineScope()
         Box(modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
@@ -223,7 +225,12 @@ class DeckEditView(private var viewModel: CardViewModel,
 
 
                     Button(
-                        onClick = onDismiss,
+                        onClick = {
+                            coroutineScope.launch{
+                                delayNavigate()
+                                onDismiss()
+                            }
+                                  },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = buttonColor,

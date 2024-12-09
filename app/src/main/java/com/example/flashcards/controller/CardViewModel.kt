@@ -54,8 +54,14 @@ data class CardUiState(var cardList: List<Card> = emptyList())
 fun updateCard(card: Card, isSuccess: Boolean) : Card {
     if (isSuccess) {
         card.passes += 1
-    }
+        card.prevSuccess = true
+    } else { card.prevSuccess = false}
     card.nextReview = timeCalculator(card.passes, isSuccess)
+    card.totalPasses += 1
+
+    if (!isSuccess && !card.prevSuccess && card.passes > 0){
+        card.passes -=1
+    }
     return card
 }
 
@@ -63,7 +69,8 @@ private fun timeCalculator (passes : Int, isSuccess: Boolean) : Date {
     val calendar = Calendar.getInstance()
     // Determine the multiplier based on success or hard pass
     val multiplier = when {
-        passes > 0 -> if (isSuccess) 1.5 else 0.5
+        passes == 1 -> if (isSuccess) 1.5 else 1.0 // passes == 1
+        passes >= 2 -> if (isSuccess) 1.5 else 0.5
         else -> if (isSuccess) 1.5 else 0.0
     }
 
@@ -76,21 +83,6 @@ private fun timeCalculator (passes : Int, isSuccess: Boolean) : Date {
     // Return the updated date
     return calendar.time
 }
-
-/*fun moveToNextCard(
-    cardList: List<Card>,
-    onNextCard: (Card?) -> Unit
-) : Boolean{
-    if (cardList.isEmpty()) {
-        onNextCard(null) // No cards available, handle end state
-        return false
-    }
-
-    // Generate a random index within the bounds of the card list
-    val randomIndex = Random.nextInt(cardList.size)
-    onNextCard(cardList[randomIndex])
-    return true
-}*/
 
 // Helper to update the card state
 fun handleCardUpdate(card: Card, success: Boolean, viewModel: CardViewModel) {

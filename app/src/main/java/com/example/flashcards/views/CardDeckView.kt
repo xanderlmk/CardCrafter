@@ -47,7 +47,7 @@ class CardDeckView(private val viewModel: CardViewModel){
         //val viewModel : CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val cardUiState by viewModel.cardUiState.collectAsState()
         var show by remember { mutableStateOf(false) }
-       var currentCard by remember { mutableStateOf<Card?>(null) }
+       //var currentCard by remember { mutableStateOf<Card?>(null) }
         val index = remember { mutableIntStateOf(0) }
         //var index.intValue = 0
         val coroutineScope = rememberCoroutineScope()
@@ -61,7 +61,9 @@ class CardDeckView(private val viewModel: CardViewModel){
                 .background(backgroundColor)
         ){
             BackButton(
-                onBackClick = { onNavigate() },
+                onBackClick = {
+                        onNavigate()
+                    },
                 modifier = presetModifier
             )
             Column(
@@ -110,19 +112,18 @@ class CardDeckView(private val viewModel: CardViewModel){
                             }
                         } else {
                             val good = ((cardUiState.cardList[index.intValue].passes + 1) * 1.5).toInt()
-                            val hard = (cardUiState.cardList[index.intValue].passes * 0.5).toInt()
+                            val hard = if(cardUiState.cardList[index.intValue].passes>0)((cardUiState.cardList[index.intValue].passes + 1 ) * 0.5).toInt()
+                            else (cardUiState.cardList[index.intValue].passes * 0.5).toInt()
                             loading.value = true
                             println("Index : ${index.intValue}")
                             println("${cardUiState.cardList.size}")
 
                             Box(modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
+                                .fillMaxSize(),
                                 contentAlignment = Alignment.BottomStart) {
-                                Column {
-                                    BackCard(cardUiState.cardList[index.intValue])
+
+                                BackCard(cardUiState.cardList[index.intValue])
                                     //BackCard(currentCard!!)
-                                }
                                 Row(
                                     horizontalArrangement = Arrangement.SpaceEvenly,
                                     modifier = Modifier

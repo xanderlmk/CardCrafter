@@ -57,7 +57,9 @@ class AddDeckView(private var viewModel: MainViewModel) {
                 .background(backgroundColor)
         ) {
             BackButton(
-                onBackClick = { onNavigate() },
+                onBackClick = {
+                    onNavigate()
+                },
                 modifier = presetModifier
             )
             Column(

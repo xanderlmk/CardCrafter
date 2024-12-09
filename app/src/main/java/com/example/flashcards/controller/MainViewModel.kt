@@ -100,7 +100,9 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
                         question = question,
                         answer = answer,
                         nextReview = Date(),
-                        passes = 0
+                        passes = 0,
+                        prevSuccess = false,
+                        totalPasses = 0
                     )
                 )
             }

@@ -35,12 +35,15 @@ import androidx.compose.ui.unit.sp
 import com.example.flashcards.model.Card
 import com.example.flashcards.ui.theme.borderColor
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.iconColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -107,8 +110,14 @@ fun BackButton(
     modifier: Modifier = Modifier,
     backgroundColor: Color = titleColor
 ) {
+    val coroutineScope = rememberCoroutineScope()
     IconButton(
-        onClick = onBackClick,
+        onClick = {
+            coroutineScope.launch {
+                delayNavigate()
+                onBackClick()
+            }
+        },
         modifier = modifier
             .background(color= backgroundColor, shape = RoundedCornerShape(16.dp))
     ) {
@@ -138,8 +147,8 @@ fun frontCard(card: Card) : Boolean {
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier
-                .padding(vertical = 4.dp)
-                .align(Alignment.Center)
+                .padding(vertical = 80.dp)
+                .align(Alignment.TopCenter)
         )
         Button(
             onClick = {
@@ -161,33 +170,34 @@ fun frontCard(card: Card) : Boolean {
 
 @Composable
 fun BackCard(card: Card) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp)
+                .padding(16.dp),
+            contentAlignment = Alignment.TopCenter
         ) {
-            Text(
-                text = card.question,
-                fontSize = 30.sp,
-                color = textColor,
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Text(
-                text = card.answer,
-                fontSize = 30.sp,
-                color = textColor,
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
+            Column {
+                Text(
+                    text = card.question,
+                    fontSize = 30.sp,
+                    color = textColor,
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(top = 80.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+                Text(
+                    text = card.answer,
+                    fontSize = 30.sp,
+                    color = textColor,
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
         }
 
 }

@@ -21,7 +21,9 @@ data class Card(
     val question : String,
     val answer : String,
     var nextReview: Date?,
-    var passes: Int
+    var passes: Int,
+    var prevSuccess: Boolean,
+    var totalPasses: Int
 )
 // Decks has many cards, one card belongs to a deck
 data class DeckWithCards(
@@ -31,6 +33,32 @@ data class DeckWithCards(
         entityColumn = "deckId"
     )
     val cards: List<Card>
+)
+
+@Entity(tableName = "basicCard")
+data class BasicCard(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val cardId : Int,
+    val question : String,
+    val answer : String,
+)
+
+@Entity(tableName = "threeFieldCard")
+data class ThreeFieldCard(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val cardId : Int,
+    val question : String,
+    val answer1 : String,
+    val answer2 : String,
+)
+
+@Entity(tableName = "hintCard")
+data class HintCard(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val cardId : Int,
+    val question : String,
+    val hint : String,
+    val answer : String,
 )
 
 class Converters {

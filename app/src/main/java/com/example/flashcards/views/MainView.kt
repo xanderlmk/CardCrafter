@@ -35,11 +35,15 @@ import androidx.compose.ui.unit.sp
 import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.model.Deck
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.rememberCoroutineScope
 import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.borderColor
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 class MainView {
     @Composable
@@ -48,6 +52,7 @@ class MainView {
                  onNavigateToAddDeck  : () -> Unit) {
 
         val uiState by viewModel.mainUiState.collectAsState()
+        val coroutineScope = rememberCoroutineScope()
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -88,7 +93,10 @@ class MainView {
                                         .padding(vertical = 4.dp)
                                         .background(backgroundColor)
                                         .clickable {
-                                            onNavigateToDeck(deck.id)
+                                            coroutineScope.launch {
+                                                delayNavigate()
+                                                onNavigateToDeck(deck.id)
+                                            }
                                         },
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -126,7 +134,11 @@ class MainView {
                             modifier = bottomLeftModifier,
                         ) {
                             SmallAddButton(
-                                onClick = { onNavigateToAddDeck() },
+                                onClick = {
+                                    coroutineScope.launch {
+                                        delayNavigate()
+                                        onNavigateToAddDeck()
+                                    }},
                             )
                         }
                     }

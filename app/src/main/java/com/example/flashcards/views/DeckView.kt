@@ -54,7 +54,7 @@ class DeckView(private var mainViewModel: MainViewModel,
     fun ViewEditDeck(deck: Deck, onNavigate: () -> Unit, whichView : View) {
         val cardViewModel: CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val cardUiState by cardViewModel.cardUiState.collectAsState()
-        val view = remember {View()}
+        val view = remember {whichView}
         val choosingView = ChoosingView(navController)
 
         val coroutineScope = rememberCoroutineScope()
@@ -212,7 +212,9 @@ class DeckView(private var mainViewModel: MainViewModel,
                         contentAlignment = Alignment.BottomEnd
                     ) {
                         AddCardButton(
-                            onClick = { view.whichView.intValue = 1 }
+                            onClick = {
+                                view.whichView.intValue = 1
+                            }
                         )
                     }
                 }
