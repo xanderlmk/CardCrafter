@@ -9,12 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,25 +19,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
-import androidx.lifecycle.viewModelScope
-import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.titleColor
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.text.font.FontWeight
+import com.example.flashcards.controller.DeckViewModel
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 
 
-class AddDeckView(private var viewModel: MainViewModel) {
+class AddDeckView(private var viewModel: DeckViewModel) {
 
 
     @Composable

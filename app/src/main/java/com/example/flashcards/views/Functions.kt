@@ -1,7 +1,6 @@
 package com.example.flashcards.views
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,7 +40,6 @@ import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.iconColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -66,7 +64,6 @@ fun EditTextField(
 @Composable
 fun SmallAddButton(
     onClick:() -> Unit,
-    backgroundColor: Color = titleColor,
     iconSize: Int = 45
 ) {
     FloatingActionButton(
@@ -88,9 +85,7 @@ fun SmallAddButton(
 
 @Composable
 fun AddCardButton (
-    onClick:() -> Unit,
-    backgroundColor: Color = titleColor,
-    iconSize: Int = 45
+    onClick:() -> Unit
 ){
     ExtendedFloatingActionButton(
         onClick = { onClick()},

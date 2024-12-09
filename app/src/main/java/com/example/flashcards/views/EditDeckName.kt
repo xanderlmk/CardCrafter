@@ -24,14 +24,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.controller.MainViewModel
+import com.example.flashcards.controller.DeckViewModel
 import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
 import kotlinx.coroutines.launch
 
-class EditDeckName(private var viewModel: MainViewModel) {
+class EditDeckName(private var viewModel: DeckViewModel) {
     @Composable
     fun ChangeDeckName(currentName: String, deckId: Int, onNavigate: () -> Unit) {
         var newDeckName by remember { mutableStateOf(currentName) }

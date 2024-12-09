@@ -13,7 +13,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,15 +22,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.controller.MainViewModel
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
 import androidx.compose.runtime.LaunchedEffect
+import com.example.flashcards.controller.DeckViewModel
 import com.example.flashcards.ui.theme.backgroundColor
 import kotlinx.coroutines.delay
 
-class AddCardView(private var viewModel: MainViewModel) {
+class AddCardView(private var viewModel: DeckViewModel) {
 
     @Composable
     fun AddCard(deckId: Int, onNavigate: () -> Unit) {

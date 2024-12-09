@@ -13,12 +13,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.flashcards.controller.AppNavHost
 import com.example.flashcards.controller.AppViewModelProvider
-import com.example.flashcards.controller.MainViewModel
+import com.example.flashcards.controller.DeckViewModel
 import com.example.flashcards.ui.theme.FlashcardsTheme
 import com.example.flashcards.views.MainView
 
 class MainActivity : ComponentActivity() {
-    private val mainViewModel : MainViewModel by viewModels {
+    private val deckViewModel : DeckViewModel by viewModels {
         AppViewModelProvider.Factory
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     AppNavHost(
                         navController = rememberNavController(),
-                        mainViewModel = mainViewModel,
+                        deckViewModel = deckViewModel,
                         modifier = Modifier.padding(innerPadding)
                     )
 

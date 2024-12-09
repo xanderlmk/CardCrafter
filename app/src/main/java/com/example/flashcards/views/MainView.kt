@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,32 +21,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.controller.MainViewModel
-import com.example.flashcards.model.Deck
+import com.example.flashcards.controller.DeckViewModel
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.rememberCoroutineScope
 import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.borderColor
-import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 class MainView {
     @Composable
-    fun DeckList(viewModel: MainViewModel,
+    fun DeckList(viewModel: DeckViewModel,
                  onNavigateToDeck : (Int) -> Unit,
                  onNavigateToAddDeck  : () -> Unit) {
 
@@ -111,7 +101,7 @@ class MainView {
                                             .padding(horizontal = 8.dp)
                                     ) {
                                         Text(
-                                            text = "${deck.name}",
+                                            text = deck.name,
                                             fontSize = 30.sp,
                                             color = textColor,
                                             style = MaterialTheme.typography.titleLarge

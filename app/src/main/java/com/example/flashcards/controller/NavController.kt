@@ -33,20 +33,19 @@ import kotlinx.coroutines.launch
 @Composable
 fun AppNavHost(
     navController : NavHostController,
-    mainViewModel: MainViewModel,
+    deckViewModel: DeckViewModel,
     modifier: Modifier = Modifier
 ) {
     val mainView = MainView()
-    val addDeckView = AddDeckView(mainViewModel)
-    val deckView = DeckView(mainViewModel, navController)
-    val uiState by mainViewModel.mainUiState.collectAsState()
-    val addCardView = AddCardView(mainViewModel)
+    val addDeckView = AddDeckView(deckViewModel)
+    val deckView = DeckView(deckViewModel, navController)
+    val uiState by deckViewModel.mainUiState.collectAsState()
+    val addCardView = AddCardView(deckViewModel)
     val view = remember { View() }
     val choosingView = ChoosingView(navController)
     val cardViewModel : CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    val cardUiState by cardViewModel.cardUiState.collectAsState()
     val cardDeckView = CardDeckView(cardViewModel)
-    val editDeckName = EditDeckName(mainViewModel)
+    val editDeckName = EditDeckName(deckViewModel)
     val deckEditView = remember {DeckEditView(cardViewModel, navController)}
     NavHost(
         navController = navController,
@@ -59,7 +58,7 @@ fun AppNavHost(
                 (navController.context as? Activity)?.finish()
             }
             mainView.DeckList(
-                mainViewModel,
+                deckViewModel,
                 // In DeckList Composable
                 onNavigateToDeck = { deckId ->
                     navController.navigate("DeckView/$deckId")

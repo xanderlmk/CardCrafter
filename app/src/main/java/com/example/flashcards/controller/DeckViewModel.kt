@@ -19,11 +19,9 @@ import java.util.Date
 /**
  * ViewModel to retrieve all items in the Room database.
  */
-class MainViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
+class DeckViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
 
     private val _errorMessage = MutableStateFlow<String?>(null)
-
-
 
     val mainUiState: StateFlow<MainUiState> =
         flashCardRepository.getAllDecksStream().map { MainUiState(it) }
@@ -35,8 +33,6 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
-
-
 
     suspend fun checkIfDeckExists(name: String): Int {
         return withContext(Dispatchers.IO) {
@@ -56,6 +52,7 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
                     flashCardRepository.insertDeck(Deck(name = name))
                 } catch (e: SQLiteConstraintException) {
                     _errorMessage.value = "A deck with this name already exists"
+                    println(e)
                 } catch (e: Exception){
                     _errorMessage.value = "error adding deck: ${e.message}"
                 }
@@ -63,7 +60,7 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
         }
     }
 
-        // Deleting a deck via the repository
+    // Deleting a deck via the repository
     fun deleteDeck(deck: Deck) {
         viewModelScope.launch {
             flashCardRepository.deleteAllCards(deck.id)
@@ -81,6 +78,7 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
                 rowsUpdated
             } catch (e: SQLiteConstraintException) {
                 _errorMessage.value = "A deck with this name already exists"
+                println(e)
                 0
             } catch (e: Exception) {
                 _errorMessage.value = "Error updating deck name: ${e.message}"
@@ -88,8 +86,6 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
             }
         }
     }
-
-
 
     fun addCard(deckId : Int, question:String, answer:String) {
         if(question.isNotEmpty() && answer.isNotEmpty()) {
@@ -109,7 +105,6 @@ class MainViewModel(private val flashCardRepository: FlashCardRepository) : View
         }
     }
 }
-
 
 data class MainUiState(val deckList: List<Deck> = listOf())
 

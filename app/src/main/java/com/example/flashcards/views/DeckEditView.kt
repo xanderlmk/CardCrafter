@@ -42,8 +42,6 @@ import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 class DeckEditView(private var viewModel: CardViewModel,

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,16 +28,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.controller.CardUiState
 import com.example.flashcards.controller.CardViewModel
 import com.example.flashcards.controller.handleCardUpdate
-import com.example.flashcards.model.Card
 import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 
 class CardDeckView(private val viewModel: CardViewModel){
