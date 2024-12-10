@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -43,6 +44,7 @@ import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
 import kotlinx.coroutines.launch
+import com.example.flashcards.R
 
 class DeckEditView(private var viewModel: CardViewModel,
                    var navController: NavController){
@@ -55,7 +57,8 @@ class DeckEditView(private var viewModel: CardViewModel,
     @Composable
     fun ViewFlashCards(deckId: Int, onNavigate: () -> Unit) {
         val coroutineScope = rememberCoroutineScope()
-        var deckWithCards by remember { mutableStateOf(DeckWithCards(Deck(0, "Loading..."), emptyList())) }
+        val loading = stringResource(R.string.loading)
+        var deckWithCards by remember { mutableStateOf(DeckWithCards(Deck(0, loading.toString() ), emptyList())) }
 
         coroutineScope.launch {
             viewModel.getDeckWithCards(deckId).collect { data ->
@@ -74,13 +77,7 @@ class DeckEditView(private var viewModel: CardViewModel,
                     .background(backgroundColor),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    "Loading...",
-                    fontSize = 35.sp,
-                    textAlign = TextAlign.Center,
-                    color = textColor,
-                    style = MaterialTheme.typography.titleLarge
-                )
+                LoadingText()
             }
             LaunchedEffect(navigate.value) {
                 if (!navigate.value) {
@@ -109,7 +106,7 @@ class DeckEditView(private var viewModel: CardViewModel,
                     }
                     item {
                         Text(
-                            text = "Deck: ${deckWithCards.deck.name}",
+                            text = stringResource(R.string.deck) + ": ${deckWithCards.deck.name}",
                             fontSize = 35.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
@@ -132,7 +129,7 @@ class DeckEditView(private var viewModel: CardViewModel,
                                 .fillMaxWidth()
                                 .padding(8.dp)
                         ) {
-                            Text(text = "Question: ${card.question}")
+                            Text(text = stringResource(R.string.question) + ": ${card.question}")
                         }
                     }
                 }
@@ -158,8 +155,9 @@ class DeckEditView(private var viewModel: CardViewModel,
             ) {
 
                 Text(
-                    text = "Edit Flashcard",
+                    text = stringResource(R.string.edit_flashcard),
                     fontSize = 40.sp,
+                    lineHeight = 42.sp,
                     textAlign = TextAlign.Center,
                     color = titleColor,
                     modifier = Modifier
@@ -172,14 +170,14 @@ class DeckEditView(private var viewModel: CardViewModel,
                 TextField(
                     value = question,
                     onValueChange = { question = it },
-                    label = { Text("Question") },
+                    label = { Text(stringResource(R.string.question)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 TextField(
                     value = answer,
                     onValueChange = { answer = it },
-                    label = { Text("Answer") },
+                    label = { Text(stringResource(R.string.answer)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -199,13 +197,29 @@ class DeckEditView(private var viewModel: CardViewModel,
                 ) {
                     Button(
                         onClick = {
+                            coroutineScope.launch{
+                                delayNavigate()
+                                onDismiss()
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = buttonColor,
+                            contentColor = textColor
+                        )
+                    ) {
+                        Text(stringResource(R.string.cancel))
+                    }
+
+                    Button(
+                        onClick = {
                             // Handle updating the flashcard logic here
                             // e.g., viewModel.updateCard(card.copy(question = question.text, answer = answer.text))
                             if (question.text.isNotBlank() && answer.text.isNotBlank()) {
                                 viewModel.updateCardDetails(card.id, question.text, answer.text)
                                 onDismiss()
                             } else {
-                                errorMessage = "please fill out all field"
+                                errorMessage = R.string.fill_out_all_fields.toString()
                             }
 
 
@@ -217,35 +231,10 @@ class DeckEditView(private var viewModel: CardViewModel,
                             contentColor = textColor
                         )
                     ) {
-                        Text("Save")
+                        Text(stringResource(R.string.save))
                     }
-
-
-
-                    Button(
-                        onClick = {
-                            coroutineScope.launch{
-                                delayNavigate()
-                                onDismiss()
-                            }
-                                  },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = buttonColor,
-                            contentColor = textColor
-                        )
-                    ) {
-                        Text("Cancel")
-                    }
-
-
                 }
             }
         }
-
     }
-
-
-
-
 }

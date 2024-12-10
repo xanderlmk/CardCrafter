@@ -34,6 +34,8 @@ import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.example.flashcards.R
 
 
 class CardDeckView(private val viewModel: CardViewModel){
@@ -75,10 +77,7 @@ class CardDeckView(private val viewModel: CardViewModel){
                 if (cardUiState.cardList.isEmpty()) {
                     viewModel.getDueCards(deckId)
                     if (cardUiState.cardList.isEmpty()) {
-                        Text(
-                            "No Due Cards",
-                            color = textColor
-                        )
+                        NoDueCards()
                    }
                 } else {
                     val loading = remember { mutableStateOf(false) }
@@ -97,13 +96,7 @@ class CardDeckView(private val viewModel: CardViewModel){
 
                             }
                             else {
-                                Text(
-                                    "...",
-                                    fontSize = 35.sp,
-                                    textAlign = TextAlign.Center,
-                                    color = textColor,
-                                    style = MaterialTheme.typography.titleLarge
-                                )
+                                LoadingText()
                             }
                         } else {
                             val good = ((cardUiState.cardList[index.intValue].passes + 1) * 1.5).toInt()
@@ -144,7 +137,7 @@ class CardDeckView(private val viewModel: CardViewModel){
                                             containerColor = buttonColor,
                                             contentColor = textColor
                                         )
-                                    ) { Text("Again") }
+                                    ) { Text(stringResource(R.string.again)) }
 
                                     Column(
                                         verticalArrangement = Arrangement.Top,
@@ -170,9 +163,9 @@ class CardDeckView(private val viewModel: CardViewModel){
                                                 containerColor = buttonColor,
                                                 contentColor = textColor
                                             )
-                                        ) { Text("Hard") }
+                                        ) { Text(stringResource(R.string.hard)) }
                                         Text(
-                                            "$hard days",
+                                            "$hard " + stringResource(R.string.days),
                                             color = textColor
                                         )
 
@@ -200,9 +193,9 @@ class CardDeckView(private val viewModel: CardViewModel){
                                                 containerColor = buttonColor,
                                                 contentColor = textColor
                                             )
-                                        ) { Text("Good") }
+                                        ) { Text(stringResource(R.string.good)) }
                                         Text(
-                                            "$good days",
+                                            "$good " + stringResource(R.string.days),
                                             color = textColor
                                         )
                                     }

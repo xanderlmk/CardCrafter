@@ -17,4 +17,5 @@ val titleColor = Color(5, 66, 126, 255)
 val borderColor = Color(106, 154, 176)
 val iconColor = Color(212, 241, 244)
 val textColor = Color(28, 116, 161, 255)
+val deleteTextColor = Color.Red
 val buttonColor = Color(117, 230, 218)

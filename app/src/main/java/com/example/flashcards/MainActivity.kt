@@ -15,7 +15,6 @@ import com.example.flashcards.controller.AppNavHost
 import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.DeckViewModel
 import com.example.flashcards.ui.theme.FlashcardsTheme
-import com.example.flashcards.views.MainView
 
 class MainActivity : ComponentActivity() {
     private val deckViewModel : DeckViewModel by viewModels {

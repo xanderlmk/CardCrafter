@@ -26,9 +26,11 @@ import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
 import com.example.flashcards.controller.DeckViewModel
 import com.example.flashcards.ui.theme.backgroundColor
 import kotlinx.coroutines.delay
+import com.example.flashcards.R
 
 class AddCardView(private var viewModel: DeckViewModel) {
 
@@ -38,6 +40,8 @@ class AddCardView(private var viewModel: DeckViewModel) {
         var answer by remember { mutableStateOf("") }
         var errorMessage by remember { mutableStateOf("") }
         var successMessage by remember { mutableStateOf("") }
+        val fillOutFields = stringResource(R.string.fill_out_all_fields).toString()
+        val cardAdded = stringResource(R.string.card_added).toString()
         val presetModifier = Modifier
             .padding(top = 16.dp,start = 16.dp, end = 16.dp)
             .size(54.dp)
@@ -61,7 +65,7 @@ class AddCardView(private var viewModel: DeckViewModel) {
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Question",
+                    text = stringResource(R.string.question),
                     fontSize = 45.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 116.sp,
@@ -81,13 +85,13 @@ class AddCardView(private var viewModel: DeckViewModel) {
                             question =
                                 newText
                         },
-                        labelStr = "Question",
+                        labelStr = stringResource(R.string.question),
                         modifier = Modifier
                             .weight(1f)
                     )
                 }
                 Text(
-                    text = "Answer",
+                    text = stringResource(R.string.answer),
                     fontSize = 45.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 116.sp,
@@ -105,7 +109,7 @@ class AddCardView(private var viewModel: DeckViewModel) {
                             answer =
                                 newText
                         },
-                        labelStr = "Answer",
+                        labelStr = stringResource(R.string.answer),
                         modifier = Modifier
                             .weight(1f)
                     )
@@ -144,14 +148,14 @@ class AddCardView(private var viewModel: DeckViewModel) {
                     Button(
                         onClick = {
                             if (question.isBlank() || answer.isBlank()) {
-                                errorMessage = "Both fields must be filled out"
+                                errorMessage = fillOutFields
                                 successMessage = ""
                             } else {
                                 viewModel.addCard(deckId, question, answer)
                                 question = ""
                                 answer = ""
                                 errorMessage = ""
-                                successMessage = "Card added!"
+                                successMessage = cardAdded
                             }
                         },
                         modifier = Modifier.padding(top = 48.dp),
@@ -160,7 +164,7 @@ class AddCardView(private var viewModel: DeckViewModel) {
                             contentColor = textColor
                         )
                     ) {
-                        Text("Submit")
+                        Text(stringResource(R.string.submit))
                     }
                 }
             }

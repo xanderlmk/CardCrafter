@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,6 +24,7 @@ import com.example.flashcards.model.Deck
 import com.example.flashcards.ui.theme.titleColor
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.flashcards.controller.AppViewModelProvider
@@ -34,6 +34,8 @@ import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import kotlinx.coroutines.launch
+import com.example.flashcards.R
+import com.example.flashcards.ui.theme.deleteTextColor
 
 
 class DeckView(private var mainViewModel: DeckViewModel,
@@ -113,36 +115,20 @@ class DeckView(private var mainViewModel: DeckViewModel,
                             ) {
                                 Button(
                                     onClick = {
-                                        mainViewModel.deleteDeck(deck)
-                                        onNavigate()
-                                    },
-                                    modifier = Modifier.width(300.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = buttonColor,
-                                        contentColor = textColor
-                                    )
-                                ) {
-                                    Text("Delete Deck")
-                                }
-                                Spacer(modifier = Modifier.width(16.dp))
-                            }
-                            Box(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Button(
-                                    onClick = {
                                         coroutineScope.launch {
                                             cardViewModel.getDueCards(deck.id)
                                         }
                                         view.whichView.intValue = 2
                                     },
-                                    modifier = Modifier.width(300.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth(fraction = 0.55f)
+                                        .align(Alignment.Center),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = buttonColor,
                                         contentColor = textColor
                                     )
                                 ) {
-                                    Text("Start Deck")
+                                    Text(stringResource(R.string.start_deck))
                                 }
                             }
                         }
@@ -150,7 +136,7 @@ class DeckView(private var mainViewModel: DeckViewModel,
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 48.dp, start = 20.dp, end = 20.dp),
+                                .padding(top = 20.dp, start = 8.dp, end = 8.dp),
                             horizontalArrangement = Arrangement.Center // Adjust the arrangement as needed
                         ) {
                             Box(
@@ -164,9 +150,11 @@ class DeckView(private var mainViewModel: DeckViewModel,
                                         containerColor = buttonColor,
                                         contentColor = textColor
                                     ),
-                                    modifier = Modifier.width(300.dp) // Fill the width of the Box
+                                    modifier = Modifier
+                                        .fillMaxWidth() // Fill the width of the Box
+                                        .padding(2.dp)
                                 ) {
-                                    Text("Edit Deck")
+                                    Text(stringResource(R.string.edit_deck))
                                 }
                             }
 
@@ -181,9 +169,35 @@ class DeckView(private var mainViewModel: DeckViewModel,
                                         containerColor = buttonColor,
                                         contentColor = textColor
                                     ),
-                                    modifier = Modifier.width(300.dp) // Fill the width of the Box
+                                    modifier = Modifier
+                                        .fillMaxWidth() // Fill the width of the Box
+                                        .padding(2.dp)
                                 ) {
-                                    Text("Edit Flashcards")
+                                    Text(stringResource(R.string.edit_flashcards))
+                                }
+                            }
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 20.dp, start = 20.dp, end = 20.dp)
+                        ){
+                            Box(
+                            modifier = Modifier.weight(1f)
+                            ) {
+                            Button(
+                                onClick = {
+                                    mainViewModel.deleteDeck(deck)
+                                    onNavigate() },
+                                    modifier = Modifier.fillMaxWidth(fraction = 0.55f)
+                                        .align(Alignment.Center),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = buttonColor,
+                                        contentColor = deleteTextColor
+                                    )
+                                ) {
+                                    Text(stringResource(R.string.delete_deck))
                                 }
                             }
                         }

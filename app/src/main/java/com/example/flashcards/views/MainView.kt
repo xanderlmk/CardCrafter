@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 
-
 import androidx.compose.foundation.layout.Column
 
 import androidx.compose.foundation.layout.Row
@@ -34,6 +33,8 @@ import com.example.flashcards.ui.theme.borderColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.example.flashcards.R
 
 class MainView {
     @Composable
@@ -62,8 +63,8 @@ class MainView {
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "Decks",
-                            fontSize = 40.sp,
+                            text = stringResource(R.string.deck_list),
+                            fontSize = 35.sp,
                             fontWeight = FontWeight.Bold,
                             color = titleColor
                         )

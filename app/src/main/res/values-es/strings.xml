@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_card">Añadir Carta</string>
+    <string name="deck_list">Lista de Mazos</string>
+    <string name="add_deck">Añadir Mazo</string>
+    <string name="again">Otra Vez</string>
+    <string name="hard">Dificil</string>
+    <string name="good">Bueno</string>
+    <string name="submit">Entregar</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="question">Pregunta</string>
+    <string name="answer">Respuesta</string>
+    <string name="start_deck">Empezar Mazo</string>
+    <string name="delete_deck">Borrar Mazo</string>
+    <string name="days">Dias</string>
+    <string name="deck_name">Nombre De Mazo</string>
+    <string name="deck">Mazo</string>
+    <string name="loading">Cargando...</string>
+    <string name="error_occurred">Ocurrió un error</string>
+    <string name="change_deck_name">Cambiar Nombre De Mazo</string>
+    <string name="edit_deck">Modificar Mazo</string>
+    <string name="edit_flashcards">Modificar Cartas</string>
+    <string name="fill_out_all_fields">Por favor llene todos los campos</string>
+    <string name="edit_flashcard">Modificar Carta</string>
+    <string name="card_added">Carta Añadido!</string>
+    <string name="deck_already_exists">Existe un Mazo de ese nombre</string>
+    <string name="error">Error</string>
+    <string name="no_due_cards">No Cartas Debidas</string>
+    <string name="show_answer">Mostrar Respuesta</string>
+</resources>

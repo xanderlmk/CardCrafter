@@ -31,6 +31,8 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.flashcards.controller.DeckViewModel
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
+import androidx.compose.ui.res.stringResource
+import com.example.flashcards.R
 
 
 class AddDeckView(private var viewModel: DeckViewModel) {
@@ -41,6 +43,9 @@ class AddDeckView(private var viewModel: DeckViewModel) {
         var errorMessage by remember { mutableStateOf("")}
         var deckName by remember {mutableStateOf("")  }
         val coroutineScope =  rememberCoroutineScope()
+        val fieldOutAllFields = stringResource(R.string.fill_out_all_fields).toString()
+        val deckNameAlreadyExists = stringResource(R.string.deck_already_exists).toString()
+        val error = stringResource(R.string.error).toString()
         val presetModifier = Modifier
             .padding(top = 16.dp,start = 16.dp, end = 16.dp)
             .size(54.dp)
@@ -63,7 +68,7 @@ class AddDeckView(private var viewModel: DeckViewModel) {
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Add A Deck",
+                    text = stringResource(R.string.add_deck),
                     fontSize = 40.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 116.sp,
@@ -84,7 +89,7 @@ class AddDeckView(private var viewModel: DeckViewModel) {
                         onValueChanged = { newText ->
                             deckName = newText
                         },
-                        labelStr = "Deck Name",
+                        labelStr = stringResource(R.string.deck_name),
                         modifier = Modifier
                             .weight(1f)
                     )
@@ -96,20 +101,20 @@ class AddDeckView(private var viewModel: DeckViewModel) {
                     Button(
                         onClick = {
                             if (deckName.isBlank()) {
-                                errorMessage = "Deck must be filled out"
+                                errorMessage = fieldOutAllFields
                             } else {
                                 coroutineScope.launch {
                                     try {
                                         val exists = viewModel.checkIfDeckExists(deckName)
                                         if (exists > 0) {
-                                            errorMessage = "deck name already exists"
+                                            errorMessage = deckNameAlreadyExists
                                         } else {
                                             viewModel.addDeck(deckName)
                                             deckName = ""
                                             onNavigate()
                                         }
                                     } catch (e: Exception) {
-                                        errorMessage = "Error: ${e.message}"
+                                        errorMessage = "$error: ${e.message}"
                                     }
                                 }
                             }
@@ -120,7 +125,7 @@ class AddDeckView(private var viewModel: DeckViewModel) {
                         ),
                         modifier = Modifier.padding(top = 48.dp)
                     ) {
-                        Text("Submit")
+                        Text(stringResource(R.string.submit))
                     }
                 }
                 if (errorMessage.isNotEmpty()) {

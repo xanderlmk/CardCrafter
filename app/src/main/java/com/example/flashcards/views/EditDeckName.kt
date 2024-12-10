@@ -21,6 +21,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +32,7 @@ import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
 import kotlinx.coroutines.launch
+import com.example.flashcards.R
 
 class EditDeckName(private var viewModel: DeckViewModel) {
     @Composable
@@ -51,11 +54,13 @@ class EditDeckName(private var viewModel: DeckViewModel) {
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 Text(
-                    text = "Change Deck Name: $currentName",
+                    text = stringResource(R.string.change_deck_name) + ": $currentName",
                     fontSize = 30.sp,
+                    lineHeight = 32.sp,
                     textAlign = TextAlign.Center,
                     color = titleColor,
-                    modifier = Modifier.padding(top = 10.dp)
+                    fontWeight = Bold,
+                    modifier = Modifier.padding(top = 20.dp)
                 )
 
                 EditTextField(
@@ -64,7 +69,7 @@ class EditDeckName(private var viewModel: DeckViewModel) {
                         newDeckName = it
                         errorMessage = "" // Clear error when user types
                     },
-                    labelStr = "Deck Name",
+                    labelStr = stringResource(R.string.deck_name),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 10.dp),
@@ -81,7 +86,8 @@ class EditDeckName(private var viewModel: DeckViewModel) {
                 }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
@@ -96,7 +102,7 @@ class EditDeckName(private var viewModel: DeckViewModel) {
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
 
                     Button(
@@ -128,7 +134,7 @@ class EditDeckName(private var viewModel: DeckViewModel) {
                                         errorMessage = "Failed to update deck name"
                                     }
                                 } catch (e: Exception) {
-                                    errorMessage = e.message ?: "An error occurred"
+                                    errorMessage = e.message ?: R.string.error_occurred.toString()
                                 } finally {
                                     isSubmitting = false
                                 }
@@ -147,7 +153,7 @@ class EditDeckName(private var viewModel: DeckViewModel) {
                                 modifier = Modifier.size(24.dp)
                             )
                         } else {
-                            Text("Submit")
+                            Text(stringResource(R.string.submit))
                         }
                     }
                 }
