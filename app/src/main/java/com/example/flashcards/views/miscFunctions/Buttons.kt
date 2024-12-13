@@ -1,4 +1,4 @@
-package com.example.flashcards.views
+package com.example.flashcards.views.miscFunctions
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding

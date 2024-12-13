@@ -1,4 +1,4 @@
-package com.example.flashcards.views
+package com.example.flashcards.views.deckViews
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,13 +26,16 @@ import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.titleColor
 import kotlinx.coroutines.launch
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.text.font.FontWeight
-import com.example.flashcards.controller.DeckViewModel
+import com.example.flashcards.controller.viewModels.DeckViewModel
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import androidx.compose.ui.res.stringResource
 import com.example.flashcards.R
+import com.example.flashcards.views.miscFunctions.BackButton
+import com.example.flashcards.views.miscFunctions.EditTextField
 
 
 class AddDeckView(private var viewModel: DeckViewModel) {
@@ -131,7 +134,7 @@ class AddDeckView(private var viewModel: DeckViewModel) {
                 if (errorMessage.isNotEmpty()) {
                     Text(
                         text = errorMessage,
-                        color = androidx.compose.ui.graphics.Color.Red,
+                        color = Color.Red,
                         modifier = Modifier.padding(8.dp),
                         fontSize = 16.sp
                     )

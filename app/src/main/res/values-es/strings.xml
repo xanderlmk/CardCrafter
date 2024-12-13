@@ -28,4 +28,5 @@
     <string name="error">Error</string>
     <string name="no_due_cards">No Cartas Debidas</string>
     <string name="show_answer">Mostrar Respuesta</string>
+    <string name="middle_field">Campo Medio</string>
 </resources>

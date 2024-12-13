@@ -9,11 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.flashcards.controller.AppNavHost
 import com.example.flashcards.controller.AppViewModelProvider
-import com.example.flashcards.controller.DeckViewModel
+import com.example.flashcards.controller.viewModels.DeckViewModel
 import com.example.flashcards.ui.theme.FlashcardsTheme
 
 class MainActivity : ComponentActivity() {

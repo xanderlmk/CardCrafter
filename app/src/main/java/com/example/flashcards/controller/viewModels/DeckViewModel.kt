@@ -1,25 +1,27 @@
-package com.example.flashcards.controller
+package com.example.flashcards.controller.viewModels
 
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.flashcards.model.FlashCardRepository
+import com.example.flashcards.model.repositories.CardTypeRepository
+import com.example.flashcards.model.repositories.FlashCardRepository
+import com.example.flashcards.model.tablesAndApplication.Card
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import com.example.flashcards.model.Card
-import com.example.flashcards.model.Deck
+import com.example.flashcards.model.tablesAndApplication.Deck
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
-import java.util.Date
 
 /**
  * ViewModel to retrieve all items in the Room database.
  */
-class DeckViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
+class DeckViewModel(private val flashCardRepository: FlashCardRepository,
+    private val cardTypeRepository: CardTypeRepository) : ViewModel() {
 
     private val _errorMessage = MutableStateFlow<String?>(null)
 
@@ -62,7 +64,7 @@ class DeckViewModel(private val flashCardRepository: FlashCardRepository) : View
 
     // Deleting a deck via the repository
     fun deleteDeck(deck: Deck) {
-        viewModelScope.launch {
+        viewModelScope.launch{
             flashCardRepository.deleteAllCards(deck.id)
             flashCardRepository.deleteDeck(deck)
         }
@@ -83,24 +85,6 @@ class DeckViewModel(private val flashCardRepository: FlashCardRepository) : View
             } catch (e: Exception) {
                 _errorMessage.value = "Error updating deck name: ${e.message}"
                 0
-            }
-        }
-    }
-
-    fun addCard(deckId : Int, question:String, answer:String) {
-        if(question.isNotEmpty() && answer.isNotEmpty()) {
-            viewModelScope.launch {
-                flashCardRepository.insertCard(
-                    Card(
-                        deckId = deckId,
-                        question = question,
-                        answer = answer,
-                        nextReview = Date(),
-                        passes = 0,
-                        prevSuccess = false,
-                        totalPasses = 0
-                    )
-                )
             }
         }
     }

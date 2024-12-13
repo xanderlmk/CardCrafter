@@ -1,4 +1,4 @@
-package com.example.flashcards.views
+package com.example.flashcards.views.deckViews
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,18 +21,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.controller.DeckViewModel
+import com.example.flashcards.controller.viewModels.DeckViewModel
 import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.ui.theme.titleColor
 import kotlinx.coroutines.launch
 import com.example.flashcards.R
+import com.example.flashcards.views.miscFunctions.EditTextField
+import com.example.flashcards.views.miscFunctions.delayNavigate
 
 class EditDeckName(private var viewModel: DeckViewModel) {
     @Composable
@@ -79,7 +82,7 @@ class EditDeckName(private var viewModel: DeckViewModel) {
                 if (errorMessage.isNotEmpty()) {
                     Text(
                         text = errorMessage,
-                        color = androidx.compose.ui.graphics.Color.Red,
+                        color = Color.Red,
                         modifier = Modifier.fillMaxWidth(),
                         fontSize = 16.sp
                     )

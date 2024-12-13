@@ -1,4 +1,9 @@
-package com.example.flashcards.model
+package com.example.flashcards.model.repositories
+import com.example.flashcards.model.tablesAndApplication.Card
+import com.example.flashcards.model.tablesAndApplication.DeckWithCards
+import com.example.flashcards.model.tablesAndApplication.Deck
+import com.example.flashcards.model.daoFiles.CardDao
+import com.example.flashcards.model.daoFiles.DeckDao
 import kotlinx.coroutines.flow.Flow
 
 class OfflineFlashCardRepository(
@@ -15,7 +20,8 @@ class OfflineFlashCardRepository(
 
     override fun getAllDecksStream(): Flow<List<Deck>> = deckDao.getAllDecks()
 
-    override suspend fun updateCardDetails(cardID: Int, newQuestion: String, newAnswer: String) = cardDao.updateCard(cardID, newQuestion, newAnswer)
+    override suspend fun updateCardType(cardId: Int, type:  String) =
+        cardDao.updateCard(cardId, type)
 
     override fun getDeckStream(id: Int): Flow<Deck?> = deckDao.getDeck(id)
 
@@ -36,8 +42,6 @@ class OfflineFlashCardRepository(
 
     override suspend fun updateCard(card: Card) = cardDao.updateCard(card)
 
-
-
     override suspend fun deleteCard(card: Card) = cardDao.deleteCard(card)
 
     override fun getDeckWithCards(deckId: Int):
@@ -47,4 +51,5 @@ class OfflineFlashCardRepository(
             Flow<List<Card>> = cardDao.getDueCards(deckId, currentTime)
 
     override suspend fun deleteAllCards(deckId: Int) = cardDao.deleteAllCards(deckId)
+
 }
