@@ -2,9 +2,11 @@
 Features : 
 - Room Database set up implementation
 - Tables with time variable
-- Two tables with the relationship 1 to many
+- Deck and Card tables with the relationship 1 to many
 - A populated database on create app.
 - Complex NavHost
 - VMC/MVVM
+- Different Card Types
+
 
 
