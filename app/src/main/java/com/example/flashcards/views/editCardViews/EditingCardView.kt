@@ -12,6 +12,11 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.flashcards.controller.BasicCardTypeHandler
+import com.example.flashcards.controller.CardTypeHandler
+import com.example.flashcards.controller.HintCardTypeHandler
+import com.example.flashcards.controller.NullType
+import com.example.flashcards.controller.ThreeCardTypeHandler
 import com.example.flashcards.controller.viewModels.BasicCardViewModel
 import com.example.flashcards.controller.viewModels.CardListUiState
 import com.example.flashcards.controller.viewModels.HintCardViewModel
@@ -42,43 +47,27 @@ class EditingCardView(
                     .padding(50.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                when (selectedCard.value?.type) {
+                val cardTypeHandler = when (selectedCard.value?.type) {
                     "basic" -> {
-                        val cardType =
-                            cardListUiState.allCards.find {
-                                it.basicCard?.cardId == card.id
-                            }
-                        cardType?.basicCard?.let { basicCard ->
-                            EditBasicCard(basicCard, onDismiss, cardTypes.first, fields)
-                        }
+                        BasicCardTypeHandler()
                     }
-
                     "three" -> {
-                        val cardType =
-                            cardListUiState.allCards.find {
-                                it.threeFieldCard?.cardId == card.id
-                            }
-                        cardType?.threeFieldCard?.let { threeCard ->
-                            EditThreeCard(threeCard, onDismiss, cardTypes.second, fields)
-                        }
+                        ThreeCardTypeHandler()
                     }
-
                     "hint" -> {
-                        val cardType =
-                            cardListUiState.allCards.find {
-                                it.hintCard?.cardId == card.id
-                            }
-                        cardType?.hintCard?.let { hintCard ->
-                            EditHintCard(hintCard, onDismiss, cardTypes.third, fields)
-                        }
+                        HintCardTypeHandler()
                     }
                     else -> {
-                        Box(modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center) {
-                            LoadingText()
-                        }
+                        NullType()
                     }
                 }
+                cardTypeHandler.HandleCardEdit(
+                    cardListUiState = cardListUiState,
+                cardId = card.id,
+                onDismiss = onDismiss,
+                cardTypes = cardTypes,
+                fields = fields
+                )
             }
         }
     }

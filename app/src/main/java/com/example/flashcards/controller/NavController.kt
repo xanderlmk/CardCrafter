@@ -35,6 +35,7 @@ import com.example.flashcards.model.Fields
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.views.editCardViews.EditingCardView
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
 
 
 @Composable
@@ -237,12 +238,8 @@ fun AppNavHost(
             val card = remember { mutableStateOf<Card?>(null) }
             LaunchedEffect(Unit) {
                 coroutineScope.launch {
-                    cardViewModel.getDeckWithCards(deckId?: 0, cardTypeViewModel).run {
-                        deckEditView.selectedCard.value = cardListUiState.allCards.find {
-                            it.card.id == cardId
-                        }?.card
-                        card.value = deckEditView.selectedCard.value
-                    }
+                    card.value = cardViewModel.getCardById(cardId?: 0)
+                    deckEditView.selectedCard.value = card.value
                 }
             }
             BackHandler {
@@ -270,8 +267,8 @@ fun AppNavHost(
         }
     }
 }
-/*
 
+/* For future reference
 composable(
             route = "EditingBasicCard/{cardId}/{deckId}",
             arguments = listOf(navArgument("cardId") { type = NavType.IntType },

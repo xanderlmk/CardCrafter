@@ -35,7 +35,6 @@ fun AddHintCard(viewModel: HintCardViewModel,deckId: Int, fields: Fields) {
     var successMessage by remember { mutableStateOf("") }
     val fillOutFields = stringResource(R.string.fill_out_all_fields).toString()
     val cardAdded = stringResource(R.string.card_added).toString()
-
     Text(
         text = stringResource(R.string.question),
         fontSize = 45.sp,
@@ -63,13 +62,13 @@ fun AddHintCard(viewModel: HintCardViewModel,deckId: Int, fields: Fields) {
         )
     }
     Text(
-        text = stringResource(R.string.middle_field),
+        text = stringResource(R.string.hint_field),
         fontSize = 45.sp,
         textAlign = TextAlign.Center,
         lineHeight = 116.sp,
         color = titleColor,
         modifier = Modifier
-            .padding(top = 20.dp)
+            .padding(top = 15.dp)
     )
     Row(
         modifier = Modifier
@@ -83,7 +82,7 @@ fun AddHintCard(viewModel: HintCardViewModel,deckId: Int, fields: Fields) {
                 fields.middleField.value =
                     newText
             },
-            labelStr = stringResource(R.string.middle_field),
+            labelStr = stringResource(R.string.hint_field),
             modifier = Modifier
                 .weight(1f)
         )

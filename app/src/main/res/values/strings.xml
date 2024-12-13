@@ -16,7 +16,7 @@
     <string name="days">Days</string>
     <string name="deck_name">Deck Name</string>
     <string name="deck">Deck</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="error_occurred">An Error Occurred</string>
     <string name="change_deck_name">Change Deck Name</string>
     <string name="edit_deck">Edit Deck</string>
@@ -29,4 +29,5 @@
     <string name="no_due_cards">No Due Cards</string>
     <string name="show_answer">Show Answer</string>
     <string name="middle_field">Middle Field</string>
+    <string name="hint_field">Hint</string>
 </resources>

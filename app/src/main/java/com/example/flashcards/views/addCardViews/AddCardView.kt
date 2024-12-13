@@ -23,7 +23,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.ui.theme.backgroundColor
@@ -52,6 +55,9 @@ class AddCardView(var fields: Fields,
         ) {
             BackButton(
                 onBackClick = {
+                    fields.question.value = ""
+                    fields.middleField.value = ""
+                    fields.answer.value = ""
                     onNavigate()
                 },
                 modifier = presetModifier
@@ -70,7 +76,7 @@ class AddCardView(var fields: Fields,
                         .size(54.dp)) {
                     Icon(
                         Icons.Default.MoreVert,
-                        contentDescription = "Localized description",
+                        contentDescription = "Card Type",
                         tint = titleColor
                     )
                 }
@@ -80,12 +86,14 @@ class AddCardView(var fields: Fields,
                     DropdownMenuItem(onClick = { type.value = "hint" }, text = {Text("Hint")})
                 }
                 }
+                val text = type.value.replaceFirstChar { it.uppercaseChar() }
                 Text(
-                    text = type.value,
+                    text = text,
                     fontSize = 35.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 40.sp,
                     color = titleColor,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .padding(top = 5.dp)
                 )

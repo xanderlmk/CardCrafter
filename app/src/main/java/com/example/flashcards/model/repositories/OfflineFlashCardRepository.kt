@@ -52,4 +52,6 @@ class OfflineFlashCardRepository(
 
     override suspend fun deleteAllCards(deckId: Int) = cardDao.deleteAllCards(deckId)
 
+    override suspend fun getCardById(cardId : Int) = cardDao.getCardById(cardId)
+
 }

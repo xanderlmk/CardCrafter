@@ -4,7 +4,7 @@
     <string name="deck_list">Lista de Mazos</string>
     <string name="add_deck">Añadir Mazo</string>
     <string name="again">Otra Vez</string>
-    <string name="hard">Dificil</string>
+    <string name="hard">Difícil</string>
     <string name="good">Bueno</string>
     <string name="submit">Entregar</string>
     <string name="save">Guardar</string>
@@ -13,10 +13,10 @@
     <string name="answer">Respuesta</string>
     <string name="start_deck">Empezar Mazo</string>
     <string name="delete_deck">Borrar Mazo</string>
-    <string name="days">Dias</string>
+    <string name="days">Días</string>
     <string name="deck_name">Nombre De Mazo</string>
     <string name="deck">Mazo</string>
-    <string name="loading">Cargando...</string>
+    <string name="loading">Cargando…</string>
     <string name="error_occurred">Ocurrió un error</string>
     <string name="change_deck_name">Cambiar Nombre De Mazo</string>
     <string name="edit_deck">Modificar Mazo</string>
@@ -29,4 +29,5 @@
     <string name="no_due_cards">No Cartas Debidas</string>
     <string name="show_answer">Mostrar Respuesta</string>
     <string name="middle_field">Campo Medio</string>
+    <string name="hint_field">Indicación</string>
 </resources>

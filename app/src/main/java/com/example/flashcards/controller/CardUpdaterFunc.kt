@@ -6,17 +6,19 @@ import java.util.Calendar
 import java.util.Date
 
 fun updateCard(card: Card, isSuccess: Boolean) : Card {
-    if (isSuccess) {
-        card.passes += 1
-        card.prevSuccess = true
-    } else { card.prevSuccess = false}
-    card.nextReview = timeCalculator(card.passes, isSuccess)
-    card.totalPasses += 1
 
-    if (!isSuccess && !card.prevSuccess && card.passes > 0){
-        card.passes -=1
+    val temp = card
+    if (isSuccess) {
+        temp.passes += 1
+        temp.prevSuccess = true
+    } else { temp.prevSuccess = false}
+    temp.nextReview = timeCalculator(temp.passes, isSuccess)
+    temp.totalPasses += 1
+
+    if (!isSuccess && !temp.prevSuccess && temp.passes > 0){
+        temp.passes -=1
     }
-    return card
+    return temp
 }
 
 fun timeCalculator (passes : Int, isSuccess: Boolean) : Date {

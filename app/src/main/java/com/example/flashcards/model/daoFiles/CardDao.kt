@@ -17,7 +17,7 @@ import java.util.Date
 @Dao
 interface CardDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertCard(card: Card) :Long
+    suspend fun insertCard(card: Card) : Long
 
     @Update
     suspend fun updateCard(card: Card)
@@ -37,5 +37,8 @@ interface CardDao {
 
     @Query("Update cards set id = :cardId and type = :type")
     suspend fun updateCard(cardId: Int, type: String)
+
+    @Query("SELECT * FROM cards WHERE id = :cardId")
+    suspend fun getCardById(cardId : Int) : Card?
 
 }

@@ -1,11 +1,14 @@
 package com.example.flashcards.views.miscFunctions
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -49,6 +52,13 @@ fun LoadingText() {
 }
 
 @Composable
+fun NullCardLoading() {
+    Box(modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center) {
+        LoadingText()
+    }
+}
+@Composable
 fun NoDueCards() {
     Text(
         stringResource(R.string.no_due_cards),
@@ -74,7 +84,7 @@ fun HintCardQuestion(hintCard: HintCard) {
 }
 
 suspend fun loading() : Boolean{
-    delay(60)
+    delay(70)
     return false
 }
 

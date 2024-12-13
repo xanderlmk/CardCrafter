@@ -69,7 +69,7 @@ fun AddThreeCard(viewModel: ThreeCardViewModel,deckId: Int, fields: Fields) {
         lineHeight = 116.sp,
         color = titleColor,
         modifier = Modifier
-            .padding(top = 20.dp)
+            .padding(top = 15.dp)
     )
     Row(
         modifier = Modifier
