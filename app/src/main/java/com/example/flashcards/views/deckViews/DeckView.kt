@@ -1,4 +1,4 @@
-package com.example.flashcards.views
+package com.example.flashcards.views.deckViews
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,26 +19,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.model.Deck
+import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.ui.theme.titleColor
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.flashcards.controller.AppViewModelProvider
-import com.example.flashcards.controller.CardViewModel
-import com.example.flashcards.controller.DeckViewModel
+import com.example.flashcards.controller.viewModels.CardViewModel
+import com.example.flashcards.controller.viewModels.DeckViewModel
 import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.ui.theme.buttonColor
 import com.example.flashcards.ui.theme.textColor
 import kotlinx.coroutines.launch
 import com.example.flashcards.R
+import com.example.flashcards.controller.viewModels.CardTypeViewModel
 import com.example.flashcards.ui.theme.deleteTextColor
+import com.example.flashcards.views.miscFunctions.AddCardButton
+import com.example.flashcards.views.miscFunctions.BackButton
+import com.example.flashcards.views.miscFunctions.ChoosingView
+import com.example.flashcards.views.miscFunctions.View
 
 
 class DeckView(private var mainViewModel: DeckViewModel,
-    var navController: NavController) {
+    var navController: NavController,
+    var cardTypeViewModel: CardTypeViewModel) {
 
 
     @Composable
@@ -47,7 +54,7 @@ class DeckView(private var mainViewModel: DeckViewModel,
         val cardViewModel: CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val view = remember {whichView}
         val choosingView = ChoosingView(navController)
-
+        val cardList by cardTypeViewModel.cardListUiState.collectAsState()
         val coroutineScope = rememberCoroutineScope()
         val presetModifier = Modifier
             .padding(top = 16.dp,start = 16.dp, end = 16.dp)
@@ -116,7 +123,8 @@ class DeckView(private var mainViewModel: DeckViewModel,
                                 Button(
                                     onClick = {
                                         coroutineScope.launch {
-                                            cardViewModel.getDueCards(deck.id)
+                                            cardViewModel.getDueCards(deck.id,
+                                                cardTypeViewModel)
                                         }
                                         view.whichView.intValue = 2
                                     },
@@ -188,8 +196,9 @@ class DeckView(private var mainViewModel: DeckViewModel,
                             ) {
                             Button(
                                 onClick = {
+                                    coroutineScope.launch{
                                     mainViewModel.deleteDeck(deck)
-                                    onNavigate() },
+                                    onNavigate() }},
                                     modifier = Modifier.fillMaxWidth(fraction = 0.55f)
                                         .align(Alignment.Center),
                                     colors = ButtonDefaults.buttonColors(

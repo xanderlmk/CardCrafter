@@ -1,4 +1,4 @@
-package com.example.flashcards.views
+package com.example.flashcards.views.miscFunctions
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -7,8 +7,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.NavController
-import com.example.flashcards.model.Deck
-import kotlinx.coroutines.delay
+import com.example.flashcards.model.tablesAndApplication.Deck
 
 class View( var whichView : MutableIntState = mutableIntStateOf(0),
     var onView : MutableState<Boolean> = mutableStateOf(false)
@@ -20,8 +19,6 @@ class ChoosingView(private var navController: NavController) {
         deck: Deck,
         view: View
     ) {
-        //println("${view.onView.value}")
-        //println("${view.whichView.value}")
         if (!view.onView.value) {
             when (view.whichView.intValue) {
                 1 -> {
@@ -63,6 +60,3 @@ class ChoosingView(private var navController: NavController) {
     }
 }
 
-suspend fun delayNavigate() {
-    delay(75)
-}

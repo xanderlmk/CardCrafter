@@ -2,23 +2,33 @@ package com.example.flashcards.model
 
 import androidx.room.RoomDatabase
 import android.content.Context
-import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instance
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.flashcards.model.daoFiles.CardDao
+import com.example.flashcards.model.daoFiles.CardTypesDao
+import com.example.flashcards.model.daoFiles.DeckDao
+import com.example.flashcards.model.tablesAndApplication.BasicCard
+import com.example.flashcards.model.tablesAndApplication.Card
+import com.example.flashcards.model.tablesAndApplication.Converters
+import com.example.flashcards.model.tablesAndApplication.HintCard
+import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
+import com.example.flashcards.model.tablesAndApplication.Deck
 import kotlinx.coroutines.CoroutineScope
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-@Database(entities = [Deck::class, Card::class], version = 2, exportSchema = false)
+@Database(entities = [Deck::class, Card::class, BasicCard::class,
+    ThreeFieldCard::class, HintCard::class], version = 4, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class FlashCardDatabase : RoomDatabase() {
 
     abstract fun deckDao(): DeckDao
     abstract fun cardDao(): CardDao
+    abstract fun cardTypes() : CardTypesDao
 
     companion object {
         @Volatile
@@ -28,8 +38,16 @@ abstract class FlashCardDatabase : RoomDatabase() {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
                 val instance = Room.databaseBuilder(context, FlashCardDatabase::class.java, "deck_database")
+                    .addMigrations(MIGRATION_3_4)
                     .fallbackToDestructiveMigration()
-                    .addCallback(FlashCardDatabaseCallback(scope)) // Add callback for population
+                    .addCallback(object : RoomDatabase.Callback() {
+                        override fun onOpen(db: SupportSQLiteDatabase) {
+                            super.onOpen(db)
+                            db.execSQL("PRAGMA foreign_keys=ON;") // Enable foreign key support
+                        }
+                    })
+                    .addCallback(FlashCardDatabaseCallback(scope))
+                    // Add callback for population
                     .build()
                 //.build().also { Instance = it }
                 Instance = instance
@@ -47,13 +65,15 @@ abstract class FlashCardDatabase : RoomDatabase() {
                 // Populate the database in a coroutine
                 Instance?.let { database ->
                     scope.launch(Dispatchers.IO) {
-                        populateDatabase(database.deckDao(), database.cardDao())
+                        populateDatabase(database.deckDao(), database.cardDao(),
+                            database.cardTypes())
                     }
                 }
             }
         }
 
-        private suspend fun populateDatabase(deckDao: DeckDao, cardDao: CardDao) {
+        private suspend fun populateDatabase(deckDao: DeckDao, cardDao: CardDao,
+                                             cardTypesDao: CardTypesDao) {
             // Create and insert a new Deck
             val historyDeck = Deck(name = "History")
             deckDao.insertDeck(historyDeck)
@@ -66,32 +86,140 @@ abstract class FlashCardDatabase : RoomDatabase() {
             val nextReviewDate = calendar.time
 
             val cards = listOf(
-                Card(deckId = deckId, question = "What year did World War II begin?", answer = "1939", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "Who was the first President of the United States?", answer = "George Washington", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "What ancient civilization built the pyramids?", answer = "Egyptians", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "What year did the Titanic sink?", answer = "1912", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "Who was the first man on the moon?", answer = "Neil Armstrong", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "What wall divided East and West Berlin?", answer = "Berlin Wall", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "What year did the Berlin Wall fall?", answer = "1989", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "Who wrote the Declaration of Independence?", answer = "Thomas Jefferson", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "In which year did the U.S. Civil War begin?", answer = "1861", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "What was the main cause of World War I?", answer = "Assassination of Archduke Franz Ferdinand", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "Who discovered America?", answer = "Christopher Columbus", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "What event started the Great Depression?", answer = "Stock Market Crash of 1929", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "Which country gifted the Statue of Liberty to the United States?", answer = "France", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "Who was the British Prime Minister during World War II?", answer = "Winston Churchill", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "What was the name of the ship that brought the Pilgrims to America?", answer = "Mayflower", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "What year did the U.S. enter World War I?", answer = "1917", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "Who was the first woman to fly solo across the Atlantic?", answer = "Amelia Earhart", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "What ancient city is known for its hanging gardens?", answer = "Babylon", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "Who was the first Emperor of Rome?", answer = "Augustus", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "What year did the French Revolution begin?", answer = "1789", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0),
-                Card(deckId = deckId, question = "What is the longest river in the world?", answer = "Nile River", nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0)
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic")
             )
 
-// Insert all cards into the database
+            val basicCards = listOf(
+                BasicCard(
+                    cardId = 1,
+                    question = "What year did World War II begin?",
+                    answer = "1939"
+                ),
+                BasicCard(
+                    cardId = 2,
+                    question = "Who was the first President of the United States?",
+                    answer = "George Washington"
+                ),
+                BasicCard(
+                    cardId = 3,
+                    question = "What ancient civilization built the pyramids?",
+                    answer = "Egyptians"
+                ),
+                BasicCard(
+                    cardId = 4,
+                    question = "What year did the Titanic sink?",
+                    answer = "1912"
+                ),
+                BasicCard(
+                    cardId = 5,
+                    question = "Who was the first man on the moon?",
+                    answer = "Neil Armstrong"
+                ),
+                BasicCard(
+                    cardId = 6,
+                    question = "What wall divided East and West Berlin?",
+                    answer = "Berlin Wall"
+                ),
+                BasicCard(
+                    cardId = 7,
+                    question = "What year did the Berlin Wall fall?",
+                    answer = "1989"
+                ),
+                BasicCard(
+                    cardId = 8,
+                    question = "Who wrote the Declaration of Independence?",
+                    answer = "Thomas Jefferson"
+                ),
+                BasicCard(
+                    cardId = 9,
+                    question = "In which year did the U.S. Civil War begin?",
+                    answer = "1861"
+                ),
+                BasicCard(
+                    cardId = 10,
+                    question = "What was the main cause of World War I?",
+                    answer = "Assassination of Archduke Franz Ferdinand"
+                ),
+                BasicCard(
+                    cardId = 11,
+                    question = "Who discovered America?",
+                    answer = "Christopher Columbus"
+                ),
+                BasicCard(
+                    cardId = 12,
+                    question = "What event started the Great Depression?",
+                    answer = "Stock Market Crash of 1929"
+                ),
+                BasicCard(
+                    cardId = 13,
+                    question = "Which country gifted the Statue of Liberty to the United States?",
+                    answer = "France"
+                ),
+                BasicCard(
+                    cardId = 14,
+                    question = "Who was the British Prime Minister during World War II?",
+                    answer = "Winston Churchill"
+                ),
+                BasicCard(
+                    cardId = 15,
+                    question = "What was the name of the ship that brought the Pilgrims to America?",
+                    answer = "Mayflower"
+                ),
+                BasicCard(
+                    cardId = 16,
+                    question = "What year did the U.S. enter World War I?",
+                    answer = "1917"
+                ),
+                BasicCard(
+                    cardId = 17,
+                    question = "Who was the first woman to fly solo across the Atlantic?",
+                    answer = "Amelia Earhart"
+                ),
+                BasicCard(
+                    cardId = 18,
+                    question = "What ancient city is known for its hanging gardens?",
+                    answer = "Babylon"
+                ),
+                BasicCard(
+                    cardId = 19,
+                    question = "Who was the first Emperor of Rome?",
+                    answer = "Augustus"
+                ),
+                BasicCard(
+                    cardId = 20,
+                    question = "What year did the French Revolution begin?",
+                    answer = "1789"
+                ),
+                BasicCard(
+                    cardId = 21,
+                    question = "What is the longest river in the world?",
+                    answer = "Nile River"
+                )
+            )
+
+            // Insert all cards into the database
             for (card in cards) {
                 cardDao.insertCard(card)
+            }
+            for (basicCard in basicCards){
+                cardTypesDao.insertBasicCard(basicCard)
             }
         }
     }

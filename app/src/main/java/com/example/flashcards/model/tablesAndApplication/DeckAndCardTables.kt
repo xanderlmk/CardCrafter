@@ -1,8 +1,9 @@
-package com.example.flashcards.model
+package com.example.flashcards.model.tablesAndApplication
 
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Index
+import androidx.room.Junction
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import androidx.room.TypeConverter
@@ -15,33 +16,21 @@ data class Deck(
     val name : String
 )
 @Entity(tableName = "cards")
-/*
 data class Card(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val deckId : Int,
-    val question : String,
-    val answer : String,
     var nextReview: Date?,
-    var passes: Int,
+    var passes: Int = 0,
     var prevSuccess: Boolean,
-    var totalPasses: Int
-)*/
-data class Card(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val deckId : Int,
-    val question : String,
-    val answer : String,
-    var nextReview: Date?,
-    var passes: Int,
-    var prevSuccess: Boolean,
-    var totalPasses: Int
+    var totalPasses: Int = 0,
+    val type: String
 )
 // Decks has many cards, one card belongs to a deck
 data class DeckWithCards(
     @Embedded val deck: Deck,
     @Relation(
         parentColumn = "id",
-        entityColumn = "deckId"
+        entityColumn = "deckId",
     )
     val cards: List<Card>
 )
