@@ -7,6 +7,7 @@ Features :
 - Complex NavHost
 - VMC/MVVM
 - Different Card Types
+- Custom Themes based off Light/Dark Theme
 
 
 
