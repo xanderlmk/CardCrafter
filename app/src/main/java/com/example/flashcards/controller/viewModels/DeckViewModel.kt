@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
-import com.example.flashcards.model.tablesAndApplication.Card
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -13,7 +12,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.example.flashcards.model.tablesAndApplication.Deck
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 
@@ -87,6 +86,9 @@ class DeckViewModel(private val flashCardRepository: FlashCardRepository,
                 0
             }
         }
+    }
+    suspend fun getDeckById(deckId : Int) : Flow<Deck?> {
+        return flashCardRepository.getDeckStream(deckId)
     }
 }
 

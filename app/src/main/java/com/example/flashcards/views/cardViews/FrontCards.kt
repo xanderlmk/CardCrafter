@@ -29,31 +29,29 @@ import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
-import com.example.flashcards.ui.theme.buttonColor
-import com.example.flashcards.ui.theme.textColor
+import com.example.flashcards.views.miscFunctions.GetModifier
 
 @Composable
-fun frontCard(card : Pair<Card, AllCardTypes>) : Boolean {
+fun frontCard(card : Pair<Card, AllCardTypes>,
+              getModifier : GetModifier) : Boolean {
     var clicked by remember { mutableStateOf(false ) }
     Box(
         modifier = Modifier
             .fillMaxSize() // Fill the entire available space
             .padding(16.dp)
     ) {
-        println(card.first.type)
-        println(card.second.hintCard)
         when (card.first.type) {
             "basic" -> {
                 val basicCard = card.second.basicCard
-                basicCard?.let { BasicFrontCard(basicCard = it) }
+                basicCard?.let { BasicFrontCard(basicCard = it, getModifier) }
             }
             "three" -> {
                 val threeCard = card.second.threeFieldCard
-                threeCard?.let{ ThreeFrontCard(threeCard = it)}
+                threeCard?.let{ ThreeFrontCard(threeCard = it, getModifier)}
             }
             "hint" -> {
                 val hintCard = card.second.hintCard
-                hintCard?.let { HintFrontCard(hintCard = it) }
+                hintCard?.let { HintFrontCard(hintCard = it,getModifier) }
             }
         }
         Button(
@@ -64,8 +62,8 @@ fun frontCard(card : Pair<Card, AllCardTypes>) : Boolean {
                 .align(Alignment.BottomCenter) // Align to the bottom center
                 .padding(bottom = 16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = buttonColor,
-                contentColor = textColor
+                containerColor = getModifier.secondaryButtonColor(),
+                contentColor = getModifier.buttonTextColor()
             )
         ) {
             Text(stringResource(R.string.show_answer))
@@ -76,12 +74,13 @@ fun frontCard(card : Pair<Card, AllCardTypes>) : Boolean {
 
 
 @Composable
-fun BasicFrontCard(basicCard: BasicCard){
+fun BasicFrontCard(basicCard: BasicCard,
+                   getModifier: GetModifier){
     Box {
         Text(
             text = basicCard.question,
             fontSize = 30.sp,
-            color = textColor,
+            color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -93,12 +92,13 @@ fun BasicFrontCard(basicCard: BasicCard){
 }
 
 @Composable
-fun ThreeFrontCard(threeCard: ThreeFieldCard){
+fun ThreeFrontCard(threeCard: ThreeFieldCard,
+                   getModifier: GetModifier){
     Box {
         Text(
             text = threeCard.question,
             fontSize = 30.sp,
-            color = textColor,
+            color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -110,7 +110,8 @@ fun ThreeFrontCard(threeCard: ThreeFieldCard){
 }
 
 @Composable
-fun HintFrontCard(hintCard: HintCard){
+fun HintFrontCard(hintCard: HintCard,
+                  getModifier: GetModifier){
     var isHintRevealed by remember { mutableStateOf(false) }
     // The text to display based on whether the hint is revealed or not
     val textToShow = if (isHintRevealed) hintCard.hint else "Hint"
@@ -120,7 +121,7 @@ fun HintFrontCard(hintCard: HintCard){
             Text(
                 text = hintCard.question,
                 fontSize = 30.sp,
-                color = textColor,
+                color = getModifier.titleColor(),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -131,7 +132,7 @@ fun HintFrontCard(hintCard: HintCard){
             Text(
                 text = textToShow,
                 fontSize = 30.sp,
-                color = textColor,
+                color = getModifier.titleColor(),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier

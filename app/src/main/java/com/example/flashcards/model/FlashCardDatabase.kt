@@ -18,11 +18,13 @@ import com.example.flashcards.model.tablesAndApplication.Deck
 import kotlinx.coroutines.CoroutineScope
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.Calendar
 
 @Database(entities = [Deck::class, Card::class, BasicCard::class,
-    ThreeFieldCard::class, HintCard::class], version = 4, exportSchema = false)
+    ThreeFieldCard::class, HintCard::class], version = 5)
 @TypeConverters(Converters::class)
 abstract class FlashCardDatabase : RoomDatabase() {
 
@@ -38,18 +40,15 @@ abstract class FlashCardDatabase : RoomDatabase() {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
                 val instance = Room.databaseBuilder(context, FlashCardDatabase::class.java, "deck_database")
-                    .addMigrations(MIGRATION_3_4)
+                    .addMigrations(MIGRATION_4_5)
                     .fallbackToDestructiveMigration()
-                    .addCallback(object : RoomDatabase.Callback() {
-                        override fun onOpen(db: SupportSQLiteDatabase) {
-                            super.onOpen(db)
-                            db.execSQL("PRAGMA foreign_keys=ON;") // Enable foreign key support
-                        }
-                    })
                     .addCallback(FlashCardDatabaseCallback(scope))
                     // Add callback for population
-                    .build()
-                //.build().also { Instance = it }
+                    .build().also { Instance = it }
+                //runBlocking {
+                 //   FlashCardDatabaseCallback(scope).onCreate(instance.openHelper.writableDatabase)
+                //}
+                //println("Adding database..")
                 Instance = instance
                 // return instance
                 instance
@@ -60,14 +59,21 @@ abstract class FlashCardDatabase : RoomDatabase() {
         private class FlashCardDatabaseCallback(
             private val scope: CoroutineScope
         ) : RoomDatabase.Callback() {
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                super.onOpen(db)
+                //db.execSQL("PRAGMA foreign_keys=ON;") // Enable foreign key support
+            }
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
+                //db.execSQL("PRAGMA foreign_keys=ON;") // Enable foreign key support
                 // Populate the database in a coroutine
+                runBlocking {
                 Instance?.let { database ->
                     scope.launch(Dispatchers.IO) {
                         populateDatabase(database.deckDao(), database.cardDao(),
                             database.cardTypes())
                     }
+                }
                 }
             }
         }
@@ -77,10 +83,10 @@ abstract class FlashCardDatabase : RoomDatabase() {
             // Create and insert a new Deck
             val historyDeck = Deck(name = "History")
             deckDao.insertDeck(historyDeck)
-
+            println("Deck created")
             // Get the deck ID after insertion
             val deckId = historyDeck.id + 1// This will be auto-generated
-
+            println(deckId)
             val calendar = Calendar.getInstance()
             calendar.add(Calendar.DAY_OF_MONTH, -1) // Subtract 1 day
             val nextReviewDate = calendar.time
@@ -103,7 +109,10 @@ abstract class FlashCardDatabase : RoomDatabase() {
                 Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
                 Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
                 Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic")
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
             )
 
             val basicCards = listOf(
@@ -218,9 +227,12 @@ abstract class FlashCardDatabase : RoomDatabase() {
             for (card in cards) {
                 cardDao.insertCard(card)
             }
+            println("making basicCards...")
             for (basicCard in basicCards){
                 cardTypesDao.insertBasicCard(basicCard)
             }
+            println("cards added...")
         }
     }
 }
+

@@ -30,4 +30,7 @@
     <string name="show_answer">Show Answer</string>
     <string name="middle_field">Middle Field</string>
     <string name="hint_field">Hint</string>
+    <string name="empty_deck_name">Deck name cannot be empty</string>
+    <string name="deck_name_exists">A deck with this name already exists</string>
+    <string name="deck_name_failed">Failed to update deck name</string>
 </resources>

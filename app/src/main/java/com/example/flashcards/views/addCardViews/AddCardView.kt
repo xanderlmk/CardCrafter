@@ -1,10 +1,8 @@
 package com.example.flashcards.views.addCardViews
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,23 +21,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.ui.theme.backgroundColor
 import com.example.flashcards.controller.viewModels.BasicCardViewModel
 import com.example.flashcards.controller.viewModels.HintCardViewModel
 import com.example.flashcards.controller.viewModels.ThreeCardViewModel
 import com.example.flashcards.model.Fields
-import com.example.flashcards.ui.theme.titleColor
 import com.example.flashcards.views.miscFunctions.BackButton
+import com.example.flashcards.views.miscFunctions.GetModifier
 
-class AddCardView(var fields: Fields,
-                  var cardTypes : Triple<BasicCardViewModel, ThreeCardViewModel,
-                          HintCardViewModel>) {
+class AddCardView(
+    private var fields: Fields,
+    private var cardTypes : Triple<BasicCardViewModel, ThreeCardViewModel,
+            HintCardViewModel>,
+    private var getModifier: GetModifier) {
     @Composable
     fun AddCard(deckId: Int, onNavigate: () -> Unit) {
         var expanded by remember { mutableStateOf(false) }
@@ -49,9 +46,7 @@ class AddCardView(var fields: Fields,
             .size(54.dp)
 
         Box(
-            modifier = Modifier.fillMaxSize()
-            .padding(8.dp)
-            .background(backgroundColor)
+            modifier = getModifier.boxViewsModifier()
         ) {
             BackButton(
                 onBackClick = {
@@ -60,7 +55,8 @@ class AddCardView(var fields: Fields,
                     fields.answer.value = ""
                     onNavigate()
                 },
-                modifier = presetModifier
+                modifier = presetModifier,
+                getModifier = getModifier
             )
             Column(
                 modifier = Modifier
@@ -69,7 +65,7 @@ class AddCardView(var fields: Fields,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Box(Modifier.fillMaxWidth().wrapContentSize(Alignment.TopEnd)){
+                Box( Modifier.fillMaxWidth().wrapContentSize(Alignment.TopEnd)){
                 IconButton(onClick = { expanded = true },
                     modifier = Modifier
                         .padding(4.dp)
@@ -77,7 +73,7 @@ class AddCardView(var fields: Fields,
                     Icon(
                         Icons.Default.MoreVert,
                         contentDescription = "Card Type",
-                        tint = titleColor
+                        tint = getModifier.titleColor()
                     )
                 }
                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -92,15 +88,16 @@ class AddCardView(var fields: Fields,
                     fontSize = 35.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 40.sp,
-                    color = titleColor,
+                    color = getModifier.titleColor(),
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .padding(top = 5.dp)
                 )
                 when (type.value) {
-                    "three" -> AddThreeCard(cardTypes.second, deckId, fields)
-                    "hint"  -> AddHintCard(cardTypes.third, deckId, fields)
-                    else -> AddBasicCard(cardTypes.first, deckId, fields)
+                    "three" -> AddThreeCard(cardTypes.second, deckId,
+                        fields,getModifier)
+                    "hint"  -> AddHintCard(cardTypes.third, deckId,
+                        fields, getModifier)
+                    else -> AddBasicCard(cardTypes.first, deckId,
+                        fields, getModifier)
                 }
             }
         }

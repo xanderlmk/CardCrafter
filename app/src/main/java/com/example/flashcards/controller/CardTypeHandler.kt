@@ -1,26 +1,20 @@
 package com.example.flashcards.controller
 
 import androidx.compose.runtime.Composable
-import com.example.flashcards.controller.viewModels.BasicCardViewModel
 import com.example.flashcards.controller.viewModels.CardListUiState
-import com.example.flashcards.controller.viewModels.HintCardViewModel
-import com.example.flashcards.controller.viewModels.ThreeCardViewModel
 import com.example.flashcards.model.Fields
-import com.example.flashcards.model.tablesAndApplication.AllCardTypes
 import com.example.flashcards.views.editCardViews.EditBasicCard
 import com.example.flashcards.views.editCardViews.EditHintCard
 import com.example.flashcards.views.editCardViews.EditThreeCard
-import com.example.flashcards.views.miscFunctions.NullCardLoading
+import com.example.flashcards.views.miscFunctions.GetModifier
 
 interface CardTypeHandler {
     @Composable
     fun HandleCardEdit(
         cardListUiState: CardListUiState,
         cardId: Int,
-        onDismiss: () -> Unit,
-        cardTypes : Triple<BasicCardViewModel,
-                ThreeCardViewModel, HintCardViewModel>,
-        fields: Fields
+        fields: Fields,
+        getModifier: GetModifier
     )
 }
 
@@ -29,16 +23,14 @@ class BasicCardTypeHandler : CardTypeHandler {
     override fun HandleCardEdit(
         cardListUiState: CardListUiState,
         cardId: Int,
-        onDismiss: () -> Unit,
-        cardTypes : Triple<BasicCardViewModel,
-                ThreeCardViewModel, HintCardViewModel>,
-        fields: Fields
+        fields: Fields,
+        getModifier : GetModifier
     ) {
         // Logic specific to handling a basic card
         val basicCard = cardListUiState.allCards.find {
             it.card.id == cardId }?.basicCard
-        basicCard?.let { basicCard ->
-            EditBasicCard(basicCard, onDismiss, cardTypes.first, fields)
+        basicCard?.let {
+            EditBasicCard(basicCard, fields, getModifier)
         }
     }
 }
@@ -48,16 +40,14 @@ class ThreeCardTypeHandler : CardTypeHandler {
     override fun HandleCardEdit(
         cardListUiState: CardListUiState,
         cardId: Int,
-        onDismiss: () -> Unit,
-        cardTypes : Triple<BasicCardViewModel,
-                ThreeCardViewModel, HintCardViewModel>,
-        fields: Fields
+        fields: Fields,
+        getModifier: GetModifier
     ) {
         // Logic specific to handling a basic card
         val threeCard = cardListUiState.allCards.find {
             it.card.id == cardId }?.threeFieldCard
-        threeCard?.let { threeCard ->
-            EditThreeCard(threeCard, onDismiss, cardTypes.second, fields)
+        threeCard?.let {
+            EditThreeCard(threeCard, fields,getModifier)
         }
     }
 }
@@ -67,33 +57,19 @@ class HintCardTypeHandler : CardTypeHandler {
     override fun HandleCardEdit(
         cardListUiState: CardListUiState,
         cardId: Int,
-        onDismiss: () -> Unit,
-        cardTypes : Triple<BasicCardViewModel,
-                ThreeCardViewModel, HintCardViewModel>,
-        fields: Fields
+        fields: Fields,
+        getModifier: GetModifier
     ) {
         // Logic specific to handling a basic card
         val hintCard = cardListUiState.allCards.find {
             it.card.id == cardId }?.hintCard
 
-        hintCard?.let { hintCard ->
-            EditHintCard(hintCard, onDismiss, cardTypes.third, fields)
+        hintCard?.let {
+            EditHintCard(hintCard, fields, getModifier)
         }
     }
 }
 
-class NullType : CardTypeHandler {
-    @Composable
-    override fun HandleCardEdit(
-        cardListUiState: CardListUiState,
-        cardId: Int,
-        onDismiss: () -> Unit,
-        cardTypes: Triple<BasicCardViewModel, ThreeCardViewModel, HintCardViewModel>,
-        fields: Fields
-    ) {
-        NullCardLoading()
-    }
-}
 
 
 
