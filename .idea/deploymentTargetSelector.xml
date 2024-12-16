@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-12-13T02:05:36.953724900Z">
+        <DropdownSelection timestamp="2024-12-15T18:44:24.526105900Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\alexa\.android\avd\Pixel_8a_API_34.avd" />

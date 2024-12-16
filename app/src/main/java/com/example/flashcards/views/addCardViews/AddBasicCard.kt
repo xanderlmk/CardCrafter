@@ -23,14 +23,14 @@ import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.controller.viewModels.BasicCardViewModel
 import com.example.flashcards.model.Fields
-import com.example.flashcards.ui.theme.buttonColor
-import com.example.flashcards.ui.theme.textColor
-import com.example.flashcards.ui.theme.titleColor
 import com.example.flashcards.views.miscFunctions.EditTextField
+import com.example.flashcards.views.miscFunctions.GetModifier
 import kotlinx.coroutines.delay
 
 @Composable
-fun AddBasicCard(viewModel: BasicCardViewModel,deckId : Int, fields : Fields) {
+fun AddBasicCard(viewModel: BasicCardViewModel,deckId : Int,
+                 fields : Fields,
+                 getModifier: GetModifier) {
     var errorMessage by remember { mutableStateOf("") }
     var successMessage by remember { mutableStateOf("") }
     val fillOutFields = stringResource(R.string.fill_out_all_fields).toString()
@@ -38,10 +38,10 @@ fun AddBasicCard(viewModel: BasicCardViewModel,deckId : Int, fields : Fields) {
 
     Text(
         text = stringResource(R.string.question),
-        fontSize = 45.sp,
+        fontSize = 25.sp,
         textAlign = TextAlign.Center,
-        lineHeight = 116.sp,
-        color = titleColor,
+        lineHeight = 30.sp,
+        color = getModifier.titleColor(),
         modifier = Modifier
             .padding(top = 15.dp)
     )
@@ -64,10 +64,11 @@ fun AddBasicCard(viewModel: BasicCardViewModel,deckId : Int, fields : Fields) {
     }
     Text(
         text = stringResource(R.string.answer),
-        fontSize = 45.sp,
+        fontSize = 25.sp,
         textAlign = TextAlign.Center,
-        lineHeight = 116.sp,
-        color = titleColor
+        lineHeight = 30.sp,
+        color = getModifier.titleColor(),
+        modifier = Modifier.padding(top = 8.dp)
     )
     Row(
         modifier = Modifier
@@ -100,19 +101,19 @@ fun AddBasicCard(viewModel: BasicCardViewModel,deckId : Int, fields : Fields) {
     if (successMessage.isNotEmpty()) {
         Text(
             text = successMessage,
-            color = textColor,
+            color = getModifier.titleColor(),
             modifier = Modifier.padding(8.dp),
             fontSize = 16.sp
         )
     } else {
-        Spacer(modifier = Modifier.padding(20.dp))
+        Spacer(modifier = Modifier.padding(12.dp))
     }
     LaunchedEffect(successMessage) {
-        delay(1750)
+        delay(5750)
         successMessage = ""
     }
     LaunchedEffect(errorMessage) {
-        delay(1750)
+        delay(5750)
         errorMessage = ""
     }
 
@@ -136,8 +137,8 @@ fun AddBasicCard(viewModel: BasicCardViewModel,deckId : Int, fields : Fields) {
             },
             modifier = Modifier.padding(top = 4.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = buttonColor,
-                contentColor = textColor
+                containerColor = getModifier.secondaryButtonColor(),
+                contentColor = getModifier.buttonTextColor()
             )
         ) {
             Text(stringResource(R.string.submit))

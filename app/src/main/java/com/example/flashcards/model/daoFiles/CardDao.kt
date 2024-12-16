@@ -7,7 +7,6 @@ import androidx.room.Update
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.example.flashcards.model.tablesAndApplication.BasicCardType
 import com.example.flashcards.model.tablesAndApplication.DeckWithCards
 import com.example.flashcards.model.tablesAndApplication.Card
 import kotlinx.coroutines.flow.Flow

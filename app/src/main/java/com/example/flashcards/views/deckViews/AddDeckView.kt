@@ -1,11 +1,10 @@
 package com.example.flashcards.views.deckViews
 
-import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,23 +21,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
-import com.example.flashcards.ui.theme.backgroundColor
-import com.example.flashcards.ui.theme.titleColor
 import kotlinx.coroutines.launch
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.text.font.FontWeight
 import com.example.flashcards.controller.viewModels.DeckViewModel
-import com.example.flashcards.ui.theme.buttonColor
-import com.example.flashcards.ui.theme.textColor
 import androidx.compose.ui.res.stringResource
 import com.example.flashcards.R
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.views.miscFunctions.EditTextField
+import com.example.flashcards.views.miscFunctions.GetModifier
 
 
-class AddDeckView(private var viewModel: DeckViewModel) {
+class AddDeckView(private var viewModel: DeckViewModel,
+    private var getModifier : GetModifier) {
 
 
     @Composable
@@ -53,15 +49,14 @@ class AddDeckView(private var viewModel: DeckViewModel) {
             .padding(top = 16.dp,start = 16.dp, end = 16.dp)
             .size(54.dp)
         Box(
-            modifier = Modifier.fillMaxSize()
-                .padding(8.dp)
-                .background(backgroundColor)
+            modifier = getModifier.boxViewsModifier()
         ) {
             BackButton(
                 onBackClick = {
                     onNavigate()
                 },
-                modifier = presetModifier
+                modifier = presetModifier,
+                getModifier = getModifier
             )
             Column(
                 modifier = Modifier
@@ -75,10 +70,9 @@ class AddDeckView(private var viewModel: DeckViewModel) {
                     fontSize = 40.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 116.sp,
-                    color = titleColor,
+                    color = getModifier.titleColor(),
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .background(Transparent)
                         .padding(top = 20.dp)
                 )
                 Row(
@@ -123,8 +117,8 @@ class AddDeckView(private var viewModel: DeckViewModel) {
                             }
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = buttonColor,  // Set your desired background color here
-                            contentColor = textColor
+                            containerColor = getModifier.secondaryButtonColor(),
+                            contentColor = getModifier.buttonTextColor()
                         ),
                         modifier = Modifier.padding(top = 48.dp)
                     ) {

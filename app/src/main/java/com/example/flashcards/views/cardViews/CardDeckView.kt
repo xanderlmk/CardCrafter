@@ -1,7 +1,6 @@
 package com.example.flashcards.views.cardViews
 
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -27,76 +25,69 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.flashcards.controller.viewModels.CardViewModel
 import com.example.flashcards.controller.handleCardUpdate
-import com.example.flashcards.ui.theme.backgroundColor
-import com.example.flashcards.ui.theme.buttonColor
-import com.example.flashcards.ui.theme.textColor
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import com.example.flashcards.R
 import com.example.flashcards.controller.viewModels.CardTypeViewModel
+import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.views.miscFunctions.BackButton
-import com.example.flashcards.views.miscFunctions.LoadingText
+import com.example.flashcards.views.miscFunctions.GetModifier
 import com.example.flashcards.views.miscFunctions.NoDueCards
 import com.example.flashcards.views.miscFunctions.loading
 
 
 class CardDeckView(private val viewModel: CardViewModel,
-    var cardTypeViewModel: CardTypeViewModel,
+    private var cardTypeViewModel: CardTypeViewModel,
+    private var getModifier: GetModifier
     ){
     @Composable
-    fun ViewCard(deckId: Int, onNavigate: () -> Unit) {
+    fun ViewCard(deck: Deck, onNavigate: () -> Unit) {
         //val viewModel : CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val cardUiState by viewModel.cardUiState.collectAsState()
         val cardList by cardTypeViewModel.cardListUiState.collectAsState()
         var show by remember { mutableStateOf(false) }
-       //var currentCard by remember { mutableStateOf<Card?>(null) }
         val index = remember { mutableIntStateOf(0) }
-        //var index.intValue = 0
         val coroutineScope = rememberCoroutineScope()
-        val presetModifier = Modifier
-            .padding(top = 16.dp,start = 16.dp, end = 16.dp)
-            .size(54.dp)
+
+        LaunchedEffect(Unit) {
+            coroutineScope.launch {
+                viewModel.getDueCards(deck.id,cardTypeViewModel)
+            }
+        }
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-                .background(backgroundColor)
+            modifier = getModifier.boxViewsModifier()
         ){
             BackButton(
                 onBackClick = {
                     onNavigate()
                 },
-                modifier = presetModifier
+                modifier = getModifier.backButtonModifier(),
+                getModifier = getModifier
             )
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxSize()
             ) {
-                /*LaunchedEffect(Unit) {
-                    coroutineScope.launch {
-                        viewModel.getDueCards(deckId)
-                    }
-                }*/
                 //if (currentCard == null && cardUiState.cardList.isEmpty()) {
                 if (cardUiState.cardList.isEmpty() || cardList.allCards.isEmpty()) {
                     LaunchedEffect(Unit) {
-                        viewModel.getDueCards(deckId, cardTypeViewModel)
+                        viewModel.getDueCards(deck.id, cardTypeViewModel)
                     }
                     if (cardUiState.cardList.isEmpty() || cardList.allCards.isEmpty()) {
-                        NoDueCards()
+                        NoDueCards(getModifier)
                    }
                 } else {
                     val loading = remember { mutableStateOf(false) }
                     // any changes in size will make this launch.
                     LaunchedEffect(cardUiState.cardList.size) {
                         coroutineScope.launch {
-                                viewModel.getDueCards(deckId,cardTypeViewModel)
+                                viewModel.getDueCards(deck.id,cardTypeViewModel)
                         }
                     }
                     LaunchedEffect(cardList.allCards.size) {
                         coroutineScope.launch {
-                            viewModel.getDueCards(deckId,cardTypeViewModel)
+                            viewModel.getDueCards(deck.id,cardTypeViewModel)
                         }
                     }
                     if (index.intValue < cardUiState.cardList.size &&
@@ -104,7 +95,7 @@ class CardDeckView(private val viewModel: CardViewModel,
                         // make sure they are the same size or else
                         // crash lol
                         if(cardList.allCards.size != cardUiState.cardList.size){
-                            viewModel.getDueCards(deckId,cardTypeViewModel)
+                            viewModel.getDueCards(deck.id,cardTypeViewModel)
                         }
                         if (!show) {
                             if (!loading.value) {
@@ -113,13 +104,11 @@ class CardDeckView(private val viewModel: CardViewModel,
                                     Pair(
                                         cardUiState.cardList[index.intValue],
                                         cardList.allCards[index.intValue]
-                                    )
+                                    ),
+                                    getModifier
                                 )
                                 //show = frontCard(currentCard!!)
 
-                            }
-                            else {
-                                LoadingText()
                             }
                         } else {
                             val good = ((cardUiState.cardList[index.intValue].passes + 1) * 1.5).toInt()
@@ -136,7 +125,8 @@ class CardDeckView(private val viewModel: CardViewModel,
                                     Pair(
                                         cardUiState.cardList[index.intValue],
                                         cardList.allCards[index.intValue]
-                                    )
+                                    ),
+                                    getModifier
                                 )
                                     //BackCard(currentCard!!)
                                 Row(
@@ -150,9 +140,9 @@ class CardDeckView(private val viewModel: CardViewModel,
                                                 cardUiState.cardList[index.intValue].passes = 0
                                                 handleCardUpdate(
                                                     cardUiState.cardList[index.intValue],
-                                                    false, viewModel
+                                                    false, viewModel,deck.multiplier
                                                 )
-                                                    viewModel.getDueCards(deckId,cardTypeViewModel)
+                                                    viewModel.getDueCards(deck.id,cardTypeViewModel)
                                                 show = !show
                                             }
                                             coroutineScope.launch {
@@ -161,8 +151,8 @@ class CardDeckView(private val viewModel: CardViewModel,
                                         },
                                         modifier = Modifier.padding(top = 48.dp),
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = buttonColor,
-                                            contentColor = textColor
+                                            containerColor = getModifier.secondaryButtonColor(),
+                                            contentColor = getModifier.buttonTextColor()
                                         )
                                     ) { Text(stringResource(R.string.again)) }
 
@@ -175,11 +165,11 @@ class CardDeckView(private val viewModel: CardViewModel,
                                                 coroutineScope.launch {
                                                     handleCardUpdate(
                                                         cardUiState.cardList[index.intValue],
-                                                        false, viewModel
+                                                        false, viewModel, deck.multiplier
                                                     )
                                                     index.intValue = ((index.intValue + 1) % cardUiState.cardList.size)
 
-                                                    viewModel.getDueCards(deckId,cardTypeViewModel)
+                                                    viewModel.getDueCards(deck.id,cardTypeViewModel)
                                                     show = !show
                                                 }
                                                 coroutineScope.launch {
@@ -188,13 +178,13 @@ class CardDeckView(private val viewModel: CardViewModel,
                                             },
                                             modifier = Modifier.padding(top = 48.dp),
                                             colors = ButtonDefaults.buttonColors(
-                                                containerColor = buttonColor,
-                                                contentColor = textColor
+                                                containerColor = getModifier.secondaryButtonColor(),
+                                                contentColor = getModifier.buttonTextColor()
                                             )
                                         ) { Text(stringResource(R.string.hard)) }
                                         Text(
                                             "$hard " + stringResource(R.string.days),
-                                            color = textColor
+                                            color = getModifier.titleColor()
                                         )
 
                                     }
@@ -207,9 +197,9 @@ class CardDeckView(private val viewModel: CardViewModel,
                                                 coroutineScope.launch {
                                                     handleCardUpdate(
                                                         cardUiState.cardList[index.intValue],
-                                                        true, viewModel
+                                                        true, viewModel, deck.multiplier
                                                     )
-                                                        viewModel.getDueCards(deckId,cardTypeViewModel)
+                                                        viewModel.getDueCards(deck.id,cardTypeViewModel)
                                                     show = !show
                                                 }
                                                 coroutineScope.launch {
@@ -218,13 +208,13 @@ class CardDeckView(private val viewModel: CardViewModel,
                                             },
                                             modifier = Modifier.padding(top = 48.dp),
                                             colors = ButtonDefaults.buttonColors(
-                                                containerColor = buttonColor,
-                                                contentColor = textColor
+                                                containerColor = getModifier.secondaryButtonColor(),
+                                                contentColor = getModifier.buttonTextColor()
                                             )
                                         ) { Text(stringResource(R.string.good)) }
                                         Text(
                                             "$good " + stringResource(R.string.days),
-                                            color = textColor
+                                            color = getModifier.titleColor()
                                         )
                                     }
                                 }

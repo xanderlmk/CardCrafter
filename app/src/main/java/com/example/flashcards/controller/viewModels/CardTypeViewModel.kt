@@ -5,11 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.tablesAndApplication.AllCardTypes
 import com.example.flashcards.model.tablesAndApplication.BasicCardType
-import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.HintCardType
 import com.example.flashcards.model.tablesAndApplication.ThreeCardType
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch

@@ -1,10 +1,7 @@
 package com.example.flashcards.model.repositories
-import com.example.flashcards.model.tablesAndApplication.BasicCardType
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.DeckWithCards
-import com.example.flashcards.model.tablesAndApplication.HintCardType
-import com.example.flashcards.model.tablesAndApplication.ThreeCardType
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 

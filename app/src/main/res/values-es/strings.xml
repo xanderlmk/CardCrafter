@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="add_card">Añadir Carta</string>
-    <string name="deck_list">Lista de Mazos</string>
+    <string name="deck_list">Mazos</string>
     <string name="add_deck">Añadir Mazo</string>
     <string name="again">Otra Vez</string>
     <string name="hard">Difícil</string>
@@ -30,4 +30,7 @@
     <string name="show_answer">Mostrar Respuesta</string>
     <string name="middle_field">Campo Medio</string>
     <string name="hint_field">Indicación</string>
+    <string name="empty_deck_name">El nombre del mazo no puede estar vacío</string>
+    <string name="deck_name_exists">Existe un mazo con ese nombre</string>
+    <string name="deck_name_failed">La actualización del nombre falló</string>
 </resources>

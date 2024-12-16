@@ -43,7 +43,7 @@ class ChoosingView(private var navController: NavController) {
                     // Navigate to ChangeDeckName screen
                     LaunchedEffect(Unit) {
                         delayNavigate()
-                        navController.navigate("ChangeDeckName/${deck.id}/${deck.name}")
+                        navController.navigate("EditDeck/${deck.id}/${deck.name}")
                         view.onView.value = true
                     }
                 }

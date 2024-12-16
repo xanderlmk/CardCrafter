@@ -17,16 +17,17 @@ import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
-import com.example.flashcards.ui.theme.textColor
+import com.example.flashcards.views.miscFunctions.GetModifier
 
 
 @Composable
-fun BasicBackCard(basicCard: BasicCard){
+fun BasicBackCard(basicCard: BasicCard,
+                  getModifier: GetModifier){
     Column {
         Text(
             text = basicCard.question,
             fontSize = 30.sp,
-            color = textColor,
+            color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -36,7 +37,7 @@ fun BasicBackCard(basicCard: BasicCard){
         Text(
             text = basicCard.answer,
             fontSize = 30.sp,
-            color = textColor,
+            color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -47,12 +48,13 @@ fun BasicBackCard(basicCard: BasicCard){
 }
 
 @Composable
-fun ThreeBackCard(threeCard: ThreeFieldCard){
+fun ThreeBackCard(threeCard: ThreeFieldCard,
+                  getModifier: GetModifier){
     Column {
         Text(
             text = threeCard.question,
             fontSize = 30.sp,
-            color = textColor,
+            color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -62,7 +64,7 @@ fun ThreeBackCard(threeCard: ThreeFieldCard){
         Text(
             text = threeCard.middle,
             fontSize = 30.sp,
-            color = textColor,
+            color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -72,7 +74,7 @@ fun ThreeBackCard(threeCard: ThreeFieldCard){
         Text(
             text = threeCard.answer,
             fontSize = 30.sp,
-            color = textColor,
+            color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -83,12 +85,13 @@ fun ThreeBackCard(threeCard: ThreeFieldCard){
 }
 
 @Composable
-fun HintBackCard(hintCard: HintCard){
+fun HintBackCard(hintCard: HintCard,
+                 getModifier: GetModifier){
     Column {
         Text(
             text = hintCard.question,
             fontSize = 30.sp,
-            color = textColor,
+            color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -98,7 +101,7 @@ fun HintBackCard(hintCard: HintCard){
         Text(
             text = hintCard.answer,
             fontSize = 30.sp,
-            color = textColor,
+            color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier
@@ -109,7 +112,8 @@ fun HintBackCard(hintCard: HintCard){
 }
 
 @Composable
-fun BackCard(card : Pair<Card,AllCardTypes>) {
+fun BackCard(card : Pair<Card,AllCardTypes>,
+             getModifier: GetModifier) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -119,15 +123,15 @@ fun BackCard(card : Pair<Card,AllCardTypes>) {
         when (card.first.type) {
             "basic" -> {
                 val basicCard = card.second.basicCard
-                basicCard?.let { BasicBackCard(basicCard = it) }
+                basicCard?.let { BasicBackCard(basicCard = it, getModifier) }
             }
             "three" -> {
                 val threeCard = card.second.threeFieldCard
-                threeCard?.let { ThreeBackCard(threeCard = it) }
+                threeCard?.let { ThreeBackCard(threeCard = it, getModifier) }
             }
             "hint" ->{
                 val hintCard = card.second.hintCard
-                hintCard?.let { HintBackCard(hintCard = it) }
+                hintCard?.let { HintBackCard(hintCard = it, getModifier) }
             }
         }
     }

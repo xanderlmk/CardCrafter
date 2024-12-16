@@ -7,9 +7,7 @@ import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
 import com.example.flashcards.model.tablesAndApplication.BasicCardType
-import com.example.flashcards.model.tablesAndApplication.DeckWithCards
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -47,7 +45,7 @@ class BasicCardViewModel(private val flashCardRepository: FlashCardRepository,
         }
     }
 
-    suspend fun getBasicCard(cardId: Int): Flow<BasicCardType> {
+    fun getBasicCard(cardId: Int): Flow<BasicCardType> {
         return cardTypeRepository.getBasicCard(cardId)
     }
 

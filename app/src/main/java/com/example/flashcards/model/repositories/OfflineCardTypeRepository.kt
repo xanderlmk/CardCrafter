@@ -3,13 +3,7 @@ package com.example.flashcards.model.repositories
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.model.daoFiles.CardTypesDao
-import com.example.flashcards.model.tablesAndApplication.AllCardTypes
-import com.example.flashcards.model.tablesAndApplication.BasicCardType
 import com.example.flashcards.model.tablesAndApplication.HintCard
-import com.example.flashcards.model.tablesAndApplication.HintCardType
-import com.example.flashcards.model.tablesAndApplication.ThreeCardType
-import kotlinx.coroutines.flow.Flow
-import java.util.Date
 
 class OfflineCardTypeRepository(
     private val cardTypesDao: CardTypesDao)

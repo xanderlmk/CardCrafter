@@ -1,7 +1,6 @@
 package com.example.flashcards.model.daoFiles
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -19,13 +18,13 @@ import java.util.Date
 @Dao
 interface CardTypesDao{
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertBasicCard(basicCard: BasicCard)
+    suspend fun insertBasicCard(basicCard: BasicCard) : Long
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertThreeCard(threeFieldCard: ThreeFieldCard)
+    suspend fun insertThreeCard(threeFieldCard: ThreeFieldCard) : Long
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertHintCard(hintCard: HintCard)
+    suspend fun insertHintCard(hintCard: HintCard) : Long
 
     @Transaction
     @Query("SELECT * FROM cards where id = :cardId ")

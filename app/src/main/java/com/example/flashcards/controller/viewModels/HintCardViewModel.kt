@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
-import com.example.flashcards.model.tablesAndApplication.BasicCardType
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.HintCardType
@@ -48,7 +47,7 @@ class HintCardViewModel(private val flashCardRepository: FlashCardRepository,
         }
     }
 
-    suspend fun getHintCard(cardId: Int): Flow<HintCardType> {
+    fun getHintCard(cardId: Int): Flow<HintCardType> {
         return cardTypeRepository.getHintCard(cardId)
     }
 }

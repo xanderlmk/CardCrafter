@@ -3,7 +3,6 @@ package com.example.flashcards.model.repositories
 import com.example.flashcards.model.tablesAndApplication.AllCardTypes
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.BasicCardType
-import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.HintCardType
 import com.example.flashcards.model.tablesAndApplication.ThreeCardType
@@ -12,9 +11,9 @@ import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 interface CardTypeRepository {
-    suspend fun insertBasicCard(basicCard: BasicCard)
-    suspend fun insertThreeCard(threeFieldCard: ThreeFieldCard)
-    suspend fun insertHintCard(hintCard: HintCard)
+    suspend fun insertBasicCard(basicCard: BasicCard) : Long
+    suspend fun insertThreeCard(threeFieldCard: ThreeFieldCard) : Long
+    suspend fun insertHintCard(hintCard: HintCard) : Long
 
     fun getBasicCard(cardId :Int) : Flow<BasicCardType>
     fun getThreeCard(cardId :Int) : Flow<ThreeCardType>

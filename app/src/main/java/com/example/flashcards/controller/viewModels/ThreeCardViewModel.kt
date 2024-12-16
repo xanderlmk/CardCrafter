@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
-import com.example.flashcards.model.tablesAndApplication.BasicCardType
 import com.example.flashcards.model.tablesAndApplication.ThreeCardType
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import kotlinx.coroutines.flow.Flow
@@ -47,7 +46,7 @@ class ThreeCardViewModel(private val flashCardRepository: FlashCardRepository,
         }
     }
 
-    suspend fun getThreeCard(cardId: Int): Flow<ThreeCardType> {
+    fun getThreeCard(cardId: Int): Flow<ThreeCardType> {
         return cardTypeRepository.getThreeCard(cardId)
     }
 }
