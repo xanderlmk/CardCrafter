@@ -2,12 +2,16 @@ package com.example.flashcards.controller.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.flashcards.model.CardUiState
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.repositories.FlashCardRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
 class CardViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
@@ -15,18 +19,28 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
     private val errorMessage = MutableStateFlow<String?>(null)
 
     companion object {
-        private const val TIMEOUT_MILLIS = 7_000L
+        private const val TIMEOUT_MILLIS = 4_000L
     }
 
-    fun updateCard(card: Card){
-        viewModelScope.launch {
+    suspend fun updateCard(card: Card) : Boolean{
+        return withContext(Dispatchers.IO) {
             flashCardRepository.updateCard(card)
+            true
         }
     }
 
-    fun getDueCards(deckId : Int, cardTypeViewModel: CardTypeViewModel){
-        cardTypeViewModel.getDueTypesForDeck(deckId)
-        getCards(deckId)
+    suspend fun getDueCards(deckId : Int, cardTypeViewModel: CardTypeViewModel) : Boolean{
+        return withContext(Dispatchers.IO) {
+            try{
+                cardTypeViewModel.getDueTypesForDeck(deckId)
+                getCards(deckId)
+                delay(120)
+                false
+            }
+            catch (e : Exception){
+                true
+            }
+        }
     }
     fun getCards(deckId: Int){
         try {
@@ -44,6 +58,7 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
             println(e)
         }
     }
+
     fun getDeckWithCards(deckId: Int, cardTypeViewModel: CardTypeViewModel) {
         cardTypeViewModel.getAllTypesForDeck(deckId)
         getAllCards(deckId)
@@ -79,6 +94,3 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
         return flashCardRepository.getCardById(cardId)
     }
 }
-
-data class CardUiState(var cardList: List<Card> = emptyList())
-

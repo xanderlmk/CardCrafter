@@ -1,4 +1,4 @@
-package com.example.flashcards.views.addCardViews
+package com.example.flashcards.views.cardViews.addCardViews
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -10,6 +10,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,19 +22,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
-import com.example.flashcards.controller.viewModels.HintCardViewModel
+import com.example.flashcards.controller.viewModels.BasicCardViewModel
 import com.example.flashcards.model.Fields
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.views.miscFunctions.GetModifier
 import kotlinx.coroutines.delay
 
 @Composable
-fun AddHintCard(viewModel: HintCardViewModel,deckId: Int,
-                fields: Fields, getModifier: GetModifier) {
-    var errorMessage by remember { mutableStateOf("") }
+fun AddBasicCard(
+    viewModel: BasicCardViewModel,deckId : Int,
+    fields : Fields, getModifier: GetModifier) {
+
+    val basicCardUiState by viewModel.basicCardUiState.collectAsState()
+
     var successMessage by remember { mutableStateOf("") }
     val fillOutFields = stringResource(R.string.fill_out_all_fields).toString()
     val cardAdded = stringResource(R.string.card_added).toString()
+
     Text(
         text = stringResource(R.string.question),
         fontSize = 25.sp,
@@ -56,32 +61,6 @@ fun AddHintCard(viewModel: HintCardViewModel,deckId: Int,
                     newText
             },
             labelStr = stringResource(R.string.question),
-            modifier = Modifier
-                .weight(1f)
-        )
-    }
-    Text(
-        text = stringResource(R.string.hint_field),
-        fontSize = 25.sp,
-        textAlign = TextAlign.Center,
-        lineHeight = 30.sp,
-        color = getModifier.titleColor(),
-        modifier = Modifier
-            .padding(top = 8.dp)
-    )
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 8.dp, end = 8.dp),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        EditTextField(
-            value = fields.middleField.value,
-            onValueChanged = { newText ->
-                fields.middleField.value =
-                    newText
-            },
-            labelStr = stringResource(R.string.hint_field),
             modifier = Modifier
                 .weight(1f)
         )
@@ -112,33 +91,33 @@ fun AddHintCard(viewModel: HintCardViewModel,deckId: Int,
         )
     }
 
-    if (errorMessage.isNotEmpty()) {
+    if (basicCardUiState.errorMessage.isNotEmpty()) {
         Text(
-            text = errorMessage,
+            text = basicCardUiState.errorMessage,
             color = Color.Red,
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(4.dp),
             fontSize = 16.sp
         )
     } else {
-        Spacer(modifier = Modifier.padding(20.dp))
+        Spacer(modifier = Modifier.padding(16.dp))
     }
     if (successMessage.isNotEmpty()) {
         Text(
             text = successMessage,
             color = getModifier.titleColor(),
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(4.dp),
             fontSize = 16.sp
         )
     } else {
-        Spacer(modifier = Modifier.padding(8.dp))
+        Spacer(modifier = Modifier.padding(16.dp))
     }
     LaunchedEffect(successMessage) {
-        delay(5750)
+        delay(1500)
         successMessage = ""
     }
-    LaunchedEffect(errorMessage) {
-        delay(5750)
-        errorMessage = ""
+    LaunchedEffect(basicCardUiState.errorMessage) {
+        delay(1500)
+        viewModel.clearErrorMessage()
     }
 
     Row(
@@ -148,18 +127,13 @@ fun AddHintCard(viewModel: HintCardViewModel,deckId: Int,
     ) {
         Button(
             onClick = {
-                if (fields.question.value.isBlank() ||
-                    fields.answer.value.isBlank() ||
-                    fields.middleField.value.isBlank()) {
-                    errorMessage = fillOutFields
+                if (fields.question.value.isBlank() || fields.answer.value.isBlank()) {
+                    viewModel.setErrorMessage(fillOutFields)
                     successMessage = ""
                 } else {
-                    viewModel.addHintCard(deckId, fields.question.value,
-                        fields.middleField.value, fields.answer.value)
-                    fields.question.value = ""
-                    fields.middleField.value = ""
+                    viewModel.addBasicCard(deckId, fields.answer.value, fields.question.value)
                     fields.answer.value = ""
-                    errorMessage = ""
+                    fields.question.value = ""
                     successMessage = cardAdded
                 }
             },

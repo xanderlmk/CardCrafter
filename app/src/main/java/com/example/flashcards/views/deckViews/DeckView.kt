@@ -17,51 +17,47 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.model.tablesAndApplication.Deck
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.viewModels.CardViewModel
 import kotlinx.coroutines.launch
 import com.example.flashcards.R
 import com.example.flashcards.controller.viewModels.CardTypeViewModel
+import com.example.flashcards.model.Fields
 import com.example.flashcards.views.miscFunctions.AddCardButton
 import com.example.flashcards.views.miscFunctions.BackButton
-import com.example.flashcards.views.miscFunctions.ChoosingView
 import com.example.flashcards.views.miscFunctions.SettingsButton
 import com.example.flashcards.views.miscFunctions.View
 import com.example.flashcards.views.miscFunctions.GetModifier
 
 
 class DeckView(
-    private var navController: NavController,
     private var cardTypeViewModel: CardTypeViewModel,
+    private var fields : Fields,
     private var getModifier: GetModifier
 ) {
     @Composable
-    fun ViewEditDeck(deck: Deck, onNavigate: () -> Unit, whichView : View) {
+    fun ViewEditDeck(
+        deck: Deck,
+        onNavigate: () -> Unit,
+        whichView : View,
+        onNavigateToWhichView: () -> Unit) {
         val cardViewModel: CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val view = remember {whichView}
-        val choosingView = ChoosingView(navController)
         val coroutineScope = rememberCoroutineScope()
-        when (view.whichView.intValue) {
-            0 -> {
-                view.onView.value = false
-            }
-            1 -> {
-                choosingView.WhichScreen(deck,view)
-            }
-            2 -> {
-                choosingView.WhichScreen(deck,view)
-            }
-            3 -> {
-                choosingView.WhichScreen(deck,view)
-            }
-            4 -> {
-                choosingView.WhichScreen(deck,view)
-            }
+        LaunchedEffect(view.whichView.intValue) {
+                when (view.whichView.intValue) {
+                    0 -> {
+                        view.onView.value = false
+                    }
+                    else -> {
+                        onNavigateToWhichView()
+                    }
+                }
         }
         Box(
             modifier = getModifier.boxViewsModifier()
@@ -72,8 +68,18 @@ class DeckView(
                 getModifier = getModifier
             )
             SettingsButton(
-                onNavigateToEditDeck = { view.whichView.intValue = 3 },
-                onNavigateToEditCards = { view.whichView.intValue = 4 } ,
+                onNavigateToEditDeck = {
+                    if (!fields.inDeckClicked.value) {
+                        view.whichView.intValue = 3
+                        fields.inDeckClicked.value = true
+                    }
+                                       },
+                onNavigateToEditCards = {
+                    if (!fields.inDeckClicked.value) {
+                        view.whichView.intValue = 4
+                        fields.inDeckClicked.value = true
+                    }
+                                        } ,
                 modifier = getModifier.settingsButtonModifier()
                     .align(Alignment.TopEnd),
                 getModifier = getModifier
@@ -116,7 +122,10 @@ class DeckView(
                                             cardViewModel.getDueCards(deck.id,
                                                 cardTypeViewModel)
                                         }
-                                        view.whichView.intValue = 2
+                                        if (!fields.inDeckClicked.value) {
+                                            view.whichView.intValue = 2
+                                            fields.inDeckClicked.value = true
+                                        }
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth(fraction = 0.55f)
@@ -143,7 +152,10 @@ class DeckView(
                     ) {
                         AddCardButton(
                             onClick = {
-                                view.whichView.intValue = 1
+                                if (!fields.inDeckClicked.value) {
+                                    view.whichView.intValue = 1
+                                    fields.inDeckClicked.value = true
+                                }
                             }
                         )
                     }

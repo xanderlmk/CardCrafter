@@ -38,7 +38,7 @@ interface CardTypeRepository {
     fun getDueBasicCards(deckId : Int, currentTime : Long = Date().time) : Flow<List<BasicCardType>>
     fun getDueThreeCards(deckId : Int, currentTime : Long = Date().time) : Flow<List<ThreeCardType>>
     fun getDueHintCards(deckId : Int, currentTime : Long = Date().time) : Flow<List<HintCardType>>
-    fun getDueAllCardTypes(deckId : Int, currentTime : Long = Date().time) :
+    suspend fun getDueAllCardTypes(deckId : Int, currentTime : Long = Date().time) :
             Flow<List<AllCardTypes>>
 
 

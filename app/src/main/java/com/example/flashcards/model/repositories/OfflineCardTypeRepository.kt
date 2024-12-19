@@ -52,7 +52,7 @@ class OfflineCardTypeRepository(
         cardTypesDao.getDueThreeCards(deckId,currentTime)
     override fun getDueHintCards(deckId : Int, currentTime : Long) =
         cardTypesDao.getDueHintCards(deckId,currentTime)
-    override fun getDueAllCardTypes(deckId : Int, currentTime : Long) =
+    override suspend fun getDueAllCardTypes(deckId : Int, currentTime : Long) =
         cardTypesDao.getDueAllCardTypes(deckId,currentTime)
 
 }

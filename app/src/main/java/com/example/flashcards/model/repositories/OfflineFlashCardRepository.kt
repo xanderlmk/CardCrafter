@@ -4,7 +4,9 @@ import com.example.flashcards.model.tablesAndApplication.DeckWithCards
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.daoFiles.CardDao
 import com.example.flashcards.model.daoFiles.DeckDao
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.debounce
 
 class OfflineFlashCardRepository(
     private val deckDao: DeckDao,
@@ -38,16 +40,31 @@ class OfflineFlashCardRepository(
             throw e
         }
 
+    override fun updateDeckGoodMultiplier(newMultiplier: Double, deckId: Int) =
+        try{
+            deckDao.updateDeckGoodMultiplier(newMultiplier, deckId)
+        } catch(e: Exception){
+            throw  e
+        }
+
+    override fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int) =
+        try{
+            deckDao.updateDeckBadMultiplier(newMultiplier, deckId)
+        } catch(e: Exception){
+            throw  e
+        }
+
     override suspend fun insertCard(card: Card) = cardDao.insertCard(card)
 
     override suspend fun updateCard(card: Card) = cardDao.updateCard(card)
 
     override suspend fun deleteCard(card: Card) = cardDao.deleteCard(card)
 
+    @OptIn(FlowPreview::class)
     override fun getDeckWithCards(deckId: Int):
-            Flow<DeckWithCards> = cardDao.getDeckWithCards(deckId)
+            Flow<DeckWithCards> = cardDao.getDeckWithCards(deckId).debounce(50)
 
-    override fun getDueCards(deckId: Int, currentTime: Long):
+    override suspend fun getDueCards(deckId: Int, currentTime: Long):
             Flow<List<Card>> = cardDao.getDueCards(deckId, currentTime)
 
     override suspend fun deleteAllCards(deckId: Int) = cardDao.deleteAllCards(deckId)

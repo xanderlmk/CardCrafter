@@ -33,4 +33,7 @@
     <string name="empty_deck_name">El nombre del mazo no puede estar vacío</string>
     <string name="deck_name_exists">Existe un mazo con ese nombre</string>
     <string name="deck_name_failed">La actualización del nombre falló</string>
+    <string name="system_theme">Tema Del Sistema</string>
+    <string name="custom_theme">Tema Personalizado</string>
+    <string name="dark_theme">Tema Oscuro</string>
 </resources>

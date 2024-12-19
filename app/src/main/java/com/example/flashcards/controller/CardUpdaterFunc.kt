@@ -6,7 +6,8 @@ import java.util.Calendar
 import java.util.Date
 
 fun updateCard(card: Card, isSuccess: Boolean,
-               deckMultiplier: Double) : Card {
+               deckGoodMultiplier: Double,
+               deckBadMultiplier: Double) : Card {
 
     val temp = card
     if (isSuccess) {
@@ -14,7 +15,7 @@ fun updateCard(card: Card, isSuccess: Boolean,
         temp.prevSuccess = true
     } else { temp.prevSuccess = false}
     temp.nextReview = timeCalculator(temp.passes, isSuccess,
-        deckMultiplier)
+        deckGoodMultiplier,deckBadMultiplier)
     temp.totalPasses += 1
 
     if (!isSuccess && !temp.prevSuccess && temp.passes > 0){
@@ -24,14 +25,13 @@ fun updateCard(card: Card, isSuccess: Boolean,
 }
 
 fun timeCalculator (passes : Int, isSuccess: Boolean,
-                    deckMultiplier: Double) : Date {
+                    deckGoodMultiplier: Double,
+                    deckBadMultiplier : Double) : Date {
     val calendar = Calendar.getInstance()
     // Determine the multiplier based on success or hard pass
-    val multiplier = when {
-        passes == 1 -> if (isSuccess) deckMultiplier else 1.0 // passes == 1
-        passes >= 2 -> if (isSuccess) deckMultiplier else 0.5
-        else -> if (isSuccess) deckMultiplier else 0.0
-    }
+    val multiplier =
+        calculateReviewMultiplier(passes,isSuccess,
+            deckGoodMultiplier, deckBadMultiplier)
 
     // Calculate days to add
     val daysToAdd = (passes * multiplier).toInt()
@@ -43,9 +43,23 @@ fun timeCalculator (passes : Int, isSuccess: Boolean,
     return calendar.time
 }
 
+private fun calculateReviewMultiplier(passes: Int, isSuccess: Boolean,
+                                      deckGoodMultiplier: Double,
+                                      deckBadMultiplier: Double): Double {
+    val baseMultiplier = when {
+        passes == 1 -> 1.0
+        passes >= 2 -> deckBadMultiplier
+        else -> 0.0
+    }
+    return if (isSuccess) deckGoodMultiplier else baseMultiplier
+}
+
 // Helper to update the card state
-fun handleCardUpdate(card: Card, success: Boolean,
-                     viewModel: CardViewModel, deckMultiplier: Double) {
-    val updatedCard = updateCard(card, success, deckMultiplier)
-    viewModel.updateCard(updatedCard)
+suspend fun handleCardUpdate(card: Card, success: Boolean,
+                     viewModel: CardViewModel,
+                     deckGoodMultiplier: Double,
+                     deckBadMultiplier: Double) : Boolean {
+    val updatedCard = updateCard(card, success, deckGoodMultiplier,
+        deckBadMultiplier)
+    return viewModel.updateCard(updatedCard)
 }

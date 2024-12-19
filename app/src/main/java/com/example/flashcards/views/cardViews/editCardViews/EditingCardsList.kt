@@ -1,4 +1,4 @@
-package com.example.flashcards.views.editCardViews
+package com.example.flashcards.views.cardViews.editCardViews
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
@@ -22,7 +22,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.flashcards.controller.viewModels.CardViewModel
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
@@ -35,8 +34,8 @@ import com.example.flashcards.views.miscFunctions.ShowBackButtonAndDeckName
 import com.example.flashcards.views.miscFunctions.delayNavigate
 import kotlinx.coroutines.launch
 
-class DeckEditView(private var viewModel: CardViewModel,
-                   private var navController: NavController,
+class DeckEditView(
+    private var viewModel: CardViewModel,
     private var cardTypeViewModel: CardTypeViewModel,
     private var fields : Fields,
     private var listState : LazyListState,
@@ -48,8 +47,9 @@ class DeckEditView(private var viewModel: CardViewModel,
     @SuppressLint("CoroutineCreationDuringComposition")
 
     @Composable
-    fun ViewFlashCards(deck : Deck, onNavigate: () -> Unit) {
-        //val loading = stringResource(R.string.loading)
+    fun ViewFlashCards(deck : Deck, onNavigate: () -> Unit
+    , goToEditCard: (Int) -> Unit) {
+
         //var deckWithCards by remember { mutableStateOf(DeckWithCards(Deck(0, loading.toString() ), emptyList())) }
         val cardListUiState by cardTypeViewModel.cardListUiState.collectAsState()
         val cardUiState by viewModel.cardUiState.collectAsState()
@@ -71,7 +71,7 @@ class DeckEditView(private var viewModel: CardViewModel,
             LaunchedEffect(navigate.value) {
                 if (!navigate.value) {
                     delayNavigate()
-                    navController.navigate("EditingCard/${selectedCard.value?.id}/${deck.id}")
+                    goToEditCard(selectedCard.value?.id?: 0)
                 }
             }
         } else {

@@ -3,6 +3,7 @@ package com.example.flashcards.controller.viewModels
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.flashcards.model.MainUiState
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -69,10 +70,10 @@ class DeckViewModel(private val flashCardRepository: FlashCardRepository,
         }
     }
 
-    suspend fun updateDeckName(newName: String, deckID: Int): Int {
+    suspend fun updateDeckName(newName: String, deckId: Int): Int {
         return withContext(Dispatchers.IO) {
             try {
-                val rowsUpdated = flashCardRepository.updateDeckName(newName, deckID)
+                val rowsUpdated = flashCardRepository.updateDeckName(newName, deckId)
                 if (rowsUpdated == 0) {
                     _errorMessage.value = "Failed to update deck name - name may already exist"
                 }
@@ -87,11 +88,53 @@ class DeckViewModel(private val flashCardRepository: FlashCardRepository,
             }
         }
     }
-    suspend fun getDeckById(deckId : Int) : Flow<Deck?> {
+    suspend fun updateDeckGoodMultiplier(newMultiplier: Double, deckId: Int) : Int{
+        if (newMultiplier > 1.0){
+            return withContext(Dispatchers.IO) {
+                    try {
+                        val row =
+                            flashCardRepository.updateDeckGoodMultiplier(newMultiplier, deckId)
+                        if (row == 0) {
+                            _errorMessage.value = "Failed to update multiplier"
+                        }
+                        row
+                    } catch (e: SQLiteConstraintException) {
+                        _errorMessage.value = e.message
+                        println(e)
+                        0
+                    } catch (e: Exception) {
+                        _errorMessage.value = "Error updating deck multiplier: ${e.message}"
+                        0
+                    }
+                }
+        }
+        return 0
+    }
+    suspend fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int) : Int{
+        if (newMultiplier < 1.0 && newMultiplier > 0.0){
+            return withContext(Dispatchers.IO) {
+                try {
+                    val row =
+                        flashCardRepository.updateDeckBadMultiplier(newMultiplier, deckId)
+                    if (row == 0) {
+                        _errorMessage.value = "Failed to update multiplier"
+                    }
+                    row
+                } catch (e: SQLiteConstraintException) {
+                    _errorMessage.value = e.message
+                    println(e)
+                    0
+                } catch (e: Exception) {
+                    _errorMessage.value = "Error updating deck multiplier: ${e.message}"
+                    0
+                }
+            }
+        }
+        return 0
+    }
+
+    fun getDeckById(deckId : Int) : Flow<Deck?> {
         return flashCardRepository.getDeckStream(deckId)
     }
 }
-
-data class MainUiState(val deckList: List<Deck> = listOf())
-
 

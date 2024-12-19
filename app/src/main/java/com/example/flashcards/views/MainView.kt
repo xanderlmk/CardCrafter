@@ -33,7 +33,9 @@ import com.example.flashcards.views.miscFunctions.MainSettingsButton
 import com.example.flashcards.views.miscFunctions.SmallAddButton
 import com.example.flashcards.views.miscFunctions.delayNavigate
 
-class MainView(private var getModifier: GetModifier, private var fields: Fields) {
+class MainView(
+    private var getModifier: GetModifier,
+    private var fields: Fields) {
 
     @Composable
     fun DeckList(viewModel: DeckViewModel,
@@ -48,10 +50,11 @@ class MainView(private var getModifier: GetModifier, private var fields: Fields)
         Box(
             modifier = getModifier.boxViewsModifier()
         ) {
-            MainSettingsButton(onNavigateToSettings,
+            MainSettingsButton(
+                onNavigateToSettings,
                 settingsModifier
                     .align(Alignment.TopEnd),
-                getModifier)
+                getModifier, fields)
             Column(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -84,8 +87,8 @@ class MainView(private var getModifier: GetModifier, private var fields: Fields)
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp)
                                         .clickable {
-                                            if (!fields.clicked.value) {
-                                                fields.clicked.value = true
+                                            if (!fields.mainClicked.value) {
+                                                fields.mainClicked.value = true
                                                 onNavigateToDeck(uiState.deckList[index].id)
                                             }
                                         },
@@ -121,9 +124,12 @@ class MainView(private var getModifier: GetModifier, private var fields: Fields)
                         ) {
                             SmallAddButton(
                                 onClick = {
-                                    coroutineScope.launch {
-                                        delayNavigate()
-                                        onNavigateToAddDeck()
+                                    if (!fields.mainClicked.value) {
+                                        fields.mainClicked.value = true
+                                        coroutineScope.launch {
+                                            delayNavigate()
+                                            onNavigateToAddDeck()
+                                        }
                                     }
                                 },
                                 getModifier = getModifier

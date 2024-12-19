@@ -1,4 +1,4 @@
-package com.example.flashcards.views.addCardViews
+package com.example.flashcards.views.cardViews.addCardViews
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

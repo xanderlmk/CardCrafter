@@ -1,4 +1,4 @@
-package com.example.flashcards.views.addCardViews
+package com.example.flashcards.views.cardViews.addCardViews
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -10,6 +10,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,17 +22,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
-import com.example.flashcards.controller.viewModels.BasicCardViewModel
+import com.example.flashcards.controller.viewModels.ThreeCardViewModel
 import com.example.flashcards.model.Fields
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.views.miscFunctions.GetModifier
 import kotlinx.coroutines.delay
 
 @Composable
-fun AddBasicCard(viewModel: BasicCardViewModel,deckId : Int,
-                 fields : Fields,
-                 getModifier: GetModifier) {
-    var errorMessage by remember { mutableStateOf("") }
+fun AddThreeCard(viewModel: ThreeCardViewModel,deckId: Int,
+                 fields: Fields, getModifier: GetModifier) {
+    val threeCardUiState by viewModel.threeCardUiState.collectAsState()
     var successMessage by remember { mutableStateOf("") }
     val fillOutFields = stringResource(R.string.fill_out_all_fields).toString()
     val cardAdded = stringResource(R.string.card_added).toString()
@@ -63,6 +63,32 @@ fun AddBasicCard(viewModel: BasicCardViewModel,deckId : Int,
         )
     }
     Text(
+        text = stringResource(R.string.middle_field),
+        fontSize = 25.sp,
+        textAlign = TextAlign.Center,
+        lineHeight = 30.sp,
+        color = getModifier.titleColor(),
+        modifier = Modifier
+            .padding(top = 8.dp)
+    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        EditTextField(
+            value = fields.middleField.value,
+            onValueChanged = { newText ->
+                fields.middleField.value =
+                    newText
+            },
+            labelStr = stringResource(R.string.middle_field),
+            modifier = Modifier
+                .weight(1f)
+        )
+    }
+    Text(
         text = stringResource(R.string.answer),
         fontSize = 25.sp,
         textAlign = TextAlign.Center,
@@ -88,33 +114,33 @@ fun AddBasicCard(viewModel: BasicCardViewModel,deckId : Int,
         )
     }
 
-    if (errorMessage.isNotEmpty()) {
+    if (threeCardUiState.errorMessage.isNotEmpty()) {
         Text(
-            text = errorMessage,
+            text = threeCardUiState.errorMessage,
             color = Color.Red,
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(4.dp),
             fontSize = 16.sp
         )
     } else {
-        Spacer(modifier = Modifier.padding(20.dp))
+        Spacer(modifier = Modifier.padding(16.dp))
     }
     if (successMessage.isNotEmpty()) {
         Text(
             text = successMessage,
             color = getModifier.titleColor(),
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(4.dp),
             fontSize = 16.sp
         )
     } else {
-        Spacer(modifier = Modifier.padding(12.dp))
+        Spacer(modifier = Modifier.padding(16.dp))
     }
     LaunchedEffect(successMessage) {
-        delay(5750)
+        delay(1500)
         successMessage = ""
     }
-    LaunchedEffect(errorMessage) {
-        delay(5750)
-        errorMessage = ""
+    LaunchedEffect(threeCardUiState.errorMessage) {
+        delay(1500)
+        viewModel.clearErrorMessage()
     }
 
     Row(
@@ -124,14 +150,17 @@ fun AddBasicCard(viewModel: BasicCardViewModel,deckId : Int,
     ) {
         Button(
             onClick = {
-                if (fields.question.value.isBlank() || fields.answer.value.isBlank()) {
-                    errorMessage = fillOutFields
+                if (fields.question.value.isBlank() ||
+                    fields.answer.value.isBlank() ||
+                    fields.middleField.value.isBlank()) {
+                    viewModel.setErrorMessage(fillOutFields)
                     successMessage = ""
                 } else {
-                    viewModel.addBasicCard(deckId, fields.answer.value, fields.question.value)
-                    fields.answer.value = ""
+                    viewModel.addThreeCard(deckId, fields.question.value,
+                        fields.middleField.value, fields.answer.value)
                     fields.question.value = ""
-                    errorMessage = ""
+                    fields.middleField.value = ""
+                    fields.answer.value = ""
                     successMessage = cardAdded
                 }
             },

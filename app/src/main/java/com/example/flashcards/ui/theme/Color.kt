@@ -9,10 +9,12 @@ val editingBackGroundColor = Color(190, 240, 255)
 
 val borderColor = Color(106, 154, 176)
 val iconColor = Color(212, 241, 244)
-val textColor = Color(28, 116, 161, 255)
+val textColor = Color(28, 100, 161, 255)
 val deleteTextColor = Color.Red
 val buttonColor = Color(5, 66, 126, 255)
 val secondaryButtonColor = Color(117, 230, 218)
+val tertiaryButtonColor = Color (110, 215, 230)
+val onTertiaryButtonColor = Color(15, 55, 190)
 
 // Dark theme
 val darkBackground = Color(18, 18, 38)
@@ -25,4 +27,6 @@ val darkText = Color(220, 220, 200)
 
 val darkButton = Color(115, 150, 243)
 val darkSecondaryButton = Color(28, 28, 88)
+val darkTertiaryButton = Color(0, 48, 98)
+val onDarkTertiaryButton = Color(255, 230, 190)
 

@@ -9,7 +9,11 @@ interface FlashCardRepository {
 
     suspend fun checkIfDeckExists(deckName: String): Int
 
-    suspend fun updateDeckName(newName: String, deckID: Int): Int
+    suspend fun updateDeckName(newName: String, deckId: Int): Int
+
+    fun updateDeckGoodMultiplier(newMultiplier : Double, deckId: Int): Int
+
+    fun updateDeckBadMultiplier(newMultiplier : Double, deckId: Int): Int
 
     fun getAllDecksStream(): Flow<List<Deck>>
 
@@ -31,12 +35,11 @@ interface FlashCardRepository {
 
     fun getDeckWithCards(deckId: Int): Flow<DeckWithCards>
 
-    fun getDueCards(deckId: Int,
+    suspend fun getDueCards(deckId: Int,
                             currentTime: Long = Date().time): Flow<List<Card>>
 
     suspend fun deleteAllCards(deckId: Int)
 
     suspend fun getCardById(cardId : Int) : Card?
-
 
 }

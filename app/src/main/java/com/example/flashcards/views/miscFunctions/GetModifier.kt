@@ -117,4 +117,10 @@ class GetModifier(
     fun titleColor() : Color{
         return colorScheme.colorScheme.onBackground
     }
+    fun tertiaryButtonColor(): Color{
+        return colorScheme.colorScheme.tertiaryContainer
+    }
+    fun onTertiaryButtonColor(): Color{
+        return colorScheme.colorScheme.onTertiaryContainer
+    }
 }

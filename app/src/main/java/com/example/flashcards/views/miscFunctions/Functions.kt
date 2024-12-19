@@ -9,6 +9,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -17,14 +20,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.flashcards.R
-import com.example.flashcards.controller.viewModels.CardListUiState
-import com.example.flashcards.controller.viewModels.CardUiState
+
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.ui.theme.textColor
 import kotlinx.coroutines.delay
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.flashcards.model.CardListUiState
+import com.example.flashcards.model.CardUiState
+
 
 @Composable
 fun EditTextField(
@@ -42,7 +49,22 @@ fun EditTextField(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
     )
 }
-
+@Composable
+fun EditNumberField(
+    value: String,
+    onValueChanged: (String) -> Unit,
+    labelStr : String ,
+    modifier: Modifier,
+) {
+    TextField(
+        value = value,
+        singleLine = true,
+        modifier = modifier,
+        onValueChange = onValueChanged,
+        label = { Text(labelStr, color = textColor) },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+    )
+}
 @Composable
 fun LoadingText() {
     Text(
@@ -54,17 +76,23 @@ fun LoadingText() {
         modifier = Modifier.fillMaxWidth()
     )
 }
-
 @Composable
 fun NoDueCards(getModifier: GetModifier) {
-    Text(
-        stringResource(R.string.no_due_cards),
-        fontSize = 25.sp,
-        lineHeight = 26.sp,
-        textAlign = TextAlign.Center,
-        color = getModifier.titleColor(),
-        style = MaterialTheme.typography.titleLarge
-    )
+    var delay by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        delay(150)
+        delay = true
+    }
+    if (delay) {
+        Text(
+            stringResource(R.string.no_due_cards),
+            fontSize = 25.sp,
+            lineHeight = 26.sp,
+            textAlign = TextAlign.Center,
+            color = getModifier.titleColor(),
+            style = MaterialTheme.typography.titleLarge
+        )
+    }
 }
 
 @Composable
@@ -81,10 +109,11 @@ fun HintCardQuestion(hintCard: HintCard) {
 }
 
 @Composable
-fun ShowBackButtonAndDeckName(onNavigate: () -> Unit,
-                              deck : Deck,
-                              presetModifier : Modifier,
-                              getModifier: GetModifier) {
+fun ShowBackButtonAndDeckName(
+    onNavigate: () -> Unit,
+    deck : Deck,
+    presetModifier : Modifier,
+    getModifier: GetModifier) {
     Row {
         BackButton(
             onBackClick = {
@@ -136,14 +165,9 @@ fun CardSelector(cardListUiState : CardListUiState,
     }
 
 }
-
-
-
-suspend fun loading() : Boolean{
-    delay(100)
-    return false
+suspend fun loading(){
+    delay(225)
 }
-
 suspend fun delayNavigate() {
-    delay(75)
+    delay(85)
 }
