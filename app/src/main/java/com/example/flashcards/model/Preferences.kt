@@ -37,4 +37,10 @@ class PreferencesManager(context: Context) {
         set(value) {
             sharedPreferences.edit().putBoolean("dark_theme", value).apply()
         }
+
+    var isFirstTime: Boolean
+        get() = sharedPreferences.getBoolean("first_time", true)
+        set(value) {
+            sharedPreferences.edit().putBoolean("first_time",value).apply()
+        }
 }

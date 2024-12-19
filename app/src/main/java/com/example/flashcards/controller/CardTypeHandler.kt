@@ -1,11 +1,11 @@
 package com.example.flashcards.controller
 
 import androidx.compose.runtime.Composable
-import com.example.flashcards.controller.viewModels.CardListUiState
+import com.example.flashcards.model.CardListUiState
 import com.example.flashcards.model.Fields
-import com.example.flashcards.views.editCardViews.EditBasicCard
-import com.example.flashcards.views.editCardViews.EditHintCard
-import com.example.flashcards.views.editCardViews.EditThreeCard
+import com.example.flashcards.views.cardViews.editCardViews.EditBasicCard
+import com.example.flashcards.views.cardViews.editCardViews.EditHintCard
+import com.example.flashcards.views.cardViews.editCardViews.EditThreeCard
 import com.example.flashcards.views.miscFunctions.GetModifier
 
 interface CardTypeHandler {

@@ -14,7 +14,8 @@ import java.util.Date
 data class Deck(
     @PrimaryKey(autoGenerate = true) val id : Int = 0,
     val name : String,
-    var multiplier : Double = 1.5
+    val goodMultiplier : Double = 1.5,
+    val badMultiplier : Double = 0.5
 )
 @Entity(tableName = "cards",
     foreignKeys = [

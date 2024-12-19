@@ -20,6 +20,7 @@ private val DarkColorScheme = darkColorScheme(
     surface = darkEditingBackground,
     primaryContainer = darkButton,
     secondaryContainer = darkSecondaryButton,
+    tertiaryContainer = darkTertiaryButton,
 
     onPrimary = darkIcon,
     onSecondary = darkIcon,
@@ -28,7 +29,7 @@ private val DarkColorScheme = darkColorScheme(
 
     onPrimaryContainer = darkIcon,
     onSecondaryContainer = darkText,
-    onTertiaryContainer = darkBackground
+    onTertiaryContainer = onDarkTertiaryButton
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -40,6 +41,7 @@ private val LightColorScheme = lightColorScheme(
     surface = editingBackGroundColor,
     primaryContainer = buttonColor,
     secondaryContainer = secondaryButtonColor,
+    tertiaryContainer = tertiaryButtonColor,
 
     onBackground = onBackgroundColor,
     onPrimary = textColor,
@@ -48,7 +50,7 @@ private val LightColorScheme = lightColorScheme(
 
     onPrimaryContainer = iconColor,
     onSecondaryContainer = textColor,
-    onTertiaryContainer = backgroundColor
+    onTertiaryContainer = onTertiaryButtonColor
 )
 
 class ColorSchemeClass(

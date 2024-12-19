@@ -1,4 +1,4 @@
-package com.example.flashcards.views.editCardViews
+package com.example.flashcards.views.cardViews.editCardViews
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,11 +12,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -28,7 +27,7 @@ import com.example.flashcards.controller.BasicCardTypeHandler
 import com.example.flashcards.controller.HintCardTypeHandler
 import com.example.flashcards.controller.ThreeCardTypeHandler
 import com.example.flashcards.controller.viewModels.BasicCardViewModel
-import com.example.flashcards.controller.viewModels.CardListUiState
+import com.example.flashcards.controller.viewModels.CardTypeViewModel
 import com.example.flashcards.controller.viewModels.HintCardViewModel
 import com.example.flashcards.controller.viewModels.ThreeCardViewModel
 import com.example.flashcards.model.Fields
@@ -43,26 +42,26 @@ import kotlinx.coroutines.launch
 class EditingCardView(
     private var cardTypes: Triple<BasicCardViewModel,
             ThreeCardViewModel, HintCardViewModel>,
+    private var cardTypeViewModel: CardTypeViewModel,
     private var getModifier: GetModifier
 ) {
     @Composable
     fun EditFlashCardView(
         card: Card,
         fields: Fields,
-        cardListUiState: CardListUiState,
         selectedCard: MutableState<Card?>,
         onNavigateBack: () -> Unit
     ) {
-        var errorMessage by remember { mutableStateOf("") }
         val fillOutfields = stringResource(R.string.fill_out_all_fields).toString()
         val coroutineScope = rememberCoroutineScope()
+        val cardListUiState by cardTypeViewModel.cardListUiState.collectAsState()
         Box(
             modifier = getModifier.boxViewsModifier()
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(50.dp),
+                    .padding(10.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 if (selectedCard.value != null) {
@@ -89,9 +88,9 @@ class EditingCardView(
                         fields = fields,
                         getModifier = getModifier
                     )
-                    if (errorMessage.isNotEmpty()) {
+                    if (cardListUiState.errorMessage.isNotEmpty()) {
                         Text(
-                            text = errorMessage,
+                            text = cardListUiState.errorMessage,
                             color = Color.Red,
                             modifier = Modifier.fillMaxWidth(),
                             fontSize = 16.sp,
@@ -122,14 +121,14 @@ class EditingCardView(
                         }
                         Button(
                             onClick = {
-
                                 coroutineScope.launch {
                                     val success = saveCard(selectedCard, fields, cardTypes)
                                     if (success) {
                                         delayNavigate()
                                         onNavigateBack()
                                     } else {
-                                        errorMessage = fillOutfields
+                                        println("settings error message.")
+                                        cardTypeViewModel.setErrorMessage(fillOutfields)
                                     }
                                 }
                             },
@@ -148,7 +147,7 @@ class EditingCardView(
         }
     }
 
-    private suspend fun saveCard(
+    private fun saveCard(
         selectedCard: MutableState<Card?>,
         fields: Fields,
         cardTypes: Triple<

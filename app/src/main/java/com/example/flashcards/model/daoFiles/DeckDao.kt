@@ -32,13 +32,30 @@ interface DeckDao {
     @Query("""
         UPDATE decks 
         SET name = :newName 
-        WHERE id = :deckID 
+        WHERE id = :deckId
         AND NOT EXISTS (
             SELECT 1 
             FROM decks 
             WHERE LOWER(name) = LOWER(:newName) 
-            AND id != :deckID
+            AND id != :deckId
         )
     """)
-    fun updateDeckName(newName: String, deckID: Int): Int
+    fun updateDeckName(newName: String, deckId: Int): Int
+
+    @Query("""
+        update decks
+        set goodMultiplier = :newMultiplier
+        where id = :deckId
+        and :newMultiplier > 1.0
+    """)
+    fun updateDeckGoodMultiplier(newMultiplier : Double, deckId: Int) : Int
+
+    @Query("""
+        update decks
+        set badMultiplier = :newMultiplier
+        where id = :deckId
+        and :newMultiplier < 1.0
+        and :newMultiplier > 0.0
+    """)
+    fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int) : Int
 }

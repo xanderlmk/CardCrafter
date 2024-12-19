@@ -24,29 +24,56 @@ class MainActivity : ComponentActivity() {
     private val deckViewModel : DeckViewModel by viewModels {
         AppViewModelProvider.Factory
     }
+    private lateinit var preferencesManager: PreferencesManager
+    private lateinit var preferences: Preferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val preferencesManager = PreferencesManager(applicationContext)
         setContent {
             val isSystemDark = isSystemInDarkTheme()
-            val preferences = remember {
+
+            preferencesManager = remember { PreferencesManager(applicationContext) }
+
+            if (preferencesManager.isFirstTime) {
+                preferencesManager.isDarkThemeEnabled = isSystemDark
+                preferencesManager.isFirstTime = false
+            }
+            preferences = remember {
                 Preferences(
                     darkTheme = mutableStateOf(isSystemDark),
-                    preferencesManager = preferencesManager)}
-            FlashcardsTheme(
-                darkTheme = preferences.darkTheme.value,
-                dynamicColor = preferences.customScheme.value) {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AppNavHost(
-                        navController = rememberNavController(),
-                        deckViewModel = deckViewModel,
-                        preferences = preferences,
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                    preferencesManager = preferencesManager
+                )
             }
+                FlashcardsTheme(
+                    darkTheme = preferences.darkTheme.value,
+                    dynamicColor = preferences.customScheme.value
+                ) {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                        AppNavHost(
+                            navController = rememberNavController(),
+                            deckViewModel = deckViewModel,
+                            preferences = preferences,
+                            modifier = Modifier.padding(innerPadding)
+                        )
+                    }
+                }
         }
+    }
+    override fun onStop() {
+        super.onStop()
+        preferences.saveDarkTheme()
+        preferences.saveCustomScheme()
+    }
+    override fun onPause() {
+        super.onPause()
+        preferences.saveDarkTheme()
+        preferences.saveCustomScheme()
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        preferences.saveDarkTheme()
+        preferences.saveCustomScheme()
     }
 }
 

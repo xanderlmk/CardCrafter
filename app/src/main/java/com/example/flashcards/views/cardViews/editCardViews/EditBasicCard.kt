@@ -1,4 +1,4 @@
-package com.example.flashcards.views.editCardViews
+package com.example.flashcards.views.cardViews.editCardViews
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text

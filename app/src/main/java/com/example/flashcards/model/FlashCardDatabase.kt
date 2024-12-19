@@ -18,13 +18,11 @@ import com.example.flashcards.model.tablesAndApplication.Deck
 import kotlinx.coroutines.CoroutineScope
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.Calendar
 
 @Database(entities = [Deck::class, Card::class, BasicCard::class,
-    ThreeFieldCard::class, HintCard::class], version = 5)
+    ThreeFieldCard::class, HintCard::class], version = 6)
 @TypeConverters(Converters::class)
 abstract class FlashCardDatabase : RoomDatabase() {
 
@@ -40,7 +38,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
                 val instance = Room.databaseBuilder(context, FlashCardDatabase::class.java, "deck_database")
-                    .addMigrations(MIGRATION_4_5)
+                    .addMigrations(MIGRATION_3_5, MIGRATION_5_6)
                     .fallbackToDestructiveMigration()
                     .addCallback(FlashCardDatabaseCallback(scope))
                     // Add callback for population
@@ -58,7 +56,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
 
         private class FlashCardDatabaseCallback(
             private val scope: CoroutineScope
-        ) : RoomDatabase.Callback() {
+        ) : Callback() {
             override fun onOpen(db: SupportSQLiteDatabase) {
                 super.onOpen(db)
                 //db.execSQL("PRAGMA foreign_keys=ON;") // Enable foreign key support
@@ -67,13 +65,13 @@ abstract class FlashCardDatabase : RoomDatabase() {
                 super.onCreate(db)
                 //db.execSQL("PRAGMA foreign_keys=ON;") // Enable foreign key support
                 // Populate the database in a coroutine
-                runBlocking {
+                //runBlocking {
                 Instance?.let { database ->
                     scope.launch(Dispatchers.IO) {
                         populateDatabase(database.deckDao(), database.cardDao(),
                             database.cardTypes())
                     }
-                }
+                //}
                 }
             }
         }

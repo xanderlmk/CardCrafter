@@ -33,4 +33,7 @@
     <string name="empty_deck_name">Deck name cannot be empty</string>
     <string name="deck_name_exists">A deck with this name already exists</string>
     <string name="deck_name_failed">Failed to update deck name</string>
+    <string name="system_theme">System Theme</string>
+    <string name="custom_theme">Custom Theme</string>
+    <string name="dark_theme">Dark Theme</string>
 </resources>

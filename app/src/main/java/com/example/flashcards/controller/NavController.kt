@@ -12,11 +12,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.flashcards.views.addCardViews.AddCardView
+import com.example.flashcards.views.cardViews.addCardViews.AddCardView
 import com.example.flashcards.views.deckViews.AddDeckView
 import com.example.flashcards.views.cardViews.CardDeckView
 import com.example.flashcards.views.miscFunctions.ChoosingView
-import com.example.flashcards.views.editCardViews.DeckEditView
+import com.example.flashcards.views.cardViews.editCardViews.DeckEditView
 import com.example.flashcards.views.deckViews.DeckView
 import com.example.flashcards.views.MainView
 import com.example.flashcards.views.miscFunctions.View
@@ -39,7 +39,7 @@ import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.ui.theme.ColorSchemeClass
 import com.example.flashcards.views.GeneralSettings
 import com.example.flashcards.views.deckViews.EditDeckView
-import com.example.flashcards.views.editCardViews.EditingCardView
+import com.example.flashcards.views.cardViews.editCardViews.EditingCardView
 import com.example.flashcards.views.miscFunctions.GetModifier
 import kotlinx.coroutines.launch
 
@@ -68,24 +68,23 @@ fun AppNavHost(
     val cardViewModel : CardViewModel =
         viewModel(factory = AppViewModelProvider.Factory)
 
-    val cardListUiState by cardTypeViewModel.cardListUiState.collectAsState()
-
     val cardTypes : Triple<BasicCardViewModel, ThreeCardViewModel, HintCardViewModel> =
         Triple(basicCardViewModel, threeCardViewModel, hintCardViewModel)
     val view = remember { View() }
 
-    val choosingView = ChoosingView(navController)
+    val choosingView = ChoosingView()
     val cardDeckView = CardDeckView(cardViewModel,cardTypeViewModel,
         getModifier)
-    val editDeckView = EditDeckView(deckViewModel, getModifier)
-    val deckEditView = remember { DeckEditView(cardViewModel,
-        navController,
+    val editDeckView = EditDeckView(deckViewModel, fields, getModifier)
+    val deckEditView = remember { DeckEditView(
+        cardViewModel,
         cardTypeViewModel, fields,
         listState, getModifier)}
-    val editingCardView = EditingCardView(cardTypes, getModifier)
+    val editingCardView = EditingCardView(
+        cardTypes, cardTypeViewModel, getModifier)
     val mainView = MainView(getModifier,fields)
     val addDeckView = AddDeckView(deckViewModel, getModifier)
-    val deckView = DeckView(navController,cardTypeViewModel, getModifier)
+    val deckView = DeckView(cardTypeViewModel, fields, getModifier)
     val addCardView = AddCardView(fields,cardTypes, getModifier)
     val generalSettings = GeneralSettings(getModifier, preferences)
 
@@ -113,12 +112,12 @@ fun AppNavHost(
         }
         composable("Settings"){
             BackHandler {
-                fields.clicked.value = false
+                fields.mainClicked.value = false
                 navController.popBackStack("DeckList", inclusive = false)
             }
             generalSettings.SettingsView(
                 onNavigate = {
-                    fields.clicked.value = false
+                    fields.mainClicked.value = false
                     navController.navigate("DeckList")
                 }
             )
@@ -127,12 +126,14 @@ fun AppNavHost(
             BackHandler {
                 view.whichView.intValue = 0
                 view.onView.value = false
+                fields.mainClicked.value = false
                 navController.popBackStack("DeckList", inclusive = false)
             }
             addDeckView.AddDeck (
                 onNavigate = {
                     view.whichView.intValue = 0
                     view.onView.value = false
+                    fields.mainClicked.value = false
                     navController.navigate("DeckList")
                 }
             )
@@ -146,7 +147,7 @@ fun AppNavHost(
             BackHandler {
                 view.whichView.intValue = 0
                 view.onView.value = false
-                fields.clicked.value = false
+                fields.mainClicked.value = false
                 navController.popBackStack("DeckList", inclusive = false)
             }
 
@@ -156,20 +157,23 @@ fun AppNavHost(
                     onNavigate = {
                         view.whichView.intValue = 0
                         view.onView.value = false
-                        fields.clicked.value = false
+                        fields.mainClicked.value = false
                         navController.navigate("DeckList") },
-                    whichView = view
+                    whichView = view,
+                    onNavigateToWhichView = {
+                        navController.navigate("WhichView/${it.id}")
+                    }
                 )
             }
         }
         composable(
-            route = "WhichView/{deckId}",
-            arguments = listOf(navArgument("deckId") { type = NavType.IntType })){
+            route = "WhichView/{deckId}"){
             backStackEntry ->
-            val deckId = backStackEntry.arguments?.getInt("deckId")
+            val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
             //val deck = uiState.deckList.find { it.id == deckId }
             val deck= remember { mutableStateOf<Deck?>(null) }
 
+            println("${view.whichView.intValue}")
             LaunchedEffect(Unit) {
                 coroutineScope.launch {
                     deckViewModel.getDeckById(deckId?: 0).collect{flow ->
@@ -177,10 +181,30 @@ fun AppNavHost(
                     }
                 }
             }
-            deck.value?.let {
+            deck.value?.let { deck ->
                 choosingView.WhichScreen(
-                    deck = it,
-                    view = view
+                    deck = deck,
+                    view = view,
+                    goToAddCard = {
+                        fields.inDeckClicked.value = false
+                        navController.navigate("AddCard/${deck.id}")
+                        view.onView.value = true
+                    },
+                    goToViewCard = {
+                        fields.inDeckClicked.value = false
+                        navController.navigate("ViewCard/${deck.id}")
+                        view.onView.value = true
+                    },
+                    goToEditDeck = { id, name ->
+                        fields.inDeckClicked.value = false
+                        navController.navigate("EditDeck/${deck.id}/${deck.name}")
+                        view.onView.value = true
+                    },
+                    goToViewCards = {
+                        fields.inDeckClicked.value = false
+                        navController.navigate("ViewFlashCards/${deck.id}")
+                        view.onView.value = true
+                    },
                 )
             }
         }
@@ -302,8 +326,10 @@ fun AppNavHost(
                         fields.scrollPosition.value = 0
                         view.whichView.intValue = 0
                         navController.navigate("DeckView/$deckId")
+                    },
+                    goToEditCard = {selectedCardId ->
+                        navController.navigate("EditingCard/${selectedCardId}/${it.id}")
                     }
-
                 )
             }
         }
@@ -335,7 +361,6 @@ fun AppNavHost(
                 editingCardView.EditFlashCardView(
                     card = it,
                     fields = fields,
-                    cardListUiState = cardListUiState,
                     selectedCard = deckEditView.selectedCard,
                     onNavigateBack = {
                         deckEditView.selectedCard.value = null

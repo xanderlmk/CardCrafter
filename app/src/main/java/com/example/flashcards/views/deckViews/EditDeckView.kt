@@ -1,5 +1,6 @@
 package com.example.flashcards.views.deckViews
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,12 +10,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,15 +35,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.controller.viewModels.DeckViewModel
-import kotlinx.coroutines.launch
 import com.example.flashcards.R
+import com.example.flashcards.controller.DeleteDeck
+import com.example.flashcards.controller.updateDeckName
+import com.example.flashcards.controller.updateMultipliers
+import com.example.flashcards.model.Fields
 import com.example.flashcards.model.tablesAndApplication.Deck
-import com.example.flashcards.ui.theme.deleteTextColor
 import com.example.flashcards.views.miscFunctions.BackButton
+import com.example.flashcards.views.miscFunctions.EditNumberField
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.views.miscFunctions.GetModifier
+import kotlin.String
 
-class EditDeckView(private var viewModel: DeckViewModel,
+class EditDeckView(
+    private var viewModel: DeckViewModel,
+    private var fields: Fields,
     private var getModifier: GetModifier) {
     @Composable
     fun EditDeck(
@@ -44,14 +57,30 @@ class EditDeckView(private var viewModel: DeckViewModel,
         onNavigate: () -> Unit, onDelete: () -> Unit
     ) {
         var newDeckName by remember { mutableStateOf(currentName) }
-        var errorMessage by remember { mutableStateOf("") }
-        var isSubmitting by remember { mutableStateOf(false) }
-        var expanded by remember { mutableStateOf(false) }
+        var newGoodMultiplier by remember { mutableDoubleStateOf(deck.goodMultiplier) }
+        var newBadMultiplier by remember { mutableDoubleStateOf(deck.badMultiplier) }
+        val errorMessage = remember { mutableStateOf("") }
+        val successful = remember { mutableStateOf("") }
+        val isSubmitting = remember { mutableStateOf(false) }
+        var expandedChangeName by remember { mutableStateOf(false) }
+        val expandedEditMultiplier = remember { mutableStateOf(false) }
         val emptyDeckName = stringResource(R.string.empty_deck_name).toString()
         val deckNameExists = stringResource(R.string.deck_name_exists).toString()
         val deckNameFailed = stringResource(R.string.deck_name_failed).toString()
-        val backModifier = getModifier.backButtonModifier()
         val coroutineScope = rememberCoroutineScope()
+        val snackBarHostState = remember { SnackbarHostState() }
+
+
+        LaunchedEffect(successful.value) {
+            if(successful.value.isNotEmpty()) {
+                snackBarHostState.showSnackbar(
+                    message = successful.value,
+                    duration = SnackbarDuration.Short
+                )
+                successful.value = ""
+            }
+        }
+
         Box(
             modifier = getModifier.boxViewsModifier()
         ) {
@@ -59,11 +88,12 @@ class EditDeckView(private var viewModel: DeckViewModel,
                 onBackClick = {
                     onNavigate()
                 },
-                modifier = backModifier,
+                modifier = getModifier.backButtonModifier(),
                 getModifier = getModifier
             )
             Column(
-                modifier = Modifier.padding(top = 20.dp),
+                modifier = Modifier
+                    .padding(top = 20.dp, start = 15.dp, end = 15.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -76,16 +106,17 @@ class EditDeckView(private var viewModel: DeckViewModel,
                     modifier = Modifier.padding(top = 20.dp,
                         start = 50.dp, end = 50.dp)
                 )
-                if (!expanded) {
+                if (!expandedChangeName) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 8.dp),
+                            .padding(horizontal = 8.dp,
+                                vertical = 12.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Button(
                             onClick = {
-                                expanded = true
+                                expandedChangeName = true
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = getModifier.secondaryButtonColor(),
@@ -101,7 +132,7 @@ class EditDeckView(private var viewModel: DeckViewModel,
                         value = newDeckName,
                         onValueChanged = {
                             newDeckName = it
-                            errorMessage = "" // Clear error when user types
+                            errorMessage.value = "" // Clear error when user types
                         },
                         labelStr = stringResource(R.string.deck_name),
                         modifier = Modifier
@@ -110,12 +141,11 @@ class EditDeckView(private var viewModel: DeckViewModel,
                                 horizontal = 10.dp,
                                 vertical = 12.dp
                             ),
-                        // isError = errorMessage.isNotEmpty()
                     )
 
-                    if (errorMessage.isNotEmpty()) {
+                    if (errorMessage.value.isNotEmpty()) {
                         Text(
-                            text = errorMessage,
+                            text = errorMessage.value,
                             color = Color.Red,
                             modifier = Modifier.fillMaxWidth(),
                             fontSize = 16.sp,
@@ -133,12 +163,13 @@ class EditDeckView(private var viewModel: DeckViewModel,
                     ) {
                         Button(
                             onClick = {
-                                errorMessage = ""
-                                expanded = false
+                                errorMessage.value = ""
+                                newDeckName = currentName
+                                expandedChangeName = false
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.secondaryButtonColor(),
-                                contentColor = getModifier.buttonTextColor()
+                                containerColor = getModifier.tertiaryButtonColor(),
+                                contentColor = getModifier.onTertiaryButtonColor()
                             ),
                             modifier = Modifier.weight(1f)
                         ) {
@@ -147,51 +178,139 @@ class EditDeckView(private var viewModel: DeckViewModel,
 
                         Button(
                             onClick = {
-                                coroutineScope.launch {
-                                    if (newDeckName.isBlank()) {
-                                        errorMessage = emptyDeckName
-                                        return@launch
-                                    }
-
-                                    if (newDeckName == currentName) {
-                                        onNavigate()
-                                        return@launch
-                                    }
-
-                                    isSubmitting = true
-                                    try {
-                                        // First check if the deck name exists
-                                        val exists = viewModel.checkIfDeckExists(newDeckName)
-                                        if (exists > 0) {
-                                            errorMessage =
-                                                deckNameExists
-                                            return@launch
-                                        }
-
-                                        val result =
-                                            viewModel.updateDeckName(newDeckName, deck.id)
-                                        if (result > 0) {
-                                            onNavigate()
-                                        } else {
-                                            errorMessage =
-                                                deckNameFailed
-                                        }
-                                    } catch (e: Exception) {
-                                        errorMessage =
-                                            e.message ?: R.string.error_occurred.toString()
-                                    } finally {
-                                        isSubmitting = false
-                                    }
-                                }
+                                updateDeckName(
+                                    viewModel, newDeckName,
+                                    errorMessage, emptyDeckName,
+                                    currentName, deckNameExists,
+                                    deckNameFailed, isSubmitting, deck,
+                                    onNavigate, coroutineScope)
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = getModifier.tertiaryButtonColor(),
+                                contentColor = getModifier.onTertiaryButtonColor()
+                            ),
+                            enabled = !isSubmitting.value,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            if (isSubmitting.value) {
+                                CircularProgressIndicator(
+                                    color = getModifier.titleColor(),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            } else {
+                                Text(stringResource(R.string.submit))
+                            }
+                        }
+                    }
+                }
+                if (!expandedEditMultiplier.value) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp,
+                                vertical = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        SnackbarHost(
+                            hostState = snackBarHostState,
+                            modifier = Modifier
+                                .background(
+                                    color= getModifier.buttonColor(),
+                                    shape = RoundedCornerShape(24.dp)),
+                            )
+                        Button(
+                            onClick = {
+                                expandedEditMultiplier.value = true
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = getModifier.secondaryButtonColor(),
                                 contentColor = getModifier.buttonTextColor()
                             ),
-                            enabled = !isSubmitting,
                             modifier = Modifier.weight(1f)
                         ) {
-                            if (isSubmitting) {
+                            Text("Edit Multiplier")
+                        }
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = 10.dp,
+                            vertical = 12.dp
+                        )) {
+                        EditNumberField(
+                            value = newGoodMultiplier.toString(),
+                            onValueChanged = {
+                                newGoodMultiplier = it.toDouble()
+                                errorMessage.value = "" // Clear error when user types
+                            },
+                            labelStr = "Good Multiplier",
+                            modifier = Modifier
+                                .fillMaxWidth(0.5f)
+                                .padding(end = 2.dp)
+                        )
+                        EditNumberField(
+                            value = newBadMultiplier.toString(),
+                            onValueChanged = {
+                                newBadMultiplier = it.toDouble()
+                                errorMessage.value = "" // Clear error when user types
+                            },
+                            labelStr = "Bad Multiplier",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 2.dp)
+                        )
+                    }
+
+                    if (errorMessage.value.isNotEmpty()) {
+                        Text(
+                            text = errorMessage.value,
+                            color = Color.Red,
+                            modifier = Modifier.fillMaxWidth(),
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }else {
+                        Spacer(modifier = Modifier.padding(12.dp))
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                errorMessage.value = ""
+                                newBadMultiplier = deck.badMultiplier
+                                newGoodMultiplier = deck.goodMultiplier
+                                expandedEditMultiplier.value = false
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = getModifier.tertiaryButtonColor(),
+                                contentColor = getModifier.onTertiaryButtonColor()
+                            ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(stringResource(R.string.cancel))
+                        }
+
+                        Button(
+                            onClick = {
+                                updateMultipliers(viewModel,newGoodMultiplier,
+                                    newBadMultiplier,errorMessage,isSubmitting,
+                                    deck,expandedEditMultiplier,successful,coroutineScope)
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = getModifier.tertiaryButtonColor(),
+                                contentColor = getModifier.onTertiaryButtonColor()
+                            ),
+                            enabled = !isSubmitting.value,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            if (isSubmitting.value) {
                                 CircularProgressIndicator(
                                     color = getModifier.titleColor(),
                                     modifier = Modifier.size(24.dp)
@@ -210,25 +329,12 @@ class EditDeckView(private var viewModel: DeckViewModel,
                         .padding(50.dp)
                 ) {
                     Box(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
                     ) {
-                        Button(
-                            onClick = {
-                                coroutineScope.launch {
-                                    viewModel.deleteDeck(deck)
-                                    onDelete()
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth(fraction = 0.55f)
-                                .align(Alignment.Center),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.secondaryButtonColor(),
-                                contentColor = deleteTextColor
-                            )
-                        ) {
-                            Text(stringResource(R.string.delete_deck))
-                        }
+                        DeleteDeck(viewModel,deck,
+                            getModifier,coroutineScope,
+                            fields, onDelete)
                     }
                 }
             }

@@ -1,14 +1,19 @@
 package com.example.flashcards.views.miscFunctions
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -22,11 +27,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.flashcards.R
+import com.example.flashcards.model.Fields
 import kotlinx.coroutines.launch
 
 @Composable
@@ -125,17 +133,18 @@ fun SettingsButton(
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(onClick = {
+                expanded = false
                 coroutineScope.launch {
-                    delayNavigate()
-                    onNavigateToEditDeck()
-                    expanded = false
+                        delayNavigate()
+                        onNavigateToEditDeck()
                 } },
                 text = {Text(stringResource(R.string.edit_deck))})
             DropdownMenuItem(onClick = {
+                expanded = false
                 coroutineScope.launch {
-                    delayNavigate()
-                    onNavigateToEditCards()
-                    expanded = false
+                        delayNavigate()
+                        onNavigateToEditCards()
+
                 } },
                 text = {Text(stringResource(R.string.edit_flashcards))})
         }
@@ -147,11 +156,18 @@ fun SettingsButton(
 fun MainSettingsButton(
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
-    getModifier: GetModifier
+    getModifier: GetModifier,
+    fields: Fields
 ) {
+    val coroutineScope = rememberCoroutineScope()
     IconButton(
         onClick = {
-            onNavigateToSettings()
+            coroutineScope.launch {
+                if (!fields.mainClicked.value) {
+                    fields.mainClicked.value = true
+                    onNavigateToSettings()
+                }
+            }
         },
         modifier = modifier
             .background(
@@ -166,4 +182,61 @@ fun MainSettingsButton(
             tint = getModifier.buttonColor()
         )
     }
+}
+
+@Composable
+fun SystemThemeButton(
+    customScheme: () -> Unit ,
+    darkTheme: () -> Unit,
+    customToggled: Painter,
+    darkToggled : Painter,
+    clicked : Boolean,
+    getModifier: GetModifier){
+    var expanded by remember { mutableStateOf(false) }
+    if (clicked){
+        expanded = false
+    }
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.TopEnd)) {
+        Button(
+            onClick = {
+                if(!clicked) {
+                    expanded = true
+                }
+            },
+            modifier = Modifier.padding(top = 4.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = getModifier.secondaryButtonColor(),
+                contentColor = getModifier.buttonTextColor()
+            )
+        ) {
+            Text(stringResource(R.string.system_theme))
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                DropdownMenuItem(
+                    onClick = {
+                        customScheme()
+                    },
+                    text = { Text(stringResource(R.string.custom_theme)) },
+                    leadingIcon = {
+                        Icon(
+                            painter = customToggled,
+                            contentDescription = "Custom Theme"
+                        )
+                    })
+                DropdownMenuItem(onClick = {
+                    darkTheme()
+                },
+                    text = { Text(stringResource(R.string.dark_theme)) },
+                    leadingIcon = {
+                        Icon(
+                            painter = darkToggled,
+                            contentDescription = "Toggle Dynamic Theme"
+                        )
+                    })
+            }
+        }
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.example.flashcards.views.editCardViews
+package com.example.flashcards.views.cardViews.editCardViews
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
@@ -12,17 +12,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.model.Fields
-import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
+import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.ui.theme.textColor
 import com.example.flashcards.views.miscFunctions.GetModifier
 
 @Composable
-fun EditThreeCard(threeCard: ThreeFieldCard,
+fun EditHintCard(hintCard: HintCard,
                   fields: Fields,
-                  getModifiers: GetModifier) {
-    fields.question = remember { mutableStateOf(threeCard.question) }
-    fields.middleField = remember { mutableStateOf(threeCard.middle) }
-    fields.answer = remember { mutableStateOf(threeCard.answer) }
+                 getModifiers: GetModifier) {
+    fields.question = remember { mutableStateOf(hintCard.question) }
+    fields.middleField = remember { mutableStateOf(hintCard.hint) }
+    fields.answer = remember { mutableStateOf(hintCard.answer) }
 
     Text(
         text = stringResource(R.string.edit_flashcard),
@@ -34,7 +34,7 @@ fun EditThreeCard(threeCard: ThreeFieldCard,
     )
     TextField(
         value = fields.question.value,
-                onValueChange = { fields.question.value = it },
+        onValueChange = { fields.question.value = it },
         label = { Text(stringResource(R.string.question), color = textColor) },
         modifier = Modifier.fillMaxWidth()
     )
@@ -51,4 +51,3 @@ fun EditThreeCard(threeCard: ThreeFieldCard,
         modifier = Modifier.fillMaxWidth()
     )
 }
-
