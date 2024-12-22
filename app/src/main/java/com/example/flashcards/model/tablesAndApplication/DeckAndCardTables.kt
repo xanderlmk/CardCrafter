@@ -15,7 +15,8 @@ data class Deck(
     @PrimaryKey(autoGenerate = true) val id : Int = 0,
     val name : String,
     val goodMultiplier : Double = 1.5,
-    val badMultiplier : Double = 0.5
+    val badMultiplier : Double = 0.5,
+    val createdOn: Long = Date().time
 )
 @Entity(tableName = "cards",
     foreignKeys = [
@@ -33,7 +34,8 @@ data class Card(
     var passes: Int = 0,
     var prevSuccess: Boolean,
     var totalPasses: Int = 0,
-    val type: String
+    val type: String,
+    val createdOn: Long = Date().time
 )
 // Decks has many cards, one card belongs to a deck
 data class DeckWithCards(

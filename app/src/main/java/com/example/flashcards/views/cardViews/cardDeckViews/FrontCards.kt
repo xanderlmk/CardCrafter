@@ -1,4 +1,4 @@
-package com.example.flashcards.views.cardViews
+package com.example.flashcards.views.cardViews.cardDeckViews
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

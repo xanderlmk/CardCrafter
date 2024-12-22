@@ -32,6 +32,7 @@ import com.example.flashcards.views.miscFunctions.GetModifier
 import com.example.flashcards.views.miscFunctions.MainSettingsButton
 import com.example.flashcards.views.miscFunctions.SmallAddButton
 import com.example.flashcards.views.miscFunctions.delayNavigate
+import java.util.Date
 
 class MainView(
     private var getModifier: GetModifier,
@@ -44,7 +45,7 @@ class MainView(
                  onNavigateToSettings : () -> Unit) {
 
         val lineModifier = getModifier.mainViewModifier()
-        val uiState by viewModel.mainUiState.collectAsState()
+        val uiState by viewModel.deckUiState.collectAsState()
         val coroutineScope = rememberCoroutineScope()
         val settingsModifier = getModifier.mainSettingsButtonModifier()
         Box(

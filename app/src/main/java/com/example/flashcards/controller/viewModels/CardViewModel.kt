@@ -9,14 +9,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
 class CardViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
-    var cardUiState = MutableStateFlow(CardUiState())
+    private val uiState = MutableStateFlow(CardUiState())
+    var cardUiState : StateFlow<CardUiState> = uiState.asStateFlow()
+
     private val errorMessage = MutableStateFlow<String?>(null)
+
 
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
@@ -48,8 +53,8 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
                 withTimeout(TIMEOUT_MILLIS) {
                     flashCardRepository.getDueCards(deckId).map { cards ->
                         CardUiState(cardList = cards)
-                    }.collect { uiState ->
-                        cardUiState.value = uiState
+                    }.collect { state ->
+                        uiState.value = state
                     }
                 }
             }
@@ -70,8 +75,8 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
                 withTimeout(TIMEOUT_MILLIS) {
                     flashCardRepository.getDeckWithCards(deckId).map { decks ->
                         CardUiState(cardList = decks.cards)
-                    }.collect { uiState ->
-                        cardUiState.value = uiState
+                    }.collect { state ->
+                        uiState.value = state
                     }
                 }
             }
@@ -91,6 +96,8 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
     }
 
     suspend fun getCardById(cardId : Int) : Card? {
-        return flashCardRepository.getCardById(cardId)
+        return withContext(Dispatchers.IO) {
+            flashCardRepository.getCardById(cardId)
+        }
     }
 }

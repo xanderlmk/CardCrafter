@@ -10,6 +10,8 @@ import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.HintCardType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -17,8 +19,8 @@ class HintCardViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val cardTypeRepository: CardTypeRepository
 ) : ViewModel() {
-
-    var hintCardUiState = MutableStateFlow(HintCardUiState())
+    private val uiState = MutableStateFlow(HintCardUiState())
+    val hintCardUiState : StateFlow<HintCardUiState> = uiState.asStateFlow()
     fun addHintCard(
         deckId: Int, question: String,
         hint: String, answer: String
@@ -61,11 +63,11 @@ class HintCardViewModel(
     }
 
     fun setErrorMessage(message: String) {
-        hintCardUiState.value = hintCardUiState.value.copy(errorMessage = message)
+        uiState.value = uiState.value.copy(errorMessage = message)
     }
 
     fun clearErrorMessage() {
-        hintCardUiState.value = hintCardUiState.value.copy(errorMessage = "")
+        uiState.value = uiState.value.copy(errorMessage = "")
     }
 }
 

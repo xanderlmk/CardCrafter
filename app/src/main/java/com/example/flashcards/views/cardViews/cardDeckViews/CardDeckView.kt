@@ -1,4 +1,4 @@
-package com.example.flashcards.views.cardViews
+package com.example.flashcards.views.cardViews.cardDeckViews
 
 
 import androidx.compose.foundation.layout.Arrangement
@@ -29,12 +29,14 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import com.example.flashcards.R
 import com.example.flashcards.controller.viewModels.CardTypeViewModel
+import com.example.flashcards.model.CardState
+import com.example.flashcards.model.CardStateMachine
+import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.views.miscFunctions.GetModifier
 import com.example.flashcards.views.miscFunctions.NoDueCards
 import com.example.flashcards.views.miscFunctions.loading
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 
 
@@ -44,13 +46,14 @@ class CardDeckView(private val viewModel: CardViewModel,
     ){
     @Composable
     fun ViewCard(deck: Deck, onNavigate: () -> Unit) {
-        //val viewModel : CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val cardUiState by viewModel.cardUiState.collectAsState()
         val cardList by cardTypeViewModel.cardListUiState.collectAsState()
         var show by remember { mutableStateOf(false) }
         val index = remember { mutableIntStateOf(0) }
         val coroutineScope = rememberCoroutineScope()
         var clicked by remember { mutableStateOf(false) }
+        val stateMachine = remember { CardStateMachine() }
+
         Box(
             modifier = getModifier.boxViewsModifier()
         ){
@@ -69,18 +72,19 @@ class CardDeckView(private val viewModel: CardViewModel,
                 //if (currentCard == null && cardUiState.cardList.isEmpty()) {
                 if (cardUiState.cardList.isEmpty() || cardList.allCards.isEmpty()) {
                     LaunchedEffect(Unit) {
+                        stateMachine.transitionTo(CardState.Loading)
                         viewModel.getDueCards(deck.id,cardTypeViewModel)
+                        stateMachine.transitionTo(CardState.Finished)
                     }
                     if (cardUiState.cardList.isEmpty() || cardList.allCards.isEmpty()) {
                         NoDueCards(getModifier)
                     }
                 } else {
-                    val loading = remember { mutableStateOf(false) }
                     val isCardUpdated = remember { mutableStateOf(false) }
                     if (index.intValue < cardUiState.cardList.size &&
                         index.intValue < cardList.allCards.size) {
                         if (!show) {
-                            if (!loading.value) {
+                            if (!cardUiState.loading.value || stateMachine.getState() == CardState.Loading) {
                                 show = frontCard(
                                     Pair(
                                         cardUiState.cardList[index.intValue],
@@ -93,10 +97,12 @@ class CardDeckView(private val viewModel: CardViewModel,
                                 if (!clicked){
                                     LaunchedEffect(Unit) {
                                         delay(200)
-                                        loading.value = viewModel.getDueCards(
+                                        stateMachine.transitionTo(CardState.Loading)
+                                        cardUiState.loading.value = viewModel.getDueCards(
                                             deck.id,
                                             cardTypeViewModel
                                         )
+                                        stateMachine.transitionTo(CardState.Finished)
                                     }
                                 }
                             }
@@ -105,8 +111,8 @@ class CardDeckView(private val viewModel: CardViewModel,
                             val hard = if(cardUiState.cardList[index.intValue].passes>0)
                                     ((cardUiState.cardList[index.intValue].passes + 1 ) * deck.badMultiplier).toInt()
                             else (cardUiState.cardList[index.intValue].passes * deck.badMultiplier).toInt()
-                            LaunchedEffect(loading.value) {
-                                loading.value = true
+                            LaunchedEffect(cardUiState.loading.value) {
+                                cardUiState.loading.value = true
                             }
                             LaunchedEffect(isCardUpdated.value) {
                                 isCardUpdated.value = false
@@ -130,6 +136,7 @@ class CardDeckView(private val viewModel: CardViewModel,
                                         onClick = {
                                             if (!clicked) {
                                                     coroutineScope.launch {
+                                                        stateMachine.transitionTo(CardState.Loading)
                                                         clicked = true
                                                         cardUiState.cardList[index.intValue].passes =
                                                             0
@@ -147,10 +154,11 @@ class CardDeckView(private val viewModel: CardViewModel,
                                                             delay(36)
                                                         }
                                                         loading()
-                                                        loading.value = viewModel.getDueCards(
+                                                        cardUiState.loading.value = viewModel.getDueCards(
                                                             deck.id,
                                                             cardTypeViewModel
                                                         )
+                                                        stateMachine.transitionTo(CardState.Finished)
                                                         clicked = false
                                                     }
                                             }
@@ -170,6 +178,7 @@ class CardDeckView(private val viewModel: CardViewModel,
                                             onClick = {
                                                 if (!clicked) {
                                                         coroutineScope.launch {
+                                                            stateMachine.transitionTo(CardState.Loading)
                                                             clicked = true
                                                             isCardUpdated.value = handleCardUpdate(
                                                                 cardUiState.cardList[index.intValue],
@@ -188,10 +197,11 @@ class CardDeckView(private val viewModel: CardViewModel,
                                                             ) {
                                                                 delay(36)
                                                             }
-                                                            loading.value = viewModel.getDueCards(
+                                                            cardUiState.loading.value = viewModel.getDueCards(
                                                                 deck.id,
                                                                 cardTypeViewModel
                                                             )
+                                                            stateMachine.transitionTo(CardState.Finished)
                                                             clicked = false
                                                         }
                                                 }
@@ -217,6 +227,7 @@ class CardDeckView(private val viewModel: CardViewModel,
                                                 if (!clicked) {
                                                         clicked = true
                                                         coroutineScope.launch {
+                                                            stateMachine.transitionTo(CardState.Loading)
                                                             isCardUpdated.value = handleCardUpdate(
                                                                 cardUiState.cardList[index.intValue],
                                                                 true,
@@ -232,10 +243,11 @@ class CardDeckView(private val viewModel: CardViewModel,
                                                             ) {
                                                                 delay(36)
                                                             }
-                                                            loading.value = viewModel.getDueCards(
+                                                            cardUiState.loading.value = viewModel.getDueCards(
                                                                 deck.id,
                                                                 cardTypeViewModel
                                                             )
+                                                            stateMachine.transitionTo(CardState.Finished)
                                                             clicked = false
                                                         }
                                                 }
@@ -256,8 +268,8 @@ class CardDeckView(private val viewModel: CardViewModel,
                         }
                     } else {
                         index.intValue = 0
-                        LaunchedEffect(loading.value) {
-                            loading.value = true
+                        LaunchedEffect(cardUiState.loading.value) {
+                            cardUiState.loading.value = true
                         }
                         LaunchedEffect(isCardUpdated.value) {
                             isCardUpdated.value = false
