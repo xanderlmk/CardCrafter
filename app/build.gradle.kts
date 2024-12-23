@@ -4,7 +4,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
-}
+    alias(libs.plugins.serialization)
+    }
 
 android {
     namespace = "com.example.flashcards"
@@ -70,14 +71,14 @@ dependencies {
     // Jetpack Compose Integration
     implementation(libs.androidx.navigation.compose)
 
-// Views/Fragments Integration
+    // Views/Fragments Integration
     implementation(libs.androidx.navigation.fragment)
     implementation(libs.androidx.navigation.ui)
 
-// Feature module support for Fragments
+    // Feature module support for Fragments
     implementation(libs.androidx.navigation.dynamic.features.fragment)
 
-// Testing Navigation
+    // Testing Navigation
     androidTestImplementation(libs.androidx.navigation.testing)
 
 
@@ -119,6 +120,11 @@ dependencies {
     api(libs.kotlinx.coroutines.android)
 
     androidTestImplementation(libs.androidx.arch.core.testing)
+
+    // Serialization
+    implementation(libs.kotlinx.serialization.json)
+
+
 
     //implementation("com.google.accompanist:accompanist-themeadapter-material3:0.28.0")
 

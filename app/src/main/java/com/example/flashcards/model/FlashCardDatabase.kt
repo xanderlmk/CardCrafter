@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 
 @Database(entities = [Deck::class, Card::class, BasicCard::class,
-    ThreeFieldCard::class, HintCard::class], version = 6)
+    ThreeFieldCard::class, HintCard::class], version = 7)
 @TypeConverters(Converters::class)
 abstract class FlashCardDatabase : RoomDatabase() {
 
@@ -38,7 +38,11 @@ abstract class FlashCardDatabase : RoomDatabase() {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
                 val instance = Room.databaseBuilder(context, FlashCardDatabase::class.java, "deck_database")
-                    .addMigrations(MIGRATION_3_5, MIGRATION_5_6)
+                    .addMigrations(
+                        MIGRATION_3_5,
+                        MIGRATION_5_6,
+                        MIGRATION_6_7
+                    )
                     .fallbackToDestructiveMigration()
                     .addCallback(FlashCardDatabaseCallback(scope))
                     // Add callback for population

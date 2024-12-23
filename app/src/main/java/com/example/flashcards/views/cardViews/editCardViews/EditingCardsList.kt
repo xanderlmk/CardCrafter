@@ -62,17 +62,16 @@ class DeckEditView(
 
         val presetModifier = getModifier.backButtonModifier()
         if (isEditing.value && selectedCard.value != null) {
+            LaunchedEffect(navigate.value) {
+                if (!navigate.value) {
+                    goToEditCard(selectedCard.value?.id?: 0)
+                }
+            }
             Box(
                 modifier = getModifier.boxViewsModifier(),
                 contentAlignment = Alignment.Center
             ) {
                 LoadingText()
-            }
-            LaunchedEffect(navigate.value) {
-                if (!navigate.value) {
-                    delayNavigate()
-                    goToEditCard(selectedCard.value?.id?: 0)
-                }
             }
         } else {
             navigate.value = false

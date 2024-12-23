@@ -3,7 +3,7 @@ package com.example.flashcards.controller.viewModels
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.flashcards.model.MainUiState
+import com.example.flashcards.model.DeckUiState
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,14 +24,17 @@ class DeckViewModel(private val flashCardRepository: FlashCardRepository,
     private val cardTypeRepository: CardTypeRepository) : ViewModel() {
 
     private val _errorMessage = MutableStateFlow<String?>(null)
-
-    val mainUiState: StateFlow<MainUiState> =
-        flashCardRepository.getAllDecksStream().map { MainUiState(it) }
+    private val uiState: StateFlow<DeckUiState> =
+        flashCardRepository.getAllDecksStream().map { DeckUiState(it) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = MainUiState()
+                initialValue = DeckUiState()
             )
+
+    val deckUiState: StateFlow<DeckUiState> = uiState
+
+
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }

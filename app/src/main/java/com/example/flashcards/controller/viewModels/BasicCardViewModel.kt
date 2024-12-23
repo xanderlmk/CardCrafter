@@ -10,6 +10,7 @@ import com.example.flashcards.model.repositories.FlashCardRepository
 import com.example.flashcards.model.tablesAndApplication.BasicCardType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -18,7 +19,8 @@ class BasicCardViewModel(
     private val cardTypeRepository: CardTypeRepository
 ) : ViewModel() {
 
-    var basicCardUiState = MutableStateFlow(BasicCardUiState())
+    private val uiState = MutableStateFlow(BasicCardUiState())
+    var basicCardUiState = uiState.asStateFlow()
 
     fun addBasicCard(deckId: Int, question: String, answer: String) {
         if (question.isNotEmpty() && answer.isNotEmpty()) {
@@ -56,11 +58,11 @@ class BasicCardViewModel(
     }
 
     fun setErrorMessage(message: String) {
-        basicCardUiState.value = basicCardUiState.value.copy(errorMessage = message)
+        uiState.value = uiState.value.copy(errorMessage = message)
     }
 
     fun clearErrorMessage() {
-        basicCardUiState.value = basicCardUiState.value.copy(errorMessage = "")
+        uiState.value = uiState.value.copy(errorMessage = "")
     }
 
 }

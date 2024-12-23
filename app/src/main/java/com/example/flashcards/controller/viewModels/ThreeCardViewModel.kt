@@ -10,6 +10,8 @@ import com.example.flashcards.model.tablesAndApplication.ThreeCardType
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -17,7 +19,8 @@ class ThreeCardViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val cardTypeRepository: CardTypeRepository
 ) : ViewModel() {
-    var threeCardUiState = MutableStateFlow(ThreeCardUiState())
+    private val uiState = MutableStateFlow(ThreeCardUiState())
+    val threeCardUiState : StateFlow<ThreeCardUiState> = uiState.asStateFlow()
 
     fun addThreeCard(
         deckId: Int, question: String,
@@ -62,11 +65,11 @@ class ThreeCardViewModel(
     }
 
     fun setErrorMessage(message: String) {
-        threeCardUiState.value = threeCardUiState.value.copy(errorMessage = message)
+        uiState.value = uiState.value.copy(errorMessage = message)
     }
 
     fun clearErrorMessage() {
-        threeCardUiState.value = threeCardUiState.value.copy(errorMessage = "")
+        uiState.value = uiState.value.copy(errorMessage = "")
     }
 
 }

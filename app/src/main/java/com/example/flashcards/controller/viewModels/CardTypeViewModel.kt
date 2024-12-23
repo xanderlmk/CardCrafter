@@ -6,13 +6,16 @@ import com.example.flashcards.model.CardListUiState
 import com.example.flashcards.model.repositories.CardTypeRepository
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
 class CardTypeViewModel(private val cardTypeRepository: CardTypeRepository) : ViewModel() {
 
-    var cardListUiState = MutableStateFlow(CardListUiState())
+    private val uiState = MutableStateFlow(CardListUiState())
+    var cardListUiState : StateFlow<CardListUiState> = uiState.asStateFlow()
 
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
@@ -25,8 +28,8 @@ class CardTypeViewModel(private val cardTypeRepository: CardTypeRepository) : Vi
                 withTimeout(TIMEOUT_MILLIS) {
                     cardTypeRepository.getDueAllCardTypes(deckId).map { allCards ->
                         CardListUiState(allCards = allCards)
-                    }.collect { uiState ->
-                        cardListUiState.value = uiState
+                    }.collect { state ->
+                        uiState.value = state
                     }
                 }
             }
@@ -40,19 +43,19 @@ class CardTypeViewModel(private val cardTypeRepository: CardTypeRepository) : Vi
         viewModelScope.launch {
             cardTypeRepository.getAllCardTypes(deckId).map { allCards ->
                 CardListUiState(allCards = allCards)
-            }.collect { uiState ->
-                cardListUiState.value = uiState
+            }.collect { state ->
+                uiState.value = state
             }
             clearErrorMessage()
         }
     }
 
     fun setErrorMessage(message: String) {
-        cardListUiState.value = cardListUiState.value.copy(errorMessage = message)
+        uiState.value = uiState.value.copy(errorMessage = message)
     }
 
     fun clearErrorMessage() {
-        cardListUiState.value = cardListUiState.value.copy(errorMessage = "")
+        uiState.value = uiState.value.copy(errorMessage = "")
     }
 }
 
