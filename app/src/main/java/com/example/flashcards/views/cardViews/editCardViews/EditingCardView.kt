@@ -127,7 +127,6 @@ class EditingCardView(
                                         delayNavigate()
                                         onNavigateBack()
                                     } else {
-                                        println("settings error message.")
                                         cardTypeViewModel.setErrorMessage(fillOutfields)
                                     }
                                 }

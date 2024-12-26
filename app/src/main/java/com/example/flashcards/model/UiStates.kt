@@ -41,14 +41,4 @@ sealed class CardState {
     //data class Error(val message: String) : CardState()
 }
 
-class CardStateMachine {
-    private var state: CardState = CardState.Idle
-
-    fun transitionTo(newState: CardState) {
-        // Add validation logic for valid transitions if needed
-        state = newState
-    }
-
-    fun getState(): CardState = state
-}
 
