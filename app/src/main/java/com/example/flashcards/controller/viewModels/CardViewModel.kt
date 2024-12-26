@@ -1,7 +1,10 @@
 package com.example.flashcards.controller.viewModels
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.flashcards.model.CardState
 import com.example.flashcards.model.CardUiState
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.repositories.FlashCardRepository
@@ -22,6 +25,14 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
 
     private val errorMessage = MutableStateFlow<String?>(null)
 
+    private val cardState: MutableState<CardState> = mutableStateOf(CardState.Idle)
+
+    fun transitionTo(newState: CardState) {
+        cardState.value = newState
+    }
+
+    fun getState(): CardState = cardState.value
+
 
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
@@ -38,15 +49,18 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
         return withContext(Dispatchers.IO) {
             try{
                 cardTypeViewModel.getDueTypesForDeck(deckId)
-                getCards(deckId)
-                delay(120)
+                //getCards(deckId)
+                delay(50)
+                transitionTo(CardState.Finished)
                 false
             }
             catch (e : Exception){
+                println(e)
                 true
             }
         }
     }
+    /* IN CASE WE NEED IT AGAIN
     fun getCards(deckId: Int){
         try {
             viewModelScope.launch {
@@ -63,7 +77,7 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
             println(e)
         }
     }
-
+    */
     fun getDeckWithCards(deckId: Int, cardTypeViewModel: CardTypeViewModel) {
         cardTypeViewModel.getAllTypesForDeck(deckId)
         getAllCards(deckId)

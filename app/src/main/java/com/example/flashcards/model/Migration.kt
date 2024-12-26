@@ -3,7 +3,6 @@ package com.example.flashcards.model
 import android.util.Log
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import java.util.Date
 
 val MIGRATION_3_5 = object : Migration(3, 5) {
     override fun migrate(database: SupportSQLiteDatabase) {
@@ -67,10 +66,10 @@ val MIGRATION_6_7 = object : Migration(6,7){
             database.execSQL("PRAGMA foreign_keys=ON;")
 
             // Add 'createdOn' column to the 'decks' table
-            database.execSQL("ALTER TABLE decks ADD COLUMN createdOn INTEGER NOT NULL DEFAULT ${Date().time}")
+            database.execSQL("ALTER TABLE decks ADD COLUMN createdOn INTEGER NOT NULL DEFAULT ${System.currentTimeMillis()}")
 
             // Add 'createdOn' column to the 'cards' table
-            database.execSQL("ALTER TABLE cards ADD COLUMN createdOn INTEGER NOT NULL DEFAULT ${Date().time}")
+            database.execSQL("ALTER TABLE cards ADD COLUMN createdOn INTEGER NOT NULL DEFAULT ${System.currentTimeMillis()}")
             database.setTransactionSuccessful()
         } catch (e: Exception) {
             // Log the error for debugging
