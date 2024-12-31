@@ -21,28 +21,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.controller.viewModels.BasicCardViewModel
-import com.example.flashcards.controller.viewModels.HintCardViewModel
-import com.example.flashcards.controller.viewModels.ThreeCardViewModel
-import com.example.flashcards.model.Fields
+import com.example.flashcards.R
+import com.example.flashcards.controller.navigation.AllViewModels
+import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.BackButton
-import com.example.flashcards.views.miscFunctions.GetModifier
+import com.example.flashcards.ui.theme.GetModifier
 
 class AddCardView(
     private var fields: Fields,
-    private var cardTypes : Triple<BasicCardViewModel, ThreeCardViewModel,
-            HintCardViewModel>,
-    private var getModifier: GetModifier) {
+    private var cardTypes: AllViewModels,
+    private var getModifier: GetModifier
+) {
     @Composable
     fun AddCard(deckId: Int, onNavigate: () -> Unit) {
         var expanded by remember { mutableStateOf(false) }
         val type = remember { mutableStateOf("basic") }
         val presetModifier = Modifier
-            .padding(top = 16.dp,start = 16.dp, end = 16.dp)
+            .padding(top = 16.dp, start = 16.dp, end = 16.dp)
             .size(54.dp)
 
         Box(
@@ -50,9 +50,7 @@ class AddCardView(
         ) {
             BackButton(
                 onBackClick = {
-                    fields.question.value = ""
-                    fields.middleField.value = ""
-                    fields.answer.value = ""
+                    fields.resetFields()
                     onNavigate()
                 },
                 modifier = presetModifier,
@@ -61,28 +59,57 @@ class AddCardView(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 12.dp),
+                    .padding(top = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Box( Modifier.fillMaxWidth().wrapContentSize(Alignment.TopEnd)){
-                IconButton(onClick = { expanded = true },
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .size(54.dp)) {
-                    Icon(
-                        Icons.Default.MoreVert,
-                        contentDescription = "Card Type",
-                        tint = getModifier.titleColor()
-                    )
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.TopEnd)
+                ) {
+                    IconButton(
+                        onClick = { expanded = true },
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .size(54.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = "Card Type",
+                            tint = getModifier.titleColor()
+                        )
+                    }
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        DropdownMenuItem(
+                            onClick = { type.value = "basic" },
+                            text = { Text(stringResource(R.string.basic_card)) })
+                        DropdownMenuItem(
+                            onClick = { type.value = "three" },
+                            text = { Text(stringResource(R.string.three_field_card)) })
+                        DropdownMenuItem(
+                            onClick = { type.value = "hint" },
+                            text = { Text(stringResource(R.string.hint_card)) })
+                        DropdownMenuItem(
+                            onClick = { type.value = "multi" },
+                            text = { Text(stringResource(R.string.multi_choice_card)) })
+                    }
                 }
-                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    DropdownMenuItem(onClick = { type.value = "basic"}, text = {Text("Basic")})
-                    DropdownMenuItem(onClick = { type.value = "three" }, text = {Text("Three Fields")})
-                    DropdownMenuItem(onClick = { type.value = "hint" }, text = {Text("Hint")})
+                val text = when (type.value) {
+                    "hint" -> {
+                        stringResource(R.string.hint)
+                    }
+
+                    "three" -> {
+                        stringResource(R.string.three_fields)
+                    }
+                    "multi" -> {
+                        stringResource(R.string.multi)
+                    }
+                    else -> {
+                        stringResource(R.string.basic)
+                    }
                 }
-                }
-                val text = type.value.replaceFirstChar { it.uppercaseChar() }
                 Text(
                     text = text,
                     fontSize = 35.sp,
@@ -92,12 +119,27 @@ class AddCardView(
                     fontWeight = FontWeight.Bold,
                 )
                 when (type.value) {
-                    "three" -> AddThreeCard(cardTypes.second, deckId,
-                        fields,getModifier)
-                    "hint"  -> AddHintCard(cardTypes.third, deckId,
-                        fields, getModifier)
-                    else -> AddBasicCard(cardTypes.first, deckId,
-                        fields, getModifier)
+                    "basic" -> AddBasicCard(
+                        cardTypes.basicCardViewModel, deckId,
+                        fields, getModifier
+                    )
+                    "three" -> AddThreeCard(
+                        cardTypes.threeCardViewModel,
+                        deckId,
+                        fields, getModifier
+                    )
+                    "hint" -> AddHintCard(
+                        cardTypes.hintCardViewModel, deckId,
+                        fields, getModifier
+                    )
+                    "multi" -> AddMultiChoiceCard(
+                        cardTypes.multiChoiceCardViewModel, deckId,
+                        fields, getModifier
+                    )
+                    else -> AddBasicCard(
+                        cardTypes.basicCardViewModel, deckId,
+                        fields, getModifier
+                    )
                 }
             }
         }

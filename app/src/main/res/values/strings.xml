@@ -36,4 +36,20 @@
     <string name="system_theme">System Theme</string>
     <string name="custom_theme">Custom Theme</string>
     <string name="dark_theme">Dark Theme</string>
+    <string name="basic_card">Basic Card</string>
+    <string name="three_field_card">Three Field Card</string>
+    <string name="hint_card">Hint Card</string>
+    <string name="basic">Basic</string>
+    <string name="hint">Hint</string>
+    <string name="three_fields">Three Fields</string>
+    <string name="edit_multiplier">Edit Multiplier</string>
+    <string name="good_multiplier">Good Multiplier</string>
+    <string name="bad_multiplier">Bad Multiplier</string>
+    <string name="multi_choice_card">Multiple Choice Card</string>
+    <string name="multi">Multiple Choices</string>
+    <string name="choice_a">Choice A</string>
+    <string name="choice_b">Choice B</string>
+    <string name="choice_c">Choice C</string>
+    <string name="choice_d">Choice D</string>
+    <string name="correct_choice">Correct Choice</string>
 </resources>

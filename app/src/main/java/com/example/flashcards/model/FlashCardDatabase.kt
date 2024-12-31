@@ -6,29 +6,43 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.flashcards.model.daoFiles.BasicCardDao
 import com.example.flashcards.model.daoFiles.CardDao
 import com.example.flashcards.model.daoFiles.CardTypesDao
 import com.example.flashcards.model.daoFiles.DeckDao
+import com.example.flashcards.model.daoFiles.HintCardDao
+import com.example.flashcards.model.daoFiles.MultiChoiceCardDao
+import com.example.flashcards.model.daoFiles.ThreeCardDao
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Converters
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.model.tablesAndApplication.Deck
+import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import kotlinx.coroutines.CoroutineScope
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-@Database(entities = [Deck::class, Card::class, BasicCard::class,
-    ThreeFieldCard::class, HintCard::class], version = 7)
+@Database(entities = [
+    Deck::class,
+    Card::class,
+    BasicCard::class,
+    ThreeFieldCard::class,
+    HintCard::class,
+    MultiChoiceCard::class], version = 9)
 @TypeConverters(Converters::class)
 abstract class FlashCardDatabase : RoomDatabase() {
 
     abstract fun deckDao(): DeckDao
     abstract fun cardDao(): CardDao
     abstract fun cardTypes() : CardTypesDao
+    abstract fun basicCardDao() : BasicCardDao
+    abstract fun hintCardDao() : HintCardDao
+    abstract fun threeCardDao() : ThreeCardDao
+    abstract fun multiChoiceCardDao() : MultiChoiceCardDao
 
     companion object {
         @Volatile
@@ -37,20 +51,19 @@ abstract class FlashCardDatabase : RoomDatabase() {
         fun getDatabase(context: Context, scope: CoroutineScope): FlashCardDatabase {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
-                val instance = Room.databaseBuilder(context, FlashCardDatabase::class.java, "deck_database")
+                val instance =
+                    Room.databaseBuilder(context, FlashCardDatabase::class.java, "deck_database")
                     .addMigrations(
                         MIGRATION_3_5,
                         MIGRATION_5_6,
-                        MIGRATION_6_7
+                        MIGRATION_6_7,
+                        MIGRATION_7_8,
+                        MIGRATION_8_9
                     )
                     .fallbackToDestructiveMigration()
                     .addCallback(FlashCardDatabaseCallback(scope))
                     // Add callback for population
                     .build().also { Instance = it }
-                //runBlocking {
-                 //   FlashCardDatabaseCallback(scope).onCreate(instance.openHelper.writableDatabase)
-                //}
-                //println("Adding database..")
                 Instance = instance
                 // return instance
                 instance
@@ -73,7 +86,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                 Instance?.let { database ->
                     scope.launch(Dispatchers.IO) {
                         populateDatabase(database.deckDao(), database.cardDao(),
-                            database.cardTypes())
+                            database.basicCardDao())
                     }
                 //}
                 }
@@ -81,14 +94,14 @@ abstract class FlashCardDatabase : RoomDatabase() {
         }
 
         private suspend fun populateDatabase(deckDao: DeckDao, cardDao: CardDao,
-                                             cardTypesDao: CardTypesDao) {
+                                             basicCardDao: BasicCardDao) {
             // Create and insert a new Deck
             val historyDeck = Deck(name = "History")
             deckDao.insertDeck(historyDeck)
-            println("Deck created")
+
             // Get the deck ID after insertion
             val deckId = historyDeck.id + 1// This will be auto-generated
-            println(deckId)
+
             val calendar = Calendar.getInstance()
             calendar.add(Calendar.DAY_OF_MONTH, -1) // Subtract 1 day
             val nextReviewDate = calendar.time
@@ -231,7 +244,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
             }
             println("making basicCards...")
             for (basicCard in basicCards){
-                cardTypesDao.insertBasicCard(basicCard)
+                basicCardDao.insertBasicCard(basicCard)
             }
             println("cards added...")
         }

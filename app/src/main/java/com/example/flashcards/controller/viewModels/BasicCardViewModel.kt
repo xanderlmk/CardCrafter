@@ -2,15 +2,14 @@ package com.example.flashcards.controller.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.flashcards.model.BasicCardUiState
+import com.example.flashcards.model.uiModels.BasicCardUiState
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
-import com.example.flashcards.model.tablesAndApplication.BasicCardType
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -53,9 +52,17 @@ class BasicCardViewModel(
         }
     }
 
-    fun getBasicCard(cardId: Int): Flow<BasicCardType> {
-        return cardTypeRepository.getBasicCard(cardId)
+    fun getAllBasicsForDeck(deckId: Int) {
+        viewModelScope.launch {
+            cardTypeRepository.getAllBasicCards(deckId).map { allCards ->
+                BasicCardUiState(basicCards = allCards)
+            }.collect { state ->
+                uiState.value = state
+            }
+            clearErrorMessage()
+        }
     }
+
 
     fun setErrorMessage(message: String) {
         uiState.value = uiState.value.copy(errorMessage = message)

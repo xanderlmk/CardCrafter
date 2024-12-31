@@ -1,5 +1,6 @@
 package com.example.flashcards.ui.theme
 
+
 import android.os.Build
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -8,13 +9,12 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color.LightGray,
-    secondary = Color.LightGray,
-    tertiary = Color.LightGray,
+    //primary = darkCorrectChoice,
+    //secondary = darkPickedChoice,
+    //tertiary = darkTertiaryColor,
     outline = darkBorder,
     background = darkBackground,
     surface = darkEditingBackground,
@@ -22,10 +22,11 @@ private val DarkColorScheme = darkColorScheme(
     secondaryContainer = darkSecondaryButton,
     tertiaryContainer = darkTertiaryButton,
 
-    onPrimary = darkIcon,
-    onSecondary = darkIcon,
-    onTertiary = darkIcon,
+    onPrimary = darkCorrectChoice,
+    onSecondary = darkPickedChoice,
+    onTertiary = darkTertiaryColor,
     onBackground = darkOnBackground,
+    onSurfaceVariant = onDarkCorrectChoice,
 
     onPrimaryContainer = darkIcon,
     onSecondaryContainer = darkText,
@@ -33,9 +34,9 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color.Blue,
-    secondary = Color.Blue,
-    tertiary = Color.Blue,
+    //primary = correctChoice,
+    //secondary = pickedChoice,
+    //tertiary = tertiaryColor,
     background = backgroundColor,
     outline = borderColor,
     surface = editingBackGroundColor,
@@ -43,10 +44,11 @@ private val LightColorScheme = lightColorScheme(
     secondaryContainer = secondaryButtonColor,
     tertiaryContainer = tertiaryButtonColor,
 
+    onPrimary = correctChoice,
+    onSecondary = pickedChoice,
+    onTertiary = tertiaryColor,
     onBackground = onBackgroundColor,
-    onPrimary = textColor,
-    onSecondary = textColor,
-    onTertiary = iconColor,
+    onSurfaceVariant = onCorrectChoice,
 
     onPrimaryContainer = iconColor,
     onSecondaryContainer = textColor,
@@ -64,9 +66,9 @@ fun FlashcardsTheme(
     dynamicColor: Boolean,
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
             if (darkTheme) {dynamicDarkColorScheme(context)}
             else {dynamicLightColorScheme(context)}
 

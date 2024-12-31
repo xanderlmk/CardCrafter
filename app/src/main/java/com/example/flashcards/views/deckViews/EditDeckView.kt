@@ -39,12 +39,12 @@ import com.example.flashcards.R
 import com.example.flashcards.controller.DeleteDeck
 import com.example.flashcards.controller.updateDeckName
 import com.example.flashcards.controller.updateMultipliers
-import com.example.flashcards.model.Fields
+import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.views.miscFunctions.EditNumberField
 import com.example.flashcards.views.miscFunctions.EditTextField
-import com.example.flashcards.views.miscFunctions.GetModifier
+import com.example.flashcards.ui.theme.GetModifier
 import kotlin.String
 
 class EditDeckView(
@@ -228,7 +228,7 @@ class EditDeckView(
                             ),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Edit Multiplier")
+                            Text(stringResource(R.string.edit_multiplier))
                         }
                     }
                 } else {
@@ -245,7 +245,7 @@ class EditDeckView(
                                 newGoodMultiplier = it.toDouble()
                                 errorMessage.value = "" // Clear error when user types
                             },
-                            labelStr = "Good Multiplier",
+                            labelStr = stringResource(R.string.good_multiplier),
                             modifier = Modifier
                                 .fillMaxWidth(0.5f)
                                 .padding(end = 2.dp)
@@ -256,7 +256,7 @@ class EditDeckView(
                                 newBadMultiplier = it.toDouble()
                                 errorMessage.value = "" // Clear error when user types
                             },
-                            labelStr = "Bad Multiplier",
+                            labelStr = stringResource(R.string.bad_multiplier),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(start = 2.dp)

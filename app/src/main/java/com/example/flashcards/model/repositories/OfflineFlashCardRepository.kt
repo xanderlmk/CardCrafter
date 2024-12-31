@@ -62,7 +62,7 @@ class OfflineFlashCardRepository(
 
     @OptIn(FlowPreview::class)
     override fun getDeckWithCards(deckId: Int):
-            Flow<DeckWithCards> = cardDao.getDeckWithCards(deckId).debounce(50)
+            Flow<DeckWithCards> = cardDao.getDeckWithCards(deckId).debounce(20)
 
     override suspend fun getDueCards(deckId: Int, currentTime: Long):
             Flow<List<Card>> = cardDao.getDueCards(deckId, currentTime)

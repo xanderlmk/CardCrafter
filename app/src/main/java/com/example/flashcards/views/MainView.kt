@@ -27,12 +27,11 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.flashcards.R
-import com.example.flashcards.model.Fields
-import com.example.flashcards.views.miscFunctions.GetModifier
+import com.example.flashcards.model.uiModels.Fields
+import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.MainSettingsButton
 import com.example.flashcards.views.miscFunctions.SmallAddButton
 import com.example.flashcards.views.miscFunctions.delayNavigate
-import java.util.Date
 
 class MainView(
     private var getModifier: GetModifier,

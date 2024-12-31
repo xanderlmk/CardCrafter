@@ -1,10 +1,8 @@
 package com.example.flashcards.model.tablesAndApplication
 
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import androidx.room.Relation
 
 
 @Entity(tableName = "basicCard",
@@ -20,14 +18,6 @@ data class BasicCard(
     @PrimaryKey val cardId : Int,
     val question : String,
     val answer : String,
-)
-data class BasicCardType(
-    @Embedded val card: Card,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "cardId"
-    )
-    val basicCard: BasicCard
 )
 
 @Entity(tableName = "threeFieldCard",
@@ -45,16 +35,6 @@ data class ThreeFieldCard(
     val middle : String,
     val answer : String,
 )
-
-data class ThreeCardType(
-    @Embedded val card: Card,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "cardId"
-    )
-    val threeFieldCard: ThreeFieldCard
-)
-
 @Entity(tableName = "hintCard",
     foreignKeys = [
         ForeignKey(
@@ -70,30 +50,23 @@ data class HintCard(
     val hint : String,
     val answer : String,
 )
-data class HintCardType(
-    @Embedded val card: Card,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "cardId"
-    )
-    val hintCard: HintCard
+
+@Entity(tableName = "multiChoiceCard",
+    foreignKeys = [
+        ForeignKey(
+            entity = Card::class,
+            parentColumns = ["id"],
+            childColumns = ["cardId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ])
+data class MultiChoiceCard(
+    @PrimaryKey val cardId : Int,
+    val question : String,
+    val choiceA : String,
+    val choiceB : String,
+    val choiceC : String = "",
+    val choiceD : String = "",
+    val correct: Char
 )
 
-data class AllCardTypes(
-    @Embedded val card: Card,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "cardId"
-    )
-    val basicCard: BasicCard?,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "cardId"
-    )
-    val hintCard: HintCard?,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "cardId"
-    )
-    val threeFieldCard: ThreeFieldCard?
-)

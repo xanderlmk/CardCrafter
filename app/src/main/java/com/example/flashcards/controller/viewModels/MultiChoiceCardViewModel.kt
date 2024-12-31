@@ -2,31 +2,36 @@ package com.example.flashcards.controller.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.flashcards.model.uiModels.HintCardUiState
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
 import com.example.flashcards.model.tablesAndApplication.Card
-import com.example.flashcards.model.tablesAndApplication.HintCard
+import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
+import com.example.flashcards.model.uiModels.MultiChoiceUiCardState
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Date
 
-class HintCardViewModel(
+class MultiChoiceCardViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val cardTypeRepository: CardTypeRepository
 ) : ViewModel() {
-    private val uiState = MutableStateFlow(HintCardUiState())
-    val hintCardUiState : StateFlow<HintCardUiState> = uiState.asStateFlow()
-    fun addHintCard(
-        deckId: Int, question: String,
-        hint: String, answer: String
+
+    private val uiState = MutableStateFlow(MultiChoiceUiCardState())
+    var multiChoiceUiState = uiState.asStateFlow()
+
+    fun addMultiChoiceCard(
+        deckId: Int,
+        question: String,
+        choiceA : String,
+        choiceB : String,
+        choiceC : String,
+        choiceD : String,
+        correct : Char
     ) {
-        if (question.isNotEmpty() && answer.isNotEmpty()
-            && hint.isNotEmpty()
-        ) {
+        if (question.isNotEmpty() && choiceA.isNotEmpty() &&
+            choiceB.isNotEmpty() && correct in 'a'..'d') {
             viewModelScope.launch {
                 val cardId = flashCardRepository.insertCard(
                     Card(
@@ -35,15 +40,18 @@ class HintCardViewModel(
                         passes = 0,
                         prevSuccess = false,
                         totalPasses = 0,
-                        type = "hint"
+                        type = "multi"
                     )
                 )
-                cardTypeRepository.insertHintCard(
-                    HintCard(
+                cardTypeRepository.insertMultiChoiceCard(
+                    MultiChoiceCard(
                         cardId = cardId.toInt(),
                         question = question,
-                        hint = hint,
-                        answer = answer
+                        choiceA = choiceA,
+                        choiceB = choiceB,
+                        choiceC = choiceC,
+                        choiceD = choiceD,
+                        correct = correct
                     )
                 )
                 clearErrorMessage()
@@ -51,16 +59,27 @@ class HintCardViewModel(
         }
     }
 
-    fun updateHintCard(cardId: Int, question: String, hint: String, answer: String) {
+    fun updateMultiChoiceCard(
+        cardId: Int,
+        question: String,
+        choiceA : String,
+        choiceB : String,
+        choiceC : String,
+        choiceD : String,
+        correct : Char
+    ) {
         viewModelScope.launch {
-            cardTypeRepository.updateHintCard(cardId, question, hint, answer)
+            cardTypeRepository.updateMultiChoiceCard(
+                cardId, question, choiceA,
+                choiceB, choiceC, choiceD , correct
+            )
         }
     }
 
-    fun getAllHintsForDeck(deckId: Int) {
+    fun getAllChoicesForDeck(deckId: Int) {
         viewModelScope.launch {
-            cardTypeRepository.getAllHintCards(deckId).map { allCards ->
-                HintCardUiState(hintCards = allCards)
+            cardTypeRepository.getAllMultiChoiceCards(deckId).map { allCards ->
+                MultiChoiceUiCardState(multiChoiceCard = allCards)
             }.collect { state ->
                 uiState.value = state
             }
@@ -75,5 +94,5 @@ class HintCardViewModel(
     fun clearErrorMessage() {
         uiState.value = uiState.value.copy(errorMessage = "")
     }
-}
 
+}

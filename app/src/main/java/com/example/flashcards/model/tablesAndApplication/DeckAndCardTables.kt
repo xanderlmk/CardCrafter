@@ -25,7 +25,8 @@ data class Deck(
             parentColumns = ["id"],
             childColumns = ["deckId"]
         )
-    ]
+    ],
+    indices = [Index(value = ["deckId"])]
     )
 data class Card(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,

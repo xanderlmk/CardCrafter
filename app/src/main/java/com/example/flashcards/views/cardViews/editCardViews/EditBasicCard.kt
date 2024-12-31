@@ -2,7 +2,6 @@ package com.example.flashcards.views.cardViews.editCardViews
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -11,10 +10,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
-import com.example.flashcards.model.Fields
+import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.BasicCard
-import com.example.flashcards.ui.theme.textColor
-import com.example.flashcards.views.miscFunctions.GetModifier
+import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.views.miscFunctions.EditTextField
 
 
 @Composable
@@ -32,16 +31,16 @@ fun EditBasicCard(basicCard: BasicCard,
         modifier = getModifier.editCardModifier()
     )
 
-    TextField(
+    EditTextField(
         value = fields.question.value,
-        onValueChange = { fields.question.value = it },
-        label = { Text(stringResource(R.string.question), color = textColor) },
+        onValueChanged = { fields.question.value = it },
+        labelStr =  stringResource(R.string.question),
         modifier = Modifier.fillMaxWidth()
     )
-    TextField(
+    EditTextField(
         value = fields.answer.value,
-        onValueChange = { fields.answer.value = it },
-        label = { Text(stringResource(R.string.answer), color = textColor) },
+        onValueChanged = { fields.answer.value = it },
+        labelStr = stringResource(R.string.answer),
         modifier = Modifier.fillMaxWidth()
     )
 }

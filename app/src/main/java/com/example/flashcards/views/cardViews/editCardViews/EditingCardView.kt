@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -14,8 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -24,25 +26,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.controller.BasicCardTypeHandler
+import com.example.flashcards.controller.ChoiceCardTypeHandler
 import com.example.flashcards.controller.HintCardTypeHandler
 import com.example.flashcards.controller.ThreeCardTypeHandler
-import com.example.flashcards.controller.viewModels.BasicCardViewModel
+import com.example.flashcards.controller.navigation.AllTypesUiStates
+import com.example.flashcards.controller.navigation.AllViewModels
+import com.example.flashcards.controller.saveCard
 import com.example.flashcards.controller.viewModels.CardTypeViewModel
-import com.example.flashcards.controller.viewModels.HintCardViewModel
-import com.example.flashcards.controller.viewModels.ThreeCardViewModel
-import com.example.flashcards.model.Fields
-import com.example.flashcards.model.tablesAndApplication.BasicCard
+import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Card
-import com.example.flashcards.model.tablesAndApplication.HintCard
-import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
-import com.example.flashcards.views.miscFunctions.GetModifier
+import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.delayNavigate
 import kotlinx.coroutines.launch
 
 class EditingCardView(
-    private var cardTypes: Triple<BasicCardViewModel,
-            ThreeCardViewModel, HintCardViewModel>,
+    private var cardTypes: AllViewModels,
     private var cardTypeViewModel: CardTypeViewModel,
+    private var allTypesUiStates: AllTypesUiStates,
     private var getModifier: GetModifier
 ) {
     @Composable
@@ -61,8 +61,10 @@ class EditingCardView(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(10.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 if (selectedCard.value != null) {
                     val cardTypeHandler = when (selectedCard.value?.type) {
@@ -77,13 +79,15 @@ class EditingCardView(
                         "hint" -> {
                             HintCardTypeHandler()
                         }
-
+                        "multi" -> {
+                            ChoiceCardTypeHandler()
+                        }
                         else -> {
                             null
                         }
                     }
                     cardTypeHandler?.HandleCardEdit(
-                        cardListUiState = cardListUiState,
+                        state = allTypesUiStates,
                         cardId = card.id,
                         fields = fields,
                         getModifier = getModifier
@@ -122,9 +126,10 @@ class EditingCardView(
                         Button(
                             onClick = {
                                 coroutineScope.launch {
-                                    val success = saveCard(selectedCard, fields, cardTypes)
+                                    val success = saveCard(
+                                        selectedCard, fields, cardTypes,
+                                        allTypesUiStates)
                                     if (success) {
-                                        delayNavigate()
                                         onNavigateBack()
                                     } else {
                                         cardTypeViewModel.setErrorMessage(fillOutfields)
@@ -145,81 +150,4 @@ class EditingCardView(
             }
         }
     }
-
-    private fun saveCard(
-        selectedCard: MutableState<Card?>,
-        fields: Fields,
-        cardTypes: Triple<
-                BasicCardViewModel,
-                ThreeCardViewModel,
-                HintCardViewModel>
-    ): Boolean {
-        val cardId = selectedCard.value?.id
-        val whatCard = mutableStateOf<Any?>(null)
-        when (selectedCard.value?.type) {
-            "basic" -> {
-                if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()) {
-                    whatCard.value = cardTypes.first.getBasicCard(cardId ?: 0)
-                    (whatCard.value as? BasicCard).let { card ->
-                        card?.cardId?.let { cardId ->
-                            cardTypes.first.updateBasicCard(
-                                cardId,
-                                fields.question.value,
-                                fields.answer.value
-                            )
-                        }
-                    }
-                    return true
-                } else {
-                    return false
-                }
-            }
-
-            "three" -> {
-                if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()
-                    && fields.middleField.value.isNotBlank()
-                ) {
-                    whatCard.value = cardTypes.second.getThreeCard(cardId ?: 0)
-                    (whatCard.value as? ThreeFieldCard).let { card ->
-                        card?.cardId?.let { cardId ->
-                            cardTypes.second.updateThreeCard(
-                                cardId,
-                                fields.question.value,
-                                fields.middleField.value,
-                                fields.answer.value
-                            )
-                        }
-                    }
-                    return true
-                } else {
-                    return false
-                }
-
-            }
-
-            "hint" -> {
-                if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()
-                    && fields.middleField.value.isNotBlank()
-                ) {
-
-                    whatCard.value = cardTypes.third.getHintCard(cardId ?: 0)
-                    (whatCard.value as? HintCard).let { card ->
-                        card?.cardId?.let { cardId ->
-                            cardTypes.third.updateHintCard(
-                                cardId,
-                                fields.question.value,
-                                fields.middleField.value,
-                                fields.answer.value
-                            )
-                        }
-                    }
-                    return true
-                } else {
-                    return false
-                }
-            }
-        }
-        return false
-    }
-
 }

@@ -27,12 +27,12 @@ import com.example.flashcards.controller.viewModels.CardViewModel
 import kotlinx.coroutines.launch
 import com.example.flashcards.R
 import com.example.flashcards.controller.viewModels.CardTypeViewModel
-import com.example.flashcards.model.Fields
+import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.AddCardButton
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.views.miscFunctions.SettingsButton
-import com.example.flashcards.views.miscFunctions.View
-import com.example.flashcards.views.miscFunctions.GetModifier
+import com.example.flashcards.model.uiModels.View
+import com.example.flashcards.ui.theme.GetModifier
 
 
 class DeckView(
@@ -96,7 +96,8 @@ class DeckView(
                 ) {
                     Text(
                         text = deck.name,
-                        fontSize = 40.sp,
+                        lineHeight = 42.sp,
+                        fontSize = 38.sp,
                         fontWeight = FontWeight.Bold,
                         color = getModifier.titleColor(),
                         textAlign = TextAlign.Center,

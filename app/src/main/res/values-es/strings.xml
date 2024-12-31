@@ -36,4 +36,20 @@
     <string name="system_theme">Tema Del Sistema</string>
     <string name="custom_theme">Tema Personalizado</string>
     <string name="dark_theme">Tema Oscuro</string>
+    <string name="basic_card">Carta Basica</string>
+    <string name="three_field_card">Carta de Tres Campos</string>
+    <string name="hint_card">Carta con Indicación</string>
+    <string name="basic">Basica</string>
+    <string name="hint">Con Indicación</string>
+    <string name="three_fields">Tres Campos</string>
+    <string name="edit_multiplier">Modificar Multiplicador</string>
+    <string name="good_multiplier">Multiplicador Bueno</string>
+    <string name="bad_multiplier">Multiplicador Malo</string>
+    <string name="multi_choice_card">Carta de Múltiples Opciones</string>
+    <string name="multi">Múltiple Opciones</string>
+    <string name="choice_a">Opción A</string>
+    <string name="choice_b">Opción B</string>
+    <string name="choice_c">Opción C</string>
+    <string name="choice_d">Opción D</string>
+    <string name="correct_choice">Opción Correcta</string>
 </resources>

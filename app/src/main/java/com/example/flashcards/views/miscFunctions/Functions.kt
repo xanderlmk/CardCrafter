@@ -1,13 +1,25 @@
 package com.example.flashcards.views.miscFunctions
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,32 +41,78 @@ import com.example.flashcards.ui.theme.textColor
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.example.flashcards.model.CardListUiState
-import com.example.flashcards.model.CardUiState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.input.ImeAction
+import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
+import com.example.flashcards.model.uiModels.CardListUiState
+import com.example.flashcards.model.uiModels.CardUiState
+import com.example.flashcards.model.uiModels.Fields
+import com.example.flashcards.ui.theme.GetModifier
 
 
 @Composable
 fun EditTextField(
     value: String,
     onValueChanged: (String) -> Unit,
-    labelStr : String ,
+    labelStr: String,
     modifier: Modifier,
+    inputColor: Color = Color.Transparent
 ) {
+    val focusManager = LocalFocusManager.current
+    val colors = if (inputColor == Color.Transparent) {
+        TextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colorScheme.onBackground,
+            unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
+
+        )
+    } else {
+        TextFieldDefaults.colors(
+            unfocusedTextColor = inputColor,
+            focusedTextColor = inputColor,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
+    }
     TextField(
         value = value,
-        singleLine = true,
+        singleLine = false,
         modifier = modifier,
         onValueChange = onValueChanged,
         label = { Text(labelStr, color = textColor) },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                focusManager.clearFocus()
+            }
+        ),
+        colors = colors,
+        textStyle =
+        if (inputColor == Color.Transparent) {
+            TextStyle.Default
+        } else {
+            TextStyle(
+                fontWeight = FontWeight.ExtraBold,
+                fontStyle = FontStyle.Italic,
+                background = MaterialTheme.colorScheme.surface
+            )
+        }
     )
 }
+
 @Composable
 fun EditNumberField(
     value: String,
     onValueChanged: (String) -> Unit,
-    labelStr : String ,
-    modifier: Modifier,
+    labelStr: String,
+    modifier: Modifier
 ) {
     TextField(
         value = value,
@@ -65,17 +123,8 @@ fun EditNumberField(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
     )
 }
-@Composable
-fun LoadingText() {
-    Text(
-        stringResource(R.string.loading),
-        fontSize = 35.sp,
-        textAlign = TextAlign.Center,
-        color = textColor,
-        style = MaterialTheme.typography.titleLarge,
-        modifier = Modifier.fillMaxWidth()
-    )
-}
+
+
 @Composable
 fun NoDueCards(getModifier: GetModifier) {
     var delay by remember { mutableStateOf(false) }
@@ -84,14 +133,19 @@ fun NoDueCards(getModifier: GetModifier) {
         delay = true
     }
     if (delay) {
-        Text(
-            stringResource(R.string.no_due_cards),
-            fontSize = 25.sp,
-            lineHeight = 26.sp,
-            textAlign = TextAlign.Center,
-            color = getModifier.titleColor(),
-            style = MaterialTheme.typography.titleLarge
-        )
+        Box(
+            Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                stringResource(R.string.no_due_cards),
+                fontSize = 25.sp,
+                lineHeight = 26.sp,
+                textAlign = TextAlign.Center,
+                color = getModifier.titleColor(),
+                style = MaterialTheme.typography.titleLarge
+            )
+        }
     }
 }
 
@@ -99,21 +153,29 @@ fun NoDueCards(getModifier: GetModifier) {
 fun BasicCardQuestion(basicCard: BasicCard) {
     Text(text = stringResource(R.string.question) + ": ${basicCard.question}")
 }
+
 @Composable
 fun ThreeCardQuestion(threeFieldCard: ThreeFieldCard) {
     Text(text = stringResource(R.string.question) + ": ${threeFieldCard.question}")
 }
+
 @Composable
 fun HintCardQuestion(hintCard: HintCard) {
     Text(text = stringResource(R.string.question) + ": ${hintCard.question}")
 }
 
 @Composable
+fun ChoiceCardQuestion(multiChoiceCard: MultiChoiceCard) {
+    Text(text = stringResource(R.string.question) + ": ${multiChoiceCard.question}")
+}
+
+@Composable
 fun ShowBackButtonAndDeckName(
     onNavigate: () -> Unit,
-    deck : Deck,
-    presetModifier : Modifier,
-    getModifier: GetModifier) {
+    deck: Deck,
+    presetModifier: Modifier,
+    getModifier: GetModifier
+) {
     Row {
         BackButton(
             onBackClick = {
@@ -130,8 +192,7 @@ fun ShowBackButtonAndDeckName(
             lineHeight = 35.sp,
             modifier = Modifier
                 .padding(top = 16.dp, start = 8.dp, end = 8.dp)
-                .fillMaxWidth()
-            ,
+                .fillMaxWidth(),
             textAlign = TextAlign.Center,
             color = getModifier.buttonTextColor()
         )
@@ -139,9 +200,11 @@ fun ShowBackButtonAndDeckName(
 }
 
 @Composable
-fun CardSelector(cardListUiState : CardListUiState,
-                 cardUiState: CardUiState,
-                 index : Int) {
+fun CardSelector(
+    cardListUiState: CardListUiState,
+    cardUiState: CardUiState,
+    index: Int
+) {
     if (cardListUiState.allCards.size == cardUiState.cardList.size) {
         when (cardUiState.cardList[index].type) {
             "basic" -> {
@@ -161,13 +224,99 @@ fun CardSelector(cardListUiState : CardListUiState,
                     cardListUiState.allCards[index].hintCard
                 hintCard?.let { HintCardQuestion(hintCard) }
             }
+
+            "multi" -> {
+                val choiceCard =
+                    cardListUiState.allCards[index].multiChoiceCard
+                choiceCard?.let { ChoiceCardQuestion(choiceCard) }
+            }
         }
     }
 
 }
-suspend fun loading(){
-    delay(225)
+
+@Composable
+fun PickAnswerChar(fields: Fields, getModifier: GetModifier) {
+    var expanded by remember { mutableStateOf(false) }
+    Column(
+        Modifier
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        IconButton(
+            onClick = { expanded = true },
+            modifier = Modifier
+                .padding(4.dp)
+                .fillMaxWidth()
+        ) {
+            Row {
+                Text(
+                    text = stringResource(R.string.answer) +
+                            ": ${fields.correct.value.uppercase()}",
+                    modifier = Modifier.padding(2.dp)
+                )
+                Icon(
+                    Icons.Default.CheckCircle,
+                    contentDescription = "Answer",
+                    tint = getModifier.titleColor(),
+                    modifier = Modifier.padding(2.dp)
+                )
+            }
+        }
+        Box(
+            Modifier.fillMaxWidth(.25f),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                DropdownMenuItem(
+                    onClick = {
+                        fields.correct.value = 'a'
+                        expanded = false
+                    },
+                    text = { Text("A") },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                )
+                DropdownMenuItem(
+                    onClick = {
+                        fields.correct.value = 'b'
+                        expanded = false
+                    },
+                    text = { Text("B") },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                )
+                if (fields.choices[2].value.isNotBlank()) {
+                    DropdownMenuItem(
+                        onClick = {
+                            fields.correct.value = 'c'
+                            expanded = false
+                        },
+                        text = { Text("C") },
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                    )
+                }
+                if (fields.choices[3].value.isNotBlank()) {
+                    DropdownMenuItem(
+                        onClick = {
+                            fields.correct.value = 'd'
+                            expanded = false
+                        },
+                        text = { Text("D") },
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                    )
+                }
+            }
+        }
+    }
 }
+
 suspend fun delayNavigate() {
     delay(85)
 }

@@ -1,16 +1,17 @@
 package com.example.flashcards.controller.viewModels
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.flashcards.model.CardState
-import com.example.flashcards.model.CardUiState
+import com.example.flashcards.controller.navigation.AllViewModels
+import com.example.flashcards.model.uiModels.CardState
+import com.example.flashcards.model.uiModels.CardUiState
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.repositories.FlashCardRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,6 +34,13 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
 
     fun getState(): CardState = cardState.value
 
+    fun setErrorMessage(message: String) {
+        uiState.value = uiState.value.copy(errorMessage = message)
+    }
+
+    fun clearErrorMessage() {
+        uiState.value = uiState.value.copy(errorMessage = "")
+    }
 
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
@@ -50,12 +58,18 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
             try{
                 cardTypeViewModel.getDueTypesForDeck(deckId)
                 //getCards(deckId)
-                delay(50)
                 transitionTo(CardState.Finished)
+                clearErrorMessage()
                 false
             }
             catch (e : Exception){
-                println(e)
+                errorMessage.value = "Something went wrong: $e"
+                setErrorMessage(errorMessage.value?: "$e")
+                true
+            }
+            catch (e: SQLiteConstraintException){
+                errorMessage.value = "SQLite Exception $e"
+                setErrorMessage(errorMessage.value?: "$e")
                 true
             }
         }
@@ -78,7 +92,16 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
         }
     }
     */
-    fun getDeckWithCards(deckId: Int, cardTypeViewModel: CardTypeViewModel) {
+    fun getDeckWithCards(
+        deckId: Int,
+        cardTypeViewModel: CardTypeViewModel,
+        cardTypes: AllViewModels) {
+        viewModelScope.launch {
+            cardTypes.basicCardViewModel.getAllBasicsForDeck(deckId)
+            cardTypes.hintCardViewModel.getAllHintsForDeck(deckId)
+            cardTypes.threeCardViewModel.getAllThreeForDeck(deckId)
+            cardTypes.multiChoiceCardViewModel.getAllChoicesForDeck(deckId)
+        }
         cardTypeViewModel.getAllTypesForDeck(deckId)
         getAllCards(deckId)
 
@@ -107,11 +130,5 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
             flashCardRepository.updateCardType(cardId, type)
         }
         basicCardViewModel.updateBasicCard(cardId,question,answer)
-    }
-
-    suspend fun getCardById(cardId : Int) : Card? {
-        return withContext(Dispatchers.IO) {
-            flashCardRepository.getCardById(cardId)
-        }
     }
 }

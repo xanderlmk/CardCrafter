@@ -9,9 +9,9 @@ import com.example.flashcards.controller.viewModels.CardTypeViewModel
 import com.example.flashcards.controller.viewModels.CardViewModel
 import com.example.flashcards.controller.viewModels.DeckViewModel
 import com.example.flashcards.controller.viewModels.HintCardViewModel
+import com.example.flashcards.controller.viewModels.MultiChoiceCardViewModel
 import com.example.flashcards.controller.viewModels.ThreeCardViewModel
 import com.example.flashcards.model.tablesAndApplication.FlashCardApplication
-
 
 
 /**
@@ -20,8 +20,7 @@ import com.example.flashcards.model.tablesAndApplication.FlashCardApplication
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            DeckViewModel(flashCardApplication().container.flashCardRepository,
-                flashCardApplication().container.cardTypeRepository)
+            DeckViewModel(flashCardApplication().container.flashCardRepository)
         }
         initializer {
             CardViewModel(flashCardApplication().container.flashCardRepository)
@@ -30,16 +29,28 @@ object AppViewModelProvider {
             CardTypeViewModel(flashCardApplication().container.cardTypeRepository)
         }
         initializer {
-            BasicCardViewModel(flashCardApplication().container.flashCardRepository,
-                flashCardApplication().container.cardTypeRepository)
+            BasicCardViewModel(
+                flashCardApplication().container.flashCardRepository,
+                flashCardApplication().container.cardTypeRepository
+            )
         }
         initializer {
-            ThreeCardViewModel(flashCardApplication().container.flashCardRepository,
-                flashCardApplication().container.cardTypeRepository)
+            ThreeCardViewModel(
+                flashCardApplication().container.flashCardRepository,
+                flashCardApplication().container.cardTypeRepository
+            )
         }
         initializer {
-            HintCardViewModel(flashCardApplication().container.flashCardRepository,
-                flashCardApplication().container.cardTypeRepository)
+            HintCardViewModel(
+                flashCardApplication().container.flashCardRepository,
+                flashCardApplication().container.cardTypeRepository
+            )
+        }
+        initializer {
+            MultiChoiceCardViewModel(
+                flashCardApplication().container.flashCardRepository,
+                flashCardApplication().container.cardTypeRepository
+            )
         }
     }
 }

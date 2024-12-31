@@ -30,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.flashcards.R
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.views.miscFunctions.EditTextField
-import com.example.flashcards.views.miscFunctions.GetModifier
+import com.example.flashcards.ui.theme.GetModifier
 
 
 class AddDeckView(private var viewModel: DeckViewModel,
