@@ -3,8 +3,8 @@ package com.example.flashcards.controller.viewModels
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.flashcards.model.DeckUiState
-import com.example.flashcards.model.repositories.CardTypeRepository
+import com.example.flashcards.controller.navigation.AllViewModels
+import com.example.flashcards.model.uiModels.DeckUiState
 import com.example.flashcards.model.repositories.FlashCardRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,8 +20,7 @@ import kotlinx.coroutines.withContext
 /**
  * ViewModel to retrieve all items in the Room database.
  */
-class DeckViewModel(private val flashCardRepository: FlashCardRepository,
-    private val cardTypeRepository: CardTypeRepository) : ViewModel() {
+class DeckViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     private val uiState: StateFlow<DeckUiState> =
@@ -136,7 +135,13 @@ class DeckViewModel(private val flashCardRepository: FlashCardRepository,
         return 0
     }
 
-    fun getDeckById(deckId : Int) : Flow<Deck?> {
+    fun getDeckById(deckId : Int, cardTypes: AllViewModels) : Flow<Deck?> {
+        viewModelScope.launch {
+            cardTypes.basicCardViewModel.getAllBasicsForDeck(deckId)
+            cardTypes.hintCardViewModel.getAllHintsForDeck(deckId)
+            cardTypes.threeCardViewModel.getAllThreeForDeck(deckId)
+            cardTypes.multiChoiceCardViewModel.getAllChoicesForDeck(deckId)
+        }
         return flashCardRepository.getDeckStream(deckId)
     }
 }

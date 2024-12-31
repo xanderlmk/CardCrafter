@@ -20,6 +20,12 @@ class AppDataContainer(private val context: Context, scope: CoroutineScope) : Ap
         )
     }
     override val cardTypeRepository: CardTypeRepository by lazy {
-        OfflineCardTypeRepository(FlashCardDatabase.Companion.getDatabase(context,scope).cardTypes())
+        OfflineCardTypeRepository(
+            FlashCardDatabase.Companion.getDatabase(context,scope).cardTypes(),
+            FlashCardDatabase.Companion.getDatabase(context,scope).basicCardDao(),
+            FlashCardDatabase.Companion.getDatabase(context,scope).hintCardDao(),
+            FlashCardDatabase.Companion.getDatabase(context,scope).threeCardDao(),
+            FlashCardDatabase.Companion.getDatabase(context,scope).multiChoiceCardDao()
+        )
     }
 }

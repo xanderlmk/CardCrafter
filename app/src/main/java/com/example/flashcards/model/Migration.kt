@@ -81,4 +81,51 @@ val MIGRATION_6_7 = object : Migration(6,7){
     }
 }
 
+val MIGRATION_7_8 = object : Migration(7,8){
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.beginTransaction()
+        try {
+            database.execSQL("PRAGMA foreign_keys=ON;")
+
+            database.execSQL("""
+                CREATE TABLE IF NOT EXISTS multiChoiceCard (
+                    cardId INTEGER NOT NULL, 
+                    question TEXT NOT NULL, 
+                    choiceA TEXT NOT NULL,
+                    choiceB TEXT NOT NULL,
+                    choiceC TEXT NOT NULL,
+                    choiceD TEXT NOT NULL,
+                    correct INTEGER NOT NULL, 
+                    PRIMARY KEY(cardId),
+                    FOREIGN KEY(cardId) REFERENCES cards(id) ON DELETE CASCADE)
+            """
+            )
+            database.setTransactionSuccessful()
+        } catch (e: Exception) {
+            // Log the error for debugging
+            Log.e("Migration", "Migration 7 to 8 failed", e)
+            throw RuntimeException("Migration 7 to 8 failed: ${e.message}")
+        } finally {
+            database.endTransaction()
+        }
+    }
+}
+
+val MIGRATION_8_9 = object : Migration(8,9){
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.beginTransaction()
+        try {
+            database.execSQL("PRAGMA foreign_keys=ON;")
+            database.execSQL("CREATE INDEX index_cards_deckId ON cards (deckId)")
+            database.setTransactionSuccessful()
+        } catch (e: Exception) {
+            // Log the error for debugging
+            Log.e("Migration", "Migration 8 to 9 failed", e)
+            throw RuntimeException("Migration 8 to 9 failed: ${e.message}")
+        } finally {
+            database.endTransaction()
+        }
+    }
+}
+
 

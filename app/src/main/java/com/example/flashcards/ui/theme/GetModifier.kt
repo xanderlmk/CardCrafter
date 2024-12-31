@@ -1,4 +1,4 @@
-package com.example.flashcards.views.miscFunctions
+package com.example.flashcards.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
@@ -8,15 +8,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
-import com.example.flashcards.ui.theme.ColorSchemeClass
 
 class GetModifier(
-    private var colorScheme: ColorSchemeClass) {
+    private var colorScheme: ColorSchemeClass,
+    val clickedChoice : MutableState<Char> = mutableStateOf('?'),
+) {
     fun mainViewModifier(): Modifier {
         return Modifier
             .fillMaxSize()
@@ -51,7 +54,7 @@ class GetModifier(
     fun backButtonModifier(): Modifier {
         return Modifier
             .padding(16.dp)
-            .size(54.dp)
+            .size(50.dp)
     }
 
     fun addButtonModifier(): Modifier {
@@ -63,7 +66,7 @@ class GetModifier(
     fun settingsButtonModifier(): Modifier {
         return Modifier
             .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-            .size(44.dp)
+            .size(40.dp)
     }
     fun mainSettingsButtonModifier(): Modifier {
         return Modifier
@@ -122,5 +125,20 @@ class GetModifier(
     }
     fun onTertiaryButtonColor(): Color{
         return colorScheme.colorScheme.onTertiaryContainer
+    }
+    /**fun tertiaryColor(): Color{
+        return colorScheme.colorScheme.tertiary
+    }*/
+    fun onTertiaryColor(): Color{
+        return colorScheme.colorScheme.onTertiary
+    }
+    fun pickedChoice(): Color {
+        return colorScheme.colorScheme.onSecondary
+    }
+    fun correctChoice(): Color {
+        return colorScheme.colorScheme.onPrimary
+    }
+    fun onCorrectChoice(): Color {
+        return colorScheme.colorScheme.onSurfaceVariant
     }
 }

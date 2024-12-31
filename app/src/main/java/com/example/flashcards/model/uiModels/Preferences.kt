@@ -1,4 +1,4 @@
-package com.example.flashcards.model
+package com.example.flashcards.model.uiModels
 
 import android.content.Context
 import androidx.compose.runtime.MutableState

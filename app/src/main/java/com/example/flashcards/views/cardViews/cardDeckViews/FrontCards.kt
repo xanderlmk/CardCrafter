@@ -7,8 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,23 +17,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.R
 import com.example.flashcards.model.tablesAndApplication.AllCardTypes
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.HintCard
+import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
-import com.example.flashcards.views.miscFunctions.GetModifier
+import com.example.flashcards.ui.theme.GetModifier
 
 @Composable
-fun frontCard(card : Pair<Card, AllCardTypes>,
-              getModifier : GetModifier) : Boolean {
-    var clicked by remember { mutableStateOf(false ) }
+fun FrontCard(card : Pair<Card, AllCardTypes>,
+              getModifier : GetModifier) {
     Box(
         modifier = Modifier
             .fillMaxSize() // Fill the entire available space
@@ -53,23 +49,12 @@ fun frontCard(card : Pair<Card, AllCardTypes>,
                 val hintCard = card.second.hintCard
                 hintCard?.let { HintFrontCard(hintCard = it,getModifier) }
             }
-        }
-        Button(
-            onClick = {
-                clicked = true
-            },
-            modifier = Modifier
-                .align(Alignment.BottomCenter) // Align to the bottom center
-                .padding(bottom = 16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = getModifier.secondaryButtonColor(),
-                contentColor = getModifier.buttonTextColor()
-            )
-        ) {
-            Text(stringResource(R.string.show_answer))
+            "multi" -> {
+                val multiChoiceCard = card.second.multiChoiceCard
+                multiChoiceCard?.let { ChoiceFrontCard(multiChoiceCard = it, getModifier) }
+            }
         }
     }
-    return clicked
 }
 
 
@@ -132,7 +117,7 @@ fun HintFrontCard(hintCard: HintCard,
             Text(
                 text = textToShow,
                 fontSize = 30.sp,
-                color = getModifier.titleColor(),
+                color = getModifier.onTertiaryColor(),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -141,9 +126,113 @@ fun HintFrontCard(hintCard: HintCard,
                         // Toggle the hint visibility
                         isHintRevealed = !isHintRevealed
                     }
-                    .background(color = Color.LightGray)
+                    .background(
+                        color = getModifier.onTertiaryColor(),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .fillMaxWidth()
             )
         }
     }
 }
 
+@Composable
+fun ChoiceFrontCard(multiChoiceCard: MultiChoiceCard,
+                    getModifier: GetModifier) {
+    Box(contentAlignment = Alignment.TopCenter) {
+        Column {
+            Text(
+                text = multiChoiceCard.question,
+                fontSize = 30.sp,
+                color = getModifier.titleColor(),
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(top = 80.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+            )
+            Text(
+                text = multiChoiceCard.choiceA,
+                fontSize = 28.sp,
+                color = getModifier.titleColor(),
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = 4.dp)
+                    .clickable {
+                        getModifier.clickedChoice.value = 'a'
+                    }
+                    .background(
+                        color = if (getModifier.clickedChoice.value == 'a') {
+                        getModifier.pickedChoice()
+                        } else { getModifier.onTertiaryColor()},
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .fillMaxWidth()
+            )
+            Text(
+                text = multiChoiceCard.choiceB,
+                fontSize = 28.sp,
+                color = getModifier.titleColor(),
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = 4.dp)
+                    .clickable {
+                        getModifier.clickedChoice.value = 'b'
+                    }
+                    .background(
+                        color = if (getModifier.clickedChoice.value == 'b') {
+                        getModifier.pickedChoice()
+                        } else{ getModifier.onTertiaryColor()},
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .fillMaxWidth()
+
+            )
+            Text(
+                text = multiChoiceCard.choiceC,
+                fontSize = 28.sp,
+                color = getModifier.titleColor(),
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = 4.dp)
+                    .clickable {
+                        getModifier.clickedChoice.value = 'c'
+                    }
+                    .background(
+                        color = if (getModifier.clickedChoice.value == 'c') {
+                        getModifier.pickedChoice()
+                        } else{ getModifier.onTertiaryColor()},
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .fillMaxWidth()
+            )
+            Text(
+                text = multiChoiceCard.choiceD,
+                fontSize = 28.sp,
+                color = getModifier.titleColor(),
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = 4.dp)
+                    .clickable {
+                        getModifier.clickedChoice.value = 'd'
+                    }
+                    .background(
+                        color = if (getModifier.clickedChoice.value == 'd') {
+                        getModifier.pickedChoice()
+                        } else{ getModifier.onTertiaryColor()},
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .fillMaxWidth()
+            )
+        }
+    }
+}

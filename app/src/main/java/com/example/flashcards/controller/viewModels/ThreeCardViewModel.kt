@@ -2,16 +2,15 @@ package com.example.flashcards.controller.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.flashcards.model.ThreeCardUiState
+import com.example.flashcards.model.uiModels.ThreeCardUiState
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
-import com.example.flashcards.model.tablesAndApplication.ThreeCardType
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -20,7 +19,7 @@ class ThreeCardViewModel(
     private val cardTypeRepository: CardTypeRepository
 ) : ViewModel() {
     private val uiState = MutableStateFlow(ThreeCardUiState())
-    val threeCardUiState : StateFlow<ThreeCardUiState> = uiState.asStateFlow()
+    val threeCardUiState: StateFlow<ThreeCardUiState> = uiState.asStateFlow()
 
     fun addThreeCard(
         deckId: Int, question: String,
@@ -60,8 +59,15 @@ class ThreeCardViewModel(
         }
     }
 
-    fun getThreeCard(cardId: Int): Flow<ThreeCardType> {
-        return cardTypeRepository.getThreeCard(cardId)
+    fun getAllThreeForDeck(deckId: Int) {
+        viewModelScope.launch {
+            cardTypeRepository.getAllThreeCards(deckId).map { allCards ->
+                ThreeCardUiState(threeFieldCards = allCards)
+            }.collect { state ->
+                uiState.value = state
+            }
+            clearErrorMessage()
+        }
     }
 
     fun setErrorMessage(message: String) {

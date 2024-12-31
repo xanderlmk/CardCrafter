@@ -9,9 +9,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import com.example.flashcards.R
-import com.example.flashcards.model.Preferences
+import com.example.flashcards.model.uiModels.Preferences
 import com.example.flashcards.views.miscFunctions.BackButton
-import com.example.flashcards.views.miscFunctions.GetModifier
+import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.SystemThemeButton
 
 class GeneralSettings(

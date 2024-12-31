@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Button
@@ -29,12 +30,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.flashcards.R
-import com.example.flashcards.model.Fields
+import com.example.flashcards.model.uiModels.Fields
+import com.example.flashcards.ui.theme.GetModifier
 import kotlinx.coroutines.launch
 
 @Composable
@@ -125,9 +126,9 @@ fun SettingsButton(
                 shape = RoundedCornerShape(16.dp))
     ) {
         Icon(
-            imageVector = Icons.Filled.Settings,
+            imageVector = Icons.Filled.Edit,
             modifier = Modifier
-                .size(28.dp),
+                .size(24.dp),
             contentDescription = "Settings",
             tint = getModifier.iconColor()
         )
@@ -171,7 +172,7 @@ fun MainSettingsButton(
         },
         modifier = modifier
             .background(
-                color= Color.Transparent,
+                color= getModifier.buttonColor(),
                 shape = RoundedCornerShape(16.dp))
     ) {
         Icon(
@@ -179,7 +180,7 @@ fun MainSettingsButton(
             modifier = Modifier
                 .size(24.dp),
             contentDescription = "Main Settings",
-            tint = getModifier.buttonColor()
+            tint = getModifier.iconColor()
         )
     }
 }
@@ -191,7 +192,8 @@ fun SystemThemeButton(
     customToggled: Painter,
     darkToggled : Painter,
     clicked : Boolean,
-    getModifier: GetModifier){
+    getModifier: GetModifier
+){
     var expanded by remember { mutableStateOf(false) }
     if (clicked){
         expanded = false

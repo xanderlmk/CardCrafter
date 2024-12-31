@@ -5,7 +5,6 @@ import kotlinx.coroutines.SupervisorJob
 
 
 class FlashCardApplication : Application() {
-
     lateinit var container: AppContainer
     private val applicationScope = CoroutineScope(SupervisorJob())
         override fun onCreate() {

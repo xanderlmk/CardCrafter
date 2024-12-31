@@ -1,9 +1,12 @@
 package com.example.flashcards.views.cardViews.cardDeckViews
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,8 +19,9 @@ import com.example.flashcards.model.tablesAndApplication.AllCardTypes
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.HintCard
+import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
-import com.example.flashcards.views.miscFunctions.GetModifier
+import com.example.flashcards.ui.theme.GetModifier
 
 
 @Composable
@@ -112,6 +116,120 @@ fun HintBackCard(hintCard: HintCard,
 }
 
 @Composable
+fun ChoiceBackCard(multiChoiceCard: MultiChoiceCard,
+                  getModifier: GetModifier){
+    Column {
+        Text(
+            text = multiChoiceCard.question,
+            fontSize = 30.sp,
+            color = getModifier.titleColor(),
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(top = 80.dp)
+                .align(Alignment.CenterHorizontally)
+        )
+        Text(
+            text = multiChoiceCard.choiceA,
+            fontSize = 28.sp,
+            color = getModifier.titleColor(),
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 4.dp)
+                .background(color =
+                if (getModifier.clickedChoice.value == 'a' &&
+                    multiChoiceCard.correct != getModifier.clickedChoice.value) {
+                    getModifier.pickedChoice()
+                } else if (getModifier.clickedChoice.value == 'a' &&
+                    multiChoiceCard.correct == getModifier.clickedChoice.value){
+                    getModifier.correctChoice()
+                } else if (multiChoiceCard.correct == 'a' &&
+                    multiChoiceCard.correct != getModifier.clickedChoice.value){
+                    getModifier.correctChoice()
+                } else{ getModifier.onTertiaryColor()},
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .fillMaxWidth()
+        )
+        Text(
+            text = multiChoiceCard.choiceB,
+            fontSize = 28.sp,
+            color = getModifier.titleColor(),
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 4.dp)
+                .background(color =
+                if (getModifier.clickedChoice.value == 'b' &&
+                    multiChoiceCard.correct != getModifier.clickedChoice.value) {
+                    getModifier.pickedChoice()
+                } else if (getModifier.clickedChoice.value == 'b' &&
+                    multiChoiceCard.correct == getModifier.clickedChoice.value){
+                    getModifier.correctChoice()
+                } else if (multiChoiceCard.correct == 'b' &&
+                    multiChoiceCard.correct != getModifier.clickedChoice.value){
+                    getModifier.correctChoice()
+                } else { getModifier.onTertiaryColor()},
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .fillMaxWidth()
+
+        )
+        Text(
+            text = multiChoiceCard.choiceC,
+            fontSize = 28.sp,
+            color = getModifier.titleColor(),
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 4.dp)
+                .background(color =
+                if (getModifier.clickedChoice.value == 'c' &&
+                    multiChoiceCard.correct != getModifier.clickedChoice.value) {
+                    getModifier.pickedChoice()
+                } else if (getModifier.clickedChoice.value == 'c' &&
+                    multiChoiceCard.correct == getModifier.clickedChoice.value){
+                    getModifier.correctChoice()
+                } else if (multiChoiceCard.correct == 'c' &&
+                    multiChoiceCard.correct != getModifier.clickedChoice.value){
+                    getModifier.correctChoice()
+                } else{ getModifier.onTertiaryColor()},
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .fillMaxWidth()
+        )
+        Text(
+            text = multiChoiceCard.choiceD,
+            fontSize = 28.sp,
+            color = getModifier.titleColor(),
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 4.dp)
+                .background(color =
+                if (getModifier.clickedChoice.value == 'd' &&
+                    multiChoiceCard.correct != getModifier.clickedChoice.value) {
+                    getModifier.pickedChoice()
+                } else if (getModifier.clickedChoice.value == 'd' &&
+                    multiChoiceCard.correct == getModifier.clickedChoice.value){
+                    getModifier.correctChoice()
+                } else if (multiChoiceCard.correct == 'd' &&
+                    multiChoiceCard.correct != getModifier.clickedChoice.value){
+                    getModifier.correctChoice()
+                } else { getModifier.onTertiaryColor()},
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .fillMaxWidth()
+        )
+    }
+}
+
+@Composable
 fun BackCard(card : Pair<Card,AllCardTypes>,
              getModifier: GetModifier) {
     Box(
@@ -129,9 +247,13 @@ fun BackCard(card : Pair<Card,AllCardTypes>,
                 val threeCard = card.second.threeFieldCard
                 threeCard?.let { ThreeBackCard(threeCard = it, getModifier) }
             }
-            "hint" ->{
+            "hint" -> {
                 val hintCard = card.second.hintCard
                 hintCard?.let { HintBackCard(hintCard = it, getModifier) }
+            }
+            "multi" -> {
+                val multiCard = card.second.multiChoiceCard
+                multiCard?.let { ChoiceBackCard(multiChoiceCard = it, getModifier) }
             }
         }
     }
