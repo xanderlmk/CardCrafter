@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,10 +28,13 @@ import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.R
 
 @Composable
-fun FrontCard(card : Pair<Card, AllCardTypes>,
-              getModifier : GetModifier) {
+fun FrontCard(
+    card: Pair<Card, AllCardTypes>,
+    getModifier: GetModifier
+) {
     Box(
         modifier = Modifier
             .fillMaxSize() // Fill the entire available space
@@ -41,14 +45,17 @@ fun FrontCard(card : Pair<Card, AllCardTypes>,
                 val basicCard = card.second.basicCard
                 basicCard?.let { BasicFrontCard(basicCard = it, getModifier) }
             }
+
             "three" -> {
                 val threeCard = card.second.threeFieldCard
-                threeCard?.let{ ThreeFrontCard(threeCard = it, getModifier)}
+                threeCard?.let { ThreeFrontCard(threeCard = it, getModifier) }
             }
+
             "hint" -> {
                 val hintCard = card.second.hintCard
-                hintCard?.let { HintFrontCard(hintCard = it,getModifier) }
+                hintCard?.let { HintFrontCard(hintCard = it, getModifier) }
             }
+
             "multi" -> {
                 val multiChoiceCard = card.second.multiChoiceCard
                 multiChoiceCard?.let { ChoiceFrontCard(multiChoiceCard = it, getModifier) }
@@ -59,8 +66,10 @@ fun FrontCard(card : Pair<Card, AllCardTypes>,
 
 
 @Composable
-fun BasicFrontCard(basicCard: BasicCard,
-                   getModifier: GetModifier){
+fun BasicFrontCard(
+    basicCard: BasicCard,
+    getModifier: GetModifier
+) {
     Box {
         Text(
             text = basicCard.question,
@@ -77,8 +86,10 @@ fun BasicFrontCard(basicCard: BasicCard,
 }
 
 @Composable
-fun ThreeFrontCard(threeCard: ThreeFieldCard,
-                   getModifier: GetModifier){
+fun ThreeFrontCard(
+    threeCard: ThreeFieldCard,
+    getModifier: GetModifier
+) {
     Box {
         Text(
             text = threeCard.question,
@@ -95,12 +106,11 @@ fun ThreeFrontCard(threeCard: ThreeFieldCard,
 }
 
 @Composable
-fun HintFrontCard(hintCard: HintCard,
-                  getModifier: GetModifier){
+fun HintFrontCard(
+    hintCard: HintCard,
+    getModifier: GetModifier
+) {
     var isHintRevealed by remember { mutableStateOf(false) }
-    // The text to display based on whether the hint is revealed or not
-    val textToShow = if (isHintRevealed) hintCard.hint else "Hint"
-
     Box(contentAlignment = Alignment.TopCenter) {
         Column {
             Text(
@@ -115,9 +125,11 @@ fun HintFrontCard(hintCard: HintCard,
                     .fillMaxWidth()
             )
             Text(
-                text = textToShow,
+                text =
+                if(isHintRevealed){hintCard.hint}
+                else{stringResource(R.string.hint_field)},
                 fontSize = 30.sp,
-                color = getModifier.onTertiaryColor(),
+                color = getModifier.titleColor(),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -137,8 +149,10 @@ fun HintFrontCard(hintCard: HintCard,
 }
 
 @Composable
-fun ChoiceFrontCard(multiChoiceCard: MultiChoiceCard,
-                    getModifier: GetModifier) {
+fun ChoiceFrontCard(
+    multiChoiceCard: MultiChoiceCard,
+    getModifier: GetModifier
+) {
     Box(contentAlignment = Alignment.TopCenter) {
         Column {
             Text(
@@ -166,8 +180,10 @@ fun ChoiceFrontCard(multiChoiceCard: MultiChoiceCard,
                     }
                     .background(
                         color = if (getModifier.clickedChoice.value == 'a') {
-                        getModifier.pickedChoice()
-                        } else { getModifier.onTertiaryColor()},
+                            getModifier.pickedChoice()
+                        } else {
+                            getModifier.onTertiaryColor()
+                        },
                         shape = RoundedCornerShape(8.dp)
                     )
                     .fillMaxWidth()
@@ -186,53 +202,63 @@ fun ChoiceFrontCard(multiChoiceCard: MultiChoiceCard,
                     }
                     .background(
                         color = if (getModifier.clickedChoice.value == 'b') {
-                        getModifier.pickedChoice()
-                        } else{ getModifier.onTertiaryColor()},
+                            getModifier.pickedChoice()
+                        } else {
+                            getModifier.onTertiaryColor()
+                        },
                         shape = RoundedCornerShape(8.dp)
                     )
                     .fillMaxWidth()
 
             )
-            Text(
-                text = multiChoiceCard.choiceC,
-                fontSize = 28.sp,
-                color = getModifier.titleColor(),
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(vertical = 4.dp)
-                    .clickable {
-                        getModifier.clickedChoice.value = 'c'
-                    }
-                    .background(
-                        color = if (getModifier.clickedChoice.value == 'c') {
-                        getModifier.pickedChoice()
-                        } else{ getModifier.onTertiaryColor()},
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .fillMaxWidth()
-            )
-            Text(
-                text = multiChoiceCard.choiceD,
-                fontSize = 28.sp,
-                color = getModifier.titleColor(),
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(vertical = 4.dp)
-                    .clickable {
-                        getModifier.clickedChoice.value = 'd'
-                    }
-                    .background(
-                        color = if (getModifier.clickedChoice.value == 'd') {
-                        getModifier.pickedChoice()
-                        } else{ getModifier.onTertiaryColor()},
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .fillMaxWidth()
-            )
+            if (multiChoiceCard.choiceC.isNotBlank()) {
+                Text(
+                    text = multiChoiceCard.choiceC,
+                    fontSize = 28.sp,
+                    color = getModifier.titleColor(),
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(vertical = 4.dp)
+                        .clickable {
+                            getModifier.clickedChoice.value = 'c'
+                        }
+                        .background(
+                            color = if (getModifier.clickedChoice.value == 'c') {
+                                getModifier.pickedChoice()
+                            } else {
+                                getModifier.onTertiaryColor()
+                            },
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .fillMaxWidth()
+                )
+            }
+            if (multiChoiceCard.choiceD.isNotBlank()) {
+                Text(
+                    text = multiChoiceCard.choiceD,
+                    fontSize = 28.sp,
+                    color = getModifier.titleColor(),
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(vertical = 4.dp)
+                        .clickable {
+                            getModifier.clickedChoice.value = 'd'
+                        }
+                        .background(
+                            color = if (getModifier.clickedChoice.value == 'd') {
+                                getModifier.pickedChoice()
+                            } else {
+                                getModifier.onTertiaryColor()
+                            },
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .fillMaxWidth()
+                )
+            }
         }
     }
 }
