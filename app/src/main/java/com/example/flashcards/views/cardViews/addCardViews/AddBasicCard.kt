@@ -36,8 +36,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AddBasicCard(
-    viewModel: BasicCardViewModel,deckId : Int,
-    fields : Fields, getModifier: GetModifier) {
+    viewModel: BasicCardViewModel, deckId: Int,
+    fields: Fields, getModifier: GetModifier
+) {
 
     val basicCardUiState by viewModel.basicCardUiState.collectAsState()
 
@@ -146,7 +147,9 @@ fun AddBasicCard(
                         viewModel.setErrorMessage(fillOutFields)
                         successMessage = ""
                     } else {
-                        viewModel.addBasicCard(deckId, fields.answer.value, fields.question.value)
+                        viewModel.addBasicCard(
+                            deckId, fields.question.value, fields.answer.value
+                        )
                         fields.answer.value = ""
                         fields.question.value = ""
                         successMessage = cardAdded

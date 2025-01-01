@@ -22,7 +22,7 @@ import kotlinx.coroutines.withTimeout
 
 class CardViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
     private val uiState = MutableStateFlow(CardUiState())
-    var cardUiState : StateFlow<CardUiState> = uiState.asStateFlow()
+    var cardUiState: StateFlow<CardUiState> = uiState.asStateFlow()
 
     private val errorMessage = MutableStateFlow<String?>(null)
 
@@ -46,34 +46,36 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
         private const val TIMEOUT_MILLIS = 4_000L
     }
 
-    suspend fun updateCard(card: Card) : Boolean{
+    suspend fun updateCard(card: Card): Boolean {
         return withContext(Dispatchers.IO) {
             flashCardRepository.updateCard(card)
             true
         }
     }
 
-    suspend fun getDueCards(deckId : Int, cardTypeViewModel: CardTypeViewModel) : Boolean{
+    suspend fun getDueCards(deckId: Int, cardTypeViewModel: CardTypeViewModel): Boolean {
         return withContext(Dispatchers.IO) {
-            try{
+            try {
                 cardTypeViewModel.getDueTypesForDeck(deckId)
                 //getCards(deckId)
                 transitionTo(CardState.Finished)
                 clearErrorMessage()
                 false
-            }
-            catch (e : Exception){
-                errorMessage.value = "Something went wrong: $e"
-                setErrorMessage(errorMessage.value?: "$e")
-                true
-            }
-            catch (e: SQLiteConstraintException){
-                errorMessage.value = "SQLite Exception $e"
-                setErrorMessage(errorMessage.value?: "$e")
-                true
+            } catch (e: Exception) {
+                handleError(e, "Something went wrong")
+            } catch (e: SQLiteConstraintException) {
+                handleError(e, "SQLite Exception")
             }
         }
     }
+
+    private fun handleError(e: Exception, prefix: String): Boolean {
+        val message = "$prefix: $e"
+        errorMessage.value = message
+        setErrorMessage(message)
+        return true
+    }
+
     /* IN CASE WE NEED IT AGAIN
     fun getCards(deckId: Int){
         try {
@@ -95,7 +97,8 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
     fun getDeckWithCards(
         deckId: Int,
         cardTypeViewModel: CardTypeViewModel,
-        cardTypes: AllViewModels) {
+        cardTypes: AllViewModels
+    ) {
         viewModelScope.launch {
             cardTypes.basicCardViewModel.getAllBasicsForDeck(deckId)
             cardTypes.hintCardViewModel.getAllHintsForDeck(deckId)
@@ -106,6 +109,7 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
         getAllCards(deckId)
 
     }
+
     fun getAllCards(deckId: Int) {
         try {
             viewModelScope.launch {
@@ -117,18 +121,20 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
                     }
                 }
             }
-        } catch(e : TimeoutCancellationException) {
+        } catch (e: TimeoutCancellationException) {
             errorMessage.value = "Request timed out. Please try again."
             println(e)
         }
     }
 
-    fun updateCardType(cardId: Int, type:String, question:String,
-                       answer: String,
-                       basicCardViewModel: BasicCardViewModel) {
+    fun updateCardType(
+        cardId: Int, type: String, question: String,
+        answer: String,
+        basicCardViewModel: BasicCardViewModel
+    ) {
         viewModelScope.launch {
             flashCardRepository.updateCardType(cardId, type)
         }
-        basicCardViewModel.updateBasicCard(cardId,question,answer)
+        basicCardViewModel.updateBasicCard(cardId, question, answer)
     }
 }

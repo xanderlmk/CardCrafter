@@ -22,7 +22,7 @@ import kotlinx.coroutines.withContext
  */
 class DeckViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
 
-    private val _errorMessage = MutableStateFlow<String?>(null)
+    private val _errorMessage = MutableStateFlow<String>("")
     private val uiState: StateFlow<DeckUiState> =
         flashCardRepository.getAllDecksStream().map { DeckUiState(it) }
             .stateIn(
@@ -43,8 +43,7 @@ class DeckViewModel(private val flashCardRepository: FlashCardRepository) : View
             try {
                 flashCardRepository.checkIfDeckExists(name)
             } catch (e: SQLiteConstraintException) {
-                _errorMessage.value = "Error checking deck existence: ${e.message}"
-                0
+                handleError("Error checking deck existence: ${e.message}")
             }
         }
     }
@@ -55,10 +54,9 @@ class DeckViewModel(private val flashCardRepository: FlashCardRepository) : View
                 try {
                     flashCardRepository.insertDeck(Deck(name = name))
                 } catch (e: SQLiteConstraintException) {
-                    _errorMessage.value = "A deck with this name already exists"
-                    println(e)
-                } catch (e: Exception){
-                    _errorMessage.value = "error adding deck: ${e.message}"
+                    handleError("A deck with this name already exists: ${e.message}")
+                } catch (e: Exception) {
+                    handleError("error adding deck: ${e.message}")
                 }
             }
         }
@@ -66,7 +64,7 @@ class DeckViewModel(private val flashCardRepository: FlashCardRepository) : View
 
     // Deleting a deck via the repository
     fun deleteDeck(deck: Deck) {
-        viewModelScope.launch{
+        viewModelScope.launch {
             flashCardRepository.deleteAllCards(deck.id)
             flashCardRepository.deleteDeck(deck)
         }
@@ -77,65 +75,66 @@ class DeckViewModel(private val flashCardRepository: FlashCardRepository) : View
             try {
                 val rowsUpdated = flashCardRepository.updateDeckName(newName, deckId)
                 if (rowsUpdated == 0) {
-                    _errorMessage.value = "Failed to update deck name - name may already exist"
+                    handleError("Failed to update deck name - name already exists")
                 }
                 rowsUpdated
             } catch (e: SQLiteConstraintException) {
-                _errorMessage.value = "A deck with this name already exists"
-                println(e)
-                0
+                handleError("A deck with this name already exists: ${e.message}")
+
             } catch (e: Exception) {
-                _errorMessage.value = "Error updating deck name: ${e.message}"
-                0
+                handleError("Error updating deck name: ${e.message}")
             }
         }
     }
-    suspend fun updateDeckGoodMultiplier(newMultiplier: Double, deckId: Int) : Int{
-        if (newMultiplier > 1.0){
-            return withContext(Dispatchers.IO) {
-                    try {
-                        val row =
-                            flashCardRepository.updateDeckGoodMultiplier(newMultiplier, deckId)
-                        if (row == 0) {
-                            _errorMessage.value = "Failed to update multiplier"
-                        }
-                        row
-                    } catch (e: SQLiteConstraintException) {
-                        _errorMessage.value = e.message
-                        println(e)
-                        0
-                    } catch (e: Exception) {
-                        _errorMessage.value = "Error updating deck multiplier: ${e.message}"
-                        0
-                    }
-                }
-        }
-        return 0
-    }
-    suspend fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int) : Int{
-        if (newMultiplier < 1.0 && newMultiplier > 0.0){
+
+    suspend fun updateDeckGoodMultiplier(newMultiplier: Double, deckId: Int): Int {
+        if (newMultiplier > 1.0) {
             return withContext(Dispatchers.IO) {
                 try {
                     val row =
-                        flashCardRepository.updateDeckBadMultiplier(newMultiplier, deckId)
+                        flashCardRepository.updateDeckGoodMultiplier(newMultiplier, deckId)
                     if (row == 0) {
-                        _errorMessage.value = "Failed to update multiplier"
+                        handleError("Failed to update multiplier")
                     }
                     row
                 } catch (e: SQLiteConstraintException) {
-                    _errorMessage.value = e.message
-                    println(e)
-                    0
+                    handleError(e.message.toString())
                 } catch (e: Exception) {
-                    _errorMessage.value = "Error updating deck multiplier: ${e.message}"
-                    0
+                    handleError("Error updating deck multiplier: ${e.message}")
                 }
             }
         }
         return 0
     }
 
-    fun getDeckById(deckId : Int, cardTypes: AllViewModels) : Flow<Deck?> {
+    suspend fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int): Int {
+        if (newMultiplier < 1.0 && newMultiplier > 0.0) {
+            return withContext(Dispatchers.IO) {
+                try {
+                    val row =
+                        flashCardRepository.updateDeckBadMultiplier(newMultiplier, deckId)
+                    if (row == 0) {
+                        handleError("Failed to update multiplier")
+                    }
+                    row
+                } catch (e: SQLiteConstraintException) {
+                    handleError(e.message.toString())
+                } catch (e: Exception) {
+                    handleError("Error updating deck multiplier: ${e.message}")
+                }
+            }
+        }
+        return 0
+    }
+
+    private fun handleError(prefix: String): Int {
+        val message = prefix
+        println(message)
+        _errorMessage.value = message
+        return 0
+    }
+
+    fun getDeckById(deckId: Int, cardTypes: AllViewModels): Flow<Deck?> {
         viewModelScope.launch {
             cardTypes.basicCardViewModel.getAllBasicsForDeck(deckId)
             cardTypes.hintCardViewModel.getAllHintsForDeck(deckId)

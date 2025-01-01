@@ -178,54 +178,70 @@ fun ChoiceBackCard(multiChoiceCard: MultiChoiceCard,
                 .fillMaxWidth()
 
         )
-        Text(
-            text = multiChoiceCard.choiceC,
-            fontSize = 28.sp,
-            color = getModifier.titleColor(),
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(vertical = 4.dp)
-                .background(color =
-                if (getModifier.clickedChoice.value == 'c' &&
-                    multiChoiceCard.correct != getModifier.clickedChoice.value) {
-                    getModifier.pickedChoice()
-                } else if (getModifier.clickedChoice.value == 'c' &&
-                    multiChoiceCard.correct == getModifier.clickedChoice.value){
-                    getModifier.correctChoice()
-                } else if (multiChoiceCard.correct == 'c' &&
-                    multiChoiceCard.correct != getModifier.clickedChoice.value){
-                    getModifier.correctChoice()
-                } else{ getModifier.onTertiaryColor()},
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .fillMaxWidth()
-        )
-        Text(
-            text = multiChoiceCard.choiceD,
-            fontSize = 28.sp,
-            color = getModifier.titleColor(),
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(vertical = 4.dp)
-                .background(color =
-                if (getModifier.clickedChoice.value == 'd' &&
-                    multiChoiceCard.correct != getModifier.clickedChoice.value) {
-                    getModifier.pickedChoice()
-                } else if (getModifier.clickedChoice.value == 'd' &&
-                    multiChoiceCard.correct == getModifier.clickedChoice.value){
-                    getModifier.correctChoice()
-                } else if (multiChoiceCard.correct == 'd' &&
-                    multiChoiceCard.correct != getModifier.clickedChoice.value){
-                    getModifier.correctChoice()
-                } else { getModifier.onTertiaryColor()},
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .fillMaxWidth()
-        )
+        if (multiChoiceCard.choiceC.isNotBlank()) {
+            Text(
+                text = multiChoiceCard.choiceC,
+                fontSize = 28.sp,
+                color = getModifier.titleColor(),
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = 4.dp)
+                    .background(
+                        color =
+                        if (getModifier.clickedChoice.value == 'c' &&
+                            multiChoiceCard.correct != getModifier.clickedChoice.value
+                        ) {
+                            getModifier.pickedChoice()
+                        } else if (getModifier.clickedChoice.value == 'c' &&
+                            multiChoiceCard.correct == getModifier.clickedChoice.value
+                        ) {
+                            getModifier.correctChoice()
+                        } else if (multiChoiceCard.correct == 'c' &&
+                            multiChoiceCard.correct != getModifier.clickedChoice.value
+                        ) {
+                            getModifier.correctChoice()
+                        } else {
+                            getModifier.onTertiaryColor()
+                        },
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .fillMaxWidth()
+            )
+        }
+        if (multiChoiceCard.choiceD.isNotBlank()) {
+            Text(
+                text = multiChoiceCard.choiceD,
+                fontSize = 28.sp,
+                color = getModifier.titleColor(),
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = 4.dp)
+                    .background(
+                        color =
+                        if (getModifier.clickedChoice.value == 'd' &&
+                            multiChoiceCard.correct != getModifier.clickedChoice.value
+                        ) {
+                            getModifier.pickedChoice()
+                        } else if (getModifier.clickedChoice.value == 'd' &&
+                            multiChoiceCard.correct == getModifier.clickedChoice.value
+                        ) {
+                            getModifier.correctChoice()
+                        } else if (multiChoiceCard.correct == 'd' &&
+                            multiChoiceCard.correct != getModifier.clickedChoice.value
+                        ) {
+                            getModifier.correctChoice()
+                        } else {
+                            getModifier.onTertiaryColor()
+                        },
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .fillMaxWidth()
+            )
+        }
     }
 }
 
