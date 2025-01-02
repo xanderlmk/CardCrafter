@@ -115,7 +115,8 @@ fun AppNavHost(
         )
     }
     val editingCardView = EditingCardView(
-        cardTypes, cardTypeViewModel, allTypesUiStates, getModifier
+        cardViewModel,cardTypes, cardTypeViewModel,
+        allTypesUiStates, getModifier
     )
     val mainView = MainView(getModifier, fields)
     val addDeckView = AddDeckView(deckViewModel, getModifier)
@@ -244,20 +245,20 @@ fun AppNavHost(
                         deck = deck,
                         view = view,
                         goToAddCard = {
-                            fields.inDeckClicked.value = false
                             fields.mainClicked.value = false
                             navController.navigate(AddCardDestination.createRoute(deck.id))
                             view.onView.value = true
                         },
                         goToViewCard = {
+                            coroutineScope.launch{
+                                cardViewModel.getDueCards(deck.id,cardTypeViewModel)
+                            }
                             fields.mainClicked.value = false
-                            fields.inDeckClicked.value = false
                             navController.navigate(ViewCardDestination.createRoute(deck.id))
                             view.onView.value = true
                         },
                         goToEditDeck = { id, name ->
                             fields.mainClicked.value = false
-                            fields.inDeckClicked.value = false
                             navController.navigate(
                                 EditDeckDestination.createRoute(
                                     deck.id,
@@ -267,7 +268,6 @@ fun AppNavHost(
                             view.onView.value = true
                         },
                         goToViewCards = {
-                            fields.inDeckClicked.value = false
                             fields.mainClicked.value = false
                             navController.navigate(ViewAllCardsDestination.createRoute(deck.id))
                             view.onView.value = true
@@ -328,6 +328,7 @@ fun AppNavHost(
                         onNavigate = {
                             view.whichView.intValue = 0
                             view.onView.value = false
+                            fields.inDeckClicked.value = false
                             navController.navigate(DeckViewDestination.createRoute(deckId ?: 0))
                         }
                     )

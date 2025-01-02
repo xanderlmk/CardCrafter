@@ -33,12 +33,13 @@ import com.example.flashcards.R
 @Composable
 fun FrontCard(
     card: Pair<Card, AllCardTypes>,
-    getModifier: GetModifier
+    getModifier: GetModifier,
+    modifier: Modifier
 ) {
-    Box(
-        modifier = Modifier
+    Column(
+        modifier = modifier
             .fillMaxSize() // Fill the entire available space
-            .padding(16.dp)
+            .padding(10.dp)
     ) {
         when (card.first.type) {
             "basic" -> {
@@ -73,7 +74,8 @@ fun BasicFrontCard(
     Box {
         Text(
             text = basicCard.question,
-            fontSize = 30.sp,
+            fontSize = 20.sp,
+            lineHeight = 22.sp,
             color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -93,7 +95,8 @@ fun ThreeFrontCard(
     Box {
         Text(
             text = threeCard.question,
-            fontSize = 30.sp,
+            fontSize = 20.sp,
+            lineHeight = 22.sp,
             color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -115,7 +118,8 @@ fun HintFrontCard(
         Column {
             Text(
                 text = hintCard.question,
-                fontSize = 30.sp,
+                fontSize = 20.sp,
+                lineHeight = 22.sp,
                 color = getModifier.titleColor(),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
@@ -128,7 +132,8 @@ fun HintFrontCard(
                 text =
                 if(isHintRevealed){hintCard.hint}
                 else{stringResource(R.string.hint_field)},
-                fontSize = 30.sp,
+                fontSize = 20.sp,
+                lineHeight = 22.sp,
                 color = getModifier.titleColor(),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
@@ -157,7 +162,8 @@ fun ChoiceFrontCard(
         Column {
             Text(
                 text = multiChoiceCard.question,
-                fontSize = 30.sp,
+                fontSize = 20.sp,
+                lineHeight = 22.sp,
                 color = getModifier.titleColor(),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
@@ -168,7 +174,8 @@ fun ChoiceFrontCard(
             )
             Text(
                 text = multiChoiceCard.choiceA,
-                fontSize = 28.sp,
+                fontSize = 20.sp,
+                lineHeight = 22.sp,
                 color = getModifier.titleColor(),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
@@ -190,7 +197,8 @@ fun ChoiceFrontCard(
             )
             Text(
                 text = multiChoiceCard.choiceB,
-                fontSize = 28.sp,
+                fontSize = 20.sp,
+                lineHeight = 22.sp,
                 color = getModifier.titleColor(),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
@@ -214,7 +222,8 @@ fun ChoiceFrontCard(
             if (multiChoiceCard.choiceC.isNotBlank()) {
                 Text(
                     text = multiChoiceCard.choiceC,
-                    fontSize = 28.sp,
+                    fontSize = 20.sp,
+                    lineHeight = 22.sp,
                     color = getModifier.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
@@ -238,7 +247,8 @@ fun ChoiceFrontCard(
             if (multiChoiceCard.choiceD.isNotBlank()) {
                 Text(
                     text = multiChoiceCard.choiceD,
-                    fontSize = 28.sp,
+                    fontSize = 20.sp,
+                    lineHeight = 22.sp,
                     color = getModifier.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,

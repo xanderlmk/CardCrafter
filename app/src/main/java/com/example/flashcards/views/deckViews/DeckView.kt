@@ -55,6 +55,7 @@ class DeckView(
                         view.onView.value = false
                     }
                     else -> {
+                        fields.inDeckClicked.value = true
                         onNavigateToWhichView()
                     }
                 }
@@ -82,7 +83,8 @@ class DeckView(
                                         } ,
                 modifier = getModifier.settingsButtonModifier()
                     .align(Alignment.TopEnd),
-                getModifier = getModifier
+                getModifier = getModifier,
+                fields = fields
             )
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,

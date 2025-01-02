@@ -103,6 +103,7 @@ class GetModifier(
             .fillMaxWidth()
             .padding(start = 10.dp, end = 10.dp)
             .wrapContentHeight(Alignment.CenterVertically)
+            .wrapContentWidth(Alignment.CenterHorizontally)
     }
 
     fun buttonColor(): Color {

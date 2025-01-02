@@ -15,9 +15,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import com.example.flashcards.R
 import com.example.flashcards.controller.navigation.AllTypesUiStates
 import com.example.flashcards.controller.navigation.AllViewModels
+import com.example.flashcards.controller.viewModels.CardViewModel
 import com.example.flashcards.controller.viewModels.DeckViewModel
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.uiModels.Fields
@@ -28,32 +30,34 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 fun updateMultipliers(
-    viewModel: DeckViewModel, newGoodMultiplier : Double,
-    newBadMultiplier : Double, errorMessage :  MutableState<String>,
-    isSubmitting: MutableState <Boolean>, deck: Deck,
+    viewModel: DeckViewModel, newGoodMultiplier: Double,
+    newBadMultiplier: Double, errorMessage: MutableState<String>,
+    isSubmitting: MutableState<Boolean>, deck: Deck,
     expandedEditMultiplier: MutableState<Boolean>,
     successful: MutableState<String>,
-    coroutineScope: CoroutineScope) {
+    coroutineScope: CoroutineScope
+) {
 
     coroutineScope.launch {
         if (newGoodMultiplier <= 1.0) {
             errorMessage.value = "Good Multiplier must be greater than 1.0"
             return@launch
         }
-        if (newBadMultiplier >= 1.0 || newBadMultiplier < 0.0){
+        if (newBadMultiplier >= 1.0 || newBadMultiplier < 0.0) {
             errorMessage.value = "Bad Multiplier must be less than 1.0 " +
                     "and greater than 0.0"
             return@launch
         }
         if (newGoodMultiplier == deck.goodMultiplier &&
-            newBadMultiplier == deck.badMultiplier) {
+            newBadMultiplier == deck.badMultiplier
+        ) {
             expandedEditMultiplier.value = false
             return@launch
         }
         isSubmitting.value = true
         try {
             val result1 =
-                viewModel.updateDeckGoodMultiplier(newGoodMultiplier,deck.id)
+                viewModel.updateDeckGoodMultiplier(newGoodMultiplier, deck.id)
             val result2 =
                 viewModel.updateDeckBadMultiplier(newBadMultiplier, deck.id)
             if (result1 > 0 && result2 > 0) {
@@ -73,14 +77,14 @@ fun updateMultipliers(
 }
 
 fun updateDeckName(
-    viewModel: DeckViewModel, newDeckName : String,
-    errorMessage :  MutableState<String>,
-    emptyDeckName : String, currentName : String,
-    deckNameExists : String, deckNameFailed : String,
-    isSubmitting: MutableState <Boolean>, deck: Deck,
+    viewModel: DeckViewModel, newDeckName: String,
+    errorMessage: MutableState<String>,
+    emptyDeckName: String, currentName: String,
+    deckNameExists: String, deckNameFailed: String,
+    isSubmitting: MutableState<Boolean>, deck: Deck,
     onNavigate: () -> Unit,
     coroutineScope: CoroutineScope
-){
+) {
     coroutineScope.launch {
         if (newDeckName.isBlank()) {
             errorMessage.value = emptyDeckName
@@ -97,7 +101,7 @@ fun updateDeckName(
             // First check if the deck name exists
             val exists = viewModel.checkIfDeckExists(newDeckName)
             if (exists > 0) {
-                errorMessage.value   =
+                errorMessage.value =
                     deckNameExists
                 return@launch
             }
@@ -123,13 +127,13 @@ fun updateDeckName(
 fun DeleteDeck(
     viewModel: DeckViewModel,
     deck: Deck,
-    getModifier : GetModifier,
+    getModifier: GetModifier,
     coroutineScope: CoroutineScope,
     fields: Fields,
     onDelete: () -> Unit
 ) {
     var showConfirmationDialog by remember { mutableStateOf(false) }
-    Box(modifier = Modifier.fillMaxWidth()){
+    Box(modifier = Modifier.fillMaxWidth()) {
         Button(
             onClick = {
                 showConfirmationDialog = true // Show confirmation dialog
@@ -142,13 +146,21 @@ fun DeleteDeck(
                 contentColor = deleteTextColor
             )
         ) {
-            Text(stringResource(R.string.delete_deck))
+            Text(
+                text = stringResource(R.string.delete_deck),
+                textAlign = TextAlign.Center
+            )
         }
 
         if (showConfirmationDialog) {
             AlertDialog(
                 onDismissRequest = { showConfirmationDialog = false },
-                title = { Text(stringResource(R.string.delete_deck)) },
+                title = {
+                    Text(
+                        stringResource(R.string.delete_deck),
+                        color = getModifier.titleColor()
+                    )
+                },
                 text = { Text(text = "Are you sure you want to delete this deck?") },
                 confirmButton = {
                     Button(
@@ -237,6 +249,7 @@ fun saveCard(
             }
 
         }
+
         "hint" -> {
             if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()
                 && fields.middleField.value.isNotBlank()
@@ -260,6 +273,7 @@ fun saveCard(
                 return false
             }
         }
+
         "multi" -> {
             if (
                 fields.question.value.isNotBlank() &&
@@ -272,11 +286,11 @@ fun saveCard(
                         (fields.choices[3].value.isBlank() &&
                                 fields.correct.value == 'd')
                         )
-            )
-            {
+            ) {
                 val choiceCard =
                     typesUiStates.multiChoiceUiCardState.multiChoiceCard.find {
-                        it.card.id == cardId }?.multiChoiceCard
+                        it.card.id == cardId
+                    }?.multiChoiceCard
                 choiceCard.let { card ->
                     card?.cardId?.let { cardId ->
                         cardTypes.multiChoiceCardViewModel.updateMultiChoiceCard(
@@ -297,4 +311,57 @@ fun saveCard(
         }
     }
     return false
+}
+
+@Composable
+fun DeleteCard(
+    cardViewModel: CardViewModel,
+    coroutineScope: CoroutineScope,
+    card: Card,
+    fields: Fields,
+    pressed: MutableState<Boolean>,
+    onDelete: () -> Unit,
+    getModifier: GetModifier
+) {
+    if (pressed.value) {
+        AlertDialog(
+            onDismissRequest = { pressed.value = false },
+            title = { Text("Delete Card") },
+            text = {
+                Text(
+                    text = "Are you sure you want to delete this card?",
+                    color = getModifier.titleColor()
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        pressed.value = false
+                        fields.mainClicked.value = false
+                        coroutineScope.launch {
+                            cardViewModel.deleteCard(card)
+                            onDelete()
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = getModifier.secondaryButtonColor(),
+                        contentColor = deleteTextColor
+                    )
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { pressed.value = false },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = getModifier.secondaryButtonColor(),
+                        contentColor = getModifier.buttonTextColor()
+                    )
+                ) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 }

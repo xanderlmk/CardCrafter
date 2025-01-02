@@ -31,7 +31,7 @@ class BasicCardTypeHandler : CardTypeHandler {
             it.card.id == cardId
         }?.basicCard
         basicCard?.let {
-            EditBasicCard(basicCard, fields, getModifier)
+            EditBasicCard(basicCard, fields)
         }
     }
 }
@@ -49,7 +49,7 @@ class ThreeCardTypeHandler : CardTypeHandler {
                 it.card.id == cardId
             }?.threeFieldCard
         threeCard?.let {
-            EditThreeCard(threeCard, fields, getModifier)
+            EditThreeCard(threeCard, fields)
         }
     }
 }
@@ -68,7 +68,7 @@ class HintCardTypeHandler : CardTypeHandler {
             }?.hintCard
 
         hintCard?.let {
-            EditHintCard(hintCard, fields, getModifier)
+            EditHintCard(hintCard, fields)
         }
     }
 }
