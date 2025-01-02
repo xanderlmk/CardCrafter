@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -33,13 +34,16 @@ import com.example.flashcards.controller.navigation.AllTypesUiStates
 import com.example.flashcards.controller.navigation.AllViewModels
 import com.example.flashcards.controller.saveCard
 import com.example.flashcards.controller.viewModels.CardTypeViewModel
+import com.example.flashcards.controller.viewModels.CardViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.views.miscFunctions.DeleteCardButton
 import com.example.flashcards.views.miscFunctions.delayNavigate
 import kotlinx.coroutines.launch
 
 class EditingCardView(
+    private var cardViewModel: CardViewModel,
     private var cardTypes: AllViewModels,
     private var cardTypeViewModel: CardTypeViewModel,
     private var allTypesUiStates: AllTypesUiStates,
@@ -66,6 +70,22 @@ class EditingCardView(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                Box(
+                    contentAlignment = Alignment.TopCenter,
+                    modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        text = stringResource(R.string.edit_flashcard),
+                        fontSize = 35.sp,
+                        lineHeight = 40.sp,
+                        textAlign = TextAlign.Center,
+                        color = getModifier.titleColor(),
+                        modifier = getModifier.editCardModifier()
+                    )
+                    DeleteCardButton(
+                        cardViewModel, getModifier, card, fields, onNavigateBack,
+                        Modifier.align(Alignment.TopEnd)
+                    )
+                }
                 if (selectedCard.value != null) {
                     val cardTypeHandler = when (selectedCard.value?.type) {
                         "basic" -> {
@@ -79,9 +99,11 @@ class EditingCardView(
                         "hint" -> {
                             HintCardTypeHandler()
                         }
+
                         "multi" -> {
                             ChoiceCardTypeHandler()
                         }
+
                         else -> {
                             null
                         }
@@ -128,7 +150,8 @@ class EditingCardView(
                                 coroutineScope.launch {
                                     val success = saveCard(
                                         selectedCard, fields, cardTypes,
-                                        allTypesUiStates)
+                                        allTypesUiStates
+                                    )
                                     if (success) {
                                         onNavigateBack()
                                     } else {

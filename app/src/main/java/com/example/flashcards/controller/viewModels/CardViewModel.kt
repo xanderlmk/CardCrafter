@@ -10,6 +10,7 @@ import com.example.flashcards.model.uiModels.CardState
 import com.example.flashcards.model.uiModels.CardUiState
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.repositories.FlashCardRepository
+import com.example.flashcards.model.tablesAndApplication.Deck
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,25 +47,40 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
         private const val TIMEOUT_MILLIS = 4_000L
     }
 
-    suspend fun updateCard(card: Card): Boolean {
+    suspend fun updateCards(
+        deck: Deck, cardList: List<Card>,
+        cardTypeViewModel: CardTypeViewModel
+    ): Boolean {
         return withContext(Dispatchers.IO) {
-            flashCardRepository.updateCard(card)
-            true
+            try {
+                val jobs = cardList.map { card ->
+                    viewModelScope.launch {
+                        flashCardRepository.updateCard(card)
+                    }
+                }.also {
+                    getDueCards(deck.id, cardTypeViewModel)
+                }
+                jobs.forEach { it.join() }
+                true
+            } catch (e: Exception) {
+                handleError(e, "Something went wrong")
+                false
+            }
         }
     }
 
-    suspend fun getDueCards(deckId: Int, cardTypeViewModel: CardTypeViewModel): Boolean {
+    suspend fun getDueCards(deckId: Int, cardTypeViewModel: CardTypeViewModel) {
         return withContext(Dispatchers.IO) {
             try {
                 cardTypeViewModel.getDueTypesForDeck(deckId)
                 //getCards(deckId)
-                transitionTo(CardState.Finished)
                 clearErrorMessage()
-                false
             } catch (e: Exception) {
                 handleError(e, "Something went wrong")
             } catch (e: SQLiteConstraintException) {
                 handleError(e, "SQLite Exception")
+            } finally {
+                transitionTo(CardState.Finished)
             }
         }
     }
@@ -107,7 +123,6 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
         }
         cardTypeViewModel.getAllTypesForDeck(deckId)
         getAllCards(deckId)
-
     }
 
     fun getAllCards(deckId: Int) {
@@ -136,5 +151,11 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
             flashCardRepository.updateCardType(cardId, type)
         }
         basicCardViewModel.updateBasicCard(cardId, question, answer)
+    }
+
+    fun deleteCard(card: Card) {
+        viewModelScope.launch {
+            flashCardRepository.deleteCard(card)
+        }
     }
 }

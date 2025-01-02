@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.uiModels.CardListUiState
 import com.example.flashcards.model.uiModels.CardUiState
@@ -151,22 +152,38 @@ fun NoDueCards(getModifier: GetModifier) {
 
 @Composable
 fun BasicCardQuestion(basicCard: BasicCard) {
-    Text(text = stringResource(R.string.question) + ": ${basicCard.question}")
+    Text(
+        text = stringResource(R.string.question) + ": ${basicCard.question}",
+        maxLines = 3,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable
 fun ThreeCardQuestion(threeFieldCard: ThreeFieldCard) {
-    Text(text = stringResource(R.string.question) + ": ${threeFieldCard.question}")
+    Text(
+        text = stringResource(R.string.question) + ": ${threeFieldCard.question}",
+        maxLines = 3,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable
 fun HintCardQuestion(hintCard: HintCard) {
-    Text(text = stringResource(R.string.question) + ": ${hintCard.question}")
+    Text(
+        text = stringResource(R.string.question) + ": ${hintCard.question}",
+        maxLines = 3,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable
 fun ChoiceCardQuestion(multiChoiceCard: MultiChoiceCard) {
-    Text(text = stringResource(R.string.question) + ": ${multiChoiceCard.question}")
+    Text(
+        text = stringResource(R.string.question) + ": ${multiChoiceCard.question}",
+        maxLines = 3,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable
@@ -232,7 +249,6 @@ fun CardSelector(
             }
         }
     }
-
 }
 
 @Composable

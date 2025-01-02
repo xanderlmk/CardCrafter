@@ -2,14 +2,11 @@ package com.example.flashcards.views.cardViews.editCardViews
 
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.uiModels.Fields
@@ -30,14 +27,7 @@ fun EditChoiceCard(
     fields.choices[3] = remember { mutableStateOf(multiChoiceCard.choiceD) }
     fields.correct = remember { mutableStateOf(multiChoiceCard.correct) }
 
-    Text(
-        text = stringResource(R.string.edit_flashcard),
-        fontSize = 35.sp,
-        lineHeight = 40.sp,
-        textAlign = TextAlign.Center,
-        color = getModifier.titleColor(),
-        modifier = getModifier.editCardModifier()
-    )
+
     EditTextField(
         value = fields.question.value,
         onValueChanged = { fields.question.value = it },

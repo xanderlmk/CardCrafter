@@ -1,6 +1,7 @@
 package com.example.flashcards.views.miscFunctions
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Add
@@ -31,16 +33,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.flashcards.R
+import com.example.flashcards.controller.DeleteCard
+import com.example.flashcards.controller.viewModels.CardViewModel
+import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.ui.theme.GetModifier
 import kotlinx.coroutines.launch
 
 @Composable
 fun SmallAddButton(
-    onClick:() -> Unit,
+    onClick: () -> Unit,
     iconSize: Int = 45,
     getModifier: GetModifier
 ) {
@@ -63,11 +69,11 @@ fun SmallAddButton(
 }
 
 @Composable
-fun AddCardButton (
-    onClick:() -> Unit
-){
+fun AddCardButton(
+    onClick: () -> Unit
+) {
     ExtendedFloatingActionButton(
-        onClick = { onClick()},
+        onClick = { onClick() },
         modifier = Modifier
             .padding(16.dp)
     ) {
@@ -94,8 +100,9 @@ fun BackButton(
         },
         modifier = modifier
             .background(
-                color= getModifier.buttonColor(),
-                shape = RoundedCornerShape(16.dp))
+                color = getModifier.buttonColor(),
+                shape = RoundedCornerShape(16.dp)
+            )
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -112,18 +119,22 @@ fun SettingsButton(
     onNavigateToEditDeck: () -> Unit,
     onNavigateToEditCards: () -> Unit,
     modifier: Modifier = Modifier,
-    getModifier: GetModifier
+    getModifier: GetModifier,
+    fields: Fields
 ) {
     var expanded by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     IconButton(
         onClick = {
-            expanded = true
+            if(!fields.inDeckClicked.value) {
+                expanded = true
+            }
         },
         modifier = modifier
             .background(
-                color= getModifier.buttonColor(),
-                shape = RoundedCornerShape(16.dp))
+                color = getModifier.buttonColor(),
+                shape = RoundedCornerShape(16.dp)
+            )
     ) {
         Icon(
             imageVector = Icons.Filled.Edit,
@@ -136,18 +147,22 @@ fun SettingsButton(
             DropdownMenuItem(onClick = {
                 expanded = false
                 coroutineScope.launch {
-                        delayNavigate()
-                        onNavigateToEditDeck()
-                } },
-                text = {Text(stringResource(R.string.edit_deck))})
+                    fields.mainClicked.value = true
+                    delayNavigate()
+                    onNavigateToEditDeck()
+                }
+            },
+                text = { Text(stringResource(R.string.edit_deck)) })
             DropdownMenuItem(onClick = {
                 expanded = false
                 coroutineScope.launch {
-                        delayNavigate()
-                        onNavigateToEditCards()
+                    fields.mainClicked.value = true
+                    delayNavigate()
+                    onNavigateToEditCards()
 
-                } },
-                text = {Text(stringResource(R.string.edit_flashcards))})
+                }
+            },
+                text = { Text(stringResource(R.string.edit_flashcards)) })
         }
     }
 }
@@ -172,8 +187,9 @@ fun MainSettingsButton(
         },
         modifier = modifier
             .background(
-                color= getModifier.buttonColor(),
-                shape = RoundedCornerShape(16.dp))
+                color = getModifier.buttonColor(),
+                shape = RoundedCornerShape(16.dp)
+            )
     ) {
         Icon(
             imageVector = Icons.Filled.Settings,
@@ -187,24 +203,25 @@ fun MainSettingsButton(
 
 @Composable
 fun SystemThemeButton(
-    customScheme: () -> Unit ,
+    customScheme: () -> Unit,
     darkTheme: () -> Unit,
     customToggled: Painter,
-    darkToggled : Painter,
-    clicked : Boolean,
+    darkToggled: Painter,
+    clicked: Boolean,
     getModifier: GetModifier
-){
+) {
     var expanded by remember { mutableStateOf(false) }
-    if (clicked){
+    if (clicked) {
         expanded = false
     }
     Box(
         Modifier
             .fillMaxWidth()
-            .wrapContentSize(Alignment.TopEnd)) {
+            .wrapContentSize(Alignment.TopEnd)
+    ) {
         Button(
             onClick = {
-                if(!clicked) {
+                if (!clicked) {
                     expanded = true
                 }
             },
@@ -240,5 +257,44 @@ fun SystemThemeButton(
             }
         }
     }
+}
 
+@Composable
+fun DeleteCardButton(
+    cardViewModel: CardViewModel,
+    getModifier: GetModifier, card: Card,
+    fields: Fields,
+    onDelete: () -> Unit,
+    modifier: Modifier
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val showDialog = remember { mutableStateOf(false) }
+    Box(
+        modifier = modifier
+            .background(
+                color = getModifier.buttonColor(),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onLongPress = {
+                        showDialog.value = true
+                    }
+                )
+            }
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Delete,
+            modifier = Modifier
+                .size(28.dp)
+                .align(Alignment.Center),
+            contentDescription = "Delete Card",
+            tint = getModifier.iconColor()
+        )
+        DeleteCard(
+            cardViewModel, coroutineScope,
+            card, fields, showDialog,
+            onDelete, getModifier
+        )
+    }
 }

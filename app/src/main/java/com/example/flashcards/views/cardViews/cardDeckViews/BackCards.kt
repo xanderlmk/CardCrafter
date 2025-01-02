@@ -30,7 +30,8 @@ fun BasicBackCard(basicCard: BasicCard,
     Column {
         Text(
             text = basicCard.question,
-            fontSize = 30.sp,
+            fontSize = 20.sp,
+            lineHeight = 22.sp,
             color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -40,7 +41,8 @@ fun BasicBackCard(basicCard: BasicCard,
         )
         Text(
             text = basicCard.answer,
-            fontSize = 30.sp,
+            fontSize = 20.sp,
+            lineHeight = 22.sp,
             color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -57,7 +59,8 @@ fun ThreeBackCard(threeCard: ThreeFieldCard,
     Column {
         Text(
             text = threeCard.question,
-            fontSize = 30.sp,
+            fontSize = 20.sp,
+            lineHeight = 22.sp,
             color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -67,7 +70,8 @@ fun ThreeBackCard(threeCard: ThreeFieldCard,
         )
         Text(
             text = threeCard.middle,
-            fontSize = 30.sp,
+            fontSize = 20.sp,
+            lineHeight = 22.sp,
             color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -77,7 +81,8 @@ fun ThreeBackCard(threeCard: ThreeFieldCard,
         )
         Text(
             text = threeCard.answer,
-            fontSize = 30.sp,
+            fontSize = 20.sp,
+            lineHeight = 22.sp,
             color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -94,7 +99,8 @@ fun HintBackCard(hintCard: HintCard,
     Column {
         Text(
             text = hintCard.question,
-            fontSize = 30.sp,
+            fontSize = 20.sp,
+            lineHeight = 22.sp,
             color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -104,7 +110,8 @@ fun HintBackCard(hintCard: HintCard,
         )
         Text(
             text = hintCard.answer,
-            fontSize = 30.sp,
+            fontSize = 20.sp,
+            lineHeight = 22.sp,
             color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -121,7 +128,8 @@ fun ChoiceBackCard(multiChoiceCard: MultiChoiceCard,
     Column {
         Text(
             text = multiChoiceCard.question,
-            fontSize = 30.sp,
+            fontSize = 20.sp,
+            lineHeight = 22.sp,
             color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -131,7 +139,8 @@ fun ChoiceBackCard(multiChoiceCard: MultiChoiceCard,
         )
         Text(
             text = multiChoiceCard.choiceA,
-            fontSize = 28.sp,
+            fontSize = 20.sp,
+            lineHeight = 22.sp,
             color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -155,7 +164,8 @@ fun ChoiceBackCard(multiChoiceCard: MultiChoiceCard,
         )
         Text(
             text = multiChoiceCard.choiceB,
-            fontSize = 28.sp,
+            fontSize = 20.sp,
+            lineHeight = 22.sp,
             color = getModifier.titleColor(),
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
@@ -181,7 +191,8 @@ fun ChoiceBackCard(multiChoiceCard: MultiChoiceCard,
         if (multiChoiceCard.choiceC.isNotBlank()) {
             Text(
                 text = multiChoiceCard.choiceC,
-                fontSize = 28.sp,
+                fontSize = 20.sp,
+                lineHeight = 22.sp,
                 color = getModifier.titleColor(),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
@@ -213,7 +224,8 @@ fun ChoiceBackCard(multiChoiceCard: MultiChoiceCard,
         if (multiChoiceCard.choiceD.isNotBlank()) {
             Text(
                 text = multiChoiceCard.choiceD,
-                fontSize = 28.sp,
+                fontSize = 20.sp,
+                lineHeight = 22.sp,
                 color = getModifier.titleColor(),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
@@ -247,11 +259,12 @@ fun ChoiceBackCard(multiChoiceCard: MultiChoiceCard,
 
 @Composable
 fun BackCard(card : Pair<Card,AllCardTypes>,
-             getModifier: GetModifier) {
+             getModifier: GetModifier,
+             modifier: Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(10.dp),
         contentAlignment = Alignment.TopCenter
     ) {
         when (card.first.type) {

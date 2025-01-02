@@ -38,7 +38,7 @@ data class MultiChoiceCardType(
     val multiChoiceCard: MultiChoiceCard?
 )
 data class AllCardTypes(
-    @Embedded val card: Card,
+    @Embedded var card: Card,
     @Relation(
         parentColumn = "id",
         entityColumn = "cardId"

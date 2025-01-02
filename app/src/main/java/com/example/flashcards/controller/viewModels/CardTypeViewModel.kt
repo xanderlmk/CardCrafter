@@ -26,12 +26,13 @@ class CardTypeViewModel(private val cardTypeRepository: CardTypeRepository) : Vi
 
     private val errorMessage = MutableStateFlow<String?>(null)
 
-    suspend fun getDueTypesForDeck(deckId: Int): Boolean {
-
-        return withContext(Dispatchers.IO) {
+    suspend fun getDueTypesForDeck(deckId: Int){
+        return withContext(Dispatchers.IO)
+        {
             var complete = false
             try {
                 viewModelScope.launch {
+                //    viewModelScope.launch(Dispatchers.IO){
                     withTimeout(TIMEOUT_MILLIS) {
                         cardTypeRepository.getDueAllCardTypes(deckId).map { allCards ->
                             CardListUiState(allCards = allCards)
@@ -44,11 +45,11 @@ class CardTypeViewModel(private val cardTypeRepository: CardTypeRepository) : Vi
                 while (!complete) {
                     delay(20)
                 }
-                true
+                return@withContext
             } catch (e: TimeoutCancellationException) {
                 errorMessage.value = "Request timed out. Please try again."
                 println(e)
-                complete
+                return@withContext
             }
         }
     }

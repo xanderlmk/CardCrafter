@@ -1,36 +1,23 @@
 package com.example.flashcards.views.cardViews.editCardViews
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
-import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.EditTextField
 
 @Composable
 fun EditThreeCard(threeCard: ThreeFieldCard,
-                  fields: Fields,
-                  getModifiers: GetModifier) {
+                  fields: Fields) {
     fields.question = remember { mutableStateOf(threeCard.question) }
     fields.middleField = remember { mutableStateOf(threeCard.middle) }
     fields.answer = remember { mutableStateOf(threeCard.answer) }
 
-    Text(
-        text = stringResource(R.string.edit_flashcard),
-        fontSize = 35.sp,
-        lineHeight = 40.sp,
-        textAlign = TextAlign.Center,
-        color = getModifiers.titleColor(),
-        modifier = getModifiers.editCardModifier()
-    )
     EditTextField(
         value = fields.question.value,
         onValueChanged = { fields.question.value = it },
