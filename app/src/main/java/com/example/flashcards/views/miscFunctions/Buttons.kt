@@ -9,8 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
@@ -77,7 +76,7 @@ fun AddCardButton(
         modifier = Modifier
             .padding(16.dp)
     ) {
-        Icon(Icons.Filled.Add, "Add Card")
+        Icon(Icons.Outlined.Add, "Add Card")
         Text(text = stringResource(R.string.add_card))
     }
 
@@ -105,9 +104,9 @@ fun BackButton(
             )
     ) {
         Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
             modifier = Modifier
-                .size(36.dp),
+                .size(32.dp),
             contentDescription = "Back",
             tint = getModifier.iconColor()
         )
@@ -273,7 +272,7 @@ fun DeleteCardButton(
         modifier = modifier
             .background(
                 color = getModifier.buttonColor(),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(8.dp)
             )
             .pointerInput(Unit) {
                 detectTapGestures(
@@ -287,7 +286,8 @@ fun DeleteCardButton(
             imageVector = Icons.Filled.Delete,
             modifier = Modifier
                 .size(28.dp)
-                .align(Alignment.Center),
+                .align(Alignment.Center)
+                .padding(2.dp),
             contentDescription = "Delete Card",
             tint = getModifier.iconColor()
         )

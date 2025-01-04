@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -31,23 +32,27 @@ import com.example.flashcards.R
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.views.miscFunctions.EditIntField
 
 
-class AddDeckView(private var viewModel: DeckViewModel,
-    private var getModifier : GetModifier) {
+class AddDeckView(
+    private var viewModel: DeckViewModel,
+    private var getModifier: GetModifier
+) {
 
 
     @Composable
     fun AddDeck(onNavigate: () -> Unit) {
-        var errorMessage by remember { mutableStateOf("")}
-        var deckName by remember {mutableStateOf("")  }
-        val coroutineScope =  rememberCoroutineScope()
+        var errorMessage by remember { mutableStateOf("") }
+        var deckName by remember { mutableStateOf("") }
+        var deckReviewAmount by remember { mutableStateOf("1") }
+        val coroutineScope = rememberCoroutineScope()
         val fieldOutAllFields = stringResource(R.string.fill_out_all_fields).toString()
         val deckNameAlreadyExists = stringResource(R.string.deck_already_exists).toString()
+        val reviewAmount0 = stringResource(R.string.review_amount_0).toString()
+        val reviewAmount10 = stringResource(R.string.review_amount_10).toString()
         val error = stringResource(R.string.error).toString()
-        val presetModifier = Modifier
-            .padding(top = 16.dp,start = 16.dp, end = 16.dp)
-            .size(54.dp)
+
         Box(
             modifier = getModifier.boxViewsModifier()
         ) {
@@ -55,7 +60,7 @@ class AddDeckView(private var viewModel: DeckViewModel,
                 onBackClick = {
                     onNavigate()
                 },
-                modifier = presetModifier,
+                modifier = getModifier.backButtonModifier(),
                 getModifier = getModifier
             )
             Column(
@@ -67,9 +72,9 @@ class AddDeckView(private var viewModel: DeckViewModel,
             ) {
                 Text(
                     text = stringResource(R.string.add_deck),
-                    fontSize = 40.sp,
+                    fontSize = 35.sp,
                     textAlign = TextAlign.Center,
-                    lineHeight = 116.sp,
+                    lineHeight = 100.sp,
                     color = getModifier.titleColor(),
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -91,8 +96,45 @@ class AddDeckView(private var viewModel: DeckViewModel,
                             .weight(1f)
                     )
                 }
+                Text(
+                    text = stringResource(R.string.review_amount),
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 28.sp,
+                    color = getModifier.titleColor(),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .padding(top = 20.dp)
+                )
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, end = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    EditIntField(
+                        value = deckReviewAmount,
+                        onValueChanged = {
+                            deckReviewAmount = it
+                        },
+                        labelStr = stringResource(R.string.review_amount) +
+                                " (" + stringResource(R.string.default_value) + " 1)",
+                        modifier = Modifier
+                            .weight(1f)
+                    )
+                }
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = Color.Red,
+                        modifier = Modifier.padding(8.dp),
+                        fontSize = 15.sp
+                    )
+                }else {
+                    Spacer(Modifier.padding(20.dp))
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Button(
@@ -105,8 +147,15 @@ class AddDeckView(private var viewModel: DeckViewModel,
                                         val exists = viewModel.checkIfDeckExists(deckName)
                                         if (exists > 0) {
                                             errorMessage = deckNameAlreadyExists
+                                        } else if ((deckReviewAmount.toIntOrNull() ?: 0) <= 0) {
+                                            errorMessage = reviewAmount0
+                                        } else if ((deckReviewAmount.toIntOrNull() ?: 0) >= 10) {
+                                            errorMessage = reviewAmount10
                                         } else {
-                                            viewModel.addDeck(deckName)
+                                            viewModel.addDeck(
+                                                deckName,
+                                                deckReviewAmount.toIntOrNull() ?: 1
+                                            )
                                             deckName = ""
                                             onNavigate()
                                         }
@@ -119,19 +168,10 @@ class AddDeckView(private var viewModel: DeckViewModel,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = getModifier.secondaryButtonColor(),
                             contentColor = getModifier.buttonTextColor()
-                        ),
-                        modifier = Modifier.padding(top = 48.dp)
+                        )
                     ) {
                         Text(stringResource(R.string.submit))
                     }
-                }
-                if (errorMessage.isNotEmpty()) {
-                    Text(
-                        text = errorMessage,
-                        color = Color.Red,
-                        modifier = Modifier.padding(8.dp),
-                        fontSize = 16.sp
-                    )
                 }
             }
         }

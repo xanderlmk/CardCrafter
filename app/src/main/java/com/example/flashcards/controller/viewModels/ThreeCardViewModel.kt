@@ -6,6 +6,7 @@ import com.example.flashcards.model.uiModels.ThreeCardUiState
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
+import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +23,7 @@ class ThreeCardViewModel(
     val threeCardUiState: StateFlow<ThreeCardUiState> = uiState.asStateFlow()
 
     fun addThreeCard(
-        deckId: Int, question: String,
+        deck: Deck, question: String,
         middle: String, answer: String
     ) {
         if (question.isNotEmpty() && answer.isNotEmpty()
@@ -31,15 +32,16 @@ class ThreeCardViewModel(
             viewModelScope.launch {
                 val cardId = flashCardRepository.insertCard(
                     Card(
-                        deckId = deckId,
+                        deckId = deck.id,
                         nextReview = Date(),
                         passes = 0,
                         prevSuccess = false,
                         totalPasses = 0,
-                        type = "three"
+                        type = "three",
+                        deckUUID = deck.uuid,
+                        reviewsLeft = deck.reviewAmount
                     )
                 )
-                println(cardId.toInt())
                 cardTypeRepository.insertThreeCard(
                     ThreeFieldCard(
                         cardId = cardId.toInt(),

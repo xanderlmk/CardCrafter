@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.controller.navigation.AllViewModels
+import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.ui.theme.GetModifier
@@ -38,13 +39,9 @@ class AddCardView(
     private var getModifier: GetModifier
 ) {
     @Composable
-    fun AddCard(deckId: Int, onNavigate: () -> Unit) {
+    fun AddCard(deck: Deck, onNavigate: () -> Unit) {
         var expanded by remember { mutableStateOf(false) }
         val type = remember { mutableStateOf("basic") }
-        val presetModifier = Modifier
-            .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-            .size(54.dp)
-
         Box(
             modifier = getModifier.boxViewsModifier()
         ) {
@@ -53,7 +50,7 @@ class AddCardView(
                     fields.resetFields()
                     onNavigate()
                 },
-                modifier = presetModifier,
+                modifier = getModifier.backButtonModifier(),
                 getModifier = getModifier
             )
             Column(
@@ -120,24 +117,24 @@ class AddCardView(
                 )
                 when (type.value) {
                     "basic" -> AddBasicCard(
-                        cardTypes.basicCardViewModel, deckId,
+                        cardTypes.basicCardViewModel, deck,
                         fields, getModifier
                     )
                     "three" -> AddThreeCard(
                         cardTypes.threeCardViewModel,
-                        deckId,
+                        deck,
                         fields, getModifier
                     )
                     "hint" -> AddHintCard(
-                        cardTypes.hintCardViewModel, deckId,
+                        cardTypes.hintCardViewModel, deck,
                         fields, getModifier
                     )
                     "multi" -> AddMultiChoiceCard(
-                        cardTypes.multiChoiceCardViewModel, deckId,
+                        cardTypes.multiChoiceCardViewModel, deck,
                         fields, getModifier
                     )
                     else -> AddBasicCard(
-                        cardTypes.basicCardViewModel, deckId,
+                        cardTypes.basicCardViewModel, deck,
                         fields, getModifier
                     )
                 }

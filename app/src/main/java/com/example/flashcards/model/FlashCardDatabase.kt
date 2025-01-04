@@ -32,7 +32,7 @@ import java.util.Calendar
     BasicCard::class,
     ThreeFieldCard::class,
     HintCard::class,
-    MultiChoiceCard::class], version = 9)
+    MultiChoiceCard::class], version = 10)
 @TypeConverters(Converters::class)
 abstract class FlashCardDatabase : RoomDatabase() {
 
@@ -58,7 +58,8 @@ abstract class FlashCardDatabase : RoomDatabase() {
                         MIGRATION_5_6,
                         MIGRATION_6_7,
                         MIGRATION_7_8,
-                        MIGRATION_8_9
+                        MIGRATION_8_9,
+                        MIGRATION_9_10
                     )
                     .fallbackToDestructiveMigration()
                     .addCallback(FlashCardDatabaseCallback(scope))
@@ -101,33 +102,34 @@ abstract class FlashCardDatabase : RoomDatabase() {
 
             // Get the deck ID after insertion
             val deckId = historyDeck.id + 1// This will be auto-generated
+            val uuid = historyDeck.uuid
 
             val calendar = Calendar.getInstance()
             calendar.add(Calendar.DAY_OF_MONTH, -1) // Subtract 1 day
             val nextReviewDate = calendar.time
 
             val cards = listOf(
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
-                Card(deckId = deckId, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic"),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
             )
 
             val basicCards = listOf(

@@ -7,6 +7,7 @@ import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
+import com.example.flashcards.model.tablesAndApplication.Deck
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
@@ -21,17 +22,19 @@ class BasicCardViewModel(
     private val uiState = MutableStateFlow(BasicCardUiState())
     var basicCardUiState = uiState.asStateFlow()
 
-    fun addBasicCard(deckId: Int, question: String, answer: String) {
+    fun addBasicCard(deck: Deck, question: String, answer: String) {
         if (question.isNotEmpty() && answer.isNotEmpty()) {
             viewModelScope.launch {
                 val cardId = flashCardRepository.insertCard(
                     Card(
-                        deckId = deckId,
+                        deckId = deck.id,
                         nextReview = Date(),
                         passes = 0,
                         prevSuccess = false,
                         totalPasses = 0,
-                        type = "basic"
+                        type = "basic",
+                        deckUUID = deck.uuid,
+                        reviewsLeft = deck.reviewAmount
                     )
                 )
                 cardTypeRepository.insertBasicCard(

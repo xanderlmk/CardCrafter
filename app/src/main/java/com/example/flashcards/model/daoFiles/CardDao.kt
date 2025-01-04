@@ -40,4 +40,11 @@ interface CardDao {
     @Query("SELECT * FROM cards WHERE id = :cardId")
     suspend fun getCardById(cardId : Int) : Card?
 
+    @Query("""
+        update cards
+        set reviewsLeft = :newReviewAmount
+        where deckId = :deckId
+    """)
+    fun updateReviewAmount(newReviewAmount : Int, deckId: Int): Int
+
 }

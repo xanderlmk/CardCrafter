@@ -13,6 +13,7 @@
     <string name="answer">Answer</string>
     <string name="start_deck">Start Deck</string>
     <string name="delete_deck">Delete Deck</string>
+    <string name="delete_card">Delete Card</string>
     <string name="days">Days</string>
     <string name="deck_name">Deck Name</string>
     <string name="deck">Deck</string>
@@ -52,4 +53,20 @@
     <string name="choice_c">Choice C</string>
     <string name="choice_d">Choice D</string>
     <string name="correct_choice">Correct Choice</string>
+    <string name="review_amount_same">Review amount is the same</string>
+    <string name="review_amount_10">Review Amount must be less than 10</string>
+    <string name="review_amount_0">Review Amount must be greater than 0</string>
+    <string name="review_amount">Review Amount</string>
+    <string name="failed_review">Failed to update Review Amount</string>
+    <string name="updated_review">Review amount updated!</string>
+    <string name="edit_review_amount">Edit Review Amount</string>
+    <string name="multipliers_same">Multipliers remained the same</string>
+    <string name="bad_multiplier_1">Bad Multiplier must be less than 1.0 and greater than 0.0</string>
+    <string name="good_multiplier_1">Good Multiplier must be greater than 1.0</string>
+    <string name="failed_multiplier">Failed to update multipliers</string>
+    <string name="updated_multiplier">Updated Multipliers!</string>
+    <string name="sure_to_delete_deck">Are you sure you want to delete this deck?</string>
+    <string name="sure_to_delete_card">Are you sure you want to delete this card?</string>
+    <string name="reviews_left">Card reviews left: </string>
+    <string name="default_value">Default:</string>
 </resources>

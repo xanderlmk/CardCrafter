@@ -53,6 +53,19 @@ class OfflineFlashCardRepository(
         } catch(e: Exception){
             throw  e
         }
+    override fun updateDeckReviewAmount(newReviewAmount : Int, deckId: Int) =
+        try {
+            deckDao.updateReviewAmount(newReviewAmount, deckId)
+        } catch (e: Exception){
+            throw(e)
+        }
+
+    override fun updateCardReviewAmount(newReviewAmount : Int, deckId: Int) =
+        try {
+            cardDao.updateReviewAmount(newReviewAmount, deckId)
+        } catch (e: Exception){
+            throw(e)
+        }
 
     override suspend fun insertCard(card: Card) = cardDao.insertCard(card)
 

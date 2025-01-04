@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.controller.viewModels.HintCardViewModel
+import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.ui.theme.GetModifier
@@ -36,7 +37,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AddHintCard(
-    viewModel: HintCardViewModel, deckId: Int,
+    viewModel: HintCardViewModel, deck: Deck,
     fields: Fields, getModifier: GetModifier) {
     var successMessage by remember { mutableStateOf("") }
     val hintCardUiState by viewModel.hintCardUiState.collectAsState()
@@ -174,7 +175,7 @@ fun AddHintCard(
                         successMessage = ""
                     } else {
                         viewModel.addHintCard(
-                            deckId, fields.question.value,
+                            deck, fields.question.value,
                             fields.middleField.value, fields.answer.value
                         )
                         fields.question.value = ""

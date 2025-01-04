@@ -29,29 +29,71 @@ import com.example.flashcards.ui.theme.GetModifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+fun updateReviewAmount(
+    viewModel: DeckViewModel, newReviewAmount : Int,
+    errorMessage: MutableState<String>,
+    isSubmitting: MutableState<Boolean>, deck: Deck,
+    successful: MutableState<String>,
+    errorMessages : List<String>, successMessage : String,
+    coroutineScope: CoroutineScope
+) {
+
+    coroutineScope.launch {
+        if (newReviewAmount <= 0) {
+            errorMessage.value = errorMessages[0]
+            return@launch
+        }
+        if (newReviewAmount >= 10) {
+            errorMessage.value = errorMessages[1]
+            return@launch
+        }
+
+        if (newReviewAmount == deck.reviewAmount) {
+            errorMessage.value = errorMessages[2]
+            return@launch
+        }
+
+        isSubmitting.value = true
+        try {
+            val result =
+                viewModel.updateReviewAmount(newReviewAmount, deck.id)
+            if (result > 0 ) {
+                successful.value = successMessage
+            } else {
+                errorMessage.value =
+                    errorMessages[3]
+            }
+        } catch (e: Exception) {
+            errorMessage.value =
+                e.message ?: R.string.error_occurred.toString()
+        } finally {
+            isSubmitting.value = false
+        }
+    }
+}
+
 fun updateMultipliers(
     viewModel: DeckViewModel, newGoodMultiplier: Double,
     newBadMultiplier: Double, errorMessage: MutableState<String>,
     isSubmitting: MutableState<Boolean>, deck: Deck,
-    expandedEditMultiplier: MutableState<Boolean>,
     successful: MutableState<String>,
+    errorMessages: List<String>, successMessage : String,
     coroutineScope: CoroutineScope
 ) {
 
     coroutineScope.launch {
         if (newGoodMultiplier <= 1.0) {
-            errorMessage.value = "Good Multiplier must be greater than 1.0"
+            errorMessage.value = errorMessages[0]
             return@launch
         }
         if (newBadMultiplier >= 1.0 || newBadMultiplier < 0.0) {
-            errorMessage.value = "Bad Multiplier must be less than 1.0 " +
-                    "and greater than 0.0"
+            errorMessage.value = errorMessages[1]
             return@launch
         }
         if (newGoodMultiplier == deck.goodMultiplier &&
             newBadMultiplier == deck.badMultiplier
         ) {
-            expandedEditMultiplier.value = false
+            errorMessage.value = errorMessages[2]
             return@launch
         }
         isSubmitting.value = true
@@ -61,11 +103,9 @@ fun updateMultipliers(
             val result2 =
                 viewModel.updateDeckBadMultiplier(newBadMultiplier, deck.id)
             if (result1 > 0 && result2 > 0) {
-                successful.value = "Updated Multipliers!"
-                expandedEditMultiplier.value = false
+                successful.value = successMessage
             } else {
-                errorMessage.value =
-                    "Failed to update multipliers"
+                errorMessage.value = errorMessages[3]
             }
         } catch (e: Exception) {
             errorMessage.value =
@@ -79,15 +119,14 @@ fun updateMultipliers(
 fun updateDeckName(
     viewModel: DeckViewModel, newDeckName: String,
     errorMessage: MutableState<String>,
-    emptyDeckName: String, currentName: String,
-    deckNameExists: String, deckNameFailed: String,
+    deckErrors: List<String>, currentName: String,
     isSubmitting: MutableState<Boolean>, deck: Deck,
     onNavigate: () -> Unit,
     coroutineScope: CoroutineScope
 ) {
     coroutineScope.launch {
         if (newDeckName.isBlank()) {
-            errorMessage.value = emptyDeckName
+            errorMessage.value = deckErrors[0]
             return@launch
         }
 
@@ -101,8 +140,7 @@ fun updateDeckName(
             // First check if the deck name exists
             val exists = viewModel.checkIfDeckExists(newDeckName)
             if (exists > 0) {
-                errorMessage.value =
-                    deckNameExists
+                errorMessage.value = deckErrors[1]
                 return@launch
             }
 
@@ -111,8 +149,7 @@ fun updateDeckName(
             if (result > 0) {
                 onNavigate()
             } else {
-                errorMessage.value =
-                    deckNameFailed
+                errorMessage.value = deckErrors[2]
             }
         } catch (e: Exception) {
             errorMessage.value =
@@ -161,7 +198,9 @@ fun DeleteDeck(
                         color = getModifier.titleColor()
                     )
                 },
-                text = { Text(text = "Are you sure you want to delete this deck?") },
+                text = { Text(
+                    text = stringResource(R.string.sure_to_delete_deck),
+                    color = getModifier.titleColor()) },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -326,10 +365,10 @@ fun DeleteCard(
     if (pressed.value) {
         AlertDialog(
             onDismissRequest = { pressed.value = false },
-            title = { Text("Delete Card") },
+            title = { Text(stringResource(R.string.delete_card)) },
             text = {
                 Text(
-                    text = "Are you sure you want to delete this card?",
+                    text = stringResource(R.string.sure_to_delete_card),
                     color = getModifier.titleColor()
                 )
             },

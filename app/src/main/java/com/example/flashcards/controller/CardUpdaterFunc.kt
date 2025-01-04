@@ -13,23 +13,31 @@ fun updateCard(
     deckGoodMultiplier: Double,
     deckBadMultiplier: Double
 ): Card {
-
     val temp = card
-    if (isSuccess) {
-        temp.passes += 1
-        temp.prevSuccess = true
-    } else {
-        temp.prevSuccess = false
-    }
-    temp.nextReview = timeCalculator(
-        temp.passes, isSuccess,
-        deckGoodMultiplier, deckBadMultiplier
-    )
-    temp.totalPasses += 1
+    if (temp.reviewsLeft <= 1) {
+        if (isSuccess) {
+            temp.passes += 1
+            temp.prevSuccess = true
+        } else {
+            temp.prevSuccess = false
+        }
+        temp.nextReview = timeCalculator(
+            temp.passes, isSuccess,
+            deckGoodMultiplier, deckBadMultiplier
+        )
 
-    if (!isSuccess && !temp.prevSuccess && temp.passes > 0) {
-        temp.passes -= 1
+        if (!isSuccess && !temp.prevSuccess && temp.passes > 0) {
+            temp.passes -= 1
+        }
+    } else {
+        /** When the user reviews a card x amount of times
+         *  Default value is 1
+         */
+        if (isSuccess) {
+            temp.reviewsLeft -= 1
+        }
     }
+    temp.totalPasses += 1
     return temp
 }
 
@@ -81,11 +89,12 @@ fun handleCardUpdate(
         viewModel.transitionTo(CardState.Finished)
     }
 }
+
 suspend fun updateDecksCardList(
     deck: Deck,
     cardList: List<Card>,
     cardViewModel: CardViewModel,
     cardTypeViewModel: CardTypeViewModel
-) : Boolean {
+): Boolean {
     return cardViewModel.updateCards(deck, cardList, cardTypeViewModel)
 }

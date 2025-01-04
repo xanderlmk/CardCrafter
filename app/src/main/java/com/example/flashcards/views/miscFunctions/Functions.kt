@@ -109,19 +109,52 @@ fun EditTextField(
 }
 
 @Composable
-fun EditNumberField(
+fun EditDoubleField(
     value: String,
     onValueChanged: (String) -> Unit,
     labelStr: String,
     modifier: Modifier
 ) {
+    val colors = TextFieldDefaults.colors(
+        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
+
+    )
     TextField(
         value = value,
         singleLine = true,
         modifier = modifier,
         onValueChange = onValueChanged,
         label = { Text(labelStr, color = textColor) },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        colors = colors
+
+    )
+}
+
+@Composable
+fun EditIntField(
+    value: String,
+    onValueChanged: (String) -> Unit,
+    labelStr: String,
+    modifier: Modifier
+) {
+    val colors = TextFieldDefaults.colors(
+        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
+    )
+    TextField(
+        value = value,
+        singleLine = true,
+        modifier = modifier,
+        onValueChange = onValueChanged,
+        label = {
+            Text(
+                labelStr, color = textColor, fontSize = 12.sp
+            )
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        colors = colors,
     )
 }
 
@@ -331,6 +364,35 @@ fun PickAnswerChar(fields: Fields, getModifier: GetModifier) {
             }
         }
     }
+}
+
+@Composable
+fun returnReviewError(): List<String> {
+    return listOf(
+        stringResource(R.string.review_amount_0).toString(),
+        stringResource(R.string.review_amount_10).toString(),
+        stringResource(R.string.review_amount_same).toString(),
+        stringResource(R.string.failed_review).toString()
+    )
+}
+
+@Composable
+fun returnMultiplierError(): List<String> {
+    return listOf(
+        stringResource(R.string.good_multiplier_1).toString(),
+        stringResource(R.string.bad_multiplier_1).toString(),
+        stringResource(R.string.multipliers_same).toString(),
+        stringResource(R.string.failed_multiplier).toString()
+    )
+}
+
+@Composable
+fun returnDeckError(): List<String> {
+    return listOf(
+        stringResource(R.string.empty_deck_name).toString(),
+        stringResource(R.string.deck_name_exists).toString(),
+        stringResource(R.string.deck_name_failed).toString()
+    )
 }
 
 suspend fun delayNavigate() {

@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.controller.viewModels.ThreeCardViewModel
+import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.ui.theme.GetModifier
@@ -35,7 +36,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddThreeCard(viewModel: ThreeCardViewModel,deckId: Int,
+fun AddThreeCard(viewModel: ThreeCardViewModel,deck: Deck,
                  fields: Fields, getModifier: GetModifier) {
     val threeCardUiState by viewModel.threeCardUiState.collectAsState()
     var successMessage by remember { mutableStateOf("") }
@@ -173,7 +174,7 @@ fun AddThreeCard(viewModel: ThreeCardViewModel,deckId: Int,
                         successMessage = ""
                     } else {
                         viewModel.addThreeCard(
-                            deckId, fields.question.value,
+                            deck, fields.question.value,
                             fields.middleField.value, fields.answer.value
                         )
                         fields.question.value = ""

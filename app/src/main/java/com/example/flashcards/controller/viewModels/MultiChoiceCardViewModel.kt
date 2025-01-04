@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
 import com.example.flashcards.model.tablesAndApplication.Card
+import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.uiModels.MultiChoiceUiCardState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +23,7 @@ class MultiChoiceCardViewModel(
     var multiChoiceUiState = uiState.asStateFlow()
 
     fun addMultiChoiceCard(
-        deckId: Int,
+        deck: Deck,
         question: String,
         choiceA : String,
         choiceB : String,
@@ -35,12 +36,14 @@ class MultiChoiceCardViewModel(
             viewModelScope.launch {
                 val cardId = flashCardRepository.insertCard(
                     Card(
-                        deckId = deckId,
+                        deckId = deck.id,
                         nextReview = Date(),
                         passes = 0,
                         prevSuccess = false,
                         totalPasses = 0,
-                        type = "multi"
+                        type = "multi",
+                        deckUUID = deck.uuid,
+                        reviewsLeft = deck.reviewAmount
                     )
                 )
                 cardTypeRepository.insertMultiChoiceCard(

@@ -48,11 +48,16 @@ class DeckViewModel(private val flashCardRepository: FlashCardRepository) : View
         }
     }
 
-    fun addDeck(name: String) {
-        if (name.isNotEmpty()) {
+    fun addDeck(name: String, reviewAmount: Int) {
+        if (name.isNotEmpty() && reviewAmount > 0 && reviewAmount < 10) {
             viewModelScope.launch {
                 try {
-                    flashCardRepository.insertDeck(Deck(name = name))
+                    flashCardRepository.insertDeck(
+                        Deck(
+                            name = name,
+                            reviewAmount = reviewAmount
+                        )
+                    )
                 } catch (e: SQLiteConstraintException) {
                     handleError("A deck with this name already exists: ${e.message}")
                 } catch (e: Exception) {
@@ -121,6 +126,27 @@ class DeckViewModel(private val flashCardRepository: FlashCardRepository) : View
                     handleError(e.message.toString())
                 } catch (e: Exception) {
                     handleError("Error updating deck multiplier: ${e.message}")
+                }
+            }
+        }
+        return 0
+    }
+
+    suspend fun updateReviewAmount(newReviewAmount: Int, deckId: Int): Int {
+        if (newReviewAmount > 0 && newReviewAmount < 11) {
+            return withContext(Dispatchers.IO) {
+                try {
+                    val row =
+                        flashCardRepository.updateDeckReviewAmount(newReviewAmount, deckId) +
+                                flashCardRepository.updateCardReviewAmount(newReviewAmount, deckId)
+                    if (row == 0) {
+                        handleError("Failed to update Review Amount")
+                    }
+                    row
+                } catch (e: SQLiteConstraintException) {
+                    handleError(e.message.toString())
+                } catch (e: Exception) {
+                    handleError("Error updating deck Review Amount: ${e.message}")
                 }
             }
         }
