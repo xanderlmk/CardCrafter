@@ -277,6 +277,16 @@ fun AppNavHost(
             }
             composable(AddCardDestination.route) { backStackEntry ->
                 val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
+
+                val deck = remember { mutableStateOf<Deck?>(null) }
+
+                LaunchedEffect(Unit) {
+                    coroutineScope.launch {
+                        deckViewModel.getDeckById(deckId ?: 0,cardTypes).collect { flow ->
+                            deck.value = flow
+                        }
+                    }
+                }
                 BackHandler {
                     view.whichView.intValue = 0
                     view.onView.value = false
@@ -288,16 +298,18 @@ fun AppNavHost(
                     )
                 }
                 // Pass the deckId to AddCard composable
-                addCardView.AddCard(
-                    deckId = deckId ?: 0,
-                    onNavigate = {
-                        view.whichView.intValue = 0
-                        view.onView.value = false
-                        fields.inDeckClicked.value = false
-                        fields.resetFields()
-                        navController.navigate(DeckViewDestination.createRoute(deckId ?: 0))
-                    }
-                )
+                deck.value?.let {
+                    addCardView.AddCard(
+                        deck = it,
+                        onNavigate = {
+                            view.whichView.intValue = 0
+                            view.onView.value = false
+                            fields.inDeckClicked.value = false
+                            fields.resetFields()
+                            navController.navigate(DeckViewDestination.createRoute(deckId ?: 0))
+                        }
+                    )
+                }
             }
             composable(ViewCardDestination.route) { backStackEntry ->
                 val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()

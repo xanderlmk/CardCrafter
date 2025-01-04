@@ -13,6 +13,7 @@
     <string name="answer">Respuesta</string>
     <string name="start_deck">Empezar Mazo</string>
     <string name="delete_deck">Borrar Mazo</string>
+    <string name="delete_card">Borrar Carta</string>
     <string name="days">Días</string>
     <string name="deck_name">Nombre De Mazo</string>
     <string name="deck">Mazo</string>
@@ -52,4 +53,20 @@
     <string name="choice_c">Opción C</string>
     <string name="choice_d">Opción D</string>
     <string name="correct_choice">Opción Correcta</string>
+    <string name="review_amount_same">" Número de revisiones es el mismo"</string>
+    <string name="review_amount_10">Número de revisiones tiene que ser menos de 10</string>
+    <string name="review_amount_0">Número de revisiones tiene que ser mas de 0</string>
+    <string name="review_amount">Número de revisiones</string>
+    <string name="failed_review">Fracaso en actualizar número de revisiones</string>
+    <string name="updated_review">Número de revisiones actualizados!</string>
+    <string name="edit_review_amount">Modificar Número de revisiones</string>
+    <string name="multipliers_same">Multiplicadores quedaron los mismos</string>
+    <string name="bad_multiplier_1">Multiplicador malo debe ser menor que 1.0 y mayor que 0.0</string>
+    <string name="good_multiplier_1">Multiplicador bueno debe ser mayor que 1.0</string>
+    <string name="failed_multiplier">Fracaso en actualizar multiplicadores</string>
+    <string name="updated_multiplier">Multiplicadores actualizados!</string>
+    <string name="sure_to_delete_deck">Estas seguro/a que quiere borrar este mazo?</string>
+    <string name="sure_to_delete_card">Estas seguro/a que quiere borrar esta carta?</string>
+    <string name="reviews_left">Revisiones restantes de la carta: </string>
+    <string name="default_value">Predeterminado:</string>
 </resources>

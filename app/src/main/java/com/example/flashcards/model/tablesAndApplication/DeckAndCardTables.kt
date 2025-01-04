@@ -8,12 +8,15 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import androidx.room.TypeConverter
 import java.util.Date
+import java.util.UUID
 
 @Entity (tableName = "decks",
      indices = [Index(value = ["name"], unique = true)])
 data class Deck(
     @PrimaryKey(autoGenerate = true) val id : Int = 0,
     val name : String,
+    val uuid: String = UUID.randomUUID().toString(),
+    val reviewAmount : Int = 1,
     val goodMultiplier : Double = 1.5,
     val badMultiplier : Double = 0.5,
     val createdOn: Long = Date().time
@@ -30,7 +33,9 @@ data class Deck(
     )
 data class Card(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val deckId : Int,
+    var deckId : Int,
+    val deckUUID: String,
+    var reviewsLeft : Int,
     var nextReview: Date?,
     var passes: Int = 0,
     var prevSuccess: Boolean,

@@ -1,6 +1,5 @@
 package com.example.flashcards.views.deckViews
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,18 +9,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -39,18 +35,25 @@ import com.example.flashcards.R
 import com.example.flashcards.controller.DeleteDeck
 import com.example.flashcards.controller.updateDeckName
 import com.example.flashcards.controller.updateMultipliers
+import com.example.flashcards.controller.updateReviewAmount
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.views.miscFunctions.BackButton
-import com.example.flashcards.views.miscFunctions.EditNumberField
+import com.example.flashcards.views.miscFunctions.EditDoubleField
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.views.miscFunctions.EditIntField
+import com.example.flashcards.views.miscFunctions.returnDeckError
+import com.example.flashcards.views.miscFunctions.returnMultiplierError
+import com.example.flashcards.views.miscFunctions.returnReviewError
+import kotlinx.coroutines.delay
 import kotlin.String
 
 class EditDeckView(
     private var viewModel: DeckViewModel,
     private var fields: Fields,
-    private var getModifier: GetModifier) {
+    private var getModifier: GetModifier
+) {
     @Composable
     fun EditDeck(
         currentName: String, deck: Deck,
@@ -59,27 +62,22 @@ class EditDeckView(
         var newDeckName by remember { mutableStateOf(currentName) }
         var newGoodMultiplier by remember { mutableDoubleStateOf(deck.goodMultiplier) }
         var newBadMultiplier by remember { mutableDoubleStateOf(deck.badMultiplier) }
-        val errorMessage = remember { mutableStateOf("") }
-        val successful = remember { mutableStateOf("") }
+        var newReviewAmount by remember { mutableStateOf(deck.reviewAmount.toString()) }
+        val multiplierErrorMessage = remember { mutableStateOf("") }
+        val reviewErrorMessage = remember { mutableStateOf("") }
+        val deckErrorMessage = remember { mutableStateOf("") }
+        val multiplierSuccessful = remember { mutableStateOf("") }
+        val reviewAmountSuccessful = remember { mutableStateOf("") }
         val isSubmitting = remember { mutableStateOf(false) }
-        var expandedChangeName by remember { mutableStateOf(false) }
-        val expandedEditMultiplier = remember { mutableStateOf(false) }
-        val emptyDeckName = stringResource(R.string.empty_deck_name).toString()
-        val deckNameExists = stringResource(R.string.deck_name_exists).toString()
-        val deckNameFailed = stringResource(R.string.deck_name_failed).toString()
+        val expanded = remember { List(3) {mutableStateOf(false) }}
+
+        val deckErrors = returnDeckError()
+        val reviewAmountErrors = returnReviewError()
+        val multiplierErrors = returnMultiplierError()
+        val updatedMultipliers = stringResource(R.string.updated_multiplier)
+        val updatedReview = stringResource(R.string.updated_review)
+
         val coroutineScope = rememberCoroutineScope()
-        val snackBarHostState = remember { SnackbarHostState() }
-
-
-        LaunchedEffect(successful.value) {
-            if(successful.value.isNotEmpty()) {
-                snackBarHostState.showSnackbar(
-                    message = successful.value,
-                    duration = SnackbarDuration.Short
-                )
-                successful.value = ""
-            }
-        }
 
         Box(
             modifier = getModifier.boxViewsModifier()
@@ -103,20 +101,24 @@ class EditDeckView(
                     textAlign = TextAlign.Center,
                     color = getModifier.titleColor(),
                     fontWeight = Bold,
-                    modifier = Modifier.padding(top = 20.dp,
-                        start = 50.dp, end = 50.dp)
+                    modifier = Modifier.padding(
+                        top = 20.dp,
+                        start = 50.dp, end = 50.dp
+                    )
                 )
-                if (!expandedChangeName) {
+                if (!expanded[0].value) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 8.dp,
-                                vertical = 12.dp),
+                            .padding(
+                                horizontal = 8.dp,
+                                vertical = 12.dp
+                            ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Button(
                             onClick = {
-                                expandedChangeName = true
+                                expanded[0].value = true
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = getModifier.secondaryButtonColor(),
@@ -132,7 +134,7 @@ class EditDeckView(
                         value = newDeckName,
                         onValueChanged = {
                             newDeckName = it
-                            errorMessage.value = "" // Clear error when user types
+                            deckErrorMessage.value = "" // Clear error when user types
                         },
                         labelStr = stringResource(R.string.deck_name),
                         modifier = Modifier
@@ -143,15 +145,15 @@ class EditDeckView(
                             ),
                     )
 
-                    if (errorMessage.value.isNotEmpty()) {
+                    if (deckErrorMessage.value.isNotEmpty()) {
                         Text(
-                            text = errorMessage.value,
+                            text = deckErrorMessage.value,
                             color = Color.Red,
                             modifier = Modifier.fillMaxWidth(),
                             fontSize = 16.sp,
                             textAlign = TextAlign.Center
                         )
-                    }else {
+                    } else {
                         Spacer(modifier = Modifier.padding(12.dp))
                     }
 
@@ -163,9 +165,9 @@ class EditDeckView(
                     ) {
                         Button(
                             onClick = {
-                                errorMessage.value = ""
+                                deckErrorMessage.value = ""
                                 newDeckName = currentName
-                                expandedChangeName = false
+                                expanded[0].value = false
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = getModifier.tertiaryButtonColor(),
@@ -180,10 +182,10 @@ class EditDeckView(
                             onClick = {
                                 updateDeckName(
                                     viewModel, newDeckName,
-                                    errorMessage, emptyDeckName,
-                                    currentName, deckNameExists,
-                                    deckNameFailed, isSubmitting, deck,
-                                    onNavigate, coroutineScope)
+                                    deckErrorMessage, deckErrors,
+                                    currentName,  isSubmitting, deck,
+                                    onNavigate, coroutineScope
+                                )
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = getModifier.tertiaryButtonColor(),
@@ -203,24 +205,19 @@ class EditDeckView(
                         }
                     }
                 }
-                if (!expandedEditMultiplier.value) {
+                if (!expanded[1].value) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 8.dp,
-                                vertical = 12.dp),
+                            .padding(
+                                horizontal = 8.dp,
+                                vertical = 12.dp
+                            ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        SnackbarHost(
-                            hostState = snackBarHostState,
-                            modifier = Modifier
-                                .background(
-                                    color= getModifier.buttonColor(),
-                                    shape = RoundedCornerShape(24.dp)),
-                            )
                         Button(
                             onClick = {
-                                expandedEditMultiplier.value = true
+                                expanded[1].value = true
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = getModifier.secondaryButtonColor(),
@@ -234,27 +231,29 @@ class EditDeckView(
                 } else {
                     Row(
                         modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = 10.dp,
-                            vertical = 12.dp
-                        )) {
-                        EditNumberField(
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = 10.dp,
+                                vertical = 12.dp
+                            ),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        EditDoubleField(
                             value = newGoodMultiplier.toString(),
                             onValueChanged = {
                                 newGoodMultiplier = it.toDouble()
-                                errorMessage.value = "" // Clear error when user types
+                                multiplierErrorMessage.value = "" // Clear error when user types
                             },
                             labelStr = stringResource(R.string.good_multiplier),
                             modifier = Modifier
                                 .fillMaxWidth(0.5f)
                                 .padding(end = 2.dp)
                         )
-                        EditNumberField(
+                        EditDoubleField(
                             value = newBadMultiplier.toString(),
                             onValueChanged = {
                                 newBadMultiplier = it.toDouble()
-                                errorMessage.value = "" // Clear error when user types
+                                multiplierErrorMessage.value = "" // Clear error when user types
                             },
                             labelStr = stringResource(R.string.bad_multiplier),
                             modifier = Modifier
@@ -262,19 +261,28 @@ class EditDeckView(
                                 .padding(start = 2.dp)
                         )
                     }
-
-                    if (errorMessage.value.isNotEmpty()) {
-                        Text(
-                            text = errorMessage.value,
-                            color = Color.Red,
-                            modifier = Modifier.fillMaxWidth(),
-                            fontSize = 16.sp,
-                            textAlign = TextAlign.Center
-                        )
-                    }else {
-                        Spacer(modifier = Modifier.padding(12.dp))
+                    Row {
+                        if (multiplierSuccessful.value.isNotEmpty()) {
+                            Text(
+                                text = multiplierSuccessful.value,
+                                color = Color.Red,
+                                modifier = Modifier.fillMaxWidth(),
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                        if (multiplierErrorMessage.value.isNotEmpty()) {
+                            Text(
+                                text = multiplierErrorMessage.value,
+                                color = Color.Red,
+                                modifier = Modifier.fillMaxWidth(),
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.padding(12.dp))
+                        }
                     }
-
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -283,10 +291,10 @@ class EditDeckView(
                     ) {
                         Button(
                             onClick = {
-                                errorMessage.value = ""
+                                multiplierErrorMessage.value = ""
                                 newBadMultiplier = deck.badMultiplier
                                 newGoodMultiplier = deck.goodMultiplier
-                                expandedEditMultiplier.value = false
+                                expanded[1].value = false
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = getModifier.tertiaryButtonColor(),
@@ -299,9 +307,133 @@ class EditDeckView(
 
                         Button(
                             onClick = {
-                                updateMultipliers(viewModel,newGoodMultiplier,
-                                    newBadMultiplier,errorMessage,isSubmitting,
-                                    deck,expandedEditMultiplier,successful,coroutineScope)
+                                updateMultipliers(
+                                    viewModel,
+                                    newGoodMultiplier,
+                                    newBadMultiplier,
+                                    multiplierErrorMessage,
+                                    isSubmitting,
+                                    deck, multiplierSuccessful,
+                                    multiplierErrors, updatedMultipliers,
+                                    coroutineScope
+                                )
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = getModifier.tertiaryButtonColor(),
+                                contentColor = getModifier.onTertiaryButtonColor()
+                            ),
+                            enabled = !isSubmitting.value,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            if (isSubmitting.value) {
+                                CircularProgressIndicator(
+                                    color = getModifier.titleColor(),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            } else {
+                                Text(stringResource(R.string.submit))
+                            }
+                        }
+                    }
+                }
+                if (!expanded[2].value) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = 8.dp,
+                                vertical = 12.dp
+                            ),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                expanded[2].value = true
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = getModifier.secondaryButtonColor(),
+                                contentColor = getModifier.buttonTextColor()
+                            ),
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                                .padding(
+                                    horizontal = 8.dp,
+                                    vertical = 12.dp
+                                ),
+                        ) {
+                            Text(stringResource(R.string.edit_review_amount))
+                        }
+                    }
+                } else {
+                    EditIntField(
+                        value = newReviewAmount,
+                        onValueChanged = {
+                            newReviewAmount = it
+                        },
+                        labelStr = stringResource(R.string.review_amount),
+                        modifier = Modifier
+                            .fillMaxWidth(0.5f)
+                            .padding(end = 2.dp)
+                            .padding(
+                                horizontal = 10.dp,
+                                vertical = 12.dp
+                            )
+                            .align(Alignment.CenterHorizontally)
+                    )
+                    Row {
+                        if (reviewAmountSuccessful.value.isNotEmpty()) {
+                            Text(
+                                text = reviewAmountSuccessful.value,
+                                color = Color.Red,
+                                modifier = Modifier.fillMaxWidth(),
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+
+                        if (reviewErrorMessage.value.isNotEmpty()) {
+                            Text(
+                                text = reviewErrorMessage.value,
+                                color = Color.Red,
+                                modifier = Modifier.fillMaxWidth(),
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.padding(12.dp))
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                reviewErrorMessage.value = ""
+                                newReviewAmount = deck.reviewAmount.toString()
+                                expanded[2].value = false
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = getModifier.tertiaryButtonColor(),
+                                contentColor = getModifier.onTertiaryButtonColor()
+                            ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(stringResource(R.string.cancel))
+                        }
+
+                        Button(
+                            onClick = {
+                                updateReviewAmount(
+                                    viewModel, newReviewAmount.toIntOrNull()?: 0,
+                                    reviewErrorMessage, isSubmitting, deck,
+                                    reviewAmountSuccessful, reviewAmountErrors,
+                                    updatedReview, coroutineScope
+                                )
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = getModifier.tertiaryButtonColor(),
@@ -332,11 +464,28 @@ class EditDeckView(
                         modifier = Modifier
                             .weight(1f)
                     ) {
-                        DeleteDeck(viewModel,deck,
-                            getModifier,coroutineScope,
-                            fields, onDelete)
+                        DeleteDeck(
+                            viewModel, deck,
+                            getModifier, coroutineScope,
+                            fields, onDelete
+                        )
                     }
                 }
+            }
+        }
+
+        LaunchedEffect(multiplierSuccessful.value) {
+            if (multiplierSuccessful.value.isNotBlank()) {
+                delay(1500)
+                multiplierSuccessful.value = ""
+                expanded[1].value = false
+            }
+        }
+        LaunchedEffect(reviewAmountSuccessful.value) {
+            if (reviewAmountSuccessful.value.isNotBlank()) {
+                delay(1500)
+                reviewAmountSuccessful.value = ""
+                expanded[2].value = false
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.example.flashcards.controller.viewModels
 
 import android.database.sqlite.SQLiteConstraintException
+import android.database.sqlite.SQLiteException
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -17,15 +18,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import java.io.IOException
 
 class CardViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
     private val uiState = MutableStateFlow(CardUiState())
     var cardUiState: StateFlow<CardUiState> = uiState.asStateFlow()
 
     private val errorMessage = MutableStateFlow<String?>(null)
+    private val _errorState = MutableStateFlow<CardUpdateError?>(null)
+    val errorState: StateFlow<CardUpdateError?> = _errorState.asStateFlow()
 
     private val cardState: MutableState<CardState> = mutableStateOf(CardState.Idle)
 
@@ -43,6 +48,10 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
         uiState.value = uiState.value.copy(errorMessage = "")
     }
 
+    fun clearErrorState() {
+        _errorState.value = null
+    }
+
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
     }
@@ -57,13 +66,19 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
                     viewModelScope.launch {
                         flashCardRepository.updateCard(card)
                     }
-                }.also {
+                }
+                jobs.joinAll().also {
                     getDueCards(deck.id, cardTypeViewModel)
                 }
-                jobs.forEach { it.join() }
+                clearErrorState()
                 true
             } catch (e: Exception) {
-                handleError(e, "Something went wrong")
+                val error = when (e) {
+                    is IOException -> CardUpdateError.NetworkError(e)
+                    is SQLiteException -> CardUpdateError.DatabaseError(e)
+                    else -> CardUpdateError.UnknownError(e)
+                }
+                _errorState.value = error
                 false
             }
         }
@@ -158,4 +173,10 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
             flashCardRepository.deleteCard(card)
         }
     }
+}
+
+sealed class CardUpdateError(val exception: Exception) : Exception(exception) {
+    class NetworkError(exception: Exception) : CardUpdateError(exception)
+    class DatabaseError(exception: Exception) : CardUpdateError(exception)
+    class UnknownError(exception: Exception) : CardUpdateError(exception)
 }

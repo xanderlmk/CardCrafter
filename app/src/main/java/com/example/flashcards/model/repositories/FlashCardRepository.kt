@@ -15,6 +15,10 @@ interface FlashCardRepository {
 
     fun updateDeckBadMultiplier(newMultiplier : Double, deckId: Int): Int
 
+    fun updateDeckReviewAmount(newReviewAmount : Int, deckId: Int): Int
+
+    fun updateCardReviewAmount(newReviewAmount : Int, deckId: Int): Int
+
     fun getAllDecksStream(): Flow<List<Deck>>
 
     fun getDeckStream(id: Int): Flow<Deck?>
@@ -32,6 +36,7 @@ interface FlashCardRepository {
     suspend fun deleteCard(card: Card)
 
     suspend fun updateCardType(cardId: Int, type: String)
+
 
     fun getDeckWithCards(deckId: Int): Flow<DeckWithCards>
 

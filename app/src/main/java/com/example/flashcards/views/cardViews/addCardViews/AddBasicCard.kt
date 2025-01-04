@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.controller.viewModels.BasicCardViewModel
+import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.ui.theme.GetModifier
@@ -36,7 +37,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AddBasicCard(
-    viewModel: BasicCardViewModel, deckId: Int,
+    viewModel: BasicCardViewModel, deck: Deck,
     fields: Fields, getModifier: GetModifier
 ) {
 
@@ -148,7 +149,7 @@ fun AddBasicCard(
                         successMessage = ""
                     } else {
                         viewModel.addBasicCard(
-                            deckId, fields.question.value, fields.answer.value
+                            deck, fields.question.value, fields.answer.value
                         )
                         fields.answer.value = ""
                         fields.question.value = ""

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.controller.viewModels.MultiChoiceCardViewModel
+import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.ui.theme.GetModifier
@@ -38,7 +39,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AddMultiChoiceCard(
-    viewModel: MultiChoiceCardViewModel, deckId: Int,
+    viewModel: MultiChoiceCardViewModel, deck: Deck,
     fields: Fields, getModifier: GetModifier
 ) {
     var successMessage by remember { mutableStateOf("") }
@@ -301,7 +302,7 @@ fun AddMultiChoiceCard(
                         successMessage = ""
                     } else {
                         viewModel.addMultiChoiceCard(
-                            deckId, fields.question.value,
+                            deck, fields.question.value,
                             fields.choices[0].value,
                             fields.choices[1].value,
                             fields.choices[2].value,

@@ -58,4 +58,11 @@ interface DeckDao {
         and :newMultiplier > 0.0
     """)
     fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int) : Int
+
+    @Query("""
+        update decks
+        set reviewAmount = :newReviewAmount
+        where id = :deckId
+    """)
+    fun updateReviewAmount(newReviewAmount : Int, deckId: Int): Int
 }

@@ -53,8 +53,8 @@ class GetModifier(
 
     fun backButtonModifier(): Modifier {
         return Modifier
-            .padding(16.dp)
-            .size(50.dp)
+            .padding(14.dp)
+            .size(40.dp)
     }
 
     fun addButtonModifier(): Modifier {

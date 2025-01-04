@@ -6,6 +6,7 @@ import com.example.flashcards.model.uiModels.HintCardUiState
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
 import com.example.flashcards.model.tablesAndApplication.Card
+import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +22,7 @@ class HintCardViewModel(
     private val uiState = MutableStateFlow(HintCardUiState())
     val hintCardUiState : StateFlow<HintCardUiState> = uiState.asStateFlow()
     fun addHintCard(
-        deckId: Int, question: String,
+        deck: Deck, question: String,
         hint: String, answer: String
     ) {
         if (question.isNotEmpty() && answer.isNotEmpty()
@@ -30,12 +31,14 @@ class HintCardViewModel(
             viewModelScope.launch {
                 val cardId = flashCardRepository.insertCard(
                     Card(
-                        deckId = deckId,
+                        deckId = deck.id,
                         nextReview = Date(),
                         passes = 0,
                         prevSuccess = false,
                         totalPasses = 0,
-                        type = "hint"
+                        type = "hint",
+                        deckUUID = deck.uuid,
+                        reviewsLeft = deck.reviewAmount
                     )
                 )
                 cardTypeRepository.insertHintCard(

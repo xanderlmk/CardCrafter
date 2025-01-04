@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import com.example.flashcards.controller.viewModels.CardViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.controller.handleCardUpdate
@@ -48,6 +50,7 @@ class CardDeckView(
         deck: Deck, onNavigate: () -> Unit
     ) {
         val cardList by cardTypeViewModel.cardListUiState.collectAsState()
+        val errorState by viewModel.errorState.collectAsState()
         var show by remember { mutableStateOf(false) }
         val index = remember { mutableIntStateOf(0) }
         val coroutineScope = rememberCoroutineScope()
@@ -65,6 +68,7 @@ class CardDeckView(
         var cardsSuccess =
             remember { MutableList(cardList.allCards.size) { mutableStateOf(false) } }
         val scrollState = rememberScrollState()
+
         //if (whichView.value)
         Box(
             contentAlignment =
@@ -104,6 +108,15 @@ class CardDeckView(
                 }
             } else {
                 if (index.intValue < dueCards.size) {
+                    Text(
+                        text = stringResource(R.string.reviews_left) + "${updatedDueCards[index.intValue].card.reviewsLeft}",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(start = 40.dp, end = 40.dp, top = 8.dp)
+                    )
                     if (!show) {
                         if (viewModel.getState() == CardState.Finished) {
                             FrontCard(
@@ -131,15 +144,7 @@ class CardDeckView(
                                 Text(stringResource(R.string.show_answer))
                             }
                             clicked = false
-                        }/* else {
-                                LaunchedEffect(Unit) {
-                                    viewModel.getDueCards(
-                                        deck.id,
-                                        cardTypeViewModel
-                                    )
-                                    dueCards = cardList.allCards
-                                }
-                            }*/
+                        }
                     } else {
                         BackCard(
                             Pair(
@@ -158,10 +163,13 @@ class CardDeckView(
                                 .align(Alignment.BottomCenter)
                         ) {
                             val good =
-                                ((dueCards[index.intValue].card.passes + 1) * deck.goodMultiplier).toInt()
+                                ((dueCards[index.intValue].card.passes + 1) *
+                                        deck.goodMultiplier).toInt()
                             val hard = if (dueCards[index.intValue].card.passes > 0)
-                                ((dueCards[index.intValue].card.passes + 1) * deck.badMultiplier).toInt()
-                            else (dueCards[index.intValue].card.passes * deck.badMultiplier).toInt()
+                                ((dueCards[index.intValue].card.passes + 1) *
+                                        deck.badMultiplier).toInt()
+                            else (dueCards[index.intValue].card.passes *
+                                    deck.badMultiplier).toInt()
                             Column(
                                 verticalArrangement = Arrangement.Top,
                                 horizontalAlignment = Alignment.CenterHorizontally
@@ -243,7 +251,13 @@ class CardDeckView(
                                     )
                                 ) { Text(stringResource(R.string.hard)) }
                                 Text(
-                                    "$hard " + stringResource(R.string.days),
+                                    text =
+                                    if (updatedDueCards[index.intValue].card.reviewsLeft == 1) {
+                                        "$hard " + stringResource(R.string.days)
+                                    } else {
+                                        "${updatedDueCards[index.intValue].card.reviewsLeft} " +
+                                                "reviews left"
+                                    },
                                     color = getModifier.titleColor(),
                                     fontSize = 12.sp,
                                     lineHeight = 14.sp
@@ -260,13 +274,7 @@ class CardDeckView(
                                             clicked = true
                                             coroutineScope.launch {
                                                 viewModel.transitionTo(CardState.Loading)
-                                                /*isCardUpdated.value = handleCardUpdate(
-                                                    //cardUiState.cardList[index.intValue],
-                                                    dueCards[index.intValue].card,
-                                                    true, viewModel,
-                                                    deck.goodMultiplier,
-                                                    deck.badMultiplier
-                                                )*/
+
                                                 cardsSuccess[index.intValue].value = true
                                                 updatedDueCards[index.intValue].card =
                                                     handleCardUpdate(
@@ -295,7 +303,13 @@ class CardDeckView(
                                     )
                                 ) { Text(stringResource(R.string.good)) }
                                 Text(
-                                    "$good " + stringResource(R.string.days),
+                                    text =
+                                    if (updatedDueCards[index.intValue].card.reviewsLeft == 1) {
+                                        "$good " + stringResource(R.string.days)
+                                    } else {
+                                        "${updatedDueCards[index.intValue].card.reviewsLeft-1} " +
+                                                "reviews left"
+                                    },
                                     color = getModifier.titleColor(),
                                     fontSize = 12.sp,
                                     lineHeight = 14.sp
@@ -319,6 +333,9 @@ class CardDeckView(
                             )
                             while (viewModel.getState() == CardState.Loading) {
                                 delay(30)
+                            }
+                            if (!errorState?.message.isNullOrEmpty()) {
+                                println(errorState?.message)
                             }
                             dueCards = cardList.allCards
                             updatedDueCards = cardList.allCards
