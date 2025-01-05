@@ -1,4 +1,4 @@
-package com.example.flashcards.controller.viewModels
+package com.example.flashcards.controller.viewModels.deckViewsModels
 
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel

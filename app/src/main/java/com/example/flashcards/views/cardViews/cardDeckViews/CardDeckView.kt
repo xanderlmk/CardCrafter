@@ -23,7 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.flashcards.controller.viewModels.CardViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +32,7 @@ import com.example.flashcards.R
 import com.example.flashcards.controller.handleCardUpdate
 import com.example.flashcards.controller.updateDecksCardList
 import com.example.flashcards.controller.viewModels.CardTypeViewModel
+import com.example.flashcards.controller.viewModels.CardDeckViewModel
 import com.example.flashcards.model.uiModels.CardState
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.views.miscFunctions.BackButton
@@ -41,7 +41,7 @@ import com.example.flashcards.views.miscFunctions.NoDueCards
 import kotlinx.coroutines.delay
 
 class CardDeckView(
-    private var viewModel: CardViewModel,
+    private var viewModel: CardDeckViewModel,
     private var cardTypeViewModel: CardTypeViewModel,
     private var getModifier: GetModifier
 ) {
@@ -81,6 +81,9 @@ class CardDeckView(
                 .boxViewsModifier()
                 .verticalScroll(scrollState)
         ) {
+            println(updatedDueCards.map { it.card })
+            println(cardList.allCards.map{ it.card})
+            println("compare ^^")
             BackButton(
                 onBackClick = {
                     getModifier.clickedChoice.value = '?'
@@ -184,9 +187,12 @@ class CardDeckView(
                                                 updatedDueCards[index.intValue].card =
                                                     handleCardUpdate(
                                                         dueCards[index.intValue].card,
-                                                        false, viewModel,
+                                                        success = false,
+                                                        viewModel,
                                                         deck.goodMultiplier,
-                                                        deck.badMultiplier
+                                                        deck.badMultiplier,
+                                                        deck.reviewAmount,
+                                                        again = true
                                                     )
                                                 show = !show
                                             }
@@ -227,9 +233,12 @@ class CardDeckView(
                                                 updatedDueCards[index.intValue].card =
                                                     handleCardUpdate(
                                                         dueCards[index.intValue].card,
-                                                        false, viewModel,
+                                                        success = false,
+                                                        viewModel,
                                                         deck.goodMultiplier,
-                                                        deck.badMultiplier
+                                                        deck.badMultiplier,
+                                                        deck.reviewAmount,
+                                                        again = false
                                                     )
                                                 getModifier.clickedChoice.value = '?'
                                                 show = !show
@@ -279,9 +288,12 @@ class CardDeckView(
                                                 updatedDueCards[index.intValue].card =
                                                     handleCardUpdate(
                                                         dueCards[index.intValue].card,
-                                                        true, viewModel,
+                                                        success = true,
+                                                        viewModel,
                                                         deck.goodMultiplier,
-                                                        deck.badMultiplier
+                                                        deck.badMultiplier,
+                                                        deck.reviewAmount,
+                                                        again = false
                                                     )
                                                 getModifier.clickedChoice.value = '?'
                                                 show = !show

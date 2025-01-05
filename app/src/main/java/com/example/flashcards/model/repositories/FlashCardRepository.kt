@@ -45,6 +45,6 @@ interface FlashCardRepository {
 
     suspend fun deleteAllCards(deckId: Int)
 
-    suspend fun getCardById(cardId : Int) : Card?
+    suspend fun getCardById(cardId : Int) : Card
 
 }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -19,7 +20,8 @@ import com.example.flashcards.controller.navigation.AllViewModels
 import com.example.flashcards.controller.viewModels.BasicCardViewModel
 import com.example.flashcards.controller.viewModels.CardTypeViewModel
 import com.example.flashcards.controller.viewModels.CardViewModel
-import com.example.flashcards.controller.viewModels.DeckViewModel
+import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
+import com.example.flashcards.controller.viewModels.CardDeckViewModel
 import com.example.flashcards.controller.viewModels.HintCardViewModel
 import com.example.flashcards.controller.viewModels.MultiChoiceCardViewModel
 import com.example.flashcards.controller.viewModels.ThreeCardViewModel
@@ -32,6 +34,9 @@ class MainActivity : ComponentActivity() {
         AppViewModelProvider.Factory
     }
     private val cardViewModel: CardViewModel by viewModels {
+        AppViewModelProvider.Factory
+    }
+    private val dueCardsViewModel: CardDeckViewModel by viewModels{
         AppViewModelProvider.Factory
     }
     private val basicCardViewModel: BasicCardViewModel by viewModels {
@@ -63,8 +68,8 @@ class MainActivity : ComponentActivity() {
                 threeCardViewModel,
                 multiChoiceCardViewModel
             )
-            val isSystemDark = isSystemInDarkTheme()
 
+            val isSystemDark = isSystemInDarkTheme()
             preferencesManager = remember { PreferencesManager(applicationContext) }
 
             if (preferencesManager.isFirstTime) {
@@ -86,6 +91,7 @@ class MainActivity : ComponentActivity() {
                         navController = rememberNavController(),
                         deckViewModel = deckViewModel,
                         cardViewModel = cardViewModel,
+                        dueCardsViewModel = dueCardsViewModel,
                         cardTypeViewModel = cardTypeViewModel,
                         cardTypes = cardTypes,
                         preferences = preferences,
@@ -100,18 +106,21 @@ class MainActivity : ComponentActivity() {
         super.onStop()
         preferences.saveDarkTheme()
         preferences.saveCustomScheme()
+
     }
 
     override fun onPause() {
         super.onPause()
         preferences.saveDarkTheme()
         preferences.saveCustomScheme()
+
     }
 
     override fun onDestroy() {
         super.onDestroy()
         preferences.saveDarkTheme()
         preferences.saveCustomScheme()
+
     }
 }
 

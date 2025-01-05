@@ -21,12 +21,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.flashcards.controller.AppViewModelProvider
-import com.example.flashcards.controller.viewModels.CardViewModel
 import kotlinx.coroutines.launch
 import com.example.flashcards.R
 import com.example.flashcards.controller.viewModels.CardTypeViewModel
+import com.example.flashcards.controller.viewModels.CardDeckViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.AddCardButton
 import com.example.flashcards.views.miscFunctions.BackButton
@@ -38,6 +36,7 @@ import com.example.flashcards.ui.theme.GetModifier
 class DeckView(
     private var cardTypeViewModel: CardTypeViewModel,
     private var fields : Fields,
+    private var dueCardsViewModel: CardDeckViewModel,
     private var getModifier: GetModifier
 ) {
     @Composable
@@ -46,7 +45,6 @@ class DeckView(
         onNavigate: () -> Unit,
         whichView : View,
         onNavigateToWhichView: () -> Unit) {
-        val cardViewModel: CardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val view = remember {whichView}
         val coroutineScope = rememberCoroutineScope()
         LaunchedEffect(view.whichView.intValue) {
@@ -122,7 +120,7 @@ class DeckView(
                                 Button(
                                     onClick = {
                                         coroutineScope.launch {
-                                            cardViewModel.getDueCards(deck.id,
+                                            dueCardsViewModel.getDueCards(deck.id,
                                                 cardTypeViewModel)
                                         }
                                         if (!fields.inDeckClicked.value) {
