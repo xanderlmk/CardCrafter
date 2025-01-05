@@ -2,10 +2,12 @@
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.org.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.serialization)
-    }
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.parcelize)
+}
 
 android {
     namespace = "com.example.flashcards"
@@ -60,6 +62,7 @@ android {
    ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
     }
+
 
 
 }
