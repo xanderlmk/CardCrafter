@@ -2,6 +2,7 @@ package com.example.flashcards.model
 
 import androidx.room.RoomDatabase
 import android.content.Context
+import androidx.room.BuiltInTypeConverters
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.TypeConverters

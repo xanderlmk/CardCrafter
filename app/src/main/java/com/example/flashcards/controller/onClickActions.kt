@@ -20,7 +20,7 @@ import com.example.flashcards.R
 import com.example.flashcards.controller.navigation.AllTypesUiStates
 import com.example.flashcards.controller.navigation.AllViewModels
 import com.example.flashcards.controller.viewModels.CardViewModel
-import com.example.flashcards.controller.viewModels.DeckViewModel
+import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Deck

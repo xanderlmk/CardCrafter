@@ -1,13 +1,15 @@
 package com.example.flashcards.controller
 
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.flashcards.controller.viewModels.BasicCardViewModel
 import com.example.flashcards.controller.viewModels.CardTypeViewModel
 import com.example.flashcards.controller.viewModels.CardViewModel
-import com.example.flashcards.controller.viewModels.DeckViewModel
+import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
+import com.example.flashcards.controller.viewModels.CardDeckViewModel
 import com.example.flashcards.controller.viewModels.HintCardViewModel
 import com.example.flashcards.controller.viewModels.MultiChoiceCardViewModel
 import com.example.flashcards.controller.viewModels.ThreeCardViewModel
@@ -26,7 +28,11 @@ object AppViewModelProvider {
             CardViewModel(flashCardApplication().container.flashCardRepository)
         }
         initializer {
-            CardTypeViewModel(flashCardApplication().container.cardTypeRepository)
+            CardDeckViewModel(flashCardApplication().container.flashCardRepository)
+        }
+        initializer {
+            CardTypeViewModel(flashCardApplication().container.cardTypeRepository,
+                createSavedStateHandle())
         }
         initializer {
             BasicCardViewModel(

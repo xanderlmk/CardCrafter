@@ -1,5 +1,6 @@
 package com.example.flashcards.model.uiModels
 
+
 import android.os.Parcelable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -10,6 +11,7 @@ import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.HintCardType
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCardType
 import com.example.flashcards.model.tablesAndApplication.ThreeCardType
+
 import kotlinx.parcelize.Parcelize
 import java.util.Date
 
@@ -51,6 +53,7 @@ sealed class CardState {
     //data class Error(val message: String) : CardState()
 }
 
+
 @Parcelize
 class SavedCardList(
     val ids : List<Int>,
@@ -60,5 +63,6 @@ class SavedCardList(
     var prevSuccess: List<Boolean>,
     var totalPasses: List<Int>,
 ) : Parcelable
+
 
 

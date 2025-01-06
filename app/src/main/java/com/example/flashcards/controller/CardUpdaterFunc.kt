@@ -1,24 +1,30 @@
 package com.example.flashcards.controller
 
 import com.example.flashcards.controller.viewModels.CardTypeViewModel
-import com.example.flashcards.controller.viewModels.CardViewModel
+import com.example.flashcards.controller.viewModels.CardDeckViewModel
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.CardState
 import java.util.Calendar
 import java.util.Date
 
+
 fun updateCard(
     card: Card, isSuccess: Boolean,
     deckGoodMultiplier: Double,
-    deckBadMultiplier: Double
+    deckBadMultiplier: Double, deckReviewAmount: Int,
+    again: Boolean
 ): Card {
     val temp = card
     if (temp.reviewsLeft <= 1) {
         if (isSuccess) {
             temp.passes += 1
             temp.prevSuccess = true
+            temp.reviewsLeft = deckReviewAmount
         } else {
+            if (!again) {
+                temp.reviewsLeft = deckReviewAmount
+            }
             temp.prevSuccess = false
         }
         temp.nextReview = timeCalculator(
@@ -78,13 +84,14 @@ private fun calculateReviewMultiplier(
 
 fun handleCardUpdate(
     card: Card, success: Boolean,
-    viewModel: CardViewModel,
-    deckGoodMultiplier: Double,
-    deckBadMultiplier: Double
+    viewModel: CardDeckViewModel,
+    deckGoodMultiplier: Double, deckBadMultiplier: Double,
+    deckReviewAmount: Int, again: Boolean
 ): Card {
     return updateCard(
         card, success, deckGoodMultiplier,
-        deckBadMultiplier
+        deckBadMultiplier, deckReviewAmount,
+        again
     ).also {
         viewModel.transitionTo(CardState.Finished)
     }
@@ -93,8 +100,8 @@ fun handleCardUpdate(
 suspend fun updateDecksCardList(
     deck: Deck,
     cardList: List<Card>,
-    cardViewModel: CardViewModel,
+    dueCardsViewModel: CardDeckViewModel,
     cardTypeViewModel: CardTypeViewModel
 ): Boolean {
-    return cardViewModel.updateCards(deck, cardList, cardTypeViewModel)
+    return dueCardsViewModel.updateCards(deck, cardList, cardTypeViewModel)
 }

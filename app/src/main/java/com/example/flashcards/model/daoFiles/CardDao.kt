@@ -38,7 +38,7 @@ interface CardDao {
     suspend fun updateCard(cardId: Int, type: String)
 
     @Query("SELECT * FROM cards WHERE id = :cardId")
-    suspend fun getCardById(cardId : Int) : Card?
+    suspend fun getCardById(cardId : Int) : Card
 
     @Query("""
         update cards
