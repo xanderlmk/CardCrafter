@@ -2,7 +2,6 @@ package com.example.flashcards.model
 
 import androidx.room.RoomDatabase
 import android.content.Context
-import androidx.room.BuiltInTypeConverters
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.TypeConverters
@@ -13,6 +12,7 @@ import com.example.flashcards.model.daoFiles.CardTypesDao
 import com.example.flashcards.model.daoFiles.DeckDao
 import com.example.flashcards.model.daoFiles.HintCardDao
 import com.example.flashcards.model.daoFiles.MultiChoiceCardDao
+import com.example.flashcards.model.daoFiles.SavedCardDao
 import com.example.flashcards.model.daoFiles.ThreeCardDao
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.Card
@@ -21,29 +21,34 @@ import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
+import com.example.flashcards.model.tablesAndApplication.NonNullConverter
+import com.example.flashcards.model.tablesAndApplication.SavedCard
 import kotlinx.coroutines.CoroutineScope
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-@Database(entities = [
-    Deck::class,
-    Card::class,
-    BasicCard::class,
-    ThreeFieldCard::class,
-    HintCard::class,
-    MultiChoiceCard::class], version = 10)
-@TypeConverters(Converters::class)
+@Database(
+    entities = [
+        Deck::class,
+        Card::class,
+        BasicCard::class,
+        ThreeFieldCard::class,
+        HintCard::class,
+        MultiChoiceCard::class,
+        SavedCard::class], version = 11
+)
+@TypeConverters(Converters::class, NonNullConverter::class)
 abstract class FlashCardDatabase : RoomDatabase() {
-
     abstract fun deckDao(): DeckDao
     abstract fun cardDao(): CardDao
-    abstract fun cardTypes() : CardTypesDao
-    abstract fun basicCardDao() : BasicCardDao
-    abstract fun hintCardDao() : HintCardDao
-    abstract fun threeCardDao() : ThreeCardDao
-    abstract fun multiChoiceCardDao() : MultiChoiceCardDao
+    abstract fun cardTypes(): CardTypesDao
+    abstract fun basicCardDao(): BasicCardDao
+    abstract fun hintCardDao(): HintCardDao
+    abstract fun threeCardDao(): ThreeCardDao
+    abstract fun multiChoiceCardDao(): MultiChoiceCardDao
+    abstract fun savedCardDao(): SavedCardDao
 
     companion object {
         @Volatile
@@ -54,18 +59,19 @@ abstract class FlashCardDatabase : RoomDatabase() {
             return Instance ?: synchronized(this) {
                 val instance =
                     Room.databaseBuilder(context, FlashCardDatabase::class.java, "deck_database")
-                    .addMigrations(
-                        MIGRATION_3_5,
-                        MIGRATION_5_6,
-                        MIGRATION_6_7,
-                        MIGRATION_7_8,
-                        MIGRATION_8_9,
-                        MIGRATION_9_10
-                    )
-                    .fallbackToDestructiveMigration()
-                    .addCallback(FlashCardDatabaseCallback(scope))
-                    // Add callback for population
-                    .build().also { Instance = it }
+                        .addMigrations(
+                            MIGRATION_3_5,
+                            MIGRATION_5_6,
+                            MIGRATION_6_7,
+                            MIGRATION_7_8,
+                            MIGRATION_8_9,
+                            MIGRATION_9_10,
+                            MIGRATION_10_11
+                        )
+                        .fallbackToDestructiveMigration()
+                        .addCallback(FlashCardDatabaseCallback(scope))
+                        // Add callback for population
+                        .build().also { Instance = it }
                 Instance = instance
                 // return instance
                 instance
@@ -80,6 +86,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                 super.onOpen(db)
                 //db.execSQL("PRAGMA foreign_keys=ON;") // Enable foreign key support
             }
+
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
                 //db.execSQL("PRAGMA foreign_keys=ON;") // Enable foreign key support
@@ -87,16 +94,20 @@ abstract class FlashCardDatabase : RoomDatabase() {
                 //runBlocking {
                 Instance?.let { database ->
                     scope.launch(Dispatchers.IO) {
-                        populateDatabase(database.deckDao(), database.cardDao(),
-                            database.basicCardDao())
+                        populateDatabase(
+                            database.deckDao(), database.cardDao(),
+                            database.basicCardDao()
+                        )
                     }
-                //}
+                    //}
                 }
             }
         }
 
-        private suspend fun populateDatabase(deckDao: DeckDao, cardDao: CardDao,
-                                             basicCardDao: BasicCardDao) {
+        private suspend fun populateDatabase(
+            deckDao: DeckDao, cardDao: CardDao,
+            basicCardDao: BasicCardDao
+        ) {
             // Create and insert a new Deck
             val historyDeck = Deck(name = "History")
             deckDao.insertDeck(historyDeck)
@@ -110,27 +121,216 @@ abstract class FlashCardDatabase : RoomDatabase() {
             val nextReviewDate = calendar.time
 
             val cards = listOf(
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
-                Card(deckId = deckId, deckUUID = uuid, nextReview = nextReviewDate, passes = 0, prevSuccess = false, totalPasses = 0, type = "basic", reviewsLeft = historyDeck.reviewAmount),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
+                Card(
+                    deckId = deckId,
+                    deckUUID = uuid,
+                    nextReview = nextReviewDate,
+                    passes = 0,
+                    prevSuccess = false,
+                    totalPasses = 0,
+                    type = "basic",
+                    reviewsLeft = historyDeck.reviewAmount
+                ),
             )
 
             val basicCards = listOf(
@@ -246,7 +446,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                 cardDao.insertCard(card)
             }
             println("making basicCards...")
-            for (basicCard in basicCards){
+            for (basicCard in basicCards) {
                 basicCardDao.insertBasicCard(basicCard)
             }
             println("cards added...")

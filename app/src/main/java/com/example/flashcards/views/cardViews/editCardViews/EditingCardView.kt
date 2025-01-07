@@ -33,7 +33,7 @@ import com.example.flashcards.controller.ThreeCardTypeHandler
 import com.example.flashcards.controller.navigation.AllTypesUiStates
 import com.example.flashcards.controller.navigation.AllViewModels
 import com.example.flashcards.controller.saveCard
-import com.example.flashcards.controller.viewModels.CardTypeViewModel
+import com.example.flashcards.controller.viewModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.CardViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Card
@@ -45,7 +45,7 @@ import kotlinx.coroutines.launch
 class EditingCardView(
     private var cardViewModel: CardViewModel,
     private var cardTypes: AllViewModels,
-    private var cardTypeViewModel: CardTypeViewModel,
+    private var cardTypeViewModel: EditingCardListViewModel,
     private var allTypesUiStates: AllTypesUiStates,
     private var getModifier: GetModifier
 ) {

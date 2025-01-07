@@ -28,7 +28,7 @@ import com.example.flashcards.controller.navigation.AllViewModels
 import com.example.flashcards.controller.viewModels.CardViewModel
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
-import com.example.flashcards.controller.viewModels.CardTypeViewModel
+import com.example.flashcards.controller.viewModels.EditingCardListViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.CardSelector
 import com.example.flashcards.ui.theme.GetModifier
@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 
 class DeckEditView(
     private var viewModel: CardViewModel,
-    private var cardTypeViewModel: CardTypeViewModel,
+    private var cardTypeViewModel: EditingCardListViewModel,
     private var cardTypes: AllViewModels,
     private var fields: Fields,
     private var listState: LazyListState,

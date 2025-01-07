@@ -23,7 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.launch
 import com.example.flashcards.R
-import com.example.flashcards.controller.viewModels.CardTypeViewModel
+import com.example.flashcards.controller.viewModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.CardDeckViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.AddCardButton
@@ -34,7 +34,7 @@ import com.example.flashcards.ui.theme.GetModifier
 
 
 class DeckView(
-    private var cardTypeViewModel: CardTypeViewModel,
+    private var cardTypeViewModel: EditingCardListViewModel,
     private var fields : Fields,
     private var dueCardsViewModel: CardDeckViewModel,
     private var getModifier: GetModifier
@@ -120,8 +120,7 @@ class DeckView(
                                 Button(
                                     onClick = {
                                         coroutineScope.launch {
-                                            dueCardsViewModel.getDueCards(deck.id,
-                                                cardTypeViewModel)
+                                            dueCardsViewModel.getDueCards(deck.id)
                                         }
                                         if (!fields.inDeckClicked.value) {
                                             view.whichView.intValue = 2

@@ -1,16 +1,20 @@
 package com.example.flashcards.model.repositories
+
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.DeckWithCards
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.daoFiles.CardDao
 import com.example.flashcards.model.daoFiles.DeckDao
+import com.example.flashcards.model.daoFiles.SavedCardDao
+import com.example.flashcards.model.tablesAndApplication.SavedCard
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.debounce
 
 class OfflineFlashCardRepository(
     private val deckDao: DeckDao,
-    private val cardDao: CardDao
+    private val cardDao: CardDao,
+    private val savedCardDao: SavedCardDao
 ) : FlashCardRepository {
 
     override suspend fun checkIfDeckExists(deckName: String): Int =
@@ -22,7 +26,7 @@ class OfflineFlashCardRepository(
 
     override fun getAllDecksStream(): Flow<List<Deck>> = deckDao.getAllDecks()
 
-    override suspend fun updateCardType(cardId: Int, type:  String) =
+    override suspend fun updateCardType(cardId: Int, type: String) =
         cardDao.updateCard(cardId, type)
 
     override fun getDeckStream(id: Int): Flow<Deck?> = deckDao.getDeck(id)
@@ -41,30 +45,31 @@ class OfflineFlashCardRepository(
         }
 
     override fun updateDeckGoodMultiplier(newMultiplier: Double, deckId: Int) =
-        try{
+        try {
             deckDao.updateDeckGoodMultiplier(newMultiplier, deckId)
-        } catch(e: Exception){
-            throw  e
+        } catch (e: Exception) {
+            throw e
         }
 
     override fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int) =
-        try{
-            deckDao.updateDeckBadMultiplier(newMultiplier, deckId)
-        } catch(e: Exception){
-            throw  e
-        }
-    override fun updateDeckReviewAmount(newReviewAmount : Int, deckId: Int) =
         try {
-            deckDao.updateReviewAmount(newReviewAmount, deckId)
-        } catch (e: Exception){
-            throw(e)
+            deckDao.updateDeckBadMultiplier(newMultiplier, deckId)
+        } catch (e: Exception) {
+            throw e
         }
 
-    override fun updateCardReviewAmount(newReviewAmount : Int, deckId: Int) =
+    override fun updateDeckReviewAmount(newReviewAmount: Int, deckId: Int) =
+        try {
+            deckDao.updateReviewAmount(newReviewAmount, deckId)
+        } catch (e: Exception) {
+            throw (e)
+        }
+
+    override fun updateCardReviewAmount(newReviewAmount: Int, deckId: Int) =
         try {
             cardDao.updateReviewAmount(newReviewAmount, deckId)
-        } catch (e: Exception){
-            throw(e)
+        } catch (e: Exception) {
+            throw (e)
         }
 
     override suspend fun insertCard(card: Card) = cardDao.insertCard(card)
@@ -82,6 +87,44 @@ class OfflineFlashCardRepository(
 
     override suspend fun deleteAllCards(deckId: Int) = cardDao.deleteAllCards(deckId)
 
-    override suspend fun getCardById(cardId : Int) = cardDao.getCardById(cardId)
+    override suspend fun getCardById(cardId: Int) = cardDao.getCardById(cardId)
 
+    override fun updateSavedCards(
+        cardId: Int,
+        reviewsLeft: Int,
+        nextReview: Long,
+        passes: Int,
+        prevSuccess: Boolean,
+        totalPasses: Int
+    ) = savedCardDao.updateCardsOnStart(
+        cardId, reviewsLeft, nextReview,
+        passes, prevSuccess, totalPasses
+    )
+    override fun deleteSavedCards() = savedCardDao.deleteSavedCards()
+    override fun insertSavedCard(savedCard: SavedCard) = savedCardDao.insertSavedCard(savedCard)
+    override fun getAllSavedCards() = savedCardDao.getAllSavedCards()
 }
+
+/** for new migration
+ *   Expected:
+ *   TableInfo{name='savedCards',
+ *   columns={
+ *      id=Column{name='id', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=1, defaultValue='null'},
+ *      nextReview=Column{name='nextReview', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
+ *      prevSuccess=Column{name='prevSuccess', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
+ *      reviewsLeft=Column{name='reviewsLeft', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
+ *      passes=Column{name='passes', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
+ *      totalPasses=Column{name='totalPasses', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'}},
+ *   foreignKeys=[], indices=[]}
+ *   Found:
+ *   TableInfo{name='savedCards',
+ *   columns={
+ *      id=Column{name='id', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=1, defaultValue='null'},
+ *      nextReview=Column{name='nextReview', type='INTEGER', affinity='3',
+ *      , primaryKeyPosition=0, defaultValue='null'},
+ *      reviewsLeft=Column{name='reviewsLeft', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
+ *      passes=Column{name='passes', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
+ *      prevSuccess=Column{name='prevSuccess', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
+ *      totalPasses=Column{name='totalPasses', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'}},
+ *   foreignKeys=[], indices=[]}
+ */

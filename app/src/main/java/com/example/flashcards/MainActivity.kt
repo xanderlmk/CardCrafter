@@ -1,6 +1,7 @@
 package com.example.flashcards
 
 import android.os.Bundle
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -9,6 +10,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.LaunchedEffect
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,16 +20,18 @@ import com.example.flashcards.controller.navigation.AppNavHost
 import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.navigation.AllViewModels
 import com.example.flashcards.controller.viewModels.BasicCardViewModel
-import com.example.flashcards.controller.viewModels.CardTypeViewModel
+import com.example.flashcards.controller.viewModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.CardViewModel
 import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
 import com.example.flashcards.controller.viewModels.CardDeckViewModel
 import com.example.flashcards.controller.viewModels.HintCardViewModel
 import com.example.flashcards.controller.viewModels.MultiChoiceCardViewModel
 import com.example.flashcards.controller.viewModels.ThreeCardViewModel
+import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.uiModels.Preferences
 import com.example.flashcards.model.uiModels.PreferencesManager
 import com.example.flashcards.ui.theme.FlashcardsTheme
+import kotlinx.coroutines.coroutineScope
 
 class MainActivity : ComponentActivity() {
     private val deckViewModel: DeckViewModel by viewModels {
@@ -36,7 +40,7 @@ class MainActivity : ComponentActivity() {
     private val cardViewModel: CardViewModel by viewModels {
         AppViewModelProvider.Factory
     }
-    private val dueCardsViewModel: CardDeckViewModel by viewModels{
+    private val cardDeckViewModel: CardDeckViewModel by viewModels{
         AppViewModelProvider.Factory
     }
     private val basicCardViewModel: BasicCardViewModel by viewModels {
@@ -48,7 +52,7 @@ class MainActivity : ComponentActivity() {
     private val hintCardViewModel: HintCardViewModel by viewModels {
         AppViewModelProvider.Factory
     }
-    private val cardTypeViewModel: CardTypeViewModel by viewModels {
+    private val cardTypeViewModel: EditingCardListViewModel by viewModels {
         AppViewModelProvider.Factory
     }
     private val multiChoiceCardViewModel: MultiChoiceCardViewModel by viewModels {
@@ -58,10 +62,19 @@ class MainActivity : ComponentActivity() {
     private lateinit var preferences: Preferences
     private lateinit var cardTypes : AllViewModels
 
+    private lateinit var fields : Fields
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            LaunchedEffect(Unit) {
+                coroutineScope {
+                    cardDeckViewModel.performDatabaseUpdate()
+                }
+            }
+            fields = remember { Fields() }
             cardTypes = AllViewModels(
                 basicCardViewModel,
                 hintCardViewModel,
@@ -91,10 +104,11 @@ class MainActivity : ComponentActivity() {
                         navController = rememberNavController(),
                         deckViewModel = deckViewModel,
                         cardViewModel = cardViewModel,
-                        dueCardsViewModel = dueCardsViewModel,
+                        cardDeckViewModel = cardDeckViewModel,
                         cardTypeViewModel = cardTypeViewModel,
                         cardTypes = cardTypes,
                         preferences = preferences,
+                        fields = fields,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -102,26 +116,26 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
     override fun onStop() {
         super.onStop()
         preferences.saveDarkTheme()
         preferences.saveCustomScheme()
-
     }
 
     override fun onPause() {
         super.onPause()
         preferences.saveDarkTheme()
         preferences.saveCustomScheme()
-
     }
 
     override fun onDestroy() {
         super.onDestroy()
         preferences.saveDarkTheme()
         preferences.saveCustomScheme()
-
     }
+
+
 }
 
 /*

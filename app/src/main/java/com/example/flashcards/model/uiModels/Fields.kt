@@ -12,7 +12,7 @@ class Fields(
     var correct: MutableState<Char> = mutableStateOf('?'),
     var scrollPosition : MutableState<Int> = mutableIntStateOf(0),
     val mainClicked : MutableState<Boolean> = mutableStateOf(false),
-    val inDeckClicked : MutableState<Boolean> = mutableStateOf(false)
+    val inDeckClicked : MutableState<Boolean> = mutableStateOf(false),
 ) {
     fun resetFields() {
         question.value = ""
