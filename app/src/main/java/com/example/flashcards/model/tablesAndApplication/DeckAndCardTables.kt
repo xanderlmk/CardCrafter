@@ -1,5 +1,6 @@
 package com.example.flashcards.model.tablesAndApplication
 
+import android.os.Parcelable
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -7,6 +8,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import androidx.room.TypeConverter
+import kotlinx.parcelize.Parcelize
 import java.util.Date
 import java.util.UUID
 
@@ -21,6 +23,7 @@ data class Deck(
     val badMultiplier : Double = 0.5,
     val createdOn: Long = Date().time
 )
+@Parcelize
 @Entity(tableName = "cards",
     foreignKeys = [
         ForeignKey(
@@ -42,7 +45,19 @@ data class Card(
     var totalPasses: Int = 0,
     val type: String,
     val createdOn: Long = Date().time
-)
+) : Parcelable
+
+@Parcelize
+@Entity(tableName = "savedCards")
+data class SavedCard(
+    @PrimaryKey val id: Int,
+    var reviewsLeft : Int,
+    var nextReview: Date,
+    var passes: Int,
+    var prevSuccess: Boolean,
+    var totalPasses: Int,
+) : Parcelable
+
 // Decks has many cards, one card belongs to a deck
 data class DeckWithCards(
     @Embedded val deck: Deck,
@@ -62,5 +77,16 @@ class Converters {
     @TypeConverter
     fun dateToTimestamp(date: Date?): Long? {
         return date?.time
+    }
+}
+
+class NonNullConverter {
+    @TypeConverter
+    fun fromTimestamp(value: Long): Date {
+        return Date(value)
+    }
+    @TypeConverter
+    fun dateToTimestamp(date: Date): Long {
+        return date.time
     }
 }

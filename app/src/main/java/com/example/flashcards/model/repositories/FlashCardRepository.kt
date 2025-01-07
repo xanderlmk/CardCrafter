@@ -2,6 +2,7 @@ package com.example.flashcards.model.repositories
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.DeckWithCards
+import com.example.flashcards.model.tablesAndApplication.SavedCard
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
@@ -47,4 +48,15 @@ interface FlashCardRepository {
 
     suspend fun getCardById(cardId : Int) : Card
 
+    fun updateSavedCards(
+        cardId: Int,
+        reviewsLeft: Int,
+        nextReview: Long,
+        passes: Int,
+        prevSuccess: Boolean,
+        totalPasses: Int
+    )
+    fun deleteSavedCards()
+    fun insertSavedCard(savedCard: SavedCard)
+    fun getAllSavedCards(): Flow<List<SavedCard>>
 }

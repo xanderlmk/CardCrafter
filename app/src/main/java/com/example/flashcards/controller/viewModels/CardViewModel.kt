@@ -15,7 +15,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
-class CardViewModel(private val flashCardRepository: FlashCardRepository) : ViewModel() {
+class CardViewModel(
+    private val flashCardRepository: FlashCardRepository
+) : ViewModel() {
     private val uiState = MutableStateFlow(CardUiState())
     var cardUiState: StateFlow<CardUiState> = uiState.asStateFlow()
 
@@ -38,34 +40,11 @@ class CardViewModel(private val flashCardRepository: FlashCardRepository) : View
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
     }
-    private fun handleError(e: Exception, prefix: String): Boolean {
-        val message = "$prefix: $e"
-        errorMessage.value = message
-        setErrorMessage(message)
-        return true
-    }
 
-    /* IN CASE WE NEED IT AGAIN
-    fun getCards(deckId: Int){
-        try {
-            viewModelScope.launch {
-                withTimeout(TIMEOUT_MILLIS) {
-                    flashCardRepository.getDueCards(deckId).map { cards ->
-                        CardUiState(cardList = cards)
-                    }.collect { state ->
-                        uiState.value = state
-                    }
-                }
-            }
-        } catch (e : TimeoutCancellationException){
-            errorMessage.value = "Request timed out. Please try again."
-            println(e)
-        }
-    }
-    */
+
     fun getDeckWithCards(
         deckId: Int,
-        cardTypeViewModel: CardTypeViewModel,
+        cardTypeViewModel: EditingCardListViewModel,
         cardTypes: AllViewModels
     ) {
         viewModelScope.launch {

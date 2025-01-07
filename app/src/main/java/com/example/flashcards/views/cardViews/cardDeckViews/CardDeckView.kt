@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.controller.handleCardUpdate
 import com.example.flashcards.controller.updateDecksCardList
-import com.example.flashcards.controller.viewModels.CardTypeViewModel
 import com.example.flashcards.controller.viewModels.CardDeckViewModel
 import com.example.flashcards.model.uiModels.CardState
 import com.example.flashcards.model.tablesAndApplication.Deck
@@ -41,35 +40,29 @@ import com.example.flashcards.views.miscFunctions.NoDueCards
 import kotlinx.coroutines.delay
 
 class CardDeckView(
-    private var viewModel: CardDeckViewModel,
-    private var cardTypeViewModel: CardTypeViewModel,
+    private var cardDeckViewModel: CardDeckViewModel,
     private var getModifier: GetModifier
 ) {
     @Composable
     fun ViewCard(
         deck: Deck, onNavigate: () -> Unit
     ) {
-        val cardList by cardTypeViewModel.cardListUiState.collectAsState()
-        val errorState by viewModel.errorState.collectAsState()
+        val cardList by cardDeckViewModel.cardListUiState.collectAsState()
+        /** A extra layer of security making sure that there is no
+         *  unexpected changes to UI when traversing */
+        var dueCards by remember { mutableStateOf(cardList.allCards) }
+
+        val errorState by cardDeckViewModel.errorState.collectAsState()
         var show by remember { mutableStateOf(false) }
         val index = remember { mutableIntStateOf(0) }
         val coroutineScope = rememberCoroutineScope()
         var clicked by remember { mutableStateOf(false) }
 
-        /** A extra layer of security making sure that there is no
-         *  unexpected changes to UI when traversing */
-        var dueCards by remember { mutableStateOf(cardList.allCards) }
-
         /** These are the cards that will be updated and only changed
          *  at the start and once you traverse through the whole cardList */
-        var updatedDueCards by remember { mutableStateOf(cardList.allCards) }
+        val updatedDueCards by cardDeckViewModel.savedCardList.collectAsState()
 
-        /** The success of each card*/
-        var cardsSuccess =
-            remember { MutableList(cardList.allCards.size) { mutableStateOf(false) } }
         val scrollState = rememberScrollState()
-
-        //if (whichView.value)
         Box(
             contentAlignment =
             if (cardList.allCards.isEmpty()) {
@@ -81,9 +74,6 @@ class CardDeckView(
                 .boxViewsModifier()
                 .verticalScroll(scrollState)
         ) {
-            println(updatedDueCards.map { it.card })
-            println(cardList.allCards.map{ it.card})
-            println("compare ^^")
             BackButton(
                 onBackClick = {
                     getModifier.clickedChoice.value = '?'
@@ -97,13 +87,12 @@ class CardDeckView(
             if (cardList.allCards.isEmpty()) {
                 LaunchedEffect(Unit) {
                     coroutineScope.launch {
-                        viewModel.transitionTo(CardState.Loading)
-                        viewModel.getDueCards(deck.id, cardTypeViewModel)
-                        while (viewModel.getState() == CardState.Loading) {
+                        cardDeckViewModel.transitionTo(CardState.Loading)
+                        cardDeckViewModel.getDueCards(deck.id)
+                        while (cardDeckViewModel.getState() == CardState.Loading) {
                             delay(30)
                         }
                         dueCards = cardList.allCards
-                        updatedDueCards = cardList.allCards
                     }
                 }
                 if (cardList.allCards.isEmpty()) {
@@ -112,7 +101,10 @@ class CardDeckView(
             } else {
                 if (index.intValue < dueCards.size) {
                     Text(
-                        text = stringResource(R.string.reviews_left) + "${updatedDueCards[index.intValue].card.reviewsLeft}",
+                        text = stringResource(R.string.reviews_left) +
+                                "${updatedDueCards
+                                    .allCards[index.intValue]
+                                    .card.reviewsLeft}",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
@@ -121,7 +113,7 @@ class CardDeckView(
                             .padding(start = 40.dp, end = 40.dp, top = 8.dp)
                     )
                     if (!show) {
-                        if (viewModel.getState() == CardState.Finished) {
+                        if (cardDeckViewModel.getState() == CardState.Finished) {
                             FrontCard(
                                 Pair(
                                     dueCards[index.intValue].card,
@@ -181,14 +173,13 @@ class CardDeckView(
                                     onClick = {
                                         if (!clicked) {
                                             coroutineScope.launch {
-                                                viewModel.transitionTo(CardState.Loading)
+                                                cardDeckViewModel.transitionTo(CardState.Loading)
                                                 clicked = true
-                                                cardsSuccess[index.intValue].value = false
-                                                updatedDueCards[index.intValue].card =
+                                                updatedDueCards.allCards[index.intValue].card =
                                                     handleCardUpdate(
                                                         dueCards[index.intValue].card,
                                                         success = false,
-                                                        viewModel,
+                                                        cardDeckViewModel,
                                                         deck.goodMultiplier,
                                                         deck.badMultiplier,
                                                         deck.reviewAmount,
@@ -197,7 +188,7 @@ class CardDeckView(
                                                 show = !show
                                             }
                                             coroutineScope.launch {
-                                                while (viewModel.getState() == CardState.Loading) {
+                                                while (cardDeckViewModel.getState() == CardState.Loading) {
                                                     delay(36)
                                                 }
                                                 scrollState.animateScrollTo(0)
@@ -227,14 +218,13 @@ class CardDeckView(
                                     onClick = {
                                         if (!clicked) {
                                             coroutineScope.launch {
-                                                viewModel.transitionTo(CardState.Loading)
+                                                cardDeckViewModel.transitionTo(CardState.Loading)
                                                 clicked = true
-                                                cardsSuccess[index.intValue].value = false
-                                                updatedDueCards[index.intValue].card =
+                                                updatedDueCards.allCards[index.intValue].card =
                                                     handleCardUpdate(
                                                         dueCards[index.intValue].card,
                                                         success = false,
-                                                        viewModel,
+                                                        cardDeckViewModel,
                                                         deck.goodMultiplier,
                                                         deck.badMultiplier,
                                                         deck.reviewAmount,
@@ -244,7 +234,7 @@ class CardDeckView(
                                                 show = !show
                                             }
                                             coroutineScope.launch {
-                                                while (viewModel.getState() == CardState.Loading) {
+                                                while (cardDeckViewModel.getState() == CardState.Loading) {
                                                     delay(36)
                                                 }
                                                 index.intValue = ((index.intValue + 1))
@@ -261,10 +251,12 @@ class CardDeckView(
                                 ) { Text(stringResource(R.string.hard)) }
                                 Text(
                                     text =
-                                    if (updatedDueCards[index.intValue].card.reviewsLeft == 1) {
+                                    if (updatedDueCards.allCards[index.intValue].
+                                        card.reviewsLeft == 1) {
                                         "$hard " + stringResource(R.string.days)
                                     } else {
-                                        "${updatedDueCards[index.intValue].card.reviewsLeft} " +
+                                        "${updatedDueCards.allCards[index.intValue].
+                                        card.reviewsLeft} " +
                                                 "reviews left"
                                     },
                                     color = getModifier.titleColor(),
@@ -282,14 +274,13 @@ class CardDeckView(
                                         if (!clicked) {
                                             clicked = true
                                             coroutineScope.launch {
-                                                viewModel.transitionTo(CardState.Loading)
+                                                cardDeckViewModel.transitionTo(CardState.Loading)
 
-                                                cardsSuccess[index.intValue].value = true
-                                                updatedDueCards[index.intValue].card =
+                                                updatedDueCards.allCards[index.intValue].card =
                                                     handleCardUpdate(
                                                         dueCards[index.intValue].card,
                                                         success = true,
-                                                        viewModel,
+                                                        cardDeckViewModel,
                                                         deck.goodMultiplier,
                                                         deck.badMultiplier,
                                                         deck.reviewAmount,
@@ -299,7 +290,7 @@ class CardDeckView(
                                                 show = !show
                                             }
                                             coroutineScope.launch {
-                                                while (viewModel.getState() == CardState.Loading) {
+                                                while (cardDeckViewModel.getState() == CardState.Loading) {
                                                     delay(36)
                                                 }
                                                 index.intValue = ((index.intValue + 1))
@@ -316,10 +307,12 @@ class CardDeckView(
                                 ) { Text(stringResource(R.string.good)) }
                                 Text(
                                     text =
-                                    if (updatedDueCards[index.intValue].card.reviewsLeft == 1) {
+                                    if (updatedDueCards.allCards[index.intValue].
+                                        card.reviewsLeft == 1) {
                                         "$good " + stringResource(R.string.days)
                                     } else {
-                                        "${updatedDueCards[index.intValue].card.reviewsLeft-1} " +
+                                        "${updatedDueCards.allCards[index.intValue].
+                                        card.reviewsLeft-1} " +
                                                 "reviews left"
                                     },
                                     color = getModifier.titleColor(),
@@ -332,25 +325,23 @@ class CardDeckView(
                 } else {
                     LaunchedEffect(Unit) {
                         coroutineScope.launch {
-                            viewModel.transitionTo(CardState.Loading)
+                            cardDeckViewModel.transitionTo(CardState.Loading)
 
                             /** This function also gets the due cards */
                             updateDecksCardList(
                                 deck,
-                                updatedDueCards.map { cardTypes ->
+                                updatedDueCards.allCards.map { cardTypes ->
                                     cardTypes.card
                                 },
-                                viewModel,
-                                cardTypeViewModel
+                                cardDeckViewModel
                             )
-                            while (viewModel.getState() == CardState.Loading) {
+                            while (cardDeckViewModel.getState() == CardState.Loading) {
                                 delay(30)
                             }
                             if (!errorState?.message.isNullOrEmpty()) {
                                 println(errorState?.message)
                             }
                             dueCards = cardList.allCards
-                            updatedDueCards = cardList.allCards
                             index.intValue = 0
                         }
                     }

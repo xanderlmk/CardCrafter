@@ -4,6 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 
 
+
 data class BasicCardType(
     @Embedded val card: Card,
     @Relation(
@@ -37,6 +38,12 @@ data class MultiChoiceCardType(
     )
     val multiChoiceCard: MultiChoiceCard?
 )
+
+sealed class CardType {
+    abstract val cardId: Int
+}
+
+
 data class AllCardTypes(
     @Embedded var card: Card,
     @Relation(

@@ -15,10 +15,10 @@ import androidx.room.PrimaryKey
         )
     ])
 data class BasicCard(
-    @PrimaryKey val cardId : Int,
+    @PrimaryKey override val  cardId : Int,
     val question : String,
     val answer : String,
-)
+) : CardType()
 
 @Entity(tableName = "threeFieldCard",
     foreignKeys = [
@@ -30,11 +30,11 @@ data class BasicCard(
         )
     ])
 data class ThreeFieldCard(
-    @PrimaryKey val cardId : Int,
+    @PrimaryKey override val cardId : Int,
     val question : String,
     val middle : String,
     val answer : String,
-)
+) : CardType()
 @Entity(tableName = "hintCard",
     foreignKeys = [
         ForeignKey(
@@ -45,11 +45,11 @@ data class ThreeFieldCard(
         )
     ])
 data class HintCard(
-    @PrimaryKey val cardId : Int,
+    @PrimaryKey override val cardId : Int,
     val question : String,
     val hint : String,
     val answer : String,
-)
+) : CardType()
 
 @Entity(tableName = "multiChoiceCard",
     foreignKeys = [
@@ -61,12 +61,11 @@ data class HintCard(
         )
     ])
 data class MultiChoiceCard(
-    @PrimaryKey val cardId : Int,
+    @PrimaryKey override val cardId : Int,
     val question : String,
     val choiceA : String,
     val choiceB : String,
     val choiceC : String = "",
     val choiceD : String = "",
     val correct: Char
-)
-
+): CardType()

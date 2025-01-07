@@ -16,7 +16,7 @@ import java.util.Date
 @Dao
 interface CardDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertCard(card: Card) : Long
+    suspend fun insertCard(card: Card): Long
 
     @Update
     suspend fun updateCard(card: Card)
@@ -38,13 +38,29 @@ interface CardDao {
     suspend fun updateCard(cardId: Int, type: String)
 
     @Query("SELECT * FROM cards WHERE id = :cardId")
-    suspend fun getCardById(cardId : Int) : Card
+    suspend fun getCardById(cardId: Int): Card
 
-    @Query("""
+    @Query(
+        """
         update cards
         set reviewsLeft = :newReviewAmount
         where deckId = :deckId
-    """)
-    fun updateReviewAmount(newReviewAmount : Int, deckId: Int): Int
+    """
+    )
+    fun updateReviewAmount(newReviewAmount: Int, deckId: Int): Int
 
 }
+/**
+ * data class Card(
+ *     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+ *     var deckId : Int,
+ *     val deckUUID: String,
+ *     var reviewsLeft : Int,
+ *     var nextReview: Date?,
+ *     var passes: Int = 0,
+ *     var prevSuccess: Boolean,
+ *     var totalPasses: Int = 0,
+ *     val type: String,
+ *     val createdOn: Long = Date().time
+ * )
+ */

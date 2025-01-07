@@ -16,7 +16,8 @@ class AppDataContainer(private val context: Context, scope: CoroutineScope) : Ap
     override val flashCardRepository: FlashCardRepository by lazy {
         OfflineFlashCardRepository(
             FlashCardDatabase.Companion.getDatabase(context, scope).deckDao(),
-            FlashCardDatabase.Companion.getDatabase(context, scope).cardDao()
+            FlashCardDatabase.Companion.getDatabase(context, scope).cardDao(),
+            FlashCardDatabase.Companion.getDatabase(context,scope).savedCardDao()
         )
     }
     override val cardTypeRepository: CardTypeRepository by lazy {

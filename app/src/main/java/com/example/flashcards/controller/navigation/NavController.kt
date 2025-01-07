@@ -29,7 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.navigation
 import com.example.flashcards.controller.updateDecksCardList
 import com.example.flashcards.controller.viewModels.BasicCardViewModel
-import com.example.flashcards.controller.viewModels.CardTypeViewModel
+import com.example.flashcards.controller.viewModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.CardViewModel
 import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
 import com.example.flashcards.controller.viewModels.CardDeckViewModel
@@ -71,9 +71,10 @@ fun AppNavHost(
     navController: NavHostController,
     deckViewModel: DeckViewModel,
     cardViewModel: CardViewModel,
-    dueCardsViewModel: CardDeckViewModel,
+    cardDeckViewModel: CardDeckViewModel,
     cardTypes: AllViewModels,
-    cardTypeViewModel: CardTypeViewModel,
+    cardTypeViewModel: EditingCardListViewModel,
+    fields: Fields,
     modifier: Modifier = Modifier,
     preferences: Preferences
 ) {
@@ -94,10 +95,8 @@ fun AppNavHost(
             multiCardUiState
         )
 
-    val cardList by cardTypeViewModel.cardListUiState.collectAsState()
+    val cardList by cardDeckViewModel.cardListUiState.collectAsState()
 
-
-    val fields = remember { Fields() }
     val listState = rememberLazyListState()
     val colorScheme = remember { ColorSchemeClass() }
     val getModifier = remember { GetModifier(colorScheme) }
@@ -107,8 +106,7 @@ fun AppNavHost(
 
     val choosingView = ChoosingView()
     val cardDeckView = CardDeckView(
-        dueCardsViewModel, cardTypeViewModel,
-        getModifier
+        cardDeckViewModel, getModifier
     )
     val editDeckView = EditDeckView(deckViewModel, fields, getModifier)
     val deckEditView = remember {
@@ -127,7 +125,7 @@ fun AppNavHost(
     val addDeckView = AddDeckView(deckViewModel, getModifier)
     val deckView = DeckView(
         cardTypeViewModel, fields,
-        dueCardsViewModel, getModifier
+        cardDeckViewModel, getModifier
     )
     val addCardView = AddCardView(fields, cardTypes, getModifier)
     val generalSettings = GeneralSettings(getModifier, preferences)
@@ -205,8 +203,8 @@ fun AppNavHost(
 
                 LaunchedEffect(Unit) {
                     coroutineScope.launch {
-                        dueCardsViewModel.getDueCards(deckId ?: 0, cardTypeViewModel).also {
-                            cardTypeViewModel.updateBackupList()
+                        cardDeckViewModel.getDueCards(deckId ?: 0).also {
+                            cardDeckViewModel.updateBackupList()
                         }
                     }
                 }
@@ -346,8 +344,7 @@ fun AppNavHost(
                                 cardList.allCards.map { cardTypes ->
                                     cardTypes.card
                                 },
-                                dueCardsViewModel,
-                                cardTypeViewModel
+                                cardDeckViewModel
                             )
                         }
                     }
@@ -368,8 +365,7 @@ fun AppNavHost(
                                     cardList.allCards.map { cardTypes ->
                                         cardTypes.card
                                     },
-                                    dueCardsViewModel,
-                                    cardTypeViewModel
+                                    cardDeckViewModel
                                 )
                             }
                         }
