@@ -9,5 +9,9 @@ Features :
 - Different Card Types
 - Custom Themes based off Light/Dark Theme
 
+TO DO :
+- SavedStateBundles for CardDeckView, any View that had input fields
+- Determination whether or not to update the database onCreate() 
+
 
 
