@@ -17,7 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,22 +26,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcards.R
-import com.example.flashcards.controller.navigation.AllViewModels
+import com.example.flashcards.controller.AppViewModelProvider
+import com.example.flashcards.controller.viewModels.cardViewsModels.AddCardViewModel
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.views.miscFunctions.getSavableFields
+
 
 class AddCardView(
     private var fields: Fields,
-    private var cardTypes: AllViewModels,
     private var getModifier: GetModifier
 ) {
     @Composable
     fun AddCard(deck: Deck, onNavigate: () -> Unit) {
-        var expanded by remember { mutableStateOf(false) }
-        val type = remember { mutableStateOf("basic") }
+        var expanded by rememberSaveable { mutableStateOf(false) }
+        val type = rememberSaveable { mutableStateOf("basic") }
+        val addCardVM : AddCardViewModel =
+            viewModel(factory = AppViewModelProvider.Factory)
+        //val scrollState = rememberScrollState()
+
+        fields = getSavableFields(fields)
         Box(
             modifier = getModifier.boxViewsModifier()
         ) {
@@ -117,24 +125,23 @@ class AddCardView(
                 )
                 when (type.value) {
                     "basic" -> AddBasicCard(
-                        cardTypes.basicCardViewModel, deck,
+                        addCardVM, deck,
                         fields, getModifier
                     )
                     "three" -> AddThreeCard(
-                        cardTypes.threeCardViewModel,
-                        deck,
+                        addCardVM, deck,
                         fields, getModifier
                     )
                     "hint" -> AddHintCard(
-                        cardTypes.hintCardViewModel, deck,
+                        addCardVM, deck,
                         fields, getModifier
                     )
                     "multi" -> AddMultiChoiceCard(
-                        cardTypes.multiChoiceCardViewModel, deck,
+                        addCardVM, deck,
                         fields, getModifier
                     )
                     else -> AddBasicCard(
-                        cardTypes.basicCardViewModel, deck,
+                        addCardVM, deck,
                         fields, getModifier
                     )
                 }

@@ -1,6 +1,6 @@
 package com.example.flashcards.controller
 
-import com.example.flashcards.controller.viewModels.CardDeckViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.CardState

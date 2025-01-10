@@ -18,27 +18,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.flashcards.controller.navigation.AllViewModels
-import com.example.flashcards.controller.viewModels.CardViewModel
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
-import com.example.flashcards.controller.viewModels.EditingCardListViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.CardSelector
 import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.ShowBackButtonAndDeckName
-import kotlinx.coroutines.launch
 
-class DeckEditView(
-    private var viewModel: CardViewModel,
-    private var cardTypeViewModel: EditingCardListViewModel,
-    private var cardTypes: AllViewModels,
+class EditCardsList(
+    private var editingCardListVM: EditingCardListViewModel,
     private var fields: Fields,
     private var listState: LazyListState,
     private val selectedCard: MutableState<Card?>,
@@ -54,15 +48,9 @@ class DeckEditView(
     ) {
 
         //var deckWithCards by remember { mutableStateOf(DeckWithCards(Deck(0, loading.toString() ), emptyList())) }
-        val cardListUiState by cardTypeViewModel.cardListUiState.collectAsState()
-        val cardUiState by viewModel.cardUiState.collectAsState()
-        val coroutineScope = rememberCoroutineScope()
-        var middleCard = remember { mutableIntStateOf(0) }
-        var clicked by remember { mutableStateOf(false) }
-
-        coroutineScope.launch {
-            viewModel.getDeckWithCards(deck.id, cardTypeViewModel, cardTypes)
-        }
+        val cardListUiState by editingCardListVM.cardListUiState.collectAsState()
+        var middleCard = rememberSaveable { mutableIntStateOf(0) }
+        var clicked by rememberSaveable { mutableStateOf(false) }
 
         val presetModifier = getModifier.backButtonModifier()
 
@@ -91,13 +79,13 @@ class DeckEditView(
                         .fillMaxSize(),
                     state = listState
                 ) {
-                    items(cardUiState.cardList.size) { index ->
+                    items(cardListUiState.allCards.size) { index ->
                         Button(
                             onClick = {
                                 if (!clicked) {
                                     fields.scrollPosition.value = index
                                     selectedCard.value =
-                                        cardUiState.cardList[index]
+                                        cardListUiState.allCards[index].card
                                     isEditing.value = true
                                     clicked = true
                                     goToEditCard()
@@ -113,7 +101,7 @@ class DeckEditView(
                         ) {
                             CardSelector(
                                 cardListUiState,
-                                cardUiState, index
+                                index
                             )
                         }
                     }

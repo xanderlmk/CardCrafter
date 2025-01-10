@@ -2,6 +2,7 @@ package com.example.flashcards.views
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,14 +10,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import com.example.flashcards.R
-import com.example.flashcards.model.uiModels.Preferences
+import com.example.flashcards.model.uiModels.PreferencesManager
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.SystemThemeButton
 
 class GeneralSettings(
     private var getModifier: GetModifier,
-    private var preferences: Preferences
+    private var preferences: PreferencesManager
 ) {
     @Composable
     fun SettingsView(onNavigate: () -> Unit) {
@@ -27,6 +28,8 @@ class GeneralSettings(
         val customToggled = if (!preferences.customScheme.value)
             painterResource(R.drawable.toggle_on) else
                 painterResource(R.drawable.toggle_off)
+        //val scrollState = rememberScrollState()
+
         Box(
             modifier =
             getModifier.boxViewsModifier()

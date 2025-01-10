@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
-import com.example.flashcards.controller.viewModels.BasicCardViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.AddCardViewModel
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.EditTextField
@@ -37,11 +37,11 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AddBasicCard(
-    viewModel: BasicCardViewModel, deck: Deck,
+    vm : AddCardViewModel, deck: Deck,
     fields: Fields, getModifier: GetModifier
 ) {
 
-    val basicCardUiState by viewModel.basicCardUiState.collectAsState()
+    val errorMessage by vm.errorMessage.collectAsState()
 
     var successMessage by remember { mutableStateOf("") }
     val fillOutFields = stringResource(R.string.fill_out_all_fields).toString()
@@ -105,9 +105,9 @@ fun AddBasicCard(
             )
         }
 
-        if (basicCardUiState.errorMessage.isNotEmpty()) {
+        if (errorMessage.isNotEmpty()) {
             Text(
-                text = basicCardUiState.errorMessage,
+                text = errorMessage,
                 color = Color.Red,
                 modifier = Modifier.padding(4.dp),
                 fontSize = 16.sp
@@ -132,9 +132,9 @@ fun AddBasicCard(
                 scrollState.animateScrollTo(0)
             }
         }
-        LaunchedEffect(basicCardUiState.errorMessage) {
+        LaunchedEffect(errorMessage) {
             delay(1500)
-            viewModel.clearErrorMessage()
+            vm.clearErrorMessage()
         }
 
         Row(
@@ -145,10 +145,10 @@ fun AddBasicCard(
             Button(
                 onClick = {
                     if (fields.question.value.isBlank() || fields.answer.value.isBlank()) {
-                        viewModel.setErrorMessage(fillOutFields)
+                        vm.setErrorMessage(fillOutFields)
                         successMessage = ""
                     } else {
-                        viewModel.addBasicCard(
+                        vm.addBasicCard(
                             deck, fields.question.value, fields.answer.value
                         )
                         fields.answer.value = ""

@@ -1,31 +1,39 @@
 package com.example.flashcards.model.uiModels
 
 import android.content.Context
+import android.os.Bundle
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 
-class Preferences(
-    val customScheme: MutableState<Boolean> = mutableStateOf(false),
-    val darkTheme : MutableState<Boolean>,
-    private val preferencesManager: PreferencesManager
-){
-    init {
-        // Initialize themes
-        darkTheme.value = preferencesManager.isDarkThemeEnabled
-        customScheme.value = preferencesManager.isDynamicThemeEnabled
-    }
-
-    fun saveCustomScheme() {
-        preferencesManager.isDynamicThemeEnabled = customScheme.value
-    }
-
-    fun saveDarkTheme() {
-        preferencesManager.isDarkThemeEnabled = darkTheme.value
+class CreatedBundle(private val savedStateHandle: Bundle?){
+    fun getSavedHandle():Bundle?{
+        return savedStateHandle
     }
 }
 
-class PreferencesManager(context: Context) {
+class PreferencesManager(
+    context: Context,
+    ) {
+
     private val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+
+    val customScheme: MutableState<Boolean> = mutableStateOf(false)
+    val darkTheme: MutableState<Boolean> = mutableStateOf(false)
+
+    init {
+        // Initialize themes
+        darkTheme.value = isDarkThemeEnabled
+        customScheme.value = isDynamicThemeEnabled
+    }
+
+
+    fun saveCustomScheme() {
+        isDynamicThemeEnabled = customScheme.value
+    }
+
+    fun saveDarkTheme() {
+        isDarkThemeEnabled = darkTheme.value
+    }
 
     var isDynamicThemeEnabled: Boolean
         get() = sharedPreferences.getBoolean("dynamic_theme", false)
@@ -41,6 +49,6 @@ class PreferencesManager(context: Context) {
     var isFirstTime: Boolean
         get() = sharedPreferences.getBoolean("first_time", true)
         set(value) {
-            sharedPreferences.edit().putBoolean("first_time",value).apply()
+            sharedPreferences.edit().putBoolean("first_time", value).apply()
         }
 }

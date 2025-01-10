@@ -43,6 +43,12 @@ sealed class CardType {
     abstract val cardId: Int
 }
 
+data class BasicCardDetails(
+    val cardId : Int = 0,
+    val question : String = "",
+    val answer : String = ""
+)
+
 
 data class AllCardTypes(
     @Embedded var card: Card,
@@ -67,3 +73,4 @@ data class AllCardTypes(
     )
     val multiChoiceCard: MultiChoiceCard?
 )
+

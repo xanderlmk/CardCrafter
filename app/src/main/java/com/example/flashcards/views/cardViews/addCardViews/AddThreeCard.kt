@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
-import com.example.flashcards.controller.viewModels.ThreeCardViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.AddCardViewModel
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.EditTextField
@@ -36,9 +36,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddThreeCard(viewModel: ThreeCardViewModel,deck: Deck,
+fun AddThreeCard(vm : AddCardViewModel,deck: Deck,
                  fields: Fields, getModifier: GetModifier) {
-    val threeCardUiState by viewModel.threeCardUiState.collectAsState()
+    val errorMessage by vm.errorMessage.collectAsState()
     var successMessage by remember { mutableStateOf("") }
     val fillOutFields = stringResource(R.string.fill_out_all_fields).toString()
     val cardAdded = stringResource(R.string.card_added).toString()
@@ -127,9 +127,9 @@ fun AddThreeCard(viewModel: ThreeCardViewModel,deck: Deck,
             )
         }
 
-        if (threeCardUiState.errorMessage.isNotEmpty()) {
+        if (errorMessage.isNotEmpty()) {
             Text(
-                text = threeCardUiState.errorMessage,
+                text = errorMessage,
                 color = Color.Red,
                 modifier = Modifier.padding(4.dp),
                 fontSize = 16.sp
@@ -154,9 +154,9 @@ fun AddThreeCard(viewModel: ThreeCardViewModel,deck: Deck,
                 scrollState.animateScrollTo(0)
             }
         }
-        LaunchedEffect(threeCardUiState.errorMessage) {
+        LaunchedEffect(errorMessage) {
             delay(1500)
-            viewModel.clearErrorMessage()
+            vm.clearErrorMessage()
         }
 
         Row(
@@ -170,10 +170,10 @@ fun AddThreeCard(viewModel: ThreeCardViewModel,deck: Deck,
                         fields.answer.value.isBlank() ||
                         fields.middleField.value.isBlank()
                     ) {
-                        viewModel.setErrorMessage(fillOutFields)
+                        vm.setErrorMessage(fillOutFields)
                         successMessage = ""
                     } else {
-                        viewModel.addThreeCard(
+                        vm.addThreeCard(
                             deck, fields.question.value,
                             fields.middleField.value, fields.answer.value
                         )

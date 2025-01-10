@@ -33,23 +33,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.flashcards.R
 
-import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.Deck
-import com.example.flashcards.model.tablesAndApplication.HintCard
-import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.ui.theme.textColor
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
-import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
-import com.example.flashcards.model.uiModels.CardListUiState
-import com.example.flashcards.model.uiModels.CardUiState
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.ui.theme.GetModifier
 
@@ -161,9 +155,9 @@ fun EditIntField(
 
 @Composable
 fun NoDueCards(getModifier: GetModifier) {
-    var delay by remember { mutableStateOf(false) }
+    var delay by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        delay(150)
+        delay(50)
         delay = true
     }
     if (delay) {
@@ -181,42 +175,6 @@ fun NoDueCards(getModifier: GetModifier) {
             )
         }
     }
-}
-
-@Composable
-fun BasicCardQuestion(basicCard: BasicCard) {
-    Text(
-        text = stringResource(R.string.question) + ": ${basicCard.question}",
-        maxLines = 3,
-        overflow = TextOverflow.Ellipsis
-    )
-}
-
-@Composable
-fun ThreeCardQuestion(threeFieldCard: ThreeFieldCard) {
-    Text(
-        text = stringResource(R.string.question) + ": ${threeFieldCard.question}",
-        maxLines = 3,
-        overflow = TextOverflow.Ellipsis
-    )
-}
-
-@Composable
-fun HintCardQuestion(hintCard: HintCard) {
-    Text(
-        text = stringResource(R.string.question) + ": ${hintCard.question}",
-        maxLines = 3,
-        overflow = TextOverflow.Ellipsis
-    )
-}
-
-@Composable
-fun ChoiceCardQuestion(multiChoiceCard: MultiChoiceCard) {
-    Text(
-        text = stringResource(R.string.question) + ": ${multiChoiceCard.question}",
-        maxLines = 3,
-        overflow = TextOverflow.Ellipsis
-    )
 }
 
 @Composable
@@ -246,41 +204,6 @@ fun ShowBackButtonAndDeckName(
             textAlign = TextAlign.Center,
             color = getModifier.buttonTextColor()
         )
-    }
-}
-
-@Composable
-fun CardSelector(
-    cardListUiState: CardListUiState,
-    cardUiState: CardUiState,
-    index: Int
-) {
-    if (cardListUiState.allCards.size == cardUiState.cardList.size) {
-        when (cardUiState.cardList[index].type) {
-            "basic" -> {
-                val basicCard =
-                    cardListUiState.allCards[index].basicCard
-                basicCard?.let { BasicCardQuestion(basicCard) }
-            }
-
-            "three" -> {
-                val threeCard =
-                    cardListUiState.allCards[index].threeFieldCard
-                threeCard?.let { ThreeCardQuestion(threeCard) }
-            }
-
-            "hint" -> {
-                val hintCard =
-                    cardListUiState.allCards[index].hintCard
-                hintCard?.let { HintCardQuestion(hintCard) }
-            }
-
-            "multi" -> {
-                val choiceCard =
-                    cardListUiState.allCards[index].multiChoiceCard
-                choiceCard?.let { ChoiceCardQuestion(choiceCard) }
-            }
-        }
     }
 }
 
@@ -392,6 +315,20 @@ fun returnDeckError(): List<String> {
         stringResource(R.string.empty_deck_name).toString(),
         stringResource(R.string.deck_name_exists).toString(),
         stringResource(R.string.deck_name_failed).toString()
+    )
+}
+
+@Composable
+fun getSavableFields(fields: Fields) : Fields{
+    return Fields(
+        question = rememberSaveable { mutableStateOf("") },
+        middleField = rememberSaveable { mutableStateOf("") },
+        answer = rememberSaveable { mutableStateOf("") },
+        choices = rememberSaveable {MutableList(4) { mutableStateOf("") } },
+        correct = rememberSaveable { mutableStateOf('?') },
+        scrollPosition = fields.scrollPosition,
+        inDeckClicked = fields.inDeckClicked,
+        mainClicked = fields.mainClicked
     )
 }
 

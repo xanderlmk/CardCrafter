@@ -15,7 +15,7 @@ import com.example.flashcards.views.cardViews.addCardViews.AddCardView
 import com.example.flashcards.views.deckViews.AddDeckView
 import com.example.flashcards.views.cardViews.cardDeckViews.CardDeckView
 import com.example.flashcards.views.miscFunctions.ChoosingView
-import com.example.flashcards.views.cardViews.editCardViews.DeckEditView
+import com.example.flashcards.views.cardViews.editCardViews.EditCardsList
 import com.example.flashcards.views.deckViews.DeckView
 import com.example.flashcards.views.MainView
 import com.example.flashcards.model.uiModels.View
@@ -26,23 +26,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.navigation.compose.navigation
 import com.example.flashcards.controller.updateDecksCardList
-import com.example.flashcards.controller.viewModels.BasicCardViewModel
-import com.example.flashcards.controller.viewModels.EditingCardListViewModel
-import com.example.flashcards.controller.viewModels.CardViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
-import com.example.flashcards.controller.viewModels.CardDeckViewModel
-import com.example.flashcards.controller.viewModels.HintCardViewModel
-import com.example.flashcards.controller.viewModels.MultiChoiceCardViewModel
-import com.example.flashcards.controller.viewModels.ThreeCardViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.example.flashcards.model.uiModels.Fields
-import com.example.flashcards.model.uiModels.Preferences
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.BasicCardUiState
 import com.example.flashcards.model.uiModels.HintCardUiState
 import com.example.flashcards.model.uiModels.MultiChoiceUiCardState
+import com.example.flashcards.model.uiModels.PreferencesManager
 import com.example.flashcards.model.uiModels.ThreeCardUiState
 import com.example.flashcards.ui.theme.ColorSchemeClass
 import com.example.flashcards.views.GeneralSettings
@@ -51,13 +47,6 @@ import com.example.flashcards.views.cardViews.editCardViews.EditingCardView
 import com.example.flashcards.ui.theme.GetModifier
 import kotlinx.coroutines.launch
 
-
-data class AllViewModels(
-    val basicCardViewModel: BasicCardViewModel,
-    val hintCardViewModel: HintCardViewModel,
-    val threeCardViewModel: ThreeCardViewModel,
-    val multiChoiceCardViewModel: MultiChoiceCardViewModel
-)
 
 data class AllTypesUiStates(
     val basicCardUiState: BasicCardUiState,
@@ -70,23 +59,22 @@ data class AllTypesUiStates(
 fun AppNavHost(
     navController: NavHostController,
     deckViewModel: DeckViewModel,
-    cardViewModel: CardViewModel,
     cardDeckViewModel: CardDeckViewModel,
-    cardTypes: AllViewModels,
-    cardTypeViewModel: EditingCardListViewModel,
+    editingCardListVM: EditingCardListViewModel,
     fields: Fields,
     modifier: Modifier = Modifier,
-    preferences: Preferences
+    preferences: PreferencesManager
 ) {
     val deckUiState by deckViewModel.deckUiState.collectAsState()
+
     val basicCardUiState by
-    cardTypes.basicCardViewModel.basicCardUiState.collectAsState()
+    editingCardListVM.basicCardUiState.collectAsState()
     val hintCardUiState by
-    cardTypes.hintCardViewModel.hintCardUiState.collectAsState()
+    editingCardListVM.hintCardUiState.collectAsState()
     val threeCardUiState by
-    cardTypes.threeCardViewModel.threeCardUiState.collectAsState()
+    editingCardListVM.threeCardUiState.collectAsState()
     val multiCardUiState by
-    cardTypes.multiChoiceCardViewModel.multiChoiceUiState.collectAsState()
+    editingCardListVM.multiChoiceUiState.collectAsState()
     val allTypesUiStates =
         AllTypesUiStates(
             basicCardUiState,
@@ -102,32 +90,29 @@ fun AppNavHost(
     val getModifier = remember { GetModifier(colorScheme) }
     colorScheme.colorScheme = MaterialTheme.colorScheme
     val view = remember { View() }
-    val selectedCard: MutableState<Card?> = remember { mutableStateOf(null) }
+    val selectedCard: MutableState<Card?> = rememberSaveable { mutableStateOf(null) }
 
     val choosingView = ChoosingView()
     val cardDeckView = CardDeckView(
         cardDeckViewModel, getModifier
     )
-    val editDeckView = EditDeckView(deckViewModel, fields, getModifier)
+    val editDeckView = EditDeckView(fields, getModifier)
     val deckEditView = remember {
-        DeckEditView(
-            cardViewModel,
-            cardTypeViewModel,
-            cardTypes, fields, listState,
+        EditCardsList(
+            editingCardListVM,
+            fields, listState,
             selectedCard, getModifier
         )
     }
     val editingCardView = EditingCardView(
-        cardViewModel, cardTypes, cardTypeViewModel,
-        allTypesUiStates, getModifier
+        editingCardListVM, allTypesUiStates, getModifier
     )
     val mainView = MainView(getModifier, fields)
-    val addDeckView = AddDeckView(deckViewModel, getModifier)
+    val addDeckView = AddDeckView(getModifier)
     val deckView = DeckView(
-        cardTypeViewModel, fields,
-        cardDeckViewModel, getModifier
+        fields, cardDeckViewModel, getModifier
     )
-    val addCardView = AddCardView(fields, cardTypes, getModifier)
+    val addCardView = AddCardView(fields, getModifier)
     val generalSettings = GeneralSettings(getModifier, preferences)
 
     val coroutineScope = rememberCoroutineScope()
@@ -207,6 +192,9 @@ fun AppNavHost(
                             cardDeckViewModel.updateBackupList()
                         }
                     }
+                    coroutineScope.launch {
+                        editingCardListVM.getAllCardsForDeck(deckId ?: 0)
+                    }
                 }
                 BackHandler {
                     view.whichView.intValue = 0
@@ -242,10 +230,14 @@ fun AppNavHost(
 
                 LaunchedEffect(Unit) {
                     coroutineScope.launch {
-                        deckViewModel.getDeckById(deckId ?: 0, cardTypes).collect { flow ->
+                        deckViewModel.getDeckById(
+                            deckId ?: 0,
+                            editingCardListVM
+                        ).collect { flow ->
                             deck.value = flow
                         }
                     }
+
                 }
                 deck.value?.let { deck ->
                     choosingView.WhichScreen(
@@ -286,7 +278,10 @@ fun AppNavHost(
 
                 LaunchedEffect(Unit) {
                     coroutineScope.launch {
-                        deckViewModel.getDeckById(deckId ?: 0, cardTypes).collect { flow ->
+                        deckViewModel.getDeckById(
+                            deckId ?: 0,
+                            editingCardListVM
+                        ).collect { flow ->
                             deck.value = flow
                         }
                     }
@@ -322,7 +317,10 @@ fun AppNavHost(
 
                 LaunchedEffect(Unit) {
                     coroutineScope.launch {
-                        deckViewModel.getDeckById(deckId ?: 0, cardTypes).collect { flow ->
+                        deckViewModel.getDeckById(
+                            deckId ?: 0,
+                            editingCardListVM
+                        ).collect { flow ->
                             deck.value = flow
                         }
                     }
@@ -380,7 +378,11 @@ fun AppNavHost(
 
                 LaunchedEffect(Unit) {
                     coroutineScope.launch {
-                        deckViewModel.getDeckById(deckId ?: 0, cardTypes).collect { flow ->
+                        deckViewModel.getDeckById(
+                            deckId ?: 0,
+
+                            editingCardListVM
+                        ).collect { flow ->
                             deck.value = flow
                         }
                     }
@@ -421,7 +423,10 @@ fun AppNavHost(
 
                 LaunchedEffect(Unit) {
                     coroutineScope.launch {
-                        deckViewModel.getDeckById(deckId ?: 0, cardTypes).collect { flow ->
+                        deckViewModel.getDeckById(
+                            deckId ?: 0,
+                            editingCardListVM
+                        ).collect { flow ->
                             deck.value = flow
                         }
                     }

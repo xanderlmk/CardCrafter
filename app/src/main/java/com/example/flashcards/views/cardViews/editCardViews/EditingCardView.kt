@@ -25,16 +25,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcards.R
+import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.BasicCardTypeHandler
 import com.example.flashcards.controller.ChoiceCardTypeHandler
 import com.example.flashcards.controller.HintCardTypeHandler
 import com.example.flashcards.controller.ThreeCardTypeHandler
 import com.example.flashcards.controller.navigation.AllTypesUiStates
-import com.example.flashcards.controller.navigation.AllViewModels
-import com.example.flashcards.controller.saveCard
-import com.example.flashcards.controller.viewModels.EditingCardListViewModel
-import com.example.flashcards.controller.viewModels.CardViewModel
+import com.example.flashcards.controller.onClickActions.saveCard
+import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.ui.theme.GetModifier
@@ -43,9 +44,7 @@ import com.example.flashcards.views.miscFunctions.delayNavigate
 import kotlinx.coroutines.launch
 
 class EditingCardView(
-    private var cardViewModel: CardViewModel,
-    private var cardTypes: AllViewModels,
-    private var cardTypeViewModel: EditingCardListViewModel,
+    private var editingCardListVM: EditingCardListViewModel,
     private var allTypesUiStates: AllTypesUiStates,
     private var getModifier: GetModifier
 ) {
@@ -56,9 +55,10 @@ class EditingCardView(
         selectedCard: MutableState<Card?>,
         onNavigateBack: () -> Unit
     ) {
+        val editCardVM : EditCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val fillOutfields = stringResource(R.string.fill_out_all_fields).toString()
         val coroutineScope = rememberCoroutineScope()
-        val cardListUiState by cardTypeViewModel.cardListUiState.collectAsState()
+        val cardListUiState by editingCardListVM.cardListUiState.collectAsState()
         Box(
             modifier = getModifier.boxViewsModifier()
         ) {
@@ -82,7 +82,7 @@ class EditingCardView(
                         modifier = getModifier.editCardModifier()
                     )
                     DeleteCardButton(
-                        cardViewModel, getModifier, card, fields, onNavigateBack,
+                        editCardVM, getModifier, card, fields, onNavigateBack,
                         Modifier.align(Alignment.TopEnd)
                     )
                 }
@@ -105,6 +105,7 @@ class EditingCardView(
                         }
 
                         else -> {
+                            println("NULL")
                             null
                         }
                     }
@@ -149,13 +150,13 @@ class EditingCardView(
                             onClick = {
                                 coroutineScope.launch {
                                     val success = saveCard(
-                                        selectedCard, fields, cardTypes,
+                                        selectedCard, fields, editCardVM,
                                         allTypesUiStates
                                     )
                                     if (success) {
                                         onNavigateBack()
                                     } else {
-                                        cardTypeViewModel.setErrorMessage(fillOutfields)
+                                        editingCardListVM.setErrorMessage(fillOutfields)
                                     }
                                 }
                             },

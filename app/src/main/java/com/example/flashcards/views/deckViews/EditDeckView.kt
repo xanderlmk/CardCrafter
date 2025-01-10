@@ -1,5 +1,6 @@
 package com.example.flashcards.views.deckViews
 
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,18 +10,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,12 +32,15 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 import com.example.flashcards.R
-import com.example.flashcards.controller.DeleteDeck
-import com.example.flashcards.controller.updateDeckName
-import com.example.flashcards.controller.updateMultipliers
-import com.example.flashcards.controller.updateReviewAmount
+import com.example.flashcards.controller.AppViewModelProvider
+import com.example.flashcards.controller.onClickActions.DeleteDeck
+import com.example.flashcards.controller.onClickActions.updateDeckName
+import com.example.flashcards.controller.onClickActions.updateMultipliers
+import com.example.flashcards.controller.onClickActions.updateReviewAmount
+import com.example.flashcards.controller.viewModels.deckViewsModels.EditDeckViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.views.miscFunctions.BackButton
@@ -42,14 +48,16 @@ import com.example.flashcards.views.miscFunctions.EditDoubleField
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.EditIntField
+import com.example.flashcards.views.miscFunctions.createDeckDetails
+import com.example.flashcards.views.miscFunctions.retrieveDeckDetails
 import com.example.flashcards.views.miscFunctions.returnDeckError
 import com.example.flashcards.views.miscFunctions.returnMultiplierError
 import com.example.flashcards.views.miscFunctions.returnReviewError
+import com.example.flashcards.views.miscFunctions.setDeckFields
 import kotlinx.coroutines.delay
 import kotlin.String
 
 class EditDeckView(
-    private var viewModel: DeckViewModel,
     private var fields: Fields,
     private var getModifier: GetModifier
 ) {
@@ -58,17 +66,26 @@ class EditDeckView(
         currentName: String, deck: Deck,
         onNavigate: () -> Unit, onDelete: () -> Unit
     ) {
-        var newDeckName by remember { mutableStateOf(currentName) }
-        var newGoodMultiplier by remember { mutableDoubleStateOf(deck.goodMultiplier) }
-        var newBadMultiplier by remember { mutableDoubleStateOf(deck.badMultiplier) }
-        var newReviewAmount by remember { mutableStateOf(deck.reviewAmount.toString()) }
+        val vm: EditDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
+        var deckDetails by remember {
+            mutableStateOf(
+                if (vm.deckIA == true) {
+                    retrieveDeckDetails(vm)
+                } else {
+                    createDeckDetails(deck)
+                }
+            )
+        }
+        if (vm.deckIA == false || vm.deckIA == null) {
+            setDeckFields(vm, deck, currentName)
+        }
         val multiplierErrorMessage = remember { mutableStateOf("") }
         val reviewErrorMessage = remember { mutableStateOf("") }
         val deckErrorMessage = remember { mutableStateOf("") }
         val multiplierSuccessful = remember { mutableStateOf("") }
         val reviewAmountSuccessful = remember { mutableStateOf("") }
         val isSubmitting = remember { mutableStateOf(false) }
-        val expanded = remember { List(3) {mutableStateOf(false) }}
+        var expanded = rememberSaveable { MutableList(3) { mutableStateOf(false) } }
 
         val deckErrors = returnDeckError()
         val reviewAmountErrors = returnReviewError()
@@ -77,9 +94,11 @@ class EditDeckView(
         val updatedReview = stringResource(R.string.updated_review)
 
         val coroutineScope = rememberCoroutineScope()
+        val scrollState = rememberScrollState()
 
         Box(
-            modifier = getModifier.boxViewsModifier()
+            modifier = getModifier
+                .scrollableBoxViewModifier(scrollState)
         ) {
             BackButton(
                 onBackClick = {
@@ -90,7 +109,8 @@ class EditDeckView(
             )
             Column(
                 modifier = Modifier
-                    .padding(top = 20.dp, start = 15.dp, end = 15.dp),
+                    .padding(top = 20.dp, start = 15.dp, end = 15.dp)
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -130,9 +150,10 @@ class EditDeckView(
                     }
                 } else {
                     EditTextField(
-                        value = newDeckName,
+                        value = deckDetails.name.value,
                         onValueChanged = {
-                            newDeckName = it
+                            deckDetails.name.value = it
+                            vm.updateNameField(it)
                             deckErrorMessage.value = "" // Clear error when user types
                         },
                         labelStr = stringResource(R.string.deck_name),
@@ -165,7 +186,8 @@ class EditDeckView(
                         Button(
                             onClick = {
                                 deckErrorMessage.value = ""
-                                newDeckName = currentName
+                                vm.updateNameField(currentName)
+                                deckDetails.name.value = currentName
                                 expanded[0].value = false
                             },
                             colors = ButtonDefaults.buttonColors(
@@ -180,9 +202,9 @@ class EditDeckView(
                         Button(
                             onClick = {
                                 updateDeckName(
-                                    viewModel, newDeckName,
+                                    vm, deckDetails.name.value,
                                     deckErrorMessage, deckErrors,
-                                    currentName,  isSubmitting, deck,
+                                    currentName, isSubmitting, deck,
                                     onNavigate, coroutineScope
                                 )
                             },
@@ -238,9 +260,10 @@ class EditDeckView(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         EditDoubleField(
-                            value = newGoodMultiplier.toString(),
+                            value = deckDetails.gm.value,
                             onValueChanged = {
-                                newGoodMultiplier = it.toDouble()
+                                deckDetails.gm.value = it
+                                vm.updateGMField(it.toDoubleOrNull()?: 0.0)
                                 multiplierErrorMessage.value = "" // Clear error when user types
                             },
                             labelStr = stringResource(R.string.good_multiplier),
@@ -249,9 +272,10 @@ class EditDeckView(
                                 .padding(end = 2.dp)
                         )
                         EditDoubleField(
-                            value = newBadMultiplier.toString(),
+                            value = deckDetails.bm.value,
                             onValueChanged = {
-                                newBadMultiplier = it.toDouble()
+                                deckDetails.bm.value = it
+                                vm.updateBMField(it.toDoubleOrNull()?: 0.0)
                                 multiplierErrorMessage.value = "" // Clear error when user types
                             },
                             labelStr = stringResource(R.string.bad_multiplier),
@@ -291,8 +315,10 @@ class EditDeckView(
                         Button(
                             onClick = {
                                 multiplierErrorMessage.value = ""
-                                newBadMultiplier = deck.badMultiplier
-                                newGoodMultiplier = deck.goodMultiplier
+                                vm.updateBMField(deck.badMultiplier)
+                                deckDetails.bm.value = deck.badMultiplier.toString()
+                                vm.updateGMField(deck.goodMultiplier)
+                                deckDetails.gm.value = deck.goodMultiplier.toString()
                                 expanded[1].value = false
                             },
                             colors = ButtonDefaults.buttonColors(
@@ -307,9 +333,9 @@ class EditDeckView(
                         Button(
                             onClick = {
                                 updateMultipliers(
-                                    viewModel,
-                                    newGoodMultiplier,
-                                    newBadMultiplier,
+                                    vm,
+                                    deckDetails.gm.value.toDoubleOrNull() ?: deck.goodMultiplier,
+                                    deckDetails.bm.value.toDoubleOrNull() ?: deck.badMultiplier,
                                     multiplierErrorMessage,
                                     isSubmitting,
                                     deck, multiplierSuccessful,
@@ -356,19 +382,16 @@ class EditDeckView(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxWidth()
-                                .padding(
-                                    horizontal = 8.dp,
-                                    vertical = 12.dp
-                                ),
                         ) {
                             Text(stringResource(R.string.edit_review_amount))
                         }
                     }
                 } else {
                     EditIntField(
-                        value = newReviewAmount,
+                        value = deckDetails.ra.value,
                         onValueChanged = {
-                            newReviewAmount = it
+                            deckDetails.ra.value = it
+                            vm.updateRAField(it)
                         },
                         labelStr = stringResource(R.string.review_amount),
                         modifier = Modifier
@@ -413,7 +436,8 @@ class EditDeckView(
                         Button(
                             onClick = {
                                 reviewErrorMessage.value = ""
-                                newReviewAmount = deck.reviewAmount.toString()
+                                vm.updateRAField(deck.reviewAmount.toString())
+                                deckDetails.ra.value = deck.reviewAmount.toString()
                                 expanded[2].value = false
                             },
                             colors = ButtonDefaults.buttonColors(
@@ -428,7 +452,7 @@ class EditDeckView(
                         Button(
                             onClick = {
                                 updateReviewAmount(
-                                    viewModel, newReviewAmount.toIntOrNull()?: 0,
+                                    vm, deckDetails.ra.value.toIntOrNull() ?: 0,
                                     reviewErrorMessage, isSubmitting, deck,
                                     reviewAmountSuccessful, reviewAmountErrors,
                                     updatedReview, coroutineScope
@@ -464,7 +488,7 @@ class EditDeckView(
                             .weight(1f)
                     ) {
                         DeleteDeck(
-                            viewModel, deck,
+                            vm, deck,
                             getModifier, coroutineScope,
                             fields, onDelete
                         )

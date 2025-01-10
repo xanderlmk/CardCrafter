@@ -12,23 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.flashcards.controller.navigation.AppNavHost
 import com.example.flashcards.controller.AppViewModelProvider
-import com.example.flashcards.controller.navigation.AllViewModels
-import com.example.flashcards.controller.viewModels.BasicCardViewModel
-import com.example.flashcards.controller.viewModels.EditingCardListViewModel
-import com.example.flashcards.controller.viewModels.CardViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
-import com.example.flashcards.controller.viewModels.CardDeckViewModel
-import com.example.flashcards.controller.viewModels.HintCardViewModel
-import com.example.flashcards.controller.viewModels.MultiChoiceCardViewModel
-import com.example.flashcards.controller.viewModels.ThreeCardViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.example.flashcards.model.uiModels.Fields
-import com.example.flashcards.model.uiModels.Preferences
 import com.example.flashcards.model.uiModels.PreferencesManager
 import com.example.flashcards.ui.theme.FlashcardsTheme
 import kotlinx.coroutines.coroutineScope
@@ -37,64 +29,49 @@ class MainActivity : ComponentActivity() {
     private val deckViewModel: DeckViewModel by viewModels {
         AppViewModelProvider.Factory
     }
-    private val cardViewModel: CardViewModel by viewModels {
-        AppViewModelProvider.Factory
-    }
-    private val cardDeckViewModel: CardDeckViewModel by viewModels{
-        AppViewModelProvider.Factory
-    }
-    private val basicCardViewModel: BasicCardViewModel by viewModels {
-        AppViewModelProvider.Factory
-    }
-    private val threeCardViewModel: ThreeCardViewModel by viewModels {
-        AppViewModelProvider.Factory
-    }
-    private val hintCardViewModel: HintCardViewModel by viewModels {
+    private val cardDeckViewModel: CardDeckViewModel by viewModels {
         AppViewModelProvider.Factory
     }
     private val cardTypeViewModel: EditingCardListViewModel by viewModels {
         AppViewModelProvider.Factory
     }
-    private val multiChoiceCardViewModel: MultiChoiceCardViewModel by viewModels {
-        AppViewModelProvider.Factory
-    }
-    private lateinit var preferencesManager: PreferencesManager
-    private lateinit var preferences: Preferences
-    private lateinit var cardTypes : AllViewModels
+    private lateinit var preferences: PreferencesManager
 
-    private lateinit var fields : Fields
+
+    private lateinit var fields: Fields
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LaunchedEffect(Unit) {
-                coroutineScope {
-                    cardDeckViewModel.performDatabaseUpdate()
+            if (deckViewModel.appStarted.value == null ||
+                deckViewModel.appStarted.value == false
+            ) {
+                LaunchedEffect(Unit) {
+                    coroutineScope {
+                        deckViewModel.performDatabaseUpdate()
+                        deckViewModel.updateActivity()
+                    }
                 }
             }
-            fields = remember { Fields() }
-            cardTypes = AllViewModels(
-                basicCardViewModel,
-                hintCardViewModel,
-                threeCardViewModel,
-                multiChoiceCardViewModel
-            )
-
-            val isSystemDark = isSystemInDarkTheme()
-            preferencesManager = remember { PreferencesManager(applicationContext) }
-
-            if (preferencesManager.isFirstTime) {
-                preferencesManager.isDarkThemeEnabled = isSystemDark
-                preferencesManager.isFirstTime = false
-            }
             preferences = remember {
-                Preferences(
-                    darkTheme = mutableStateOf(isSystemDark),
-                    preferencesManager = preferencesManager
+                PreferencesManager(
+                    applicationContext
                 )
             }
+            fields = remember { Fields() }
+
+
+            val isSystemDark = isSystemInDarkTheme()
+
+
+            if (preferences.isFirstTime) {
+                preferences.isDarkThemeEnabled = isSystemDark
+                preferences.isFirstTime = false
+            }
+
+
             FlashcardsTheme(
                 darkTheme = preferences.darkTheme.value,
                 dynamicColor = preferences.customScheme.value
@@ -103,10 +80,8 @@ class MainActivity : ComponentActivity() {
                     AppNavHost(
                         navController = rememberNavController(),
                         deckViewModel = deckViewModel,
-                        cardViewModel = cardViewModel,
                         cardDeckViewModel = cardDeckViewModel,
-                        cardTypeViewModel = cardTypeViewModel,
-                        cardTypes = cardTypes,
+                        editingCardListVM = cardTypeViewModel,
                         preferences = preferences,
                         fields = fields,
                         modifier = Modifier.padding(innerPadding)
@@ -119,20 +94,18 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
+        if (::preferences.isInitialized) {
         preferences.saveDarkTheme()
         preferences.saveCustomScheme()
+        }
     }
 
     override fun onPause() {
         super.onPause()
+        if (::preferences.isInitialized) {
         preferences.saveDarkTheme()
         preferences.saveCustomScheme()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        preferences.saveDarkTheme()
-        preferences.saveCustomScheme()
+        }
     }
 
 
