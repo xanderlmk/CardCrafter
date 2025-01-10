@@ -36,8 +36,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.flashcards.R
-import com.example.flashcards.controller.DeleteCard
-import com.example.flashcards.controller.viewModels.CardViewModel
+import com.example.flashcards.controller.onClickActions.DeleteCard
+import com.example.flashcards.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.ui.theme.GetModifier
@@ -260,7 +260,7 @@ fun SystemThemeButton(
 
 @Composable
 fun DeleteCardButton(
-    cardViewModel: CardViewModel,
+    editCardVM: EditCardViewModel,
     getModifier: GetModifier, card: Card,
     fields: Fields,
     onDelete: () -> Unit,
@@ -292,7 +292,7 @@ fun DeleteCardButton(
             tint = getModifier.iconColor()
         )
         DeleteCard(
-            cardViewModel, coroutineScope,
+            editCardVM, coroutineScope,
             card, fields, showDialog,
             onDelete, getModifier
         )

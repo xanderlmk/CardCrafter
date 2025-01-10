@@ -5,15 +5,15 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.flashcards.controller.viewModels.BasicCardViewModel
-import com.example.flashcards.controller.viewModels.EditingCardListViewModel
-import com.example.flashcards.controller.viewModels.CardViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
-import com.example.flashcards.controller.viewModels.CardDeckViewModel
-import com.example.flashcards.controller.viewModels.HintCardViewModel
-import com.example.flashcards.controller.viewModels.MultiChoiceCardViewModel
-import com.example.flashcards.controller.viewModels.ThreeCardViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.AddCardViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.EditCardViewModel
+import com.example.flashcards.controller.viewModels.deckViewsModels.AddDeckViewModel
+import com.example.flashcards.controller.viewModels.deckViewsModels.EditDeckViewModel
 import com.example.flashcards.model.tablesAndApplication.FlashCardApplication
+
 
 
 /**
@@ -23,12 +23,26 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             DeckViewModel(
-                flashCardApplication().container.flashCardRepository
+                flashCardApplication().container.flashCardRepository,
+                this.createSavedStateHandle()
             )
         }
         initializer {
-            CardViewModel(
-                flashCardApplication().container.flashCardRepository
+            AddDeckViewModel(
+                flashCardApplication().container.flashCardRepository,
+                this.createSavedStateHandle()
+            )
+        }
+        initializer {
+            EditDeckViewModel(
+                flashCardApplication().container.flashCardRepository,
+                this.createSavedStateHandle()
+            )
+        }
+        initializer {
+            AddCardViewModel(
+                flashCardApplication().container.flashCardRepository,
+                flashCardApplication().container.cardTypeRepository
             )
         }
         initializer {
@@ -43,25 +57,7 @@ object AppViewModelProvider {
             )
         }
         initializer {
-            BasicCardViewModel(
-                flashCardApplication().container.flashCardRepository,
-                flashCardApplication().container.cardTypeRepository
-            )
-        }
-        initializer {
-            ThreeCardViewModel(
-                flashCardApplication().container.flashCardRepository,
-                flashCardApplication().container.cardTypeRepository
-            )
-        }
-        initializer {
-            HintCardViewModel(
-                flashCardApplication().container.flashCardRepository,
-                flashCardApplication().container.cardTypeRepository
-            )
-        }
-        initializer {
-            MultiChoiceCardViewModel(
+            EditCardViewModel(
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.cardTypeRepository
             )

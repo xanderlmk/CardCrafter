@@ -1,5 +1,6 @@
 package com.example.flashcards.ui.theme
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
@@ -76,6 +78,15 @@ class GetModifier(
 
     fun boxViewsModifier(): Modifier {
         return Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+            .background(color = colorScheme.colorScheme.background)
+    }
+
+    fun scrollableBoxViewModifier(scrollState: ScrollState): Modifier {
+        return Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
             .fillMaxSize()
             .padding(8.dp)
             .background(color = colorScheme.colorScheme.background)

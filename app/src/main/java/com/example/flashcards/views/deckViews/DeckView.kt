@@ -23,8 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.launch
 import com.example.flashcards.R
-import com.example.flashcards.controller.viewModels.EditingCardListViewModel
-import com.example.flashcards.controller.viewModels.CardDeckViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.AddCardButton
 import com.example.flashcards.views.miscFunctions.BackButton
@@ -34,7 +33,6 @@ import com.example.flashcards.ui.theme.GetModifier
 
 
 class DeckView(
-    private var cardTypeViewModel: EditingCardListViewModel,
     private var fields : Fields,
     private var dueCardsViewModel: CardDeckViewModel,
     private var getModifier: GetModifier
@@ -59,7 +57,8 @@ class DeckView(
                 }
         }
         Box(
-            modifier = getModifier.boxViewsModifier()
+            modifier = getModifier
+                .boxViewsModifier()
         ) {
             BackButton(
                 onBackClick = { onNavigate() },

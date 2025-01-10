@@ -81,6 +81,7 @@ class ChoiceCardTypeHandler : CardTypeHandler {
         state: AllTypesUiStates,
         getModifier: GetModifier
     ) {
+
         val choiceCard =
             state.multiChoiceUiCardState.multiChoiceCard.find {
                 it.card.id == cardId

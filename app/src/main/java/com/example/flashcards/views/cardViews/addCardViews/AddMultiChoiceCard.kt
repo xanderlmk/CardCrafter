@@ -28,7 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
-import com.example.flashcards.controller.viewModels.MultiChoiceCardViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.AddCardViewModel
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.EditTextField
@@ -39,11 +39,11 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AddMultiChoiceCard(
-    viewModel: MultiChoiceCardViewModel, deck: Deck,
+    vm : AddCardViewModel, deck: Deck,
     fields: Fields, getModifier: GetModifier
 ) {
     var successMessage by remember { mutableStateOf("") }
-    val multiChoiceUiCardState by viewModel.multiChoiceUiState.collectAsState()
+    val errorMessage by vm.errorMessage.collectAsState()
     val fillOutFields = stringResource(R.string.fill_out_all_fields).toString()
     val cardAdded = stringResource(R.string.card_added).toString()
     val scrollState = rememberScrollState()
@@ -242,9 +242,9 @@ fun AddMultiChoiceCard(
 
         PickAnswerChar(fields,getModifier)
 
-        if (multiChoiceUiCardState.errorMessage.isNotEmpty()) {
+        if (errorMessage.isNotEmpty()) {
             Text(
-                text = multiChoiceUiCardState.errorMessage,
+                text = errorMessage,
                 color = Color.Red,
                 modifier = Modifier.padding(4.dp),
                 fontSize = 16.sp
@@ -269,9 +269,9 @@ fun AddMultiChoiceCard(
                 scrollState.animateScrollTo(0)
             }
         }
-        LaunchedEffect(multiChoiceUiCardState.errorMessage) {
+        LaunchedEffect(errorMessage) {
             delay(1500)
-            viewModel.clearErrorMessage()
+            vm.clearErrorMessage()
         }
 
         Row(
@@ -286,22 +286,22 @@ fun AddMultiChoiceCard(
                         fields.choices[1].value.isBlank() ||
                         fields.correct.value !in 'a'..'d'
                     ) {
-                        viewModel.setErrorMessage(fillOutFields)
+                        vm.setErrorMessage(fillOutFields)
                         successMessage = ""
                     } else if (fields.choices[2].value.isBlank() &&
                         fields.choices[3].value.isNotBlank()
                     ) {
-                        viewModel.setErrorMessage("Cannot skip choice C and fill choice D")
+                        vm.setErrorMessage("Cannot skip choice C and fill choice D")
                         successMessage = ""
                     } else if ((fields.choices[2].value.isBlank() &&
                                 fields.correct.value == 'c') ||
                         (fields.choices[3].value.isBlank() &&
                                 fields.correct.value == 'd')
                     ) {
-                        viewModel.setErrorMessage("Answer can't be a blank choice")
+                        vm.setErrorMessage("Answer can't be a blank choice")
                         successMessage = ""
                     } else {
-                        viewModel.addMultiChoiceCard(
+                        vm.addMultiChoiceCard(
                             deck, fields.question.value,
                             fields.choices[0].value,
                             fields.choices[1].value,

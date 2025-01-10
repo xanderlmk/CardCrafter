@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,9 +26,11 @@ import kotlinx.coroutines.launch
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcards.R
+import com.example.flashcards.controller.AppViewModelProvider
+import com.example.flashcards.controller.viewModels.deckViewsModels.AddDeckViewModel
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.ui.theme.GetModifier
@@ -35,25 +38,24 @@ import com.example.flashcards.views.miscFunctions.EditIntField
 
 
 class AddDeckView(
-    private var viewModel: DeckViewModel,
     private var getModifier: GetModifier
 ) {
-
-
     @Composable
     fun AddDeck(onNavigate: () -> Unit) {
+        val viewModel: AddDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
         var errorMessage by remember { mutableStateOf("") }
-        var deckName by remember { mutableStateOf("") }
-        var deckReviewAmount by remember { mutableStateOf("1") }
+        var deckName by remember {  mutableStateOf(viewModel.deckName) }
+        var deckReviewAmount by remember {mutableStateOf(viewModel.deckReviewAmount) }
         val coroutineScope = rememberCoroutineScope()
         val fieldOutAllFields = stringResource(R.string.fill_out_all_fields).toString()
         val deckNameAlreadyExists = stringResource(R.string.deck_already_exists).toString()
         val reviewAmount0 = stringResource(R.string.review_amount_0).toString()
         val reviewAmount10 = stringResource(R.string.review_amount_10).toString()
         val error = stringResource(R.string.error).toString()
+        val scrollState = rememberScrollState()
 
         Box(
-            modifier = getModifier.boxViewsModifier()
+            modifier = getModifier.scrollableBoxViewModifier(scrollState)
         ) {
             BackButton(
                 onBackClick = {
@@ -87,8 +89,9 @@ class AddDeckView(
                 ) {
                     EditTextField(
                         value = deckName,
-                        onValueChanged = { newText ->
-                            deckName = newText
+                        onValueChanged = {
+                            deckName = it
+                            viewModel.updateDeckName(it)
                         },
                         labelStr = stringResource(R.string.deck_name),
                         modifier = Modifier
@@ -115,6 +118,7 @@ class AddDeckView(
                         value = deckReviewAmount,
                         onValueChanged = {
                             deckReviewAmount = it
+                            viewModel.updateDeckReviewAmount(it)
                         },
                         labelStr = stringResource(R.string.review_amount) +
                                 " (" + stringResource(R.string.default_value) + " 1)",

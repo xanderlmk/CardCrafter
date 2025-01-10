@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.controller.handleCardUpdate
 import com.example.flashcards.controller.updateDecksCardList
-import com.example.flashcards.controller.viewModels.CardDeckViewModel
+import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.example.flashcards.model.uiModels.CardState
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.views.miscFunctions.BackButton
