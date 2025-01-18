@@ -255,8 +255,8 @@ abstract class FlashCardDatabase : RoomDatabase() {
                 basicCardDao.insertBasicCard(basicCard)
             }
 
-
             val motorCycleCards = List(75) {
+
                 Card(
                     deckId = mcDeck,
                     deckUUID = mcUuid,
