@@ -1,5 +1,6 @@
 package com.example.flashcards.model.tablesAndApplication
 
+import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.Embedded
 import androidx.room.Entity
@@ -8,6 +9,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import androidx.room.TypeConverter
+import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import java.util.Date
 import java.util.UUID
@@ -39,13 +41,46 @@ data class Card(
     var deckId : Int,
     val deckUUID: String,
     var reviewsLeft : Int,
-    var nextReview: Date?,
+    var nextReview: Date,
     var passes: Int = 0,
     var prevSuccess: Boolean,
     var totalPasses: Int = 0,
     val type: String,
     val createdOn: Long = Date().time
-) : Parcelable
+) : Parcelable {
+    constructor(parcel: Parcel) : this(
+        parcel.readInt(),
+        parcel.readInt(),
+        parcel.readString()!!,
+        parcel.readInt(),
+        Date(parcel.readLong()),
+        parcel.readInt(),
+        parcel.readByte() != 0.toByte(),
+        parcel.readInt(),
+        parcel.readString()!!,
+        parcel.readLong()
+    )
+
+    companion object : Parceler<Card> {
+
+        override fun Card.write(parcel: Parcel, flags: Int) {
+            parcel.writeInt(id)
+            parcel.writeInt(deckId)
+            parcel.writeString(deckUUID)
+            parcel.writeInt(reviewsLeft)
+            parcel.writeLong(nextReview.time)
+            parcel.writeInt(passes)
+            parcel.writeByte(if (prevSuccess) 1 else 0)
+            parcel.writeInt(totalPasses)
+            parcel.writeString(type)
+            parcel.writeLong(createdOn)
+        }
+
+        override fun create(parcel: Parcel): Card {
+            return Card(parcel)
+        }
+    }
+}
 
 @Parcelize
 @Entity(tableName = "savedCards")
@@ -68,17 +103,7 @@ data class DeckWithCards(
     val cards: List<Card>
 )
 
-class Converters {
-    @TypeConverter
-    fun fromTimestamp(value: Long?): Date? {
-        return value?.let { Date(it) }
-    }
 
-    @TypeConverter
-    fun dateToTimestamp(date: Date?): Long? {
-        return date?.time
-    }
-}
 
 class NonNullConverter {
     @TypeConverter

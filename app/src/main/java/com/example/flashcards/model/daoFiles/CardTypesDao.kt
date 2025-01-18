@@ -20,4 +20,9 @@ interface CardTypesDao{
         ORDER BY cards.id""")
     fun getAllCardTypes(deckId : Int) :
             Flow<List<AllCardTypes>>
+
+    @Transaction
+    @Query("""SELECT * FROM cards where id = :id""")
+    fun getACardType(id : Int) :
+            AllCardTypes
 }

@@ -16,7 +16,6 @@ import com.example.flashcards.model.daoFiles.SavedCardDao
 import com.example.flashcards.model.daoFiles.ThreeCardDao
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.Card
-import com.example.flashcards.model.tablesAndApplication.Converters
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.model.tablesAndApplication.Deck
@@ -37,9 +36,9 @@ import java.util.Calendar
         ThreeFieldCard::class,
         HintCard::class,
         MultiChoiceCard::class,
-        SavedCard::class], version = 11
+        SavedCard::class], version = 12
 )
-@TypeConverters(Converters::class, NonNullConverter::class)
+@TypeConverters( NonNullConverter::class)
 abstract class FlashCardDatabase : RoomDatabase() {
     abstract fun deckDao(): DeckDao
     abstract fun cardDao(): CardDao
@@ -66,7 +65,8 @@ abstract class FlashCardDatabase : RoomDatabase() {
                             MIGRATION_7_8,
                             MIGRATION_8_9,
                             MIGRATION_9_10,
-                            MIGRATION_10_11
+                            MIGRATION_10_11,
+                            MIGRATION_11_12
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(FlashCardDatabaseCallback(scope))
@@ -82,10 +82,6 @@ abstract class FlashCardDatabase : RoomDatabase() {
         private class FlashCardDatabaseCallback(
             private val scope: CoroutineScope
         ) : Callback() {
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                super.onOpen(db)
-                //db.execSQL("PRAGMA foreign_keys=ON;") // Enable foreign key support
-            }
 
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
@@ -259,8 +255,8 @@ abstract class FlashCardDatabase : RoomDatabase() {
                 basicCardDao.insertBasicCard(basicCard)
             }
 
+            val motorCycleCards = List(75) {
 
-            val motorCycleCards = List(77) {
                 Card(
                     deckId = mcDeck,
                     deckUUID = mcUuid,
@@ -509,7 +505,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'd'
                 ),
                 MultiChoiceCard(
-                    cardId = 49,
+                    cardId = 48,
                     question = "In a crash, the single biggest point of impact on a rider is the:",
                     choiceA = "forehead",
                     choiceB = "chin",
@@ -518,7 +514,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 50,
+                    cardId = 49,
                     question = "The primary purpose of the outer shell of a motorcycle helmet is:",
                     choiceA = "to provide comfort to the rider",
                     choiceB = "to resist penetration and disperse energy",
@@ -527,7 +523,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 51,
+                    cardId = 50,
                     question = "At night or in times of poor visibility, it is important that your face shield or goggles are:",
                     choiceA = "tinted light",
                     choiceB = "dark tinted",
@@ -536,7 +532,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'c'
                 ),
                 MultiChoiceCard(
-                    cardId = 52,
+                    cardId = 51,
                     question = "The purpose of motorcycle gloves is:",
                     choiceA = "provide protection against debris",
                     choiceB = "provide warmth",
@@ -545,7 +541,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'd'
                 ),
                 MultiChoiceCard(
-                    cardId = 53,
+                    cardId = 52,
                     question = "When crossing an obstacle, the rider should look:",
                     choiceA = "down at the road in front of the tire",
                     choiceB = "at the obstacle",
@@ -554,7 +550,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'c'
                 ),
                 MultiChoiceCard(
-                    cardId = 55,
+                    cardId = 53,
                     question = "When riding in the rain, the rider should:",
                     choiceA = "predict less traction",
                     choiceB = "ride in the tracks of the vehicle in front",
@@ -563,7 +559,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'd'
                 ),
                 MultiChoiceCard(
-                    cardId = 56,
+                    cardId = 54,
                     question = "Proper posture includes having the right wrist:",
                     choiceA = "higher than the knuckles",
                     choiceB = "flat or even with the knuckles",
@@ -572,7 +568,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 57,
+                    cardId = 55,
                     question = "The front brake supplies about ___ of total stopping power on a cruiser-type motorcycle",
                     choiceA = "30%",
                     choiceB = "50%",
@@ -581,7 +577,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'c'
                 ),
                 MultiChoiceCard(
-                    cardId = 58,
+                    cardId = 56,
                     question = "On a sport bike, approximately ___ of total stopping power is provided by the rear brake",
                     choiceA = "10%",
                     choiceB = "30%",
@@ -590,7 +586,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'a'
                 ),
                 MultiChoiceCard(
-                    cardId = 59,
+                    cardId = 57,
                     question = "The tachometer on a motorcycle shows ___",
                     choiceA = "road speed in miles per hour",
                     choiceB = "gear position",
@@ -599,7 +595,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'c'
                 ),
                 MultiChoiceCard(
-                    cardId = 60,
+                    cardId = 58,
                     question = "When riding within a group, the inexperienced driver is usually (should be) ___",
                     choiceA = "at the tail end of the group",
                     choiceB = "in front of the group",
@@ -608,7 +604,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'd'
                 ),
                 MultiChoiceCard(
-                    cardId = 61,
+                    cardId = 59,
                     question = "The most effective way to stop quickly is to ______",
                     choiceA = "use both brakes simultaneously in a straight line",
                     choiceB = "use only the front brake",
@@ -617,7 +613,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'a'
                 ),
                 MultiChoiceCard(
-                    cardId = 62,
+                    cardId = 60,
                     question = "Bright, reflective colors should be worn ___",
                     choiceA = "only at night",
                     choiceB = "during the day",
@@ -626,7 +622,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'c'
                 ),
                 MultiChoiceCard(
-                    cardId = 63,
+                    cardId = 61,
                     question = "A good entry-speed for a curve is:",
                     choiceA = "a speed that allows you to roll on the throttle or maintain throttle at the beginning of the curve",
                     choiceB = "a speed that allows you to brake through the curve",
@@ -635,7 +631,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'a'
                 ),
                 MultiChoiceCard(
-                    cardId = 64,
+                    cardId = 62,
                     question = "The best place to find the correct pressure for your tires is:",
                     choiceA = "the sidewall of the tire",
                     choiceB = "the motorcycle's owner's manual",
@@ -644,7 +640,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 65,
+                    cardId = 63,
                     question = "When riding your motorcycle, where is the most likely place for colliding with another vehicle?",
                     choiceA = "curve",
                     choiceB = "steep hill",
@@ -653,7 +649,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'c'
                 ),
                 MultiChoiceCard(
-                    cardId = 66,
+                    cardId = 64,
                     question = "Where do most single-vehicle (motorcycle) crashes occur?",
                     choiceA = "curve",
                     choiceB = "steep hill",
@@ -662,7 +658,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'a'
                 ),
                 MultiChoiceCard(
-                    cardId = 67,
+                    cardId = 65,
                     question = "Stopping quickly in a curve requires the rider to:",
                     choiceA = "applying both brakes hard and fast while leaned",
                     choiceB = "leaning the opposite direction while braking",
@@ -671,7 +667,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'c'
                 ),
                 MultiChoiceCard(
-                    cardId = 68,
+                    cardId = 66,
                     question = "How many escape paths should a rider keep open in a collision trap?",
                     choiceA = "1",
                     choiceB = "2",
@@ -680,7 +676,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'd'
                 ),
                 MultiChoiceCard(
-                    cardId = 69,
+                    cardId = 67,
                     question = "When riding in a crosswind, the rider may have to:",
                     choiceA = "use more hand-grip into the wind",
                     choiceB = "use the rear brake",
@@ -689,7 +685,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'a'
                 ),
                 MultiChoiceCard(
-                    cardId = 70,
+                    cardId = 68,
                     question = "Why does a motorcycle have an engine cut-off switch?",
                     choiceA = "as an emergency backup to the key",
                     choiceB = "to offer another option for turning off the engine",
@@ -698,7 +694,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'c'
                 ),
                 MultiChoiceCard(
-                    cardId = 71,
+                    cardId = 69,
                     question = "What does the clutch lever do?",
                     choiceA = "shift gears",
                     choiceB = "pop a wheelie",
@@ -707,7 +703,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'd'
                 ),
                 MultiChoiceCard(
-                    cardId = 72,
+                    cardId = 70,
                     question = "Which gear should the rider be in when coming to a stop?",
                     choiceA = "1st",
                     choiceB = "2nd",
@@ -716,7 +712,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'a'
                 ),
                 MultiChoiceCard(
-                    cardId = 73,
+                    cardId = 71,
                     question = "What is 'engine braking'?",
                     choiceA = "braking while the engine is on",
                     choiceB = "using only the rear brake",
@@ -725,7 +721,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'd'
                 ),
                 MultiChoiceCard(
-                    cardId = 74,
+                    cardId = 72,
                     question = "Which type of helmet provides the most protection in case of a crash?",
                     choiceA = "half-shell helmet",
                     choiceB = "three-quarter helmet",
@@ -734,7 +730,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'd'
                 ),
                 MultiChoiceCard(
-                    cardId = 75,
+                    cardId = 73,
                     question = "Motorcycle helmets should be ____.",
                     choiceA = "OSHA compliant",
                     choiceB = "FDA compliant",
@@ -743,7 +739,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'c'
                 ),
                 MultiChoiceCard(
-                    cardId = 76,
+                    cardId = 74,
                     question = "Counterweighting is used...",
                     choiceA = "in low-speed tight turns",
                     choiceB = "in high-speed turns",
@@ -752,7 +748,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'a'
                 ),
                 MultiChoiceCard(
-                    cardId = 77,
+                    cardId = 75,
                     question = "Why is it important to do a head check when changing lanes?",
                     choiceA = "it shows other drivers your intention",
                     choiceB = "someone might be in your blind spot",
@@ -761,7 +757,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 78,
+                    cardId = 76,
                     question = "The 'friction zone' on a motorcycle is:",
                     choiceA = "where the motor starts putting power to the rear wheel through the clutch",
                     choiceB = "when the rear wheel spins, sliding on its side",
@@ -770,7 +766,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'a'
                 ),
                 MultiChoiceCard(
-                    cardId = 79,
+                    cardId = 77,
                     question = "Why should you rise up slightly off of the seat when crossing over an obstacle?",
                     choiceA = "to keep the obstacle from moving",
                     choiceB = "to see better",
@@ -779,7 +775,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'c'
                 ),
                 MultiChoiceCard(
-                    cardId = 80,
+                    cardId = 78,
                     question = "Why is riding a motorcycle more dangerous than driving a car?",
                     choiceA = "less visibility",
                     choiceB = "less protection",
@@ -788,7 +784,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'd'
                 ),
                 MultiChoiceCard(
-                    cardId = 81,
+                    cardId = 79,
                     question = "In seconds, what is a following distance that generally provides enough time to stop or swerve in an urgent situation?",
                     choiceA = "2 seconds",
                     choiceB = "4 seconds",
@@ -797,7 +793,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 82,
+                    cardId = 80,
                     question = "How much more dangerous is riding a motorcycle compared to a car?",
                     choiceA = "about 4 times more dangerous",
                     choiceB = "about 30 times more dangerous",
@@ -806,7 +802,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 83,
+                    cardId = 81,
                     question = "What are the requirements for wearing a helmet?",
                     choiceA = "passengers only are required to wear helmets.",
                     choiceB = "All motorcycle riders and passengers are required to wear helmets at all times.",
@@ -815,7 +811,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 84,
+                    cardId = 82,
                     question = "Grabbing the front brake or jamming down on the rear brake:",
                     choiceA = "Can cause the brakes to lock.",
                     choiceB = "Is the best way to stop in an emergency.",
@@ -824,7 +820,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'a'
                 ),
                 MultiChoiceCard(
-                    cardId = 85,
+                    cardId = 83,
                     question = "Passengers on motorcycle should:",
                     choiceA = "Put their feet on the ground when the motorcycle is stopped.",
                     choiceB = "Not ride without a backrest.",
@@ -833,7 +829,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 86,
+                    cardId = 84,
                     question = "When riding with a group of motorcyclists, a staggered formation:",
                     choiceA = "Is recommended at all times.",
                     choiceB = "Should not be used when entering or exiting a highway.",
@@ -842,7 +838,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 87,
+                    cardId = 85,
                     question = "Eye protection:",
                     choiceA = "Is not needed if your motorcycle is equipped with a windshield.",
                     choiceB = "Is only needed when riding in bad weather.",
@@ -851,7 +847,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'c'
                 ),
                 MultiChoiceCard(
-                    cardId = 88,
+                    cardId = 86,
                     question = "A primary cause of single vehicle motorcycle collisions is:",
                     choiceA = "Motorcyclists' tendency to drive too fast for weather conditions",
                     choiceB = "Motorcyclists running wide in a curve or turn and colliding with the roadway or a fixed object.",
@@ -860,7 +856,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 89,
+                    cardId = 87,
                     question = "When riding at night you should:",
                     choiceA = "Move closer to the vehicle in front of you to use its lights to see farther down the road.",
                     choiceB = "Keep driving at your normal speed because slowing down would increase the chance of being struck from behind.",
@@ -869,7 +865,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'c'
                 ),
                 MultiChoiceCard(
-                    cardId = 90,
+                    cardId = 88,
                     question = "You should operate the engine cut-off switch and pull in the clutch when:",
                     choiceA = "The throttle is stuck and you can't free it.",
                     choiceB = "You start to lose control in a curve.",
@@ -878,7 +874,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'a'
                 ),
                 MultiChoiceCard(
-                    cardId = 91,
+                    cardId = 89,
                     question = "To operate a moped, you must have at least a ____ license:",
                     choiceA = "Class M1",
                     choiceB = "Class M2",
@@ -887,7 +883,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 92,
+                    cardId = 90,
                     question = "Upshifting or downshifting in a curve:",
                     choiceA = "Should only be done if it can be done smoothly",
                     choiceB = "Is better than shifting before the curve",
@@ -896,7 +892,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'a'
                 ),
                 MultiChoiceCard(
-                    cardId = 93,
+                    cardId = 91,
                     question = "To avoid confusing other drivers you should:",
                     choiceA = "Increase the following distance between your motorcycle and the vehicle in front of you if you are being tailgated",
                     choiceB = "Make sure your turn signal turns off after you finish a turn",
@@ -905,7 +901,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 94,
+                    cardId = 92,
                     question = "____ is a major factor in collisions caused by motorcycles:",
                     choiceA = "Following too closely",
                     choiceB = "Lane sharing",
@@ -914,7 +910,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'a'
                 ),
                 MultiChoiceCard(
-                    cardId = 95,
+                    cardId = 93,
                     question = "If you must carry a load, it should be:",
                     choiceA = "Either over or in front of the rear axle",
                     choiceB = "Carried on the gas tank in front of the driver",
@@ -923,7 +919,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'a'
                 ),
                 MultiChoiceCard(
-                    cardId = 96,
+                    cardId = 94,
                     question = "What is the best way to stay out of trouble while riding a motorcycle?",
                     choiceA = "By avoiding high density traffic areas",
                     choiceB = "By increasing the following distance between your motorcycle and the vehicle in front of you",
@@ -932,7 +928,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'c'
                 ),
                 MultiChoiceCard(
-                    cardId = 97,
+                    cardId = 95,
                     question = "A motorcycle rider has an advantage over an automobile driver when passing parked vehicles because:",
                     choiceA = "A motorcycle can accelerate faster than a car",
                     choiceB = "A motorcycle rider can avoid the problems of opening doors and people stepping out from between vehicles like driving in the left part of the lane",
@@ -941,7 +937,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     correct = 'b'
                 ),
                 MultiChoiceCard(
-                    cardId = 98,
+                    cardId = 96,
                     question = "To execute a turn safely, a motorcycle rider should always:",
                     choiceA = "Lean the motorcycle in the direction of the curve or turn",
                     choiceB = "Slow down in the turn",
@@ -952,7 +948,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
             )
 
             val threeFC = ThreeFieldCard(
-                cardId = 99,
+                cardId = 97,
                 question = "What should you do when you get a stuck throttle?",
                 middle = "if the throttle cable is stuck: twist the throttle back and forth several times this may free it.",
                 answer = "If that doesn't work: immediately operate the engine cutoff, switch and pull in the clutch at the same time.",

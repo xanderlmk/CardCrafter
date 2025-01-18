@@ -13,7 +13,7 @@ interface SavedCardDao {
     @Query("SELECT * from savedCards")
     fun getAllSavedCards(): Flow<List<SavedCard>>
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSavedCard(savedCard: SavedCard)
     @Query(
         """

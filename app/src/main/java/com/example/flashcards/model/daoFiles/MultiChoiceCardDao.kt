@@ -16,7 +16,7 @@ interface MultiChoiceCardDao {
     suspend fun insertMultiChoiceCard(multiChoiceCard: MultiChoiceCard) : Long
 
     @Transaction
-    @Query("SELECT * FROM cards where id = :cardId ")
+    @Query("SELECT * FROM cards where id = :cardId")
     fun getMultiChoiceCard(cardId :Int) : Flow<MultiChoiceCardType>
 
     @Query("DELETE FROM multiChoiceCard WHERE cardId = :cardId")
@@ -41,11 +41,13 @@ interface MultiChoiceCardDao {
     )
 
     @Transaction
-    @Query("SELECT * FROM cards where deckId = :deckId")
+    @Query("SELECT * FROM cards where deckId = :deckId AND type = 'multi'")
     fun getAllMultiChoiceCards(deckId: Int): Flow<List<MultiChoiceCardType>>
 
     @Transaction
-    @Query("SELECT * FROM cards WHERE deckId = :deckId AND nextReview <= :currentTime")
+    @Query("""
+        SELECT * FROM cards WHERE deckId = :deckId 
+        AND nextReview <= :currentTime AND type = 'multi'""")
     fun getDueMultiChoiceCards(
         deckId : Int,
         currentTime : Long = Date().time

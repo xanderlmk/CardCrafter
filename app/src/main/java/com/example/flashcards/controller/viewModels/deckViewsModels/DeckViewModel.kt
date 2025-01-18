@@ -85,24 +85,26 @@ class DeckViewModel(
                 while (!completed) {
                     delay(50)
                 }
-                savedCardUiState.value.savedCards.map { card ->
+                // Process cards in batches of 50
+                savedCardUiState.value.savedCards.chunked(50).map { cardBatch ->
                     viewModelScope.launch(Dispatchers.IO) {
-                        Log.d("Updating cards", "Almost there")
-                        flashCardRepository.updateSavedCards(
-                            cardId = card.id,
-                            reviewsLeft = card.reviewsLeft,
-                            nextReview = card.nextReview.time,
-                            passes = card.passes,
-                            prevSuccess = card.prevSuccess,
-                            totalPasses = card.totalPasses
-                        )
+                        cardBatch.forEach { card ->
+                            Log.d("Updating cards", "Processing batch")
+                            flashCardRepository.updateSavedCards(
+                                cardId = card.id,
+                                reviewsLeft = card.reviewsLeft,
+                                nextReview = card.nextReview.time,
+                                passes = card.passes,
+                                prevSuccess = card.prevSuccess,
+                                totalPasses = card.totalPasses
+                            )
+                        }
                     }
                 }.joinAll().also {
                     viewModelScope.launch(Dispatchers.IO) {
                         flashCardRepository.deleteSavedCards()
                     }
                 }
-
             } catch (e: Exception) {
                 val error = when (e) {
                     is IOException -> CardUpdateError.NetworkError(e)

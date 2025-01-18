@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.flashcards.R
@@ -114,6 +115,29 @@ fun BackButton(
 }
 
 @Composable
+fun RedoCardButton(
+    onRedoClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    getModifier: GetModifier
+) {
+    IconButton(
+        onClick = {
+            onRedoClick()
+        },
+        modifier = modifier
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.return_arrow),
+            modifier = Modifier
+                .size(22.dp),
+            contentDescription = "Redo",
+            tint = getModifier.iconColor()
+        )
+    }
+
+}
+
+@Composable
 fun SettingsButton(
     onNavigateToEditDeck: () -> Unit,
     onNavigateToEditCards: () -> Unit,
@@ -125,7 +149,7 @@ fun SettingsButton(
     val coroutineScope = rememberCoroutineScope()
     IconButton(
         onClick = {
-            if(!fields.inDeckClicked.value) {
+            if (!fields.inDeckClicked.value) {
                 expanded = true
             }
         },

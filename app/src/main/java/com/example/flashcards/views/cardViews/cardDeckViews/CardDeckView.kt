@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,27 +37,31 @@ import com.example.flashcards.model.uiModels.CardState
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.views.miscFunctions.AgainText
+import com.example.flashcards.views.miscFunctions.GoodText
+import com.example.flashcards.views.miscFunctions.HardText
 import com.example.flashcards.views.miscFunctions.NoDueCards
+import com.example.flashcards.views.miscFunctions.RedoCardButton
 import kotlinx.coroutines.delay
 
 class CardDeckView(
     private var cardDeckViewModel: CardDeckViewModel,
-    private var getModifier: GetModifier
+    private var getModifier: GetModifier,
 ) {
     @Composable
     fun ViewCard(
         deck: Deck, onNavigate: () -> Unit
     ) {
         val cardList by cardDeckViewModel.cardListUiState.collectAsState()
-        /** A extra layer of security making sure that there is no
-         *  unexpected changes to UI when traversing */
-        var dueCards by remember { mutableStateOf(cardList.allCards) }
+        val backupList by cardDeckViewModel.backupCardList.collectAsState()
+        var dueCards by rememberSaveable { mutableStateOf(cardList.allCards) }
 
         val errorState by cardDeckViewModel.errorState.collectAsState()
-        var show by remember { mutableStateOf(false) }
-        val index = remember { mutableIntStateOf(0) }
+        var show by rememberSaveable { mutableStateOf(false) }
+        val index = rememberSaveable { mutableIntStateOf(0) }
         val coroutineScope = rememberCoroutineScope()
         var clicked by remember { mutableStateOf(false) }
+        var started by rememberSaveable { mutableStateOf(false) }
 
         /** These are the cards that will be updated and only changed
          *  at the start and once you traverse through the whole cardList */
@@ -84,6 +89,39 @@ class CardDeckView(
                     .align(Alignment.TopStart),
                 getModifier = getModifier
             )
+            RedoCardButton(
+                onRedoClick = {
+                    coroutineScope.launch {
+                        if (index.intValue > 0) {
+                            index.intValue -= 1
+                            updatedDueCards.allCards[index.intValue].card =
+                                cardDeckViewModel.getRedoCard(dueCards[index.intValue].card.id)
+                               // backupList[index.intValue]
+                            cardList.allCards[index.intValue].card =
+                                cardDeckViewModel.getRedoCard(dueCards[index.intValue].card.id)
+                             //   backupList[index.intValue]
+                            dueCards[index.intValue].card =
+                                cardDeckViewModel.getRedoCard(dueCards[index.intValue].card.id)
+                            show = false
+                        } else {
+                            if (cardList.allCards.isNotEmpty() && started) {
+                                index.intValue = cardList.allCards.size - 1
+                                dueCards[index.intValue].card =
+                                    cardDeckViewModel.getRedoCard(dueCards[index.intValue].card.id)
+                                show = false
+                            } else {
+                                if (backupList.isNotEmpty() && started) {
+                                    TODO()
+                                }
+                            }
+                        }
+                    }
+                },
+                modifier = getModifier
+                    .redoButtonModifier()
+                    .align(Alignment.TopEnd),
+                getModifier = getModifier
+            )
             if (cardList.allCards.isEmpty()) {
                 LaunchedEffect(Unit) {
                     coroutineScope.launch {
@@ -95,22 +133,23 @@ class CardDeckView(
                         dueCards = cardList.allCards
                     }
                 }
-                if (cardList.allCards.isEmpty()) {
-                    NoDueCards(getModifier)
-                }
+                NoDueCards(getModifier)
+
             } else {
                 if (index.intValue < dueCards.size) {
                     Text(
                         text = stringResource(R.string.reviews_left) +
-                                "${updatedDueCards
-                                    .allCards[index.intValue]
-                                    .card.reviewsLeft}",
-                        fontSize = 18.sp,
+                                "${
+                                    updatedDueCards
+                                        .allCards[index.intValue]
+                                        .card.reviewsLeft
+                                }",
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .align(Alignment.TopCenter)
-                            .padding(start = 40.dp, end = 40.dp, top = 8.dp)
+                            .padding(start = 46.dp, end = 46.dp, top = 8.dp)
                     )
                     if (!show) {
                         if (cardDeckViewModel.getState() == CardState.Finished) {
@@ -188,7 +227,9 @@ class CardDeckView(
                                                 show = !show
                                             }
                                             coroutineScope.launch {
-                                                while (cardDeckViewModel.getState() == CardState.Loading) {
+                                                while (cardDeckViewModel.getState() ==
+                                                    CardState.Loading
+                                                ) {
                                                     delay(36)
                                                 }
                                                 scrollState.animateScrollTo(0)
@@ -202,14 +243,8 @@ class CardDeckView(
                                         contentColor = getModifier.buttonTextColor()
                                     )
                                 ) { Text(stringResource(R.string.again)) }
-                                Text(
-                                    "-----",
-                                    color = getModifier.titleColor(),
-                                    fontSize = 12.sp,
-                                    lineHeight = 14.sp
-                                )
+                                AgainText(getModifier)
                             }
-
                             Column(
                                 verticalArrangement = Arrangement.Top,
                                 horizontalAlignment = Alignment.CenterHorizontally
@@ -234,7 +269,9 @@ class CardDeckView(
                                                 show = !show
                                             }
                                             coroutineScope.launch {
-                                                while (cardDeckViewModel.getState() == CardState.Loading) {
+                                                while (cardDeckViewModel.getState() ==
+                                                    CardState.Loading
+                                                ) {
                                                     delay(36)
                                                 }
                                                 index.intValue = ((index.intValue + 1))
@@ -249,20 +286,7 @@ class CardDeckView(
                                         contentColor = getModifier.buttonTextColor()
                                     )
                                 ) { Text(stringResource(R.string.hard)) }
-                                Text(
-                                    text =
-                                    if (updatedDueCards.allCards[index.intValue].
-                                        card.reviewsLeft == 1) {
-                                        "$hard " + stringResource(R.string.days)
-                                    } else {
-                                        "${updatedDueCards.allCards[index.intValue].
-                                        card.reviewsLeft} " +
-                                                "reviews left"
-                                    },
-                                    color = getModifier.titleColor(),
-                                    fontSize = 12.sp,
-                                    lineHeight = 14.sp
-                                )
+                                HardText(updatedDueCards, index, hard, getModifier)
 
                             }
                             Column(
@@ -290,7 +314,9 @@ class CardDeckView(
                                                 show = !show
                                             }
                                             coroutineScope.launch {
-                                                while (cardDeckViewModel.getState() == CardState.Loading) {
+                                                while (cardDeckViewModel.getState() ==
+                                                    CardState.Loading
+                                                ) {
                                                     delay(36)
                                                 }
                                                 index.intValue = ((index.intValue + 1))
@@ -305,20 +331,7 @@ class CardDeckView(
                                         contentColor = getModifier.buttonTextColor()
                                     )
                                 ) { Text(stringResource(R.string.good)) }
-                                Text(
-                                    text =
-                                    if (updatedDueCards.allCards[index.intValue].
-                                        card.reviewsLeft == 1) {
-                                        "$good " + stringResource(R.string.days)
-                                    } else {
-                                        "${updatedDueCards.allCards[index.intValue].
-                                        card.reviewsLeft-1} " +
-                                                "reviews left"
-                                    },
-                                    color = getModifier.titleColor(),
-                                    fontSize = 12.sp,
-                                    lineHeight = 14.sp
-                                )
+                                GoodText(updatedDueCards, index, good, getModifier)
                             }
                         }
                     }
@@ -341,6 +354,7 @@ class CardDeckView(
                             if (!errorState?.message.isNullOrEmpty()) {
                                 println(errorState?.message)
                             }
+                            started = true
                             dueCards = cardList.allCards
                             index.intValue = 0
                         }

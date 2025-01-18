@@ -48,6 +48,8 @@ interface FlashCardRepository {
 
     suspend fun getCardById(cardId : Int) : Card
 
+    suspend fun getBackupDueCards(deckId: Int) : List<Card>
+
     fun updateSavedCards(
         cardId: Int,
         reviewsLeft: Int,

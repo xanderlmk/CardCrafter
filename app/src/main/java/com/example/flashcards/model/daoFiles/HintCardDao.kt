@@ -20,15 +20,17 @@ interface HintCardDao {
     suspend fun deleteHintCard(cardId: Int)
 
     @Transaction
-    @Query("SELECT * FROM cards where id = :cardId ")
+    @Query("SELECT * FROM cards where id = :cardId")
     fun getHintCard(cardId :Int) : Flow<HintCardType>
 
     @Transaction
-    @Query("SELECT * from cards where deckId = :deckId")
+    @Query("SELECT * from cards where deckId = :deckId AND type = 'hint'")
     fun getAllHintCards(deckId: Int): Flow<List<HintCardType>>
 
     @Transaction
-    @Query("SELECT * FROM cards WHERE deckId = :deckId AND nextReview <= :currentTime")
+    @Query("""
+        SELECT * FROM cards WHERE deckId = :deckId
+    AND nextReview <= :currentTime AND type = 'hint'""")
     fun getDueHintCards(
         deckId : Int,
         currentTime : Long = Date().time

@@ -100,7 +100,7 @@ class EditingCardListViewModel(
         uiState.value = uiState.value.copy(errorMessage = message)
     }
 
-    fun clearErrorMessage() {
+    private fun clearErrorMessage() {
         uiState.value = uiState.value.copy(errorMessage = "")
     }
 }

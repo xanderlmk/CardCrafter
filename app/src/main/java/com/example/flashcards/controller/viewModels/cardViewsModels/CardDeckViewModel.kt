@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
+import com.example.flashcards.model.tablesAndApplication.AllCardTypes
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.SavedCard
@@ -21,19 +22,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import java.io.IOException
-import java.util.Date
 
 class CardDeckViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val cardTypeRepository: CardTypeRepository,
 ) : ViewModel() {
 
-    private val errorMessage : MutableStateFlow<String> = MutableStateFlow("")
+    private val errorMessage: MutableStateFlow<String> = MutableStateFlow("")
     private val _errorState = MutableStateFlow<CardUpdateError?>(null)
     val errorState: StateFlow<CardUpdateError?> = _errorState.asStateFlow()
 
@@ -44,40 +45,21 @@ class CardDeckViewModel(
     var savedCardList = savedUiState.asStateFlow()
     var cardListUiState = uiState.asStateFlow()
 
-    private val backupUiCardList = MutableStateFlow<List<Card>>(
-        cardListUiState.value.allCards.map{
-            it.card
-        }
-    )
+    private val backupCardListState = MutableStateFlow<List<Card>>(emptyList())
+    val backupCardList = backupCardListState.asStateFlow()
+
 
     /** for future
     @OptIn(SavedStateHandleSaveableApi::class)
     var cardsToUpdate: List<SavedCard> by
-        savedStateHandle.saveable {
-            mutableStateOf(emptyList())
+    savedStateHandle.saveable {
+    mutableStateOf(emptyList())
 
-        }
+    }
      */
-
-
-    val backupCardList = backupUiCardList.asStateFlow()
-    private val backupUiCard = MutableStateFlow<Card?>(
-        cardListUiState.value.allCards.map {
-            it.card
-        }.firstOrNull()
-    )
-    val backupCard = backupUiCard.asStateFlow()
 
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
-    }
-
-    fun updateBackupList() {
-        backupUiCardList.value = uiState.value.allCards.map { it.card }
-    }
-
-    fun updateBackupCard(index: Int) {
-        backupUiCard.value = backupUiCardList.value[index]
     }
 
     /*suspend fun restoreBackup(index: Int){
@@ -88,7 +70,78 @@ class CardDeckViewModel(
         }
     }*/
 
-    suspend fun getDueTypesForDeck(deckId: Int) {
+    suspend fun getRedoCards(cardId: Int) : List<AllCardTypes>{
+        return withContext(Dispatchers.IO) {
+            var complete = false
+            try {
+                viewModelScope.launch {
+                    cardTypeRepository.getACardType(cardId).let { card ->
+                        uiState.update { currentState ->
+                            currentState.copy(allCards = currentState.allCards + card)
+                        }
+                        savedUiState.update { currentState ->
+                            currentState.copy(allCards = currentState.allCards + card)
+                        }
+                    }.also {
+                        complete = true
+                    }
+                }
+                while (!complete) {
+                    delay(25)
+                }
+                uiState.value.allCards
+            } catch (e: Exception) {
+                handleError(e, "Something went wrong")
+                uiState.value.allCards
+            }
+        }
+    }
+
+    suspend fun getRedoCard(cardId: Int) : Card {
+        return withContext(Dispatchers.IO) {
+            flashCardRepository.getCardById(cardId)
+        }
+    }
+
+    fun replaceCard(index: Int) : Card {
+        viewModelScope.launch {
+            if (index in uiState.value.allCards.indices &&
+                index in backupCardListState.value.indices &&
+                index in savedUiState.value.allCards.indices) {
+                val tempUiState = uiState.value.allCards.run {
+                    toMutableList().apply {
+                        this[index].card = backupCardListState.value[index]
+                    }
+                }
+                uiState.update { currentState ->
+                    currentState.copy(allCards = tempUiState)
+                }
+                savedUiState.update { currentState ->
+                    currentState.copy(allCards = tempUiState)
+                }
+            } else {
+                uiState.update { currentState ->
+                    currentState.copy(errorMessage = "Index out of bounds")
+                }
+                savedUiState.update { currentState ->
+                    currentState.copy(errorMessage = "Index out of bounds")
+                }
+            }
+        }
+        return backupCardListState.value[index]
+    }
+
+    suspend fun getBackupCards(deckId: Int) {
+        return withContext(Dispatchers.IO) {
+            viewModelScope.launch {
+              backupCardListState.update {
+                  flashCardRepository.getBackupDueCards(deckId)
+              }
+            }
+        }
+    }
+
+    private suspend fun getDueTypesForDeck(deckId: Int) {
         return withContext(Dispatchers.IO)
         {
             var complete = false
@@ -128,11 +181,11 @@ class CardDeckViewModel(
         uiState.value = uiState.value.copy(errorMessage = message)
     }
 
-    fun clearErrorMessage() {
+    private fun clearErrorMessage() {
         uiState.value = uiState.value.copy(errorMessage = "")
     }
 
-    fun clearErrorState() {
+    private fun clearErrorState() {
         _errorState.value = null
     }
 
@@ -164,7 +217,6 @@ class CardDeckViewModel(
     }
 
 
-
     suspend fun getDueCards(deckId: Int) {
         return withContext(Dispatchers.IO) {
             try {
@@ -192,7 +244,7 @@ class CardDeckViewModel(
         val savedCard = SavedCard(
             id = card.id,
             reviewsLeft = card.reviewsLeft,
-            nextReview = card.nextReview ?: Date(),
+            nextReview = card.nextReview,
             prevSuccess = card.prevSuccess,
             passes = card.passes,
             totalPasses = card.totalPasses
@@ -205,18 +257,18 @@ class CardDeckViewModel(
     }
     /** for future
     fun addCardToUpdate(card: Card) {
-        val savedCard = SavedCard(
-            id = card.id,
-            reviewsLeft = card.reviewsLeft,
-            nextReview = card.nextReview?: Date(),
-            prevSuccess = card.prevSuccess,
-            passes = card.passes,
-            totalPasses = card.totalPasses
-        )
-        withMutableSnapshot {
-            cardsToUpdate+= savedCard
-        }
-        // Save the updated list to SavedStateHandle
-        Log.d("CardsToUpDate", "$cardsToUpdate")
+    val savedCard = SavedCard(
+    id = card.id,
+    reviewsLeft = card.reviewsLeft,
+    nextReview = card.nextReview?: Date(),
+    prevSuccess = card.prevSuccess,
+    passes = card.passes,
+    totalPasses = card.totalPasses
+    )
+    withMutableSnapshot {
+    cardsToUpdate+= savedCard
+    }
+    // Save the updated list to SavedStateHandle
+    Log.d("CardsToUpDate", "$cardsToUpdate")
     }*/
 }
