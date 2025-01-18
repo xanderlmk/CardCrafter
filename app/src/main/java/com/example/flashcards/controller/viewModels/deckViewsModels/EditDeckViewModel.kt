@@ -20,7 +20,7 @@ class EditDeckViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val _errorMessage = MutableStateFlow<String>("")
+    private val _errorMessage = MutableStateFlow("")
 
 
     var deckName by mutableStateOf(savedStateHandle["deckName"] ?: "")
@@ -136,7 +136,7 @@ class EditDeckViewModel(
     }
 
     suspend fun updateReviewAmount(reviewAmount: Int, deckId: Int): Int {
-        if (reviewAmount > 0 && reviewAmount < 11) {
+        if (reviewAmount in 1..10) {
             return withContext(Dispatchers.IO) {
                 try {
                     val row =
@@ -160,9 +160,8 @@ class EditDeckViewModel(
     }
 
     private fun handleError(prefix: String): Int {
-        val message = prefix
-        println(message)
-        _errorMessage.value = message
+        println(prefix)
+        _errorMessage.value = prefix
         return 0
     }
 

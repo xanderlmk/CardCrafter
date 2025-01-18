@@ -92,4 +92,6 @@ class OfflineCardTypeRepository(
         multiChoiceCardDao.getDueMultiChoiceCards(deckId)
     override suspend fun getDueAllCardTypes(deckId : Int, currentTime : Long) =
         cardTypesDao.getDueAllCardTypes(deckId,currentTime)
+
+    override suspend fun getACardType(id: Int) = cardTypesDao.getACardType(id)
 }

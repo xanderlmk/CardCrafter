@@ -22,6 +22,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -44,9 +45,61 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
+import com.example.flashcards.model.uiModels.CardListUiState
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.ui.theme.GetModifier
 
+
+@Composable
+fun AgainText(getModifier: GetModifier) {
+    Text(
+        "-----",
+        color = getModifier.titleColor(),
+        fontSize = 12.sp,
+        lineHeight = 14.sp
+    )
+}
+
+@Composable
+fun HardText(
+    updatedDueCards: CardListUiState,
+    index: MutableIntState, hard: Int,
+    getModifier: GetModifier
+) {
+    Text(
+        text =
+        if (updatedDueCards.allCards[index.intValue].card.reviewsLeft == 1) {
+            "$hard " + stringResource(R.string.days)
+        } else {
+            "${updatedDueCards.allCards[index.intValue].card.reviewsLeft} " + "reviews left"
+        },
+        color = getModifier.titleColor(),
+        fontSize = 12.sp,
+        lineHeight = 14.sp
+    )
+}
+
+@Composable
+fun GoodText(
+    updatedDueCards: CardListUiState,
+    index: MutableIntState, good: Int,
+    getModifier: GetModifier
+) {
+    Text(
+        text =
+        if (updatedDueCards.allCards[index.intValue].card.reviewsLeft == 1) {
+            "$good " + stringResource(R.string.days)
+        } else {
+            "${
+                updatedDueCards.allCards[index.intValue].card.reviewsLeft - 1
+            } " +
+                    "reviews left"
+        },
+        color = getModifier.titleColor(),
+        fontSize = 12.sp,
+        lineHeight = 14.sp
+    )
+}
 
 @Composable
 fun EditTextField(
@@ -319,12 +372,12 @@ fun returnDeckError(): List<String> {
 }
 
 @Composable
-fun getSavableFields(fields: Fields) : Fields{
+fun getSavableFields(fields: Fields): Fields {
     return Fields(
         question = rememberSaveable { mutableStateOf("") },
         middleField = rememberSaveable { mutableStateOf("") },
         answer = rememberSaveable { mutableStateOf("") },
-        choices = rememberSaveable {MutableList(4) { mutableStateOf("") } },
+        choices = rememberSaveable { MutableList(4) { mutableStateOf("") } },
         correct = rememberSaveable { mutableStateOf('?') },
         scrollPosition = fields.scrollPosition,
         inDeckClicked = fields.inDeckClicked,

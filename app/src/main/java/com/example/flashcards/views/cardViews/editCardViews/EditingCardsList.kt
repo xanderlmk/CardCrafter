@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -49,8 +50,8 @@ class EditCardsList(
 
         //var deckWithCards by remember { mutableStateOf(DeckWithCards(Deck(0, loading.toString() ), emptyList())) }
         val cardListUiState by editingCardListVM.cardListUiState.collectAsState()
-        var middleCard = rememberSaveable { mutableIntStateOf(0) }
-        var clicked by rememberSaveable { mutableStateOf(false) }
+        val middleCard = rememberSaveable { mutableIntStateOf(0) }
+        var clicked by remember { mutableStateOf(false) }
 
         val presetModifier = getModifier.backButtonModifier()
 

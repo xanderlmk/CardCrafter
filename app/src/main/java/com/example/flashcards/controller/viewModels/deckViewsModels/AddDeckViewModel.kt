@@ -1,6 +1,7 @@
 package com.example.flashcards.controller.viewModels.deckViewsModels
 
 import android.database.sqlite.SQLiteConstraintException
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -66,9 +67,8 @@ class AddDeckViewModel(
     }
 
     private fun handleError(prefix: String): Int {
-        val message = prefix
-        println(message)
-        _errorMessage.value = message
+        Log.d("AddDeckViewModel",prefix)
+        _errorMessage.value = prefix
         return 0
     }
 }

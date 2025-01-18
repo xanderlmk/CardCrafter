@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +57,11 @@ class GetModifier(
     fun backButtonModifier(): Modifier {
         return Modifier
             .padding(14.dp)
+            .size(40.dp)
+    }
+    fun redoButtonModifier(): Modifier {
+        return Modifier
+            .padding(10.dp)
             .size(40.dp)
     }
 

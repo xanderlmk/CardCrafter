@@ -31,6 +31,9 @@ interface CardDao {
     @Query("SELECT * FROM cards WHERE deckId = :deckId AND nextReview <= :currentTime")
     fun getDueCards(deckId: Int, currentTime: Long = Date().time): Flow<List<Card>>
 
+    @Query("SELECT * FROM cards WHERE deckId = :deckId AND nextReview <= :currentTime")
+    suspend fun getBackupDueCards(deckId: Int, currentTime: Long = Date().time): List<Card>
+
     @Query("DELETE FROM cards WHERE deckId = :deckId")
     suspend fun deleteAllCards(deckId: Int)
 
@@ -39,6 +42,7 @@ interface CardDao {
 
     @Query("SELECT * FROM cards WHERE id = :cardId")
     suspend fun getCardById(cardId: Int): Card
+
 
     @Query(
         """

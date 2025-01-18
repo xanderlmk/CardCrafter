@@ -67,6 +67,7 @@ class MainActivity : ComponentActivity() {
 
 
             if (preferences.isFirstTime) {
+                preferences.darkTheme.value = isSystemDark
                 preferences.isDarkThemeEnabled = isSystemDark
                 preferences.isFirstTime = false
             }

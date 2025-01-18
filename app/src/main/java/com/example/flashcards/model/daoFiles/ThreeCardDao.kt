@@ -24,11 +24,12 @@ interface ThreeCardDao {
     suspend fun deleteThreeCard(cardId: Int)
 
     @Transaction
-    @Query("SELECT * FROM cards where deckId = :deckId")
+    @Query("SELECT * FROM cards where deckId = :deckId AND type = 'three'")
     fun getAllThreeCards(deckId: Int): Flow<List<ThreeCardType>>
 
     @Transaction
-    @Query("SELECT * FROM cards WHERE deckId = :deckId AND nextReview <= :currentTime")
+    @Query("""SELECT * FROM cards WHERE deckId = :deckId 
+        AND nextReview <= :currentTime AND type = 'three'""")
     fun getDueThreeCards(
         deckId : Int,
         currentTime : Long = Date().time

@@ -89,6 +89,9 @@ class OfflineFlashCardRepository(
 
     override suspend fun getCardById(cardId: Int) = cardDao.getCardById(cardId)
 
+    override suspend fun getBackupDueCards(deckId: Int): List<Card> =
+        cardDao.getBackupDueCards(deckId)
+
     override fun updateSavedCards(
         cardId: Int,
         reviewsLeft: Int,

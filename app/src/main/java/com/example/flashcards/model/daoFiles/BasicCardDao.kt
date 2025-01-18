@@ -29,10 +29,12 @@ interface BasicCardDao {
     suspend fun updateBasicCard(id: Int, newQuestion: String, newAnswer: String)
 
     @Transaction
-    @Query("SELECT * FROM cards where deckId = :deckId")
+    @Query("SELECT * FROM cards where deckId = :deckId AND type = 'basic'")
     fun getAllBasicCards(deckId: Int): Flow<List<BasicCardType>>
 
     @Transaction
-    @Query("SELECT * FROM cards WHERE deckId = :deckId AND nextReview <= :currentTime")
+    @Query("""
+        SELECT * FROM cards WHERE deckId = :deckId AND nextReview <= :currentTime
+        AND type = 'basic'""")
     fun getDueBasicCards(deckId : Int, currentTime : Long = Date().time) : Flow<List<BasicCardType>>
 }
