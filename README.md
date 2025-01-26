@@ -7,6 +7,7 @@ Features :
 - Complex NavHost
 - MVC/MVVM
 - Different Card Types
+- Deck Options such as reviews per card, multipliers, name change
 - Custom Themes based off Light/Dark Theme
 
 TO DO :
