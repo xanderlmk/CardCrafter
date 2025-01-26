@@ -14,6 +14,18 @@ import com.example.flashcards.model.daoFiles.HintCardDao
 import com.example.flashcards.model.daoFiles.MultiChoiceCardDao
 import com.example.flashcards.model.daoFiles.SavedCardDao
 import com.example.flashcards.model.daoFiles.ThreeCardDao
+import com.example.flashcards.model.migrations.MIGRATION_10_11
+import com.example.flashcards.model.migrations.MIGRATION_11_12
+import com.example.flashcards.model.migrations.MIGRATION_12_13
+import com.example.flashcards.model.migrations.MIGRATION_13_14
+import com.example.flashcards.model.migrations.MIGRATION_14_15
+import com.example.flashcards.model.migrations.MIGRATION_15_16
+import com.example.flashcards.model.migrations.MIGRATION_3_5
+import com.example.flashcards.model.migrations.MIGRATION_5_6
+import com.example.flashcards.model.migrations.MIGRATION_6_7
+import com.example.flashcards.model.migrations.MIGRATION_7_8
+import com.example.flashcards.model.migrations.MIGRATION_8_9
+import com.example.flashcards.model.migrations.MIGRATION_9_10
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.HintCard
@@ -36,9 +48,9 @@ import java.util.Calendar
         ThreeFieldCard::class,
         HintCard::class,
         MultiChoiceCard::class,
-        SavedCard::class], version = 12
+        SavedCard::class], version = 16
 )
-@TypeConverters( NonNullConverter::class)
+@TypeConverters(NonNullConverter::class)
 abstract class FlashCardDatabase : RoomDatabase() {
     abstract fun deckDao(): DeckDao
     abstract fun cardDao(): CardDao
@@ -66,7 +78,11 @@ abstract class FlashCardDatabase : RoomDatabase() {
                             MIGRATION_8_9,
                             MIGRATION_9_10,
                             MIGRATION_10_11,
-                            MIGRATION_11_12
+                            MIGRATION_11_12,
+                            MIGRATION_12_13,
+                            MIGRATION_13_14,
+                            MIGRATION_14_15,
+                            MIGRATION_15_16
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(FlashCardDatabaseCallback(scope))
@@ -85,9 +101,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
 
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                //db.execSQL("PRAGMA foreign_keys=ON;") // Enable foreign key support
                 // Populate the database in a coroutine
-                //runBlocking {
                 Instance?.let { database ->
                     scope.launch(Dispatchers.IO) {
                         populateDatabase(
@@ -96,7 +110,6 @@ abstract class FlashCardDatabase : RoomDatabase() {
                             database.threeCardDao()
                         )
                     }
-                    //}
                 }
             }
         }
@@ -107,11 +120,21 @@ abstract class FlashCardDatabase : RoomDatabase() {
             multiChoiceCardDao: MultiChoiceCardDao,
             threeCardDao: ThreeCardDao
         ) {
+            val calendar = Calendar.getInstance()
+            calendar.add(Calendar.DAY_OF_MONTH, -1) // Subtract 1 day
+            val nextReviewDate = calendar.time
             // Create and insert a new Deck
-            val historyDeck = Deck(name = "History")
+            val historyDeck = Deck(
+                name = "History",
+                nextReview = nextReviewDate,
+                cardsLeft = 20
+            )
             deckDao.insertDeck(historyDeck)
-
-            val motorcycleDeck = Deck(name = "Motorcycle Written Exam")
+            val motorcycleDeck = Deck(
+                name = "Motorcycle Written Exam",
+                nextReview = nextReviewDate,
+                cardsLeft = 20
+            )
             deckDao.insertDeck(motorcycleDeck)
 
             // Get the deck ID after insertion
@@ -120,10 +143,6 @@ abstract class FlashCardDatabase : RoomDatabase() {
 
             val mcDeck = motorcycleDeck.id + 2
             val mcUuid = motorcycleDeck.uuid
-
-            val calendar = Calendar.getInstance()
-            calendar.add(Calendar.DAY_OF_MONTH, -1) // Subtract 1 day
-            val nextReviewDate = calendar.time
 
 
             val cards = List(21) {

@@ -1,7 +1,9 @@
 package com.example.flashcards.model.tablesAndApplication
 
+import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.annotation.RequiresApi
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -23,8 +25,12 @@ data class Deck(
     val reviewAmount : Int = 1,
     val goodMultiplier : Double = 1.5,
     val badMultiplier : Double = 0.5,
-    val createdOn: Long = Date().time
+    val createdOn: Long = Date().time,
+    val cardAmount: Int = 20,
+    var nextReview: Date,
+    var cardsLeft: Int = 20,
 )
+
 @Parcelize
 @Entity(tableName = "cards",
     foreignKeys = [
@@ -46,8 +52,22 @@ data class Card(
     var prevSuccess: Boolean,
     var totalPasses: Int = 0,
     val type: String,
-    val createdOn: Long = Date().time
+    val createdOn: Long = Date().time,
+    var partOfList : Boolean = false,
 ) : Parcelable {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Card) return false
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.Q)
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readInt(),
@@ -58,11 +78,13 @@ data class Card(
         parcel.readByte() != 0.toByte(),
         parcel.readInt(),
         parcel.readString()!!,
-        parcel.readLong()
+        parcel.readLong(),
+        parcel.readBoolean()
     )
 
     companion object : Parceler<Card> {
 
+        @RequiresApi(Build.VERSION_CODES.Q)
         override fun Card.write(parcel: Parcel, flags: Int) {
             parcel.writeInt(id)
             parcel.writeInt(deckId)
@@ -74,8 +96,10 @@ data class Card(
             parcel.writeInt(totalPasses)
             parcel.writeString(type)
             parcel.writeLong(createdOn)
+            parcel.writeBoolean(partOfList)
         }
 
+        @RequiresApi(Build.VERSION_CODES.Q)
         override fun create(parcel: Parcel): Card {
             return Card(parcel)
         }
@@ -91,6 +115,7 @@ data class SavedCard(
     var passes: Int,
     var prevSuccess: Boolean,
     var totalPasses: Int,
+    var partOfList: Boolean
 ) : Parcelable
 
 // Decks has many cards, one card belongs to a deck
@@ -102,8 +127,6 @@ data class DeckWithCards(
     )
     val cards: List<Card>
 )
-
-
 
 class NonNullConverter {
     @TypeConverter

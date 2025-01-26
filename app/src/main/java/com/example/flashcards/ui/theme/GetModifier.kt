@@ -28,7 +28,6 @@ class GetModifier(
             .fillMaxSize()
             .drawBehind {
                 val strokeWidth = 3.dp.toPx()
-
                 // Top border
                 drawLine(
                     color = colorScheme.colorScheme.outline,
@@ -51,7 +50,7 @@ class GetModifier(
                     strokeWidth = strokeWidth
                 )
             }
-            .padding(horizontal = 2.dp)
+            .padding(vertical = 4.dp)
     }
 
     fun backButtonModifier(): Modifier {

@@ -18,18 +18,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.flashcards.controller.navigation.AppNavHost
 import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
-import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
-import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
+import com.example.flashcards.controller.viewModels.deckViewsModels.MainViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.uiModels.PreferencesManager
 import com.example.flashcards.ui.theme.FlashcardsTheme
 import kotlinx.coroutines.coroutineScope
 
 class MainActivity : ComponentActivity() {
-    private val deckViewModel: DeckViewModel by viewModels {
-        AppViewModelProvider.Factory
-    }
-    private val cardDeckViewModel: CardDeckViewModel by viewModels {
+    private val mainViewModel: MainViewModel by viewModels {
         AppViewModelProvider.Factory
     }
     private val cardTypeViewModel: EditingCardListViewModel by viewModels {
@@ -45,13 +41,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            if (deckViewModel.appStarted.value == null ||
-                deckViewModel.appStarted.value == false
+            if (mainViewModel.appStarted.value == null ||
+                mainViewModel.appStarted.value == false
             ) {
                 LaunchedEffect(Unit) {
                     coroutineScope {
-                        deckViewModel.performDatabaseUpdate()
-                        deckViewModel.updateActivity()
+                        mainViewModel.performDatabaseUpdate()
                     }
                 }
             }
@@ -80,8 +75,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     AppNavHost(
                         navController = rememberNavController(),
-                        deckViewModel = deckViewModel,
-                        cardDeckViewModel = cardDeckViewModel,
+                        mainViewModel = mainViewModel,
                         editingCardListVM = cardTypeViewModel,
                         preferences = preferences,
                         fields = fields,

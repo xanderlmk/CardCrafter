@@ -1,5 +1,6 @@
 package com.example.flashcards.views.cardViews.cardDeckViews
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,7 @@ import com.example.flashcards.views.miscFunctions.HardText
 import com.example.flashcards.views.miscFunctions.NoDueCards
 import com.example.flashcards.views.miscFunctions.RedoCardButton
 import kotlinx.coroutines.delay
+import java.util.Date
 
 class CardDeckView(
     private var cardDeckViewModel: CardDeckViewModel,
@@ -52,7 +54,7 @@ class CardDeckView(
     fun ViewCard(
         deck: Deck, onNavigate: () -> Unit
     ) {
-        val cardList by cardDeckViewModel.cardListUiState.collectAsState()
+        val cardList by cardDeckViewModel.cardDeckUiState.collectAsState()
         val backupList by cardDeckViewModel.backupCardList.collectAsState()
         var dueCards by rememberSaveable { mutableStateOf(cardList.allCards) }
 
@@ -65,12 +67,14 @@ class CardDeckView(
 
         /** These are the cards that will be updated and only changed
          *  at the start and once you traverse through the whole cardList */
-        val updatedDueCards by cardDeckViewModel.savedCardList.collectAsState()
+        val updatedDueCards by cardDeckViewModel.cardDeckUiState.collectAsState()
+
+        val cardsToUpdate by cardDeckViewModel.cardListToUpdate.collectAsState()
 
         val scrollState = rememberScrollState()
         Box(
             contentAlignment =
-            if (cardList.allCards.isEmpty()) {
+            if (cardList.allCards.isEmpty() || dueCards.isEmpty()) {
                 Alignment.Center
             } else {
                 Alignment.TopCenter
@@ -94,24 +98,24 @@ class CardDeckView(
                     coroutineScope.launch {
                         if (index.intValue > 0) {
                             index.intValue -= 1
-                            updatedDueCards.allCards[index.intValue].card =
+                            updatedDueCards.savedCardList[index.intValue].card =
                                 cardDeckViewModel.getRedoCard(dueCards[index.intValue].card.id)
-                               // backupList[index.intValue]
                             cardList.allCards[index.intValue].card =
                                 cardDeckViewModel.getRedoCard(dueCards[index.intValue].card.id)
-                             //   backupList[index.intValue]
-                            dueCards[index.intValue].card =
-                                cardDeckViewModel.getRedoCard(dueCards[index.intValue].card.id)
+                                    .also { dueCards[index.intValue].card = it }
                             show = false
                         } else {
                             if (cardList.allCards.isNotEmpty() && started) {
                                 index.intValue = cardList.allCards.size - 1
-                                dueCards[index.intValue].card =
+                                updatedDueCards.savedCardList[index.intValue].card =
                                     cardDeckViewModel.getRedoCard(dueCards[index.intValue].card.id)
+                                cardList.allCards[index.intValue].card =
+                                    cardDeckViewModel.getRedoCard(dueCards[index.intValue].card.id)
+                                        .also { dueCards[index.intValue].card = it }
                                 show = false
                             } else {
                                 if (backupList.isNotEmpty() && started) {
-                                    TODO()
+                                    Log.d("CardDeckView", "Backup logic not implemented yet.")
                                 }
                             }
                         }
@@ -122,15 +126,18 @@ class CardDeckView(
                     .align(Alignment.TopEnd),
                 getModifier = getModifier
             )
-            if (cardList.allCards.isEmpty()) {
-                LaunchedEffect(Unit) {
-                    coroutineScope.launch {
-                        cardDeckViewModel.transitionTo(CardState.Loading)
-                        cardDeckViewModel.getDueCards(deck.id)
-                        while (cardDeckViewModel.getState() == CardState.Loading) {
-                            delay(30)
+            if (cardList.allCards.isEmpty() ||
+                dueCards.isEmpty()) {
+                if(deck.nextReview <= Date()) {
+                    LaunchedEffect(Unit) {
+                        coroutineScope.launch {
+                            cardDeckViewModel.transitionTo(CardState.Loading)
+                            cardDeckViewModel.getDueCards(deck)
+                            while (cardDeckViewModel.getState() == CardState.Loading) {
+                                delay(30)
+                            }
+                            dueCards = cardList.allCards
                         }
-                        dueCards = cardList.allCards
                     }
                 }
                 NoDueCards(getModifier)
@@ -214,7 +221,7 @@ class CardDeckView(
                                             coroutineScope.launch {
                                                 cardDeckViewModel.transitionTo(CardState.Loading)
                                                 clicked = true
-                                                updatedDueCards.allCards[index.intValue].card =
+                                                updatedDueCards.savedCardList[index.intValue].card =
                                                     handleCardUpdate(
                                                         dueCards[index.intValue].card,
                                                         success = false,
@@ -232,6 +239,10 @@ class CardDeckView(
                                                 ) {
                                                     delay(36)
                                                 }
+                                                cardDeckViewModel.addCardToTheUpdateCardsList(
+                                                    updatedDueCards.savedCardList
+                                                        [index.intValue].card
+                                                )
                                                 scrollState.animateScrollTo(0)
                                                 clicked = false
                                             }
@@ -255,7 +266,7 @@ class CardDeckView(
                                             coroutineScope.launch {
                                                 cardDeckViewModel.transitionTo(CardState.Loading)
                                                 clicked = true
-                                                updatedDueCards.allCards[index.intValue].card =
+                                                updatedDueCards.savedCardList[index.intValue].card =
                                                     handleCardUpdate(
                                                         dueCards[index.intValue].card,
                                                         success = false,
@@ -274,6 +285,10 @@ class CardDeckView(
                                                 ) {
                                                     delay(36)
                                                 }
+                                                cardDeckViewModel.addCardToTheUpdateCardsList(
+                                                    updatedDueCards.savedCardList
+                                                        [index.intValue].card
+                                                )
                                                 index.intValue = ((index.intValue + 1))
                                                 scrollState.animateScrollTo(0)
                                                 clicked = false
@@ -299,8 +314,7 @@ class CardDeckView(
                                             clicked = true
                                             coroutineScope.launch {
                                                 cardDeckViewModel.transitionTo(CardState.Loading)
-
-                                                updatedDueCards.allCards[index.intValue].card =
+                                                updatedDueCards.savedCardList[index.intValue].card =
                                                     handleCardUpdate(
                                                         dueCards[index.intValue].card,
                                                         success = true,
@@ -319,6 +333,10 @@ class CardDeckView(
                                                 ) {
                                                     delay(36)
                                                 }
+                                                cardDeckViewModel.addCardToTheUpdateCardsList(
+                                                    updatedDueCards.savedCardList
+                                                        [index.intValue].card
+                                                )
                                                 index.intValue = ((index.intValue + 1))
                                                 scrollState.animateScrollTo(0)
                                                 clicked = false
@@ -343,13 +361,18 @@ class CardDeckView(
                             /** This function also gets the due cards */
                             updateDecksCardList(
                                 deck,
-                                updatedDueCards.allCards.map { cardTypes ->
-                                    cardTypes.card
-                                },
+                                //updatedDueCards.savedCardList
+                                // .map { cardTypes ->
+                                //    cardTypes.card
+                                //},
+                                cardsToUpdate,
                                 cardDeckViewModel
                             )
                             while (cardDeckViewModel.getState() == CardState.Loading) {
                                 delay(30)
+                            }
+                            if (cardList.allCards.isEmpty() || cardList.savedCardList.isEmpty()){
+                                cardDeckViewModel.updateNextReview(deck)
                             }
                             if (!errorState?.message.isNullOrEmpty()) {
                                 println(errorState?.message)

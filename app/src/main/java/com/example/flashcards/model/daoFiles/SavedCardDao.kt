@@ -15,6 +15,7 @@ interface SavedCardDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSavedCard(savedCard: SavedCard)
+
     @Query(
         """
         update cards
@@ -22,7 +23,8 @@ interface SavedCardDao {
         nextReview = :nextReview,
         passes = :passes,
         prevSuccess = :prevSuccess,
-        totalPasses = :totalPasses
+        totalPasses = :totalPasses,
+        partOfList = :partOfList
         where id = :cardId
     """
     )
@@ -32,7 +34,8 @@ interface SavedCardDao {
         nextReview: Long,
         passes: Int,
         prevSuccess: Boolean,
-        totalPasses: Int
+        totalPasses: Int,
+        partOfList : Boolean
     )
     @Query("DELETE FROM savedCards")
     fun deleteSavedCards()

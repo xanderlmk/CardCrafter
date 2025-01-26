@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.model.uiModels.DeckUiState
 import com.example.flashcards.model.repositories.FlashCardRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,6 +14,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.example.flashcards.model.tablesAndApplication.Deck
+import com.example.flashcards.model.uiModels.CardListUiCount
 import com.example.flashcards.model.uiModels.CardUpdateError
 import com.example.flashcards.model.uiModels.SavedCardUiState
 import kotlinx.coroutines.Dispatchers
@@ -24,13 +24,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import java.util.Date
 import kotlin.collections.map
 
 
 /**
  * ViewModel to retrieve all items in the Room database.
  */
-class DeckViewModel(
+class MainViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -43,7 +44,17 @@ class DeckViewModel(
                 initialValue = DeckUiState()
             )
 
+    private val thisCardCountUiState: StateFlow<CardListUiCount> =
+        flashCardRepository.getCardCount().map { CardListUiCount(it) }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+                initialValue = CardListUiCount()
+            )
+
     val deckUiState: StateFlow<DeckUiState> = uiState
+    val cardCountUiState: StateFlow<CardListUiCount> = thisCardCountUiState
+
     private val savedCardUiState =
         MutableStateFlow(SavedCardUiState())
     val appStarted = mutableStateOf(savedStateHandle.get<Boolean>("appStarted"))
@@ -52,21 +63,14 @@ class DeckViewModel(
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
-    fun updateActivity() {
+    private fun updateActivity() {
         appStarted.value = true
         savedStateHandle["appStarted"] = true
     }
 
     fun getDeckById(
         deckId: Int,
-        editingCardListVM: EditingCardListViewModel
     ): Flow<Deck?> {
-        viewModelScope.launch {
-            editingCardListVM.getAllBasicsForDeck(deckId)
-            editingCardListVM.getAllHintsForDeck(deckId)
-            editingCardListVM.getAllThreeForDeck(deckId)
-            editingCardListVM.getAllChoicesForDeck(deckId)
-        }
         return flashCardRepository.getDeckStream(deckId)
     }
 
@@ -83,7 +87,7 @@ class DeckViewModel(
                     }
                 }
                 while (!completed) {
-                    delay(50)
+                    delay(20)
                 }
                 // Process cards in batches of 50
                 savedCardUiState.value.savedCards.chunked(50).map { cardBatch ->
@@ -96,11 +100,13 @@ class DeckViewModel(
                                 nextReview = card.nextReview.time,
                                 passes = card.passes,
                                 prevSuccess = card.prevSuccess,
-                                totalPasses = card.totalPasses
+                                totalPasses = card.totalPasses,
+                                partOfList = card.nextReview <= Date()
                             )
                         }
                     }
                 }.joinAll().also {
+                    resetCardList()
                     viewModelScope.launch(Dispatchers.IO) {
                         flashCardRepository.deleteSavedCards()
                     }
@@ -113,8 +119,17 @@ class DeckViewModel(
                 }
                 println(error)
             }
+        }.also {
+            updateActivity()
         }
+    }
 
+    suspend fun resetCardList(){
+        return withContext(Dispatchers.IO){
+            viewModelScope.launch(Dispatchers.IO){
+                flashCardRepository.resetCardLefts()
+            }
+        }
     }
 }
 
