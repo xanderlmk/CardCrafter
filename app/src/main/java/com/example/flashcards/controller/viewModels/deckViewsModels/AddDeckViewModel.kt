@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
 
 
 class AddDeckViewModel(
@@ -54,7 +55,8 @@ class AddDeckViewModel(
                     flashCardRepository.insertDeck(
                         Deck(
                             name = name,
-                            reviewAmount = reviewAmount
+                            reviewAmount = reviewAmount,
+                            nextReview = Date(),
                         )
                     )
                 } catch (e: SQLiteConstraintException) {

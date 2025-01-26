@@ -6,7 +6,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
-import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
+import com.example.flashcards.controller.viewModels.deckViewsModels.MainViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.AddCardViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditCardViewModel
@@ -22,7 +22,7 @@ import com.example.flashcards.model.tablesAndApplication.FlashCardApplication
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            DeckViewModel(
+            MainViewModel(
                 flashCardApplication().container.flashCardRepository,
                 this.createSavedStateHandle()
             )

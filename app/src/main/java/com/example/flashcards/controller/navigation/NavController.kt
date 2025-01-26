@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -14,7 +15,6 @@ import androidx.navigation.navArgument
 import com.example.flashcards.views.cardViews.addCardViews.AddCardView
 import com.example.flashcards.views.deckViews.AddDeckView
 import com.example.flashcards.views.cardViews.cardDeckViews.CardDeckView
-import com.example.flashcards.views.miscFunctions.ChoosingView
 import com.example.flashcards.views.cardViews.editCardViews.EditCardsList
 import com.example.flashcards.views.deckViews.DeckView
 import com.example.flashcards.views.MainView
@@ -27,10 +27,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.navigation
+import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.updateDecksCardList
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
-import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
+import com.example.flashcards.controller.viewModels.deckViewsModels.MainViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Card
@@ -58,15 +60,13 @@ data class AllTypesUiStates(
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    deckViewModel: DeckViewModel,
-    cardDeckViewModel: CardDeckViewModel,
+    mainViewModel: MainViewModel,
     editingCardListVM: EditingCardListViewModel,
     fields: Fields,
     modifier: Modifier = Modifier,
     preferences: PreferencesManager
 ) {
-    val deckUiState by deckViewModel.deckUiState.collectAsState()
-
+    val cardDeckVM: CardDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val basicCardUiState by
     editingCardListVM.basicCardUiState.collectAsState()
     val hintCardUiState by
@@ -83,7 +83,7 @@ fun AppNavHost(
             multiCardUiState
         )
 
-    val cardList by cardDeckViewModel.cardListUiState.collectAsState()
+    val cardList by cardDeckVM.cardDeckUiState.collectAsState()
 
     val listState = rememberLazyListState()
     val colorScheme = remember { ColorSchemeClass() }
@@ -92,9 +92,9 @@ fun AppNavHost(
     val view = remember { View() }
     val selectedCard: MutableState<Card?> = rememberSaveable { mutableStateOf(null) }
 
-    val choosingView = ChoosingView()
+
     val cardDeckView = CardDeckView(
-        cardDeckViewModel, getModifier
+        cardDeckVM, getModifier
     )
     val editDeckView = EditDeckView(fields, getModifier)
     val deckEditView = remember {
@@ -110,12 +110,15 @@ fun AppNavHost(
     val mainView = MainView(getModifier, fields)
     val addDeckView = AddDeckView(getModifier)
     val deckView = DeckView(
-        fields, cardDeckViewModel, getModifier
+        fields, getModifier
     )
     val addCardView = AddCardView(fields, getModifier)
     val generalSettings = GeneralSettings(getModifier, preferences)
 
     val coroutineScope = rememberCoroutineScope()
+    val deck = remember { mutableStateOf<Deck?>(null) }
+    var inDeck by rememberSaveable { mutableStateOf(true) }
+
 
     NavHost(
         navController = navController,
@@ -128,16 +131,23 @@ fun AppNavHost(
                 (navController.context as? Activity)?.finish()
             }
             mainView.DeckList(
-                deckViewModel,
+                mainViewModel,
                 // In DeckList Composable
-                onNavigateToDeck = { deckId ->
-                    navController.navigate(DeckOptionsDestination.createRoute(deckId))
+                onNavigateToDeck = { id ->
                     coroutineScope.launch {
-                        cardDeckViewModel.getDueCards(deckId)
-                        cardDeckViewModel.getBackupCards(deckId)
-                        editingCardListVM.getAllCardsForDeck(deckId)
+                        mainViewModel.getDeckById(
+                            id,
+                        ).collect { flow ->
+                            deck.value = flow
+                            deck.value?.let{
+                                cardDeckVM.getDueCards(it)
+                            }
+                        }
                     }
-
+                    coroutineScope.launch{
+                        editingCardListVM.getAllCardsForDeck(id)
+                    }
+                    navController.navigate(DeckOptionsDestination.createRoute(id))
                 },
                 onNavigateToAddDeck = {
                     navController.navigate(AddDeckDestination.route)
@@ -182,86 +192,75 @@ fun AppNavHost(
         }
         navigation(
             route = DeckOptionsDestination.route,
-            startDestination = DeckViewDestination.route,
-            arguments = listOf(navArgument("deckId") { type = NavType.IntType })
+            startDestination = DeckViewDestination.route
         ) {
             composable(
                 route = DeckViewDestination.route,
-                arguments = listOf(navArgument("deckId") { type = NavType.IntType })
             ) { backStackEntry ->
-                val deckId = backStackEntry.arguments?.getInt("deckId")
-                val deck = deckUiState.deckList.find { it.id == deckId }
+                val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
 
+                LaunchedEffect(Unit) {
+                    coroutineScope.launch {
+                        mainViewModel.getDeckById(
+                            deckId ?: 0,
+                        ).collect { flow ->
+                            deck.value = flow
+                        }
+                    }
+                }
                 BackHandler {
                     view.whichView.intValue = 0
                     view.onView.value = false
                     fields.mainClicked.value = false
+                    if (inDeck){
+                        cardDeckVM.resetUiState()
+                        inDeck = false
+                    }
                     navController.popBackStack(
                         DeckListDestination.route,
                         inclusive = false
                     )
                 }
-                deck?.let {
+                deck.value?.let {
                     deckView.ViewEditDeck(
                         deck = it,
                         onNavigate = {
                             view.whichView.intValue = 0
                             view.onView.value = false
                             fields.mainClicked.value = false
+                            //cardDeckVM.resetCardList()
                             navController.navigate(DeckListDestination.route)
+                            if (inDeck){
+                                cardDeckVM.resetUiState()
+                                inDeck = false
+                            }
                         },
+                        cardDeckVM = cardDeckVM,
                         whichView = view,
-                        onNavigateToWhichView = {
-                            navController.navigate(WhichViewDestination.createRoute(it.id))
-                        }
-                    )
-                }
-            }
-            composable(
-                route = WhichViewDestination.route
-            ) { backStackEntry ->
-                val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
-                //val deck = uiState.deckList.find { it.id == deckId }
-                val deck = remember { mutableStateOf<Deck?>(null) }
-
-                LaunchedEffect(Unit) {
-                    coroutineScope.launch {
-                        deckViewModel.getDeckById(
-                            deckId ?: 0,
-                            editingCardListVM
-                        ).collect { flow ->
-                            deck.value = flow
-                        }
-                    }
-
-                }
-                deck.value?.let { d ->
-                    choosingView.WhichScreen(
-                        deck = d,
-                        view = view,
-                        goToAddCard = {
+                        goToAddCard = { id ->
                             fields.mainClicked.value = false
-                            navController.navigate(AddCardDestination.createRoute(d.id))
+                            navController.navigate(AddCardDestination.createRoute(id))
                             view.onView.value = true
                         },
-                        goToViewCard = {
+                        goToViewCard = { id ->
+                            inDeck = true
                             fields.mainClicked.value = false
-                            navController.navigate(ViewCardDestination.createRoute(d.id))
+                            navController.navigate(ViewCardDestination.createRoute(id))
                             view.onView.value = true
                         },
-                        goToEditDeck = { _, _ ->
+                        goToEditDeck = { id, name ->
                             fields.mainClicked.value = false
                             navController.navigate(
                                 EditDeckDestination.createRoute(
-                                    d.id,
-                                    d.name
+                                    id,
+                                    name
                                 )
                             )
                             view.onView.value = true
                         },
-                        goToViewCards = {
+                        goToViewCards = { id ->
                             fields.mainClicked.value = false
-                            navController.navigate(ViewAllCardsDestination.createRoute(d.id))
+                            navController.navigate(ViewAllCardsDestination.createRoute(id))
                             view.onView.value = true
                         },
                     )
@@ -270,13 +269,10 @@ fun AppNavHost(
             composable(AddCardDestination.route) { backStackEntry ->
                 val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
 
-                val deck = remember { mutableStateOf<Deck?>(null) }
-
                 LaunchedEffect(Unit) {
                     coroutineScope.launch {
-                        deckViewModel.getDeckById(
+                        mainViewModel.getDeckById(
                             deckId ?: 0,
-                            editingCardListVM
                         ).collect { flow ->
                             deck.value = flow
                         }
@@ -309,13 +305,10 @@ fun AppNavHost(
             composable(ViewCardDestination.route) { backStackEntry ->
                 val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
 
-                val deck = remember { mutableStateOf<Deck?>(null) }
-
                 LaunchedEffect(Unit) {
                     coroutineScope.launch {
-                        deckViewModel.getDeckById(
+                        mainViewModel.getDeckById(
                             deckId ?: 0,
-                            editingCardListVM
                         ).collect { flow ->
                             deck.value = flow
                         }
@@ -326,6 +319,7 @@ fun AppNavHost(
                     view.whichView.intValue = 0
                     view.onView.value = false
                     fields.inDeckClicked.value = false
+                    getModifier.clickedChoice.value = '?'
                     navController.popBackStack(
                         DeckViewDestination.createRoute(deckId ?: 0),
                         inclusive = false
@@ -338,7 +332,7 @@ fun AppNavHost(
                                 cardList.allCards.map { cardTypes ->
                                     cardTypes.card
                                 },
-                                cardDeckViewModel
+                                cardDeckVM
                             )
                         }
                     }
@@ -359,7 +353,7 @@ fun AppNavHost(
                                     cardList.allCards.map { cardTypes ->
                                         cardTypes.card
                                     },
-                                    cardDeckViewModel
+                                    cardDeckVM
                                 )
                             }
                         }
@@ -370,14 +364,11 @@ fun AppNavHost(
             composable(EditDeckDestination.route) { backStackEntry ->
                 val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
                 val currentName = backStackEntry.arguments?.getString("currentName")
-                val deck = remember { mutableStateOf<Deck?>(null) }
 
                 LaunchedEffect(Unit) {
                     coroutineScope.launch {
-                        deckViewModel.getDeckById(
+                        mainViewModel.getDeckById(
                             deckId ?: 0,
-
-                            editingCardListVM
                         ).collect { flow ->
                             deck.value = flow
                         }
@@ -414,14 +405,11 @@ fun AppNavHost(
 
             composable(ViewAllCardsDestination.route) { backStackEntry ->
                 val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
-                //val deck = uiState.deckList.find { it.id == deckId }
-                val deck = remember { mutableStateOf<Deck?>(null) }
 
                 LaunchedEffect(Unit) {
                     coroutineScope.launch {
-                        deckViewModel.getDeckById(
+                        mainViewModel.getDeckById(
                             deckId ?: 0,
-                            editingCardListVM
                         ).collect { flow ->
                             deck.value = flow
                         }

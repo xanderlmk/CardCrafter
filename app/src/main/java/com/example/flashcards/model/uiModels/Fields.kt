@@ -18,7 +18,10 @@ class Fields(
         question.value = ""
         middleField.value = ""
         answer.value = ""
-        choices = MutableList(4){ mutableStateOf("")}
+        choices[0].value = ""
+        choices[1].value = ""
+        choices[2].value = ""
+        choices[3].value = ""
         correct.value = '?'
     }
 }

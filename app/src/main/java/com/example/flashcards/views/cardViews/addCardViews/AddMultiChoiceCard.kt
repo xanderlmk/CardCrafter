@@ -309,9 +309,7 @@ fun AddMultiChoiceCard(
                             fields.choices[3].value,
                             fields.correct.value
                         )
-                        fields.question.value = ""
-                        fields.choices = MutableList(4) { mutableStateOf("") }
-                        fields.correct.value = '?'
+                        fields.resetFields()
                         successMessage = cardAdded
                     }
                 },

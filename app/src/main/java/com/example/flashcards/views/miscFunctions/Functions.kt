@@ -45,7 +45,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
-import com.example.flashcards.model.uiModels.CardListUiState
+import com.example.flashcards.model.uiModels.CardDeckCardLists
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.ui.theme.GetModifier
 
@@ -62,7 +62,7 @@ fun AgainText(getModifier: GetModifier) {
 
 @Composable
 fun HardText(
-    updatedDueCards: CardListUiState,
+    updatedDueCards: CardDeckCardLists,
     index: MutableIntState, hard: Int,
     getModifier: GetModifier
 ) {
@@ -81,7 +81,7 @@ fun HardText(
 
 @Composable
 fun GoodText(
-    updatedDueCards: CardListUiState,
+    updatedDueCards: CardDeckCardLists,
     index: MutableIntState, good: Int,
     getModifier: GetModifier
 ) {
@@ -208,9 +208,9 @@ fun EditIntField(
 
 @Composable
 fun NoDueCards(getModifier: GetModifier) {
-    var delay by rememberSaveable { mutableStateOf(false) }
+    var delay by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        delay(50)
+        delay(150)
         delay = true
     }
     if (delay) {

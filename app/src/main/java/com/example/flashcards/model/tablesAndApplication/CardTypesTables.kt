@@ -23,13 +23,11 @@ import kotlinx.parcelize.Parcelize
     indices = [Index(value = ["cardId"])]
 )
 data class BasicCard(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    override val cardId: Int,
+    @PrimaryKey override val cardId: Int,
     val question: String,
     val answer: String,
 ) : CardType(), Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readInt(),
         parcel.readInt(),
         parcel.readString()!!,
         parcel.readString()!!
@@ -38,7 +36,6 @@ data class BasicCard(
     companion object : Parceler<BasicCard> {
 
         override fun BasicCard.write(parcel: Parcel, flags: Int) {
-            parcel.writeInt(id)
             parcel.writeInt(cardId)
             parcel.writeString(question)
             parcel.writeString(answer)
@@ -65,14 +62,12 @@ data class BasicCard(
     indices = [Index(value = ["cardId"])]
 )
 data class ThreeFieldCard(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    override val cardId: Int,
+    @PrimaryKey override val cardId: Int,
     val question: String,
     val middle: String,
     val answer: String,
 ) : CardType(), Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readInt(),
         parcel.readInt(),
         parcel.readString()!!,
         parcel.readString()!!,
@@ -82,7 +77,6 @@ data class ThreeFieldCard(
     companion object : Parceler<ThreeFieldCard> {
 
         override fun ThreeFieldCard.write(parcel: Parcel, flags: Int) {
-            parcel.writeInt(id)
             parcel.writeInt(cardId)
             parcel.writeString(question)
             parcel.writeString(middle)
@@ -109,14 +103,12 @@ data class ThreeFieldCard(
     indices = [Index(value = ["cardId"])]
 )
 data class HintCard(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    override val cardId: Int,
+    @PrimaryKey override val cardId: Int,
     val question: String,
     val hint: String,
     val answer: String,
 ) : CardType(), Parcelable  {
     constructor(parcel: Parcel) : this(
-    parcel.readInt(),
     parcel.readInt(),
     parcel.readString()!!,
     parcel.readString()!!,
@@ -126,7 +118,6 @@ data class HintCard(
     companion object : Parceler<HintCard> {
 
         override fun HintCard.write(parcel: Parcel, flags: Int) {
-            parcel.writeInt(id)
             parcel.writeInt(cardId)
             parcel.writeString(question)
             parcel.writeString(hint)
@@ -153,8 +144,7 @@ data class HintCard(
     indices = [Index(value = ["cardId"])]
 )
 data class MultiChoiceCard(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    override val cardId: Int,
+    @PrimaryKey override val cardId: Int,
     val question: String,
     val choiceA: String,
     val choiceB: String,
@@ -163,7 +153,6 @@ data class MultiChoiceCard(
     val correct: Char
 ) : CardType(), Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readInt(),
         parcel.readInt(),
         parcel.readString()!!,
         parcel.readString()!!,
@@ -176,7 +165,6 @@ data class MultiChoiceCard(
     companion object : Parceler<MultiChoiceCard> {
 
         override fun MultiChoiceCard.write(parcel: Parcel, flags: Int) {
-            parcel.writeInt(id)
             parcel.writeInt(cardId)
             parcel.writeString(question)
             parcel.writeString(choiceA)

@@ -14,8 +14,17 @@ import com.example.flashcards.model.tablesAndApplication.ThreeCardType
 data class DeckUiState(
     val deckList: List<Deck> = listOf()
 )
+data class CardListUiCount(
+    val cardListCount : List<Int> = listOf()
+)
 data class CardListUiState(
     var allCards: List<AllCardTypes> = emptyList(),
+    var errorMessage: String = ""
+)
+data class CardDeckCardLists(
+    var allCards: List<AllCardTypes> = emptyList(),
+    var savedCardList: List<AllCardTypes> = emptyList(),
+    var collected : Boolean = false,
     var errorMessage: String = ""
 )
 data class SavedCardUiState(

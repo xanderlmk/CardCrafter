@@ -30,31 +30,54 @@ import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.views.miscFunctions.SettingsButton
 import com.example.flashcards.model.uiModels.View
 import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.views.miscFunctions.delayNavigate
 
 
 class DeckView(
-    private var fields : Fields,
-    private var dueCardsViewModel: CardDeckViewModel,
+    private var fields: Fields,
     private var getModifier: GetModifier
 ) {
     @Composable
     fun ViewEditDeck(
         deck: Deck,
+        cardDeckVM : CardDeckViewModel,
         onNavigate: () -> Unit,
-        whichView : View,
-        onNavigateToWhichView: () -> Unit) {
-        val view = remember {whichView}
+        whichView: View,
+        goToAddCard : (Int) -> Unit,
+        goToViewCard: (Int) -> Unit,
+        goToEditDeck: (Int,String) -> Unit,
+        goToViewCards: (Int) -> Unit
+    ) {
+        val view = remember { whichView }
         val coroutineScope = rememberCoroutineScope()
         LaunchedEffect(view.whichView.intValue) {
-                when (view.whichView.intValue) {
-                    0 -> {
-                        view.onView.value = false
-                    }
-                    else -> {
-                        fields.inDeckClicked.value = true
-                        onNavigateToWhichView()
-                    }
+            when (view.whichView.intValue) {
+                0 -> {
+                    view.onView.value = false
                 }
+                2 -> {
+                    // Navigate to ViewCard screen
+                    delayNavigate()
+                    goToViewCard(deck.id)
+                    view.whichView.intValue = 0
+                    view.onView.value = true
+                }
+                3 -> {
+                    // Navigate to EditDeckScreen
+                    delayNavigate()
+                    goToEditDeck(deck.id, deck.name)
+                    view.whichView.intValue = 0
+                    view.onView.value = true
+                }
+                4 -> {
+                    // Navigate to ViewFlashCardList
+                    delayNavigate()
+                    goToViewCards(deck.id)
+                    view.whichView.intValue = 0
+                    view.onView.value = true
+
+                }
+            }
         }
         Box(
             modifier = getModifier
@@ -62,7 +85,7 @@ class DeckView(
         ) {
             BackButton(
                 onBackClick = { onNavigate() },
-                modifier =  getModifier.backButtonModifier(),
+                modifier = getModifier.backButtonModifier(),
                 getModifier = getModifier
             )
             SettingsButton(
@@ -71,14 +94,15 @@ class DeckView(
                         view.whichView.intValue = 3
                         fields.inDeckClicked.value = true
                     }
-                                       },
+                },
                 onNavigateToEditCards = {
                     if (!fields.inDeckClicked.value) {
                         view.whichView.intValue = 4
                         fields.inDeckClicked.value = true
                     }
-                                        } ,
-                modifier = getModifier.settingsButtonModifier()
+                },
+                modifier = getModifier
+                    .settingsButtonModifier()
                     .align(Alignment.TopEnd),
                 getModifier = getModifier,
                 fields = fields
@@ -86,7 +110,7 @@ class DeckView(
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
+            ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -104,41 +128,39 @@ class DeckView(
                             .padding(top = 50.dp)
                     )
                 }
-                    Column(
+                Column(
+                    modifier = Modifier
+                        .weight(2f)
+                ) {
+                    Row(
                         modifier = Modifier
-                        .weight(2f)) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 48.dp, start = 20.dp, end = 20.dp),
-                            horizontalArrangement = Arrangement.Center
+                            .fillMaxWidth()
+                            .padding(top = 48.dp, start = 20.dp, end = 20.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Box(
+                            modifier = Modifier.weight(1f)
                         ) {
-                            Box(
-                                modifier = Modifier.weight(1f)
+                            Button(
+                                onClick = {
+                                    if (!fields.inDeckClicked.value) {
+                                        view.whichView.intValue = 2
+                                        fields.inDeckClicked.value = true
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth(fraction = 0.55f)
+                                    .align(Alignment.Center),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = getModifier.secondaryButtonColor(),
+                                    contentColor = getModifier.buttonTextColor()
+                                )
                             ) {
-                                Button(
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            dueCardsViewModel.getDueCards(deck.id)
-                                        }
-                                        if (!fields.inDeckClicked.value) {
-                                            view.whichView.intValue = 2
-                                            fields.inDeckClicked.value = true
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth(fraction = 0.55f)
-                                        .align(Alignment.Center),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = getModifier.secondaryButtonColor(),
-                                        contentColor = getModifier.buttonTextColor()
-                                    )
-                                ) {
-                                    Text(stringResource(R.string.start_deck))
-                                }
+                                Text(stringResource(R.string.start_deck))
                             }
                         }
                     }
+                }
                 Column(
                     modifier = getModifier.addButtonModifier()
                 ) {
@@ -151,10 +173,9 @@ class DeckView(
                     ) {
                         AddCardButton(
                             onClick = {
-                                if (!fields.inDeckClicked.value) {
-                                    view.whichView.intValue = 1
-                                    fields.inDeckClicked.value = true
-                                }
+                                goToAddCard(deck.id)
+                                view.whichView.intValue = 0
+                                view.onView.value = true
                             }
                         )
                     }

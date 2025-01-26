@@ -43,6 +43,7 @@ fun updateCard(
         }
     }
     temp.totalPasses += 1
+    temp.partOfList = true
     return temp
 }
 
@@ -100,7 +101,7 @@ fun handleCardUpdate(
 suspend fun updateDecksCardList(
     deck: Deck,
     cardList: List<Card>,
-    dueCardsViewModel: CardDeckViewModel
+    cardDeckViewModel: CardDeckViewModel
 ): Boolean {
-    return dueCardsViewModel.updateCards(deck, cardList)
+    return cardDeckViewModel.updateCards(deck, cardList)
 }

@@ -11,43 +11,46 @@ import kotlinx.parcelize.Parcelize
 
 
 data class BasicCardType(
-    @Embedded val card: Card,
+    @Embedded override val card: Card,
     @Relation(
         parentColumn = "id",
         entityColumn = "cardId"
     )
-    val basicCard: BasicCard
-)
+    val basicCard: BasicCard?
+) : SealedCT()
 
 data class HintCardType(
-    @Embedded val card: Card,
+    @Embedded override val card: Card,
     @Relation(
         parentColumn = "id",
         entityColumn = "cardId"
     )
-    val hintCard: HintCard
-)
+    val hintCard: HintCard?
+)  : SealedCT()
 
 data class ThreeCardType(
-    @Embedded val card: Card,
+    @Embedded override val card: Card,
     @Relation(
         parentColumn = "id",
         entityColumn = "cardId"
     )
-    val threeFieldCard: ThreeFieldCard
-)
+    val threeFieldCard: ThreeFieldCard?
+)  : SealedCT()
 
 data class MultiChoiceCardType(
-    @Embedded val card: Card,
+    @Embedded override val card: Card,
     @Relation(
         parentColumn = "id",
         entityColumn = "cardId"
     )
-    val multiChoiceCard: MultiChoiceCard
-)
+    val multiChoiceCard: MultiChoiceCard?
+) : SealedCT()
 
 sealed class CardType {
     abstract val cardId: Int
+}
+sealed class SealedCT {
+    abstract val card : Card
 }
 
 @Parcelize

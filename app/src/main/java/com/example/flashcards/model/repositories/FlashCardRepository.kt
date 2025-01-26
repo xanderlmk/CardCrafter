@@ -18,11 +18,17 @@ interface FlashCardRepository {
 
     fun updateDeckReviewAmount(newReviewAmount : Int, deckId: Int): Int
 
+    suspend fun updateNextReview(nextReview: Date, deckId: Int)
+
     fun updateCardReviewAmount(newReviewAmount : Int, deckId: Int): Int
 
     fun getAllDecksStream(): Flow<List<Deck>>
 
-    fun getDeckStream(id: Int): Flow<Deck?>
+    fun getDeckStream(id: Int): Flow<Deck>
+
+    fun getCardCount(): Flow<List<Int>>
+
+    fun resetCardLefts()
 
     suspend fun insertDeck(deck: Deck)
 
@@ -48,7 +54,7 @@ interface FlashCardRepository {
 
     suspend fun getCardById(cardId : Int) : Card
 
-    suspend fun getBackupDueCards(deckId: Int) : List<Card>
+    suspend fun getBackupDueCards(deckId: Int, cardAmount : Int) : List<Card>
 
     fun updateSavedCards(
         cardId: Int,
@@ -56,9 +62,14 @@ interface FlashCardRepository {
         nextReview: Long,
         passes: Int,
         prevSuccess: Boolean,
-        totalPasses: Int
+        totalPasses: Int,
+        partOfList : Boolean
     )
     fun deleteSavedCards()
     fun insertSavedCard(savedCard: SavedCard)
     fun getAllSavedCards(): Flow<List<SavedCard>>
+
+    suspend fun becomePartOfList(id: Int)
+
+    fun updateCardsLeft(deckId: Int, cardsLeft : Int)
 }
