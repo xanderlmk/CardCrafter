@@ -11,8 +11,11 @@ Features :
 - Custom Themes based off Light/Dark Theme
 
 TO DO :
-- SavedStateBundles for CardDeckView, any View that had input fields
-- Determination whether or not to update the database onCreate() 
+- SavedStateBundles for passing arguments in ViewModel to retrieve in NavController
+- Import Audio to use in Card
+- Create Math card, Coding/Programming card
+- Create an Export for decks and it's cards
+- Fix/report any existing glitches/bugs you find
 
 
 
