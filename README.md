@@ -11,10 +11,13 @@ Features :
 - Custom Themes based off Light/Dark Theme
 
 TO DO :
-- SavedStateBundles for passing arguments in ViewModel to retrieve in NavController
 - Import Audio to use in Card
+- Import Image to use in Card
 - Create Math card, Coding/Programming card
 - Create an Export for decks and it's cards
+  - Then create server to allow sharing of decks
+- Sealed classes rather than using cardTypes (which has null cardTypes leading to more memory/data usage)
+- Application Logo
 - Fix/report any existing glitches/bugs you find
 
 
