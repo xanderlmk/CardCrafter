@@ -22,9 +22,11 @@ interface FlashCardRepository {
 
     fun updateCardReviewAmount(newReviewAmount : Int, deckId: Int): Int
 
+    fun updateCardAmount(cardAmount : Int, deckId: Int) : Int
+
     fun getAllDecksStream(): Flow<List<Deck>>
 
-    fun getDeckStream(id: Int): Flow<Deck>
+    fun getDeckStream(id: Int): Deck
 
     fun getCardCount(): Flow<List<Int>>
 
@@ -72,4 +74,6 @@ interface FlashCardRepository {
     suspend fun becomePartOfList(id: Int)
 
     fun updateCardsLeft(deckId: Int, cardsLeft : Int)
+
+
 }

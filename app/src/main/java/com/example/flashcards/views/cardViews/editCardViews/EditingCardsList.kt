@@ -1,6 +1,7 @@
 package com.example.flashcards.views.cardViews.editCardViews
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -47,7 +48,6 @@ class EditCardsList(
     fun ViewFlashCards(
         deck: Deck, onNavigate: () -> Unit, goToEditCard: () -> Unit
     ) {
-
         //var deckWithCards by remember { mutableStateOf(DeckWithCards(Deck(0, loading.toString() ), emptyList())) }
         val cardListUiState by editingCardListVM.cardListUiState.collectAsState()
         val middleCard = rememberSaveable { mutableIntStateOf(0) }
@@ -112,11 +112,8 @@ class EditCardsList(
     }
 
     private suspend fun getListState(listState: LazyListState, middleCard: Int) {
-        if (listState.firstVisibleItemScrollOffset == 0 &&
-            fields.scrollPosition.value == 0
-        ) {
-            listState.scrollToItem(0)
-        } else if (fields.scrollPosition.value == 0) {
+        if (fields.scrollPosition.value == 0) {
+            Log.d("scrollPosition", "${fields.scrollPosition.value}")
             listState.scrollToItem(0)
         } else if (listState.firstVisibleItemScrollOffset == 0 &&
             fields.scrollPosition.value > 0

@@ -4,6 +4,11 @@ import android.util.Log
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
+/**
+ * Adding a nextReview to decks
+ * Adding a partOfList to cards and savedCards
+ * */
+
 val MIGRATION_13_14 = object : Migration(13, 14) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.beginTransaction()

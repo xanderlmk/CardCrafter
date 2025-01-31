@@ -19,7 +19,6 @@ import com.example.flashcards.model.uiModels.CardUpdateError
 import com.example.flashcards.model.uiModels.SavedCardUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.withContext
@@ -68,10 +67,12 @@ class MainViewModel(
         savedStateHandle["appStarted"] = true
     }
 
-    fun getDeckById(
+    suspend fun getDeckById(
         deckId: Int,
-    ): Flow<Deck?> {
-        return flashCardRepository.getDeckStream(deckId)
+    ): Deck {
+        return withContext(Dispatchers.IO) {
+            flashCardRepository.getDeckStream(deckId)
+        }
     }
 
     suspend fun performDatabaseUpdate() {
@@ -124,9 +125,9 @@ class MainViewModel(
         }
     }
 
-    suspend fun resetCardList(){
-        return withContext(Dispatchers.IO){
-            viewModelScope.launch(Dispatchers.IO){
+    suspend fun resetCardList() {
+        return withContext(Dispatchers.IO) {
+            viewModelScope.launch(Dispatchers.IO) {
                 flashCardRepository.resetCardLefts()
             }
         }

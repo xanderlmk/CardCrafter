@@ -4,6 +4,9 @@ import android.util.Log
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
+/**
+ * Adding a Multiplier
+ * */
 val MIGRATION_3_5 = object : Migration(3, 5) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.beginTransaction()

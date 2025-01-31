@@ -3,9 +3,9 @@ package com.example.flashcards.model.repositories
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.DeckWithCards
 import com.example.flashcards.model.tablesAndApplication.Deck
-import com.example.flashcards.model.daoFiles.CardDao
-import com.example.flashcards.model.daoFiles.DeckDao
-import com.example.flashcards.model.daoFiles.SavedCardDao
+import com.example.flashcards.model.daoFiles.deckAndCardDao.CardDao
+import com.example.flashcards.model.daoFiles.deckAndCardDao.DeckDao
+import com.example.flashcards.model.daoFiles.deckAndCardDao.SavedCardDao
 import com.example.flashcards.model.tablesAndApplication.SavedCard
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -84,6 +84,12 @@ class OfflineFlashCardRepository(
             throw (e)
         }
 
+    override fun updateCardAmount(cardAmount: Int, deckId: Int) =
+        try {
+            deckDao.updateCardAmount(cardAmount, deckId)
+        } catch(e : Exception){
+            throw (e)
+        }
     override suspend fun insertCard(card: Card) = cardDao.insertCard(card)
 
     override suspend fun updateCard(card: Card) = cardDao.updateCard(card)

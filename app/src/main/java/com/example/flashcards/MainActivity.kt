@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModels {
         AppViewModelProvider.Factory
     }
-    private val cardTypeViewModel: EditingCardListViewModel by viewModels {
+    private val editingCardListViewModel: EditingCardListViewModel by viewModels {
         AppViewModelProvider.Factory
     }
     private lateinit var preferences: PreferencesManager
@@ -41,8 +41,21 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            if (mainViewModel.appStarted.value == null ||
-                mainViewModel.appStarted.value == false
+            preferences = remember {
+                PreferencesManager(
+                    applicationContext
+                )
+            }
+            /**
+             * Making sure that if it's their first time,
+             * there is no database update,
+             * and if the application was removed from the tabs (killed)
+             * this means that appStated.value will be null or false
+             * so you should perform database update
+             **/
+            if ((mainViewModel.appStarted.value == null ||
+                mainViewModel.appStarted.value == false ) &&
+                !preferences.isFirstTime
             ) {
                 LaunchedEffect(Unit) {
                     coroutineScope {
@@ -50,23 +63,16 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            preferences = remember {
-                PreferencesManager(
-                    applicationContext
-                )
-            }
             fields = remember { Fields() }
 
 
             val isSystemDark = isSystemInDarkTheme()
-
 
             if (preferences.isFirstTime) {
                 preferences.darkTheme.value = isSystemDark
                 preferences.isDarkThemeEnabled = isSystemDark
                 preferences.isFirstTime = false
             }
-
 
             FlashcardsTheme(
                 darkTheme = preferences.darkTheme.value,
@@ -76,7 +82,7 @@ class MainActivity : ComponentActivity() {
                     AppNavHost(
                         navController = rememberNavController(),
                         mainViewModel = mainViewModel,
-                        editingCardListVM = cardTypeViewModel,
+                        editingCardListVM = editingCardListViewModel,
                         preferences = preferences,
                         fields = fields,
                         modifier = Modifier.padding(innerPadding)

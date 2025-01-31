@@ -69,4 +69,5 @@
     <string name="sure_to_delete_card">Are you sure you want to delete this card?</string>
     <string name="reviews_left">Card reviews left: </string>
     <string name="default_value">Default:</string>
+    <string name="updated_card_amount">updated card amount!</string>
 </resources>

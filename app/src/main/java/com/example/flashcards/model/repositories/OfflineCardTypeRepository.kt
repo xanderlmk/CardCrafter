@@ -1,12 +1,12 @@
 package com.example.flashcards.model.repositories
 
-import com.example.flashcards.model.daoFiles.BasicCardDao
+import com.example.flashcards.model.daoFiles.allCardTypesDao.BasicCardDao
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
-import com.example.flashcards.model.daoFiles.CardTypesDao
-import com.example.flashcards.model.daoFiles.HintCardDao
-import com.example.flashcards.model.daoFiles.MultiChoiceCardDao
-import com.example.flashcards.model.daoFiles.ThreeCardDao
+import com.example.flashcards.model.daoFiles.deckAndCardDao.CardTypesDao
+import com.example.flashcards.model.daoFiles.allCardTypesDao.HintCardDao
+import com.example.flashcards.model.daoFiles.allCardTypesDao.MultiChoiceCardDao
+import com.example.flashcards.model.daoFiles.allCardTypesDao.ThreeCardDao
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCardType

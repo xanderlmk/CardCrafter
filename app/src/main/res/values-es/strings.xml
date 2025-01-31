@@ -69,4 +69,5 @@
     <string name="sure_to_delete_card">Estas seguro/a que quiere borrar esta carta?</string>
     <string name="reviews_left">Revisiones restantes de la carta: </string>
     <string name="default_value">Predeterminado:</string>
+    <string name="updated_card_amount">Cantidad de tarjetas actualizadas!</string>
 </resources>

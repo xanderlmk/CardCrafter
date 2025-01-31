@@ -31,6 +31,8 @@ class EditDeckViewModel(
         private set
     var deckRA by mutableStateOf(savedStateHandle["deckRA"] ?: "")
         private set
+    var deckCA by mutableStateOf(savedStateHandle["deckCA"]?: "")
+        private set
     var deckIA by mutableStateOf(savedStateHandle.get<Boolean>("deckIsActive"))
         private set
 
@@ -59,6 +61,10 @@ class EditDeckViewModel(
         savedStateHandle["deckRA"] = reviewAmount
     }
 
+    fun updateCAField(cardAmount: String){
+        deckCA = cardAmount
+        savedStateHandle["deckCA"] = cardAmount
+    }
 
     suspend fun checkIfDeckExists(deckName: String): Int {
         return withContext(Dispatchers.IO) {
@@ -153,6 +159,26 @@ class EditDeckViewModel(
                     handleError(e.message.toString())
                 } catch (e: Exception) {
                     handleError("Error updating deck Review Amount: ${e.message}")
+                }
+            }
+        }
+        return 0
+    }
+
+    suspend fun updateDeckCardAmount(cardAmount : Int, deckId: Int): Int {
+        if (cardAmount > 4 && cardAmount < 1001) {
+            return withContext(Dispatchers.IO) {
+                try {
+                    val row =
+                        flashCardRepository.updateCardAmount(cardAmount, deckId)
+                    if (row == 0) {
+                        handleError("Failed to update cardAmount")
+                    }
+                    row
+                } catch (e: SQLiteConstraintException) {
+                    handleError(e.message.toString())
+                } catch (e: Exception) {
+                    handleError("Error updating deck cardAmount: ${e.message}")
                 }
             }
         }
