@@ -1,6 +1,12 @@
 package com.example.flashcards.controller.viewModels.cardViewsModels
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
@@ -17,9 +23,9 @@ import java.util.Date
 
 class AddCardViewModel(
     private val flashCardRepository: FlashCardRepository,
-    private val cardTypeRepository: CardTypeRepository
+    private val cardTypeRepository: CardTypeRepository,
 ) : ViewModel() {
-    private val privateErrorMessage : MutableStateFlow<String> = MutableStateFlow("")
+    private val privateErrorMessage: MutableStateFlow<String> = MutableStateFlow("")
     val errorMessage = privateErrorMessage.asStateFlow()
     fun addBasicCard(deck: Deck, question: String, answer: String) {
         if (question.isNotEmpty() && answer.isNotEmpty()) {
@@ -46,6 +52,7 @@ class AddCardViewModel(
             }
         }
     }
+
     fun addHintCard(
         deck: Deck, question: String,
         hint: String, answer: String
@@ -113,14 +120,15 @@ class AddCardViewModel(
     fun addMultiChoiceCard(
         deck: Deck,
         question: String,
-        choiceA : String,
-        choiceB : String,
-        choiceC : String,
-        choiceD : String,
-        correct : Char
+        choiceA: String,
+        choiceB: String,
+        choiceC: String,
+        choiceD: String,
+        correct: Char
     ) {
         if (question.isNotEmpty() && choiceA.isNotEmpty() &&
-            choiceB.isNotEmpty() && correct in 'a'..'d') {
+            choiceB.isNotEmpty() && correct in 'a'..'d'
+        ) {
             viewModelScope.launch {
                 val cardId = flashCardRepository.insertCard(
                     Card(

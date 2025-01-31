@@ -1,15 +1,9 @@
 package com.example.flashcards.model.uiModels
 
 import android.content.Context
-import android.os.Bundle
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 
-class CreatedBundle(private val savedStateHandle: Bundle?){
-    fun getSavedHandle():Bundle?{
-        return savedStateHandle
-    }
-}
 
 class PreferencesManager(
     context: Context,

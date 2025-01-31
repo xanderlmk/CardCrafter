@@ -3,12 +3,11 @@ package com.example.flashcards.model.migrations
 import android.util.Log
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import java.util.UUID
 
 
-
-
-
+/**
+ * Changing primary keys of cardTypes
+ * */
 
 val MIGRATION_11_12 = object : Migration(11, 12) {
     override fun migrate(database: SupportSQLiteDatabase) {

@@ -40,7 +40,6 @@ import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.DeleteCardButton
-import com.example.flashcards.views.miscFunctions.delayNavigate
 import kotlinx.coroutines.launch
 
 class EditingCardView(
@@ -75,8 +74,8 @@ class EditingCardView(
                     modifier = Modifier.fillMaxSize()) {
                     Text(
                         text = stringResource(R.string.edit_flashcard),
-                        fontSize = 35.sp,
-                        lineHeight = 40.sp,
+                        fontSize = 25.sp,
+                        lineHeight = 30.sp,
                         textAlign = TextAlign.Center,
                         color = getModifier.titleColor(),
                         modifier = getModifier.editCardModifier()
@@ -133,10 +132,7 @@ class EditingCardView(
                     ) {
                         Button(
                             onClick = {
-                                coroutineScope.launch {
-                                    delayNavigate()
                                     onNavigateBack()
-                                }
                             },
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(

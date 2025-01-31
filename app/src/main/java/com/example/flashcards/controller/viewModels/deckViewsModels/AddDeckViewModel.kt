@@ -57,6 +57,7 @@ class AddDeckViewModel(
                             name = name,
                             reviewAmount = reviewAmount,
                             nextReview = Date(),
+                            lastUpdated = Date()
                         )
                     )
                 } catch (e: SQLiteConstraintException) {

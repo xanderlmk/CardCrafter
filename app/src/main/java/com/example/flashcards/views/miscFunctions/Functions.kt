@@ -372,6 +372,15 @@ fun returnDeckError(): List<String> {
 }
 
 @Composable
+fun returnCardAmountError() : List<String>{
+    return listOf(
+        "daily card Amount must be at least 5",
+        "only 1000 cards a day are allowed",
+        "card amount is the same",
+        "failed to update card amount")
+}
+
+@Composable
 fun getSavableFields(fields: Fields): Fields {
     return Fields(
         question = rememberSaveable { mutableStateOf("") },

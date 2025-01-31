@@ -1,6 +1,5 @@
 package com.example.flashcards.views.deckViews
 
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,6 +35,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcards.R
 import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.onClickActions.DeleteDeck
+import com.example.flashcards.controller.onClickActions.updateCardAmount
 import com.example.flashcards.controller.onClickActions.updateDeckName
 import com.example.flashcards.controller.onClickActions.updateMultipliers
 import com.example.flashcards.controller.onClickActions.updateReviewAmount
@@ -50,6 +49,7 @@ import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.EditIntField
 import com.example.flashcards.views.miscFunctions.createDeckDetails
 import com.example.flashcards.views.miscFunctions.retrieveDeckDetails
+import com.example.flashcards.views.miscFunctions.returnCardAmountError
 import com.example.flashcards.views.miscFunctions.returnDeckError
 import com.example.flashcards.views.miscFunctions.returnMultiplierError
 import com.example.flashcards.views.miscFunctions.returnReviewError
@@ -82,16 +82,22 @@ class EditDeckView(
         val multiplierErrorMessage = remember { mutableStateOf("") }
         val reviewErrorMessage = remember { mutableStateOf("") }
         val deckErrorMessage = remember { mutableStateOf("") }
+        val cardAmountErrorMessage = remember { mutableStateOf("") }
+
         val multiplierSuccessful = remember { mutableStateOf("") }
         val reviewAmountSuccessful = remember { mutableStateOf("") }
+        val cardAmountSuccessful = remember { mutableStateOf("") }
         val isSubmitting = remember { mutableStateOf(false) }
-        var expanded = rememberSaveable { MutableList(3) { mutableStateOf(false) } }
+        var expanded = rememberSaveable { MutableList(4) { mutableStateOf(false) } }
 
         val deckErrors = returnDeckError()
         val reviewAmountErrors = returnReviewError()
         val multiplierErrors = returnMultiplierError()
+        val cardAmountErrors = returnCardAmountError()
+
         val updatedMultipliers = stringResource(R.string.updated_multiplier)
         val updatedReview = stringResource(R.string.updated_review)
+        val updatedCardAmount = stringResource(R.string.updated_card_amount)
 
         val coroutineScope = rememberCoroutineScope()
         val scrollState = rememberScrollState()
@@ -130,7 +136,6 @@ class EditDeckView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(
-                                horizontal = 8.dp,
                                 vertical = 12.dp
                             ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -231,7 +236,6 @@ class EditDeckView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(
-                                horizontal = 8.dp,
                                 vertical = 12.dp
                             ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -263,7 +267,7 @@ class EditDeckView(
                             value = deckDetails.gm.value,
                             onValueChanged = {
                                 deckDetails.gm.value = it
-                                vm.updateGMField(it.toDoubleOrNull()?: 0.0)
+                                vm.updateGMField(it.toDoubleOrNull() ?: 0.0)
                                 multiplierErrorMessage.value = "" // Clear error when user types
                             },
                             labelStr = stringResource(R.string.good_multiplier),
@@ -275,7 +279,7 @@ class EditDeckView(
                             value = deckDetails.bm.value,
                             onValueChanged = {
                                 deckDetails.bm.value = it
-                                vm.updateBMField(it.toDoubleOrNull()?: 0.0)
+                                vm.updateBMField(it.toDoubleOrNull() ?: 0.0)
                                 multiplierErrorMessage.value = "" // Clear error when user types
                             },
                             labelStr = stringResource(R.string.bad_multiplier),
@@ -366,7 +370,6 @@ class EditDeckView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(
-                                horizontal = 8.dp,
                                 vertical = 12.dp
                             ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -392,6 +395,7 @@ class EditDeckView(
                         onValueChanged = {
                             deckDetails.ra.value = it
                             vm.updateRAField(it)
+                            reviewErrorMessage.value = ""
                         },
                         labelStr = stringResource(R.string.review_amount),
                         modifier = Modifier
@@ -413,7 +417,6 @@ class EditDeckView(
                                 textAlign = TextAlign.Center
                             )
                         }
-
                         if (reviewErrorMessage.value.isNotEmpty()) {
                             Text(
                                 text = reviewErrorMessage.value,
@@ -476,6 +479,116 @@ class EditDeckView(
                         }
                     }
                 }
+                if (!expanded[3].value) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                vertical = 12.dp
+                            ),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                expanded[3].value = true
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = getModifier.secondaryButtonColor(),
+                                contentColor = getModifier.buttonTextColor()
+                            ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Change Daily Card Amount")
+                        }
+                    }
+                } else {
+                    EditIntField(
+                        value = deckDetails.ca.value,
+                        onValueChanged = {
+                            deckDetails.ca.value = it
+                            vm.updateCAField(it)
+                            cardAmountErrorMessage.value = ""
+                        },
+                        labelStr = "cardAmount",
+                        modifier = Modifier
+                            .fillMaxWidth(0.5f)
+                            .padding(end = 2.dp)
+                            .padding(
+                                horizontal = 10.dp,
+                                vertical = 12.dp
+                            )
+                    )
+                    Row {
+                        if (cardAmountSuccessful.value.isNotEmpty()) {
+                            Text(
+                                text = cardAmountSuccessful.value,
+                                color = Color.Red,
+                                modifier = Modifier.fillMaxWidth(),
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                        if (cardAmountErrorMessage.value.isNotEmpty()) {
+                            Text(
+                                text = cardAmountErrorMessage.value,
+                                color = Color.Red,
+                                modifier = Modifier.fillMaxWidth(),
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.padding(12.dp))
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                cardAmountErrorMessage.value = ""
+                                vm.updateCAField(deck.cardAmount.toString())
+                                deckDetails.ca.value = deck.cardAmount.toString()
+                                expanded[3].value = false
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = getModifier.tertiaryButtonColor(),
+                                contentColor = getModifier.onTertiaryButtonColor()
+                            ),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(stringResource(R.string.cancel))
+                        }
+
+                        Button(
+                            onClick = {
+                                updateCardAmount(
+                                    vm, deckDetails.ca.value.toIntOrNull() ?: 0,
+                                    cardAmountErrorMessage, isSubmitting, deck,
+                                    cardAmountSuccessful, cardAmountErrors,
+                                    updatedCardAmount, coroutineScope
+                                )
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = getModifier.tertiaryButtonColor(),
+                                contentColor = getModifier.onTertiaryButtonColor()
+                            ),
+                            enabled = !isSubmitting.value,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            if (isSubmitting.value) {
+                                CircularProgressIndicator(
+                                    color = getModifier.titleColor(),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            } else {
+                                Text(stringResource(R.string.submit))
+                            }
+                        }
+                    }
+                }
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.Bottom,
@@ -509,6 +622,13 @@ class EditDeckView(
                 delay(1500)
                 reviewAmountSuccessful.value = ""
                 expanded[2].value = false
+            }
+        }
+        LaunchedEffect(cardAmountSuccessful.value) {
+            if (cardAmountSuccessful.value.isNotEmpty()) {
+                delay(1500)
+                cardAmountSuccessful.value = ""
+                expanded[3].value = false
             }
         }
     }

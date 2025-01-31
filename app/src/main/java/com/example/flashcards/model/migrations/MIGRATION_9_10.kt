@@ -4,7 +4,10 @@ import android.util.Log
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import java.util.UUID
-
+/**
+ * Adding a UUID to decks and a foreign key to the deck UUID
+ * to each card
+ * */
 val MIGRATION_9_10 = object : Migration(9, 10) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.beginTransaction()

@@ -25,6 +25,45 @@ import com.example.flashcards.ui.theme.GetModifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+fun updateCardAmount(
+    vm: EditDeckViewModel, newCA: Int,
+    errorMessage: MutableState<String>,
+    isSubmitting: MutableState<Boolean>, deck: Deck,
+    successful : MutableState<String>,
+    errorMessages: List<String>, successMessage: String,
+    coroutineScope: CoroutineScope
+){
+    coroutineScope.launch{
+        if (newCA < 5){
+            errorMessage.value = errorMessages[0]
+            return@launch
+        }
+        if (newCA > 1000){
+            errorMessage.value = errorMessages[1]
+            return@launch
+        }
+        if (newCA == deck.cardAmount){
+            errorMessage.value = errorMessages[2]
+            return@launch
+        }
+        isSubmitting.value = true
+        try {
+            val result = vm.updateDeckCardAmount(newCA, deck.id)
+            if (result > 0 ){
+                successful.value = successMessage
+            } else {
+                errorMessage.value =
+                    errorMessages[3]
+            }
+        } catch (e : Exception){
+            errorMessage.value =
+                e.message ?: R.string.error_occurred.toString()
+        }
+        finally {
+            isSubmitting.value = false
+        }
+    }
+}
 fun updateReviewAmount(
     vm: EditDeckViewModel, newRA : Int,
     errorMessage: MutableState<String>,
@@ -33,7 +72,6 @@ fun updateReviewAmount(
     errorMessages : List<String>, successMessage : String,
     coroutineScope: CoroutineScope
 ) {
-
     coroutineScope.launch {
         if (newRA <= 0) {
             errorMessage.value = errorMessages[0]

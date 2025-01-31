@@ -1,4 +1,4 @@
-package com.example.flashcards.model.daoFiles
+package com.example.flashcards.model.daoFiles.deckAndCardDao
 
 import androidx.room.Dao
 import androidx.room.Query
@@ -35,7 +35,7 @@ interface CardTypesDao {
     @Transaction
     @Query(
         """SELECT * FROM cards WHERE deckId = :deckId
-        ORDER BY cards.nextReview"""
+        ORDER BY cards.id"""
     )
     fun getAllCardTypes(deckId: Int):
             Flow<List<AllCardTypes>>

@@ -1,4 +1,4 @@
-package com.example.flashcards.model.daoFiles
+package com.example.flashcards.model.daoFiles.allCardTypesDao
 
 import androidx.room.Dao
 import androidx.room.Insert

@@ -113,7 +113,7 @@ class CardDeckViewModel(
                             Log.d("GetDueCardTypes", "collected = false")
                             withTimeout(EXTRA_TIME) {
                                 cardTypeRepository.getDueAllCardTypes(
-                                    deck.id, deck.cardAmount
+                                    deck.id, deck.cardsLeft
                                 ).map { allCards ->
                                     updateUiState(allCards)
                                 }.collect { state ->
@@ -248,9 +248,7 @@ class CardDeckViewModel(
                             createdOn = card.createdOn,
                             partOfList = false,
                         )
-                        if (card.reviewsLeft <= 1) {
                             deck.cardsLeft -= 1
-                        }
                         viewModelScope.launch {
                             flashCardRepository.updateCard(newCard)
                         }
@@ -294,7 +292,6 @@ class CardDeckViewModel(
         return withContext(Dispatchers.IO) {
             try {
                 getDueTypesForDeck(deck)
-                //getCards(deckId)
                 clearErrorMessage()
             } catch (e: Exception) {
                 handleError(e, "Something went wrong")

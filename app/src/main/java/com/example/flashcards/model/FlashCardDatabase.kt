@@ -6,20 +6,21 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.flashcards.model.daoFiles.BasicCardDao
-import com.example.flashcards.model.daoFiles.CardDao
-import com.example.flashcards.model.daoFiles.CardTypesDao
-import com.example.flashcards.model.daoFiles.DeckDao
-import com.example.flashcards.model.daoFiles.HintCardDao
-import com.example.flashcards.model.daoFiles.MultiChoiceCardDao
-import com.example.flashcards.model.daoFiles.SavedCardDao
-import com.example.flashcards.model.daoFiles.ThreeCardDao
+import com.example.flashcards.model.daoFiles.allCardTypesDao.BasicCardDao
+import com.example.flashcards.model.daoFiles.deckAndCardDao.CardDao
+import com.example.flashcards.model.daoFiles.deckAndCardDao.CardTypesDao
+import com.example.flashcards.model.daoFiles.deckAndCardDao.DeckDao
+import com.example.flashcards.model.daoFiles.allCardTypesDao.HintCardDao
+import com.example.flashcards.model.daoFiles.allCardTypesDao.MultiChoiceCardDao
+import com.example.flashcards.model.daoFiles.deckAndCardDao.SavedCardDao
+import com.example.flashcards.model.daoFiles.allCardTypesDao.ThreeCardDao
 import com.example.flashcards.model.migrations.MIGRATION_10_11
 import com.example.flashcards.model.migrations.MIGRATION_11_12
 import com.example.flashcards.model.migrations.MIGRATION_12_13
 import com.example.flashcards.model.migrations.MIGRATION_13_14
 import com.example.flashcards.model.migrations.MIGRATION_14_15
 import com.example.flashcards.model.migrations.MIGRATION_15_16
+import com.example.flashcards.model.migrations.MIGRATION_16_17
 import com.example.flashcards.model.migrations.MIGRATION_3_5
 import com.example.flashcards.model.migrations.MIGRATION_5_6
 import com.example.flashcards.model.migrations.MIGRATION_6_7
@@ -32,7 +33,7 @@ import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
-import com.example.flashcards.model.tablesAndApplication.NonNullConverter
+import com.example.flashcards.model.tablesAndApplication.TimeConverter
 import com.example.flashcards.model.tablesAndApplication.SavedCard
 import kotlinx.coroutines.CoroutineScope
 
@@ -48,9 +49,9 @@ import java.util.Calendar
         ThreeFieldCard::class,
         HintCard::class,
         MultiChoiceCard::class,
-        SavedCard::class], version = 16
+        SavedCard::class], version = 17
 )
-@TypeConverters(NonNullConverter::class)
+@TypeConverters(TimeConverter::class)
 abstract class FlashCardDatabase : RoomDatabase() {
     abstract fun deckDao(): DeckDao
     abstract fun cardDao(): CardDao
@@ -82,7 +83,8 @@ abstract class FlashCardDatabase : RoomDatabase() {
                             MIGRATION_12_13,
                             MIGRATION_13_14,
                             MIGRATION_14_15,
-                            MIGRATION_15_16
+                            MIGRATION_15_16,
+                            MIGRATION_16_17
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(FlashCardDatabaseCallback(scope))
@@ -127,13 +129,15 @@ abstract class FlashCardDatabase : RoomDatabase() {
             val historyDeck = Deck(
                 name = "History",
                 nextReview = nextReviewDate,
-                cardsLeft = 20
+                cardsLeft = 20,
+                lastUpdated = nextReviewDate
             )
             deckDao.insertDeck(historyDeck)
             val motorcycleDeck = Deck(
                 name = "Motorcycle Written Exam",
                 nextReview = nextReviewDate,
-                cardsLeft = 20
+                cardsLeft = 20,
+                lastUpdated = nextReviewDate
             )
             deckDao.insertDeck(motorcycleDeck)
 

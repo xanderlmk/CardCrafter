@@ -90,13 +90,9 @@ fun BackButton(
     modifier: Modifier = Modifier,
     getModifier: GetModifier
 ) {
-    val coroutineScope = rememberCoroutineScope()
     IconButton(
         onClick = {
-            coroutineScope.launch {
-                delayNavigate()
-                onBackClick()
-            }
+            onBackClick()
         },
         modifier = modifier
             .background(
@@ -198,14 +194,11 @@ fun MainSettingsButton(
     getModifier: GetModifier,
     fields: Fields
 ) {
-    val coroutineScope = rememberCoroutineScope()
     IconButton(
         onClick = {
-            coroutineScope.launch {
-                if (!fields.mainClicked.value) {
-                    fields.mainClicked.value = true
-                    onNavigateToSettings()
-                }
+            if (!fields.mainClicked.value) {
+                fields.mainClicked.value = true
+                onNavigateToSettings()
             }
         },
         modifier = modifier

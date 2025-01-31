@@ -1,4 +1,4 @@
-package com.example.flashcards.model.daoFiles
+package com.example.flashcards.model.daoFiles.deckAndCardDao
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.flashcards.model.tablesAndApplication.Deck
 import kotlinx.coroutines.flow.Flow
+import java.util.Calendar
 import java.util.Date
 
 @Dao
@@ -22,7 +23,7 @@ interface DeckDao {
     suspend fun deleteDeck(deck: Deck)
 
     @Query("SELECT * from decks WHERE id = :id")
-    fun getDeck(id: Int): Flow<Deck>
+    fun getDeck(id: Int): Deck
 
     @Query("SELECT * from decks ORDER BY name ASC")
     fun getAllDecks(): Flow<List<Deck>>
@@ -53,8 +54,7 @@ interface DeckDao {
     )
     fun getCardCount(currentTime: Long = Date().time): Flow<List<Int>>
 
-    @Query(
-        """
+    @Query("""
     WITH RankedCards AS (
     SELECT
         c.deckId,
@@ -78,7 +78,8 @@ interface DeckDao {
         END
     FROM RankedCards rc
     WHERE rc.deckId = decks.id
-    )
+    ),
+    lastUpdated = :startOfDay
     WHERE EXISTS (
     SELECT 1
     FROM RankedCards rc
@@ -87,11 +88,20 @@ interface DeckDao {
     AND NOT EXISTS (
         SELECT 1 
         FROM cards c
-        WHERE c.partOfList = 1 AND c.deckId = decks.id
-    )
+        WHERE c.deckId = decks.id
+        AND c.partOfList = 1
+        )
     """
     )
-    fun resetCardLefts(currentTime: Long = Date().time)
+    fun resetCardLefts(
+        currentTime: Long = Date().time,
+                       startOfDay : Long = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+    )
 
     @Query("SELECT COUNT(*) FROM decks WHERE LOWER(name) = LOWER(:deckName)")
     fun checkIfDeckExists(deckName: String): Int
@@ -157,4 +167,13 @@ interface DeckDao {
         AND cardsLeft > 0
     """)
     fun updateCardsLeft(deckId: Int, cardsLeft : Int)
+
+    @Query("""
+        UPDATE decks
+        SET cardAmount = :cardAmount
+        where id = :deckId 
+        AND cardAmount > 4
+        And cardAmount < 1001
+    """)
+    fun updateCardAmount(cardAmount : Int, deckId: Int) : Int
 }

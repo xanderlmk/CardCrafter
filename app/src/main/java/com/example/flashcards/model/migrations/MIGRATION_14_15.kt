@@ -4,6 +4,11 @@ import android.util.Log
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
+/**
+ * Refactoring the primary key of cardTypes back into the old version
+ * where the primary key was the cardId
+ * */
+
 val MIGRATION_14_15 = object : Migration(14, 15)  {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.beginTransaction()
