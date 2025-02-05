@@ -4,6 +4,7 @@ package com.example.flashcards.model.uiModels
 
 import com.example.flashcards.model.tablesAndApplication.AllCardTypes
 import com.example.flashcards.model.tablesAndApplication.BasicCardType
+import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.HintCardType
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCardType
@@ -21,12 +22,21 @@ data class CardListUiState(
     var allCards: List<AllCardTypes> = emptyList(),
     var errorMessage: String = ""
 )
+
 data class CardDeckCardLists(
     var allCards: List<AllCardTypes> = emptyList(),
     var savedCardList: List<AllCardTypes> = emptyList(),
     var collected : Boolean = false,
     var errorMessage: String = ""
 )
+
+data class SealedDueCTs(
+    var allCTs: MutableList<CT> = mutableListOf(),
+    var savedCTs: MutableList<CT> = mutableListOf(),
+    var collected: Boolean = false,
+    var errorMessage: String = ""
+)
+
 data class SavedCardUiState(
     var savedCards : List<SavedCard> = emptyList()
 )

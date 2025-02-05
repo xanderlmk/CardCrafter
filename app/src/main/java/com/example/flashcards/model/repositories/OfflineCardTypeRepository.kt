@@ -111,9 +111,4 @@ class OfflineCardTypeRepository(
         cardTypesDao.getDueAllCardTypes( deckId, cardAmount, currentTime)
 
     override suspend fun getACardType(id: Int) = cardTypesDao.getACardType(id)
-
-    override suspend fun getCurrentDueAllCardTypes(
-        deckId: Int,
-        currentTime: Long
-    ) = cardTypesDao.getCurrentDueAllCardTypes(deckId)
 }

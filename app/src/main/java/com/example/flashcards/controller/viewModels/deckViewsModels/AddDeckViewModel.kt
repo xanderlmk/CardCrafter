@@ -25,8 +25,17 @@ class AddDeckViewModel(
     private val _errorMessage = MutableStateFlow<String>("")
 
     var deckName by mutableStateOf(savedStateHandle["deckName"] ?: "")
-
+        private set
     var deckReviewAmount by mutableStateOf(savedStateHandle["deckReviewAmount"] ?: "1")
+        private set
+    var deckCardAmount by mutableStateOf(savedStateHandle["deckCardAmount"] ?: "20")
+
+    companion object {
+        private const val MIN_CARDS = 5
+        private const val MAX_CARDS = 1000
+        private const val MIN_REVIEWS = 1
+        private const val MAX_REVIEWS = 40
+    }
 
     fun updateDeckName(name: String) {
         deckName = name
@@ -36,6 +45,11 @@ class AddDeckViewModel(
     fun updateDeckReviewAmount(reviewAmount: String) {
         deckReviewAmount = reviewAmount
         savedStateHandle["deckReviewAmount"] = reviewAmount
+    }
+
+    fun updateDeckCardAmount(cardAmount : String){
+        deckCardAmount = cardAmount
+        savedStateHandle["deckCardAmount"] = cardAmount
     }
 
     suspend fun checkIfDeckExists(name: String): Int {
@@ -48,8 +62,10 @@ class AddDeckViewModel(
         }
     }
 
-    fun addDeck(name: String, reviewAmount: Int) {
-        if (name.isNotEmpty() && reviewAmount > 0 && reviewAmount < 10) {
+    fun addDeck(name: String, reviewAmount: Int,
+                cardAmount: Int) {
+        if (name.isNotEmpty() && reviewAmount in MIN_REVIEWS .. MAX_REVIEWS &&
+            cardAmount in MIN_CARDS .. MAX_CARDS) {
             viewModelScope.launch {
                 try {
                     flashCardRepository.insertDeck(
@@ -70,7 +86,7 @@ class AddDeckViewModel(
     }
 
     private fun handleError(prefix: String): Int {
-        Log.d("AddDeckViewModel",prefix)
+        Log.d("AddDeckViewModel", prefix)
         _errorMessage.value = prefix
         return 0
     }

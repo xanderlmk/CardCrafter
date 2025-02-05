@@ -23,7 +23,10 @@ interface DeckDao {
     suspend fun deleteDeck(deck: Deck)
 
     @Query("SELECT * from decks WHERE id = :id")
-    fun getDeck(id: Int): Deck
+    fun getDeckFlow(id: Int): Flow<Deck>
+
+    @Query("SELECT * from decks where id = :id")
+    fun getDeck(id: Int) : Deck
 
     @Query("SELECT * from decks ORDER BY name ASC")
     fun getAllDecks(): Flow<List<Deck>>

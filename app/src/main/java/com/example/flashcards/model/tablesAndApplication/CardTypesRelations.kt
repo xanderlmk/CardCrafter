@@ -11,47 +11,45 @@ import kotlinx.parcelize.Parcelize
 
 
 data class BasicCardType(
-    @Embedded override val card: Card,
+    @Embedded val card: Card,
     @Relation(
         parentColumn = "id",
         entityColumn = "cardId"
     )
     val basicCard: BasicCard?
-) : SealedCT()
+)
 
 data class HintCardType(
-    @Embedded override val card: Card,
+    @Embedded val card: Card,
     @Relation(
         parentColumn = "id",
         entityColumn = "cardId"
     )
     val hintCard: HintCard?
-)  : SealedCT()
+)
 
 data class ThreeCardType(
-    @Embedded override val card: Card,
+    @Embedded val card: Card,
     @Relation(
         parentColumn = "id",
         entityColumn = "cardId"
     )
     val threeFieldCard: ThreeFieldCard?
-)  : SealedCT()
+)
 
 data class MultiChoiceCardType(
-    @Embedded override val card: Card,
+    @Embedded val card: Card,
     @Relation(
         parentColumn = "id",
         entityColumn = "cardId"
     )
     val multiChoiceCard: MultiChoiceCard?
-) : SealedCT()
+)
 
 sealed class CardType {
     abstract val cardId: Int
 }
-sealed class SealedCT {
-    abstract val card : Card
-}
+
 
 @Parcelize
 data class AllCardTypes(
@@ -103,8 +101,9 @@ data class AllCardTypes(
     }
 }
 
-/** future reference for non-nullable relations
-sealed class CT {
+@Parcelize
+sealed class CT : Parcelable {
+    @Parcelize
     data class Basic(
         @Embedded var card: Card,
         @Relation(
@@ -112,8 +111,30 @@ sealed class CT {
             entityColumn = "cardId"
         )
         val basicCard: BasicCard
-    ) : CT()
+    ) : CT() {
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        constructor(parcel: Parcel) : this(
+            parcel.readParcelable(Card::class.java.classLoader, Card::class.java)!!,
+            parcel.readParcelable(
+                BasicCard::class.java.classLoader,
+                BasicCard::class.java
+            )!!,
+        )
 
+        companion object : Parceler<Basic> {
+            override fun Basic.write(parcel: Parcel, flags: Int) {
+                parcel.writeParcelable(card, flags)
+                parcel.writeParcelable(basicCard, flags)
+            }
+
+            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+            override fun create(parcel: Parcel): Basic {
+                return Basic(parcel)
+            }
+        }
+    }
+
+    @Parcelize
     data class Hint(
         @Embedded var card: Card,
         @Relation(
@@ -121,8 +142,31 @@ sealed class CT {
             entityColumn = "cardId"
         )
         val hintCard: HintCard
-    ) : CT()
+    ) : CT() {
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        constructor(parcel: Parcel) : this(
+            parcel.readParcelable(Card::class.java.classLoader, Card::class.java)!!,
+            parcel.readParcelable(
+                HintCard::class.java.classLoader,
+                HintCard::class.java
+            )!!,
+        )
 
+        companion object : Parceler<Hint> {
+            override fun Hint.write(parcel: Parcel, flags: Int) {
+                parcel.writeParcelable(card, flags)
+                parcel.writeParcelable(hintCard, flags)
+
+            }
+
+            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+            override fun create(parcel: Parcel): Hint {
+                return Hint(parcel)
+            }
+        }
+    }
+
+    @Parcelize
     data class ThreeField(
         @Embedded var card: Card,
         @Relation(
@@ -130,8 +174,30 @@ sealed class CT {
             entityColumn = "cardId"
         )
         val threeFieldCard: ThreeFieldCard
-    ) : CT()
+    ) : CT() {
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        constructor(parcel: Parcel) : this(
+            parcel.readParcelable(Card::class.java.classLoader, Card::class.java)!!,
+            parcel.readParcelable(
+                ThreeFieldCard::class.java.classLoader,
+                ThreeFieldCard::class.java
+            )!!,
+        )
 
+        companion object : Parceler<ThreeField> {
+            override fun ThreeField.write(parcel: Parcel, flags: Int) {
+                parcel.writeParcelable(card, flags)
+                parcel.writeParcelable(threeFieldCard, flags)
+            }
+
+            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+            override fun create(parcel: Parcel): ThreeField {
+                return ThreeField(parcel)
+            }
+        }
+    }
+
+    @Parcelize
     data class MultiChoice(
         @Embedded var card: Card,
         @Relation(
@@ -139,5 +205,26 @@ sealed class CT {
             entityColumn = "cardId"
         )
         val multiChoiceCard: MultiChoiceCard
-    ) : CT()
-}*/
+    ) : CT() {
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        constructor(parcel: Parcel) : this(
+            parcel.readParcelable(Card::class.java.classLoader, Card::class.java)!!,
+            parcel.readParcelable(
+                MultiChoiceCard::class.java.classLoader,
+                MultiChoiceCard::class.java
+            )!!,
+        )
+
+        companion object : Parceler<MultiChoice> {
+            override fun MultiChoice.write(parcel: Parcel, flags: Int) {
+                parcel.writeParcelable(card, flags)
+                parcel.writeParcelable(multiChoiceCard, flags)
+            }
+
+            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+            override fun create(parcel: Parcel): MultiChoice {
+                return MultiChoice(parcel)
+            }
+        }
+    }
+}

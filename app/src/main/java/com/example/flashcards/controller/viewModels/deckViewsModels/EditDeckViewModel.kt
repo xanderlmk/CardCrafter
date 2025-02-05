@@ -1,11 +1,6 @@
 package com.example.flashcards.controller.viewModels.deckViewsModels
 
 import android.database.sqlite.SQLiteConstraintException
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.repositories.FlashCardRepository
@@ -18,54 +13,15 @@ import kotlinx.coroutines.withContext
 
 class EditDeckViewModel(
     private val flashCardRepository: FlashCardRepository,
-    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val _errorMessage = MutableStateFlow("")
 
-
-    var deckName by mutableStateOf(savedStateHandle["deckName"] ?: "")
-        private set
-    var deckGM by mutableDoubleStateOf(savedStateHandle["deckGM"] ?: 0.0)
-        private set
-    var deckBM by mutableDoubleStateOf(savedStateHandle["deckBM"] ?: 0.0)
-        private set
-    var deckRA by mutableStateOf(savedStateHandle["deckRA"] ?: "")
-        private set
-    var deckCA by mutableStateOf(savedStateHandle["deckCA"]?: "")
-        private set
-    var deckIA by mutableStateOf(savedStateHandle.get<Boolean>("deckIsActive"))
-        private set
-
-    fun updateGMField(good: Double) {
-        deckGM = good
-        savedStateHandle["deckGM"] = good
+    companion object{
+        private const val MIN_CARDS = 5
+        private const val MAX_CARDS = 1000
+        private const val MIN_REVIEWS = 1
+        private const val MAX_REVIEWS = 40
     }
-
-    fun updateActivity() {
-        deckIA = true
-        savedStateHandle["deckIsActive"] = true
-    }
-
-    fun updateBMField(bad: Double) {
-        deckBM = bad
-        savedStateHandle["deckBM"] = bad
-    }
-
-    fun updateNameField(name: String) {
-        deckName = name
-        savedStateHandle["deckName"] = name
-    }
-
-    fun updateRAField(reviewAmount: String) {
-        deckRA = reviewAmount
-        savedStateHandle["deckRA"] = reviewAmount
-    }
-
-    fun updateCAField(cardAmount: String){
-        deckCA = cardAmount
-        savedStateHandle["deckCA"] = cardAmount
-    }
-
     suspend fun checkIfDeckExists(deckName: String): Int {
         return withContext(Dispatchers.IO) {
             try {
@@ -142,7 +98,7 @@ class EditDeckViewModel(
     }
 
     suspend fun updateReviewAmount(reviewAmount: Int, deckId: Int): Int {
-        if (reviewAmount in 1..10) {
+        if (reviewAmount in MIN_REVIEWS..MAX_REVIEWS) {
             return withContext(Dispatchers.IO) {
                 try {
                     val row =
@@ -166,7 +122,7 @@ class EditDeckViewModel(
     }
 
     suspend fun updateDeckCardAmount(cardAmount : Int, deckId: Int): Int {
-        if (cardAmount > 4 && cardAmount < 1001) {
+        if (cardAmount in MIN_CARDS .. MAX_CARDS) {
             return withContext(Dispatchers.IO) {
                 try {
                     val row =

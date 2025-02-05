@@ -26,7 +26,9 @@ interface FlashCardRepository {
 
     fun getAllDecksStream(): Flow<List<Deck>>
 
-    fun getDeckStream(id: Int): Deck
+    fun getDeckStream(id: Int): Flow<Deck>
+
+    fun getDeck(id: Int): Deck
 
     fun getCardCount(): Flow<List<Int>>
 

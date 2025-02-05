@@ -18,8 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -48,12 +46,10 @@ import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.EditIntField
 import com.example.flashcards.views.miscFunctions.createDeckDetails
-import com.example.flashcards.views.miscFunctions.retrieveDeckDetails
 import com.example.flashcards.views.miscFunctions.returnCardAmountError
 import com.example.flashcards.views.miscFunctions.returnDeckError
 import com.example.flashcards.views.miscFunctions.returnMultiplierError
 import com.example.flashcards.views.miscFunctions.returnReviewError
-import com.example.flashcards.views.miscFunctions.setDeckFields
 import kotlinx.coroutines.delay
 import kotlin.String
 
@@ -67,18 +63,8 @@ class EditDeckView(
         onNavigate: () -> Unit, onDelete: () -> Unit
     ) {
         val vm: EditDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
-        var deckDetails by remember {
-            mutableStateOf(
-                if (vm.deckIA == true) {
-                    retrieveDeckDetails(vm)
-                } else {
-                    createDeckDetails(deck)
-                }
-            )
-        }
-        if (vm.deckIA == false || vm.deckIA == null) {
-            setDeckFields(vm, deck, currentName)
-        }
+        var deckDetails = createDeckDetails(deck)
+
         val multiplierErrorMessage = remember { mutableStateOf("") }
         val reviewErrorMessage = remember { mutableStateOf("") }
         val deckErrorMessage = remember { mutableStateOf("") }
@@ -158,7 +144,6 @@ class EditDeckView(
                         value = deckDetails.name.value,
                         onValueChanged = {
                             deckDetails.name.value = it
-                            vm.updateNameField(it)
                             deckErrorMessage.value = "" // Clear error when user types
                         },
                         labelStr = stringResource(R.string.deck_name),
@@ -191,7 +176,6 @@ class EditDeckView(
                         Button(
                             onClick = {
                                 deckErrorMessage.value = ""
-                                vm.updateNameField(currentName)
                                 deckDetails.name.value = currentName
                                 expanded[0].value = false
                             },
@@ -267,7 +251,6 @@ class EditDeckView(
                             value = deckDetails.gm.value,
                             onValueChanged = {
                                 deckDetails.gm.value = it
-                                vm.updateGMField(it.toDoubleOrNull() ?: 0.0)
                                 multiplierErrorMessage.value = "" // Clear error when user types
                             },
                             labelStr = stringResource(R.string.good_multiplier),
@@ -279,7 +262,6 @@ class EditDeckView(
                             value = deckDetails.bm.value,
                             onValueChanged = {
                                 deckDetails.bm.value = it
-                                vm.updateBMField(it.toDoubleOrNull() ?: 0.0)
                                 multiplierErrorMessage.value = "" // Clear error when user types
                             },
                             labelStr = stringResource(R.string.bad_multiplier),
@@ -319,9 +301,7 @@ class EditDeckView(
                         Button(
                             onClick = {
                                 multiplierErrorMessage.value = ""
-                                vm.updateBMField(deck.badMultiplier)
                                 deckDetails.bm.value = deck.badMultiplier.toString()
-                                vm.updateGMField(deck.goodMultiplier)
                                 deckDetails.gm.value = deck.goodMultiplier.toString()
                                 expanded[1].value = false
                             },
@@ -394,7 +374,6 @@ class EditDeckView(
                         value = deckDetails.ra.value,
                         onValueChanged = {
                             deckDetails.ra.value = it
-                            vm.updateRAField(it)
                             reviewErrorMessage.value = ""
                         },
                         labelStr = stringResource(R.string.review_amount),
@@ -439,7 +418,6 @@ class EditDeckView(
                         Button(
                             onClick = {
                                 reviewErrorMessage.value = ""
-                                vm.updateRAField(deck.reviewAmount.toString())
                                 deckDetails.ra.value = deck.reviewAmount.toString()
                                 expanded[2].value = false
                             },
@@ -506,7 +484,6 @@ class EditDeckView(
                         value = deckDetails.ca.value,
                         onValueChanged = {
                             deckDetails.ca.value = it
-                            vm.updateCAField(it)
                             cardAmountErrorMessage.value = ""
                         },
                         labelStr = "cardAmount",
@@ -549,7 +526,6 @@ class EditDeckView(
                         Button(
                             onClick = {
                                 cardAmountErrorMessage.value = ""
-                                vm.updateCAField(deck.cardAmount.toString())
                                 deckDetails.ca.value = deck.cardAmount.toString()
                                 expanded[3].value = false
                             },

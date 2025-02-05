@@ -54,7 +54,7 @@
     <string name="choice_d">Choice D</string>
     <string name="correct_choice">Correct Choice</string>
     <string name="review_amount_same">Review amount is the same</string>
-    <string name="review_amount_10">Review Amount must be less than 10</string>
+    <string name="review_amount_10">Review Amount must be less than 41</string>
     <string name="review_amount_0">Review Amount must be greater than 0</string>
     <string name="review_amount">Review Amount</string>
     <string name="failed_review">Failed to update Review Amount</string>

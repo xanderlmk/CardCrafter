@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.model.tablesAndApplication.AllCardTypes
 import com.example.flashcards.model.tablesAndApplication.BasicCard
+import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
@@ -257,6 +258,32 @@ fun ChoiceBackCard(multiChoiceCard: MultiChoiceCard,
     }
 }
 
+@Composable
+fun BackCard(ct : CT,
+             getModifier: GetModifier,
+             modifier: Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(10.dp),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        when (ct) {
+             is CT.Basic -> {
+                BasicBackCard(basicCard = ct.basicCard, getModifier)
+            }
+            is CT.ThreeField -> {
+                ThreeBackCard(threeCard = ct.threeFieldCard, getModifier)
+            }
+            is CT.Hint -> {
+                 HintBackCard(hintCard = ct.hintCard, getModifier)
+            }
+            is CT.MultiChoice -> {
+               ChoiceBackCard(multiChoiceCard = ct.multiChoiceCard, getModifier)
+            }
+        }
+    }
+}
 @Composable
 fun BackCard(card : Pair<Card,AllCardTypes>,
              getModifier: GetModifier,
