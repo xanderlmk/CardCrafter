@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 
 class GetModifier(
     private var colorScheme: ColorSchemeClass,
+    private var isDarkTheme : Boolean,
     val clickedChoice : MutableState<Char> = mutableStateOf('?'),
 ) {
     fun mainViewModifier(): Modifier {

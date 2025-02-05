@@ -5,6 +5,7 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.flashcards.controller.viewModels.NavViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.deckViewsModels.MainViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
@@ -22,6 +23,12 @@ import com.example.flashcards.model.tablesAndApplication.FlashCardApplication
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
+            NavViewModel(
+                flashCardApplication().container.flashCardRepository,
+                this.createSavedStateHandle()
+            )
+        }
+        initializer {
             MainViewModel(
                 flashCardApplication().container.flashCardRepository,
                 this.createSavedStateHandle()
@@ -36,7 +43,6 @@ object AppViewModelProvider {
         initializer {
             EditDeckViewModel(
                 flashCardApplication().container.flashCardRepository,
-                this.createSavedStateHandle()
             )
         }
         initializer {

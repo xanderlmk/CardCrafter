@@ -46,6 +46,7 @@ class AddDeckView(
         var errorMessage by remember { mutableStateOf("") }
         var deckName by remember {  mutableStateOf(viewModel.deckName) }
         var deckReviewAmount by remember {mutableStateOf(viewModel.deckReviewAmount) }
+        var deckCardAmount by remember { mutableStateOf(viewModel.deckCardAmount) }
         val coroutineScope = rememberCoroutineScope()
         val fieldOutAllFields = stringResource(R.string.fill_out_all_fields).toString()
         val deckNameAlreadyExists = stringResource(R.string.deck_already_exists).toString()
@@ -126,6 +127,34 @@ class AddDeckView(
                             .weight(1f)
                     )
                 }
+                Text(
+                    text = "Card Amount",
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 28.sp,
+                    color = getModifier.titleColor(),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .padding(top = 20.dp)
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, end = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    EditIntField(
+                        value = deckCardAmount,
+                        onValueChanged = {
+                            deckCardAmount = it
+                            viewModel.updateDeckCardAmount(it)
+                        },
+                        labelStr = "Card Amount" +
+                                " (" + stringResource(R.string.default_value) + " 20)",
+                        modifier = Modifier
+                            .weight(1f)
+                    )
+                }
                 if (errorMessage.isNotEmpty()) {
                     Text(
                         text = errorMessage,
@@ -152,12 +181,17 @@ class AddDeckView(
                                             errorMessage = deckNameAlreadyExists
                                         } else if ((deckReviewAmount.toIntOrNull() ?: 0) <= 0) {
                                             errorMessage = reviewAmount0
-                                        } else if ((deckReviewAmount.toIntOrNull() ?: 0) >= 10) {
+                                        } else if ((deckReviewAmount.toIntOrNull() ?: 0) >= 41) {
                                             errorMessage = reviewAmount10
+                                        } else if ((deckCardAmount.toIntOrNull() ?: 0)
+                                            !in 5..1000){
+                                            errorMessage =
+                                                "Card Amount must be in between 5 and 1000"
                                         } else {
                                             viewModel.addDeck(
                                                 deckName,
-                                                deckReviewAmount.toIntOrNull() ?: 1
+                                                deckReviewAmount.toIntOrNull() ?: 1,
+                                                deckCardAmount.toIntOrNull() ?: 20
                                             )
                                             deckName = ""
                                             onNavigate()

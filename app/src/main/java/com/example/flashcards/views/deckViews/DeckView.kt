@@ -18,12 +18,9 @@ import androidx.compose.ui.unit.sp
 import com.example.flashcards.model.tablesAndApplication.Deck
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
-import kotlinx.coroutines.launch
 import com.example.flashcards.R
-import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.AddCardButton
 import com.example.flashcards.views.miscFunctions.BackButton
@@ -40,7 +37,6 @@ class DeckView(
     @Composable
     fun ViewEditDeck(
         deck: Deck,
-        cardDeckVM : CardDeckViewModel,
         onNavigate: () -> Unit,
         whichView: View,
         goToAddCard : (Int) -> Unit,
@@ -49,7 +45,6 @@ class DeckView(
         goToViewCards: (Int) -> Unit
     ) {
         val view = remember { whichView }
-        val coroutineScope = rememberCoroutineScope()
         LaunchedEffect(view.whichView.intValue) {
             when (view.whichView.intValue) {
                 0 -> {

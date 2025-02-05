@@ -54,7 +54,7 @@
     <string name="choice_d">Opción D</string>
     <string name="correct_choice">Opción Correcta</string>
     <string name="review_amount_same">" Número de revisiones es el mismo"</string>
-    <string name="review_amount_10">Número de revisiones tiene que ser menos de 10</string>
+    <string name="review_amount_10">Número de revisiones tiene que ser menos de 41</string>
     <string name="review_amount_0">Número de revisiones tiene que ser mas de 0</string>
     <string name="review_amount">Número de revisiones</string>
     <string name="failed_review">Fracaso en actualizar número de revisiones</string>

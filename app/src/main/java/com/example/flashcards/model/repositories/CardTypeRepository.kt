@@ -85,9 +85,4 @@ interface CardTypeRepository {
 
     suspend fun getACardType(id: Int): AllCardTypes
 
-    suspend fun getCurrentDueAllCardTypes(
-        deckId: Int,
-        currentTime: Long = Date().time
-    ): Flow<List<AllCardTypes>>
-
 }

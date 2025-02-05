@@ -47,7 +47,9 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
 import com.example.flashcards.model.uiModels.CardDeckCardLists
 import com.example.flashcards.model.uiModels.Fields
+import com.example.flashcards.model.uiModels.SealedDueCTs
 import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.views.cardViews.cardDeckViews.returnReviewsLeft
 
 
 @Composable
@@ -80,6 +82,26 @@ fun HardText(
 }
 
 @Composable
+fun HardText(
+    updatedDueCards : SealedDueCTs,
+             index: MutableIntState, hard: Int,
+             getModifier: GetModifier
+) {
+    Text(
+        text =
+        if (returnReviewsLeft(updatedDueCards.allCTs[index.intValue]) == 1) {
+            "$hard " + stringResource(R.string.days)
+        } else {
+            "${returnReviewsLeft(updatedDueCards.allCTs[index.intValue])} " + "reviews left"
+        },
+        color = getModifier.titleColor(),
+        fontSize = 12.sp,
+        lineHeight = 14.sp
+    )
+
+}
+
+@Composable
 fun GoodText(
     updatedDueCards: CardDeckCardLists,
     index: MutableIntState, good: Int,
@@ -92,6 +114,27 @@ fun GoodText(
         } else {
             "${
                 updatedDueCards.allCards[index.intValue].card.reviewsLeft - 1
+            } " +
+                    "reviews left"
+        },
+        color = getModifier.titleColor(),
+        fontSize = 12.sp,
+        lineHeight = 14.sp
+    )
+}
+@Composable
+fun GoodText(
+    updatedDueCards: SealedDueCTs,
+    index: MutableIntState, good: Int,
+    getModifier: GetModifier
+) {
+    Text(
+        text =
+        if (returnReviewsLeft(updatedDueCards.allCTs[index.intValue]) == 1) {
+            "$good " + stringResource(R.string.days)
+        } else {
+            "${
+                returnReviewsLeft(updatedDueCards.allCTs[index.intValue]) - 1
             } " +
                     "reviews left"
         },

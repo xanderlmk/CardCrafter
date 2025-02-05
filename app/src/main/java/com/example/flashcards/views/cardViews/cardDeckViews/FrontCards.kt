@@ -29,6 +29,37 @@ import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.R
+import com.example.flashcards.model.tablesAndApplication.CT
+
+@Composable
+fun FrontCard(
+    ct : CT,
+    getModifier: GetModifier,
+    modifier: Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(10.dp)
+    ) {
+        when (ct) {
+            is CT.Basic -> {
+                BasicFrontCard(basicCard = ct.basicCard, getModifier)
+            }
+
+            is CT.ThreeField ->  {
+                 ThreeFrontCard(threeCard = ct.threeFieldCard, getModifier)
+            }
+
+            is CT.Hint-> {
+                HintFrontCard(hintCard = ct.hintCard, getModifier)
+            }
+            is CT.MultiChoice -> {
+               ChoiceFrontCard(multiChoiceCard = ct.multiChoiceCard, getModifier)
+            }
+        }
+    }
+}
 
 @Composable
 fun FrontCard(

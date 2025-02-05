@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.CardListUiCount
 import com.example.flashcards.model.uiModels.CardUpdateError
 import com.example.flashcards.model.uiModels.SavedCardUiState
@@ -65,14 +64,6 @@ class MainViewModel(
     private fun updateActivity() {
         appStarted.value = true
         savedStateHandle["appStarted"] = true
-    }
-
-    suspend fun getDeckById(
-        deckId: Int,
-    ): Deck {
-        return withContext(Dispatchers.IO) {
-            flashCardRepository.getDeckStream(deckId)
-        }
     }
 
     suspend fun performDatabaseUpdate() {

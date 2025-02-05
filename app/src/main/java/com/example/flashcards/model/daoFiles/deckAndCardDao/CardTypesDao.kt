@@ -12,25 +12,12 @@ interface CardTypesDao {
     @Transaction
     @Query(
         """SELECT * FROM cards WHERE deckId = :deckId 
-        AND nextReview <= :currentTime AND NOT EXISTS (
-        SELECT 1 
-        FROM cards c
-        WHERE c.partOfList = 1 AND nextReview <= :currentTime AND c.deckId = :deckId
-    ) ORDER BY cards.nextReview ASC LIMIT :cardAmount"""
+        AND nextReview <= :currentTime 
+        ORDER BY partOfList DESC, nextReview ASC
+        LIMIT :cardAmount"""
     )
     fun getDueAllCardTypes(deckId: Int, cardAmount: Int, currentTime: Long = Date().time):
             Flow<List<AllCardTypes>>
-
-    @Transaction
-    @Query(
-        """SELECT * FROM cards WHERE deckId = :deckId 
-        AND nextReview <= :currentTime 
-        AND partOfList = 1 ORDER BY cards.nextReview ASC """
-    )
-    fun getCurrentDueAllCardTypes(
-        deckId: Int,
-        currentTime: Long = Date().time
-    ): Flow<List<AllCardTypes>>
 
     @Transaction
     @Query(
@@ -42,6 +29,5 @@ interface CardTypesDao {
 
     @Transaction
     @Query("""SELECT * FROM cards where id = :id""")
-    fun getACardType(id: Int):
-            AllCardTypes
+    fun getACardType(id: Int): AllCardTypes
 }

@@ -30,7 +30,9 @@ class OfflineFlashCardRepository(
     override suspend fun updateCardType(cardId: Int, type: String) =
         cardDao.updateCard(cardId, type)
 
-    override fun getDeckStream(id: Int) = deckDao.getDeck(id)
+    override fun getDeckStream(id: Int) = deckDao.getDeckFlow(id)
+
+    override fun getDeck(id: Int) = deckDao.getDeck(id)
 
     override fun getCardCount() = deckDao.getCardCount()
 

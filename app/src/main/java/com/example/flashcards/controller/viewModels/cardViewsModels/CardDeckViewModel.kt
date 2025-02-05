@@ -10,12 +10,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
 import com.example.flashcards.model.tablesAndApplication.AllCardTypes
+import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.SavedCard
 import com.example.flashcards.model.uiModels.CardDeckCardLists
 import com.example.flashcards.model.uiModels.CardState
 import com.example.flashcards.model.uiModels.CardUpdateError
+import com.example.flashcards.model.uiModels.SealedDueCTs
+import com.example.flashcards.views.cardViews.cardDeckViews.returnCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
@@ -39,7 +42,7 @@ class CardDeckViewModel(
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
-        private const val EXTRA_TIME = 5_000L
+        private const val EXTRA_TIME = 4_500L
     }
 
     private val errorMessage: MutableStateFlow<String> = MutableStateFlow("")
@@ -47,17 +50,14 @@ class CardDeckViewModel(
     val errorState: StateFlow<CardUpdateError?> = _errorState.asStateFlow()
 
     private val cardState: MutableState<CardState> = mutableStateOf(CardState.Idle)
-
-
     private val cardListToUpdateUiState = MutableStateFlow<List<Card>>(emptyList())
     var cardListToUpdate = cardListToUpdateUiState.asStateFlow()
 
     private var backupCardListState = MutableStateFlow<List<Card>>(emptyList())
     val backupCardList = backupCardListState.asStateFlow()
 
-    private var thisCardDeckUiState = MutableStateFlow(CardDeckCardLists())
-    val cardDeckUiState = thisCardDeckUiState.asStateFlow()
-
+    private var thisSealedDueCTs = MutableStateFlow(SealedDueCTs())
+    val sealedDueCTs = thisSealedDueCTs.asStateFlow()
 
     fun addCardToTheUpdateCardsList(card: Card) {
         cardListToUpdateUiState.update { cards ->
@@ -69,19 +69,46 @@ class CardDeckViewModel(
         }
     }
 
-    /*suspend fun restoreBackup(index: Int){
-        uiState.map {
-            it.copy(allCards = backupCardList)
-        }.collect {
-            uiState.value = it
-        }
-    }*/
-
     suspend fun getRedoCard(cardId: Int): Card {
         return withContext(Dispatchers.IO) {
             flashCardRepository.getCardById(cardId)
         }.also {
             addCardToUpdate(it)
+        }
+    }
+
+    fun addCardToUpdate(card: Card) {
+        val savedCard = SavedCard(
+            id = card.id,
+            reviewsLeft = card.reviewsLeft,
+            nextReview = card.nextReview,
+            prevSuccess = card.prevSuccess,
+            passes = card.passes,
+            totalPasses = card.totalPasses,
+            partOfList = card.partOfList
+        )
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                flashCardRepository.insertSavedCard(savedCard)
+            }
+        }
+    }
+
+    suspend fun getRedoCardType(cardId: Int, index: Int) {
+        return withContext(Dispatchers.IO) {
+            try {
+                val ct = mapACardTypeToCT(cardTypeRepository.getACardType(cardId))
+                viewModelScope.launch {
+                    thisSealedDueCTs.update {
+                        it.allCTs[index] = ct
+                        it.savedCTs[index] = ct
+                        it
+                    }
+                }
+            } catch (e: IllegalStateException) {
+                Log.e("GetRedoCardType", "Invalid AllCardType data: ${e.message}")
+                thisSealedDueCTs.value.allCTs[index]
+            }
         }
     }
 
@@ -99,52 +126,52 @@ class CardDeckViewModel(
         }
     }
 
-
     private suspend fun getDueTypesForDeck(deck: Deck) {
         return withContext(Dispatchers.IO)
         {
-            Log.d("GetDueCardTypes", "$deck")
             var complete = false
             try {
                 if (deck.nextReview <= Date()) {
-                    Log.d("GetDueCardTypes", "${deck.nextReview}<= now")
-                    if (!thisCardDeckUiState.value.collected) {
+                    if (!thisSealedDueCTs.value.collected) {
                         viewModelScope.launch {
-                            Log.d("GetDueCardTypes", "collected = false")
                             withTimeout(EXTRA_TIME) {
                                 cardTypeRepository.getDueAllCardTypes(
                                     deck.id, deck.cardsLeft
                                 ).map { allCards ->
                                     updateUiState(allCards)
                                 }.collect { state ->
-                                    thisCardDeckUiState.value = state
-                                    addToList(state.allCards.map { it.card })
+                                    addToList(state.allCards.map {
+                                        it.card
+                                    })
+                                    thisSealedDueCTs.update {
+                                        updateSealedUiState(state.allCards)
+                                    }
                                     complete = true
                                 }
                             }
                         }
                     } else {
                         viewModelScope.launch {
-                            Log.d("GetDueCardTypes", "collected = true")
                             withTimeout(TIMEOUT_MILLIS) {
-                                cardTypeRepository.getCurrentDueAllCardTypes(
-                                    deck.id
+                                cardTypeRepository.getDueAllCardTypes(
+                                    deck.id, deck.cardsLeft
                                 ).map { allCards ->
                                     updateUiState(allCards)
                                 }.collect { state ->
-                                    thisCardDeckUiState.value = state
+                                    thisSealedDueCTs.update {
+                                        updateSealedUiState(state.allCards)
+                                    }
                                     complete = true
                                 }
                             }
                         }
                     }
                 } else {
-                    Log.d("GetDueCardTypes", "Deck should be empty.")
                     viewModelScope.launch {
-                        thisCardDeckUiState.update { thisState ->
+                        thisSealedDueCTs.update { thisState ->
                             thisState.copy(
-                                allCards = emptyList(),
-                                savedCardList = emptyList(),
+                                allCTs = mutableListOf(),
+                                savedCTs = mutableListOf(),
                                 collected = false
                             )
                         }.also {
@@ -174,18 +201,23 @@ class CardDeckViewModel(
         )
     }
 
-    fun resetUiState() {
-        return with(Dispatchers.IO) {
-            viewModelScope.launch {
-                thisCardDeckUiState.update { thisState ->
-                    thisState.copy(
-                        allCards = emptyList(),
-                        savedCardList = emptyList(),
-                        collected = false
-                    )
-                }
-            }
+    private fun updateSealedUiState(
+        allCards: List<AllCardTypes>, collected: Boolean = true
+    ): SealedDueCTs {
+        var allCTs = try {
+            mapAllCardTypesToCTs(allCards)
+        } catch (e: IllegalStateException) {
+            Log.e(
+                "GetDueTypesForDeck",
+                "Invalid AllCardType data: ${e.message}"
+            )
+            return SealedDueCTs()
         }
+        return SealedDueCTs(
+            allCTs = allCTs.toMutableList(),
+            savedCTs = allCTs.toMutableList(),
+            collected = collected
+        )
     }
 
     private fun addToList(cards: List<Card>) {
@@ -203,11 +235,11 @@ class CardDeckViewModel(
     fun getState(): CardState = cardState.value
 
     fun setErrorMessage(message: String) {
-        thisCardDeckUiState.value = thisCardDeckUiState.value.copy(errorMessage = message)
+        thisSealedDueCTs.value = thisSealedDueCTs.value.copy(errorMessage = message)
     }
 
     private fun clearErrorMessage() {
-        thisCardDeckUiState.value = thisCardDeckUiState.value.copy(errorMessage = "")
+        thisSealedDueCTs.value = thisSealedDueCTs.value.copy(errorMessage = "")
     }
 
     private fun clearErrorState() {
@@ -248,12 +280,11 @@ class CardDeckViewModel(
                             createdOn = card.createdOn,
                             partOfList = false,
                         )
-                            deck.cardsLeft -= 1
+                        deck.cardsLeft -= 1
                         viewModelScope.launch {
                             flashCardRepository.updateCard(newCard)
                         }
-                    }
-                    else {
+                    } else {
                         viewModelScope.launch {
                             flashCardRepository.updateCard(card)
                         }
@@ -261,7 +292,7 @@ class CardDeckViewModel(
                 }
                 jobs.joinAll().also {
                     if (deck.nextReview <= Date()) {
-                        getDueCards(deck)
+                        getDueCards(deck.id)
                     }
                     viewModelScope.launch(Dispatchers.IO) {
                         flashCardRepository.updateCardsLeft(deck.id, deck.cardsLeft)
@@ -288,10 +319,10 @@ class CardDeckViewModel(
     }
 
 
-    suspend fun getDueCards(deck: Deck) {
+    suspend fun getDueCards(id : Int) {
         return withContext(Dispatchers.IO) {
             try {
-                getDueTypesForDeck(deck)
+                getDueTypesForDeck(flashCardRepository.getDeck(id))
                 clearErrorMessage()
             } catch (e: Exception) {
                 handleError(e, "Something went wrong")
@@ -310,65 +341,45 @@ class CardDeckViewModel(
         return true
     }
 
-    fun addCardToUpdate(card: Card) {
-        val savedCard = SavedCard(
-            id = card.id,
-            reviewsLeft = card.reviewsLeft,
-            nextReview = card.nextReview,
-            prevSuccess = card.prevSuccess,
-            passes = card.passes,
-            totalPasses = card.totalPasses,
-            partOfList = card.partOfList
-        )
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                flashCardRepository.insertSavedCard(savedCard)
-            }
-        }
-    }
-    /** for future
-    fun addCardToUpdate(card: Card) {
-    val savedCard = SavedCard(
-    id = card.id,
-    reviewsLeft = card.reviewsLeft,
-    nextReview = card.nextReview?: Date(),
-    prevSuccess = card.prevSuccess,
-    passes = card.passes,
-    totalPasses = card.totalPasses
-    )
-    withMutableSnapshot {
-    cardsToUpdate+= savedCard
-    }
-    // Save the updated list to SavedStateHandle
-    Log.d("CardsToUpDate", "$cardsToUpdate")
-    }*/
 }
 
-/*fun replaceCard(index: Int): Card {
-    viewModelScope.launch {
-        if (index in uiState.value.allCards.indices &&
-            index in backupCardListState.value.indices &&
-            index in savedUiState.value.allCards.indices
-        ) {
-            val tempUiState = uiState.value.allCards.run {
-                toMutableList().apply {
-                    this[index].card = backupCardListState.value[index]
-                }
-            }
-            uiState.update { currentState ->
-                currentState.copy(allCards = tempUiState)
-            }
-            savedUiState.update { currentState ->
-                currentState.copy(allCards = tempUiState)
-            }
-        } else {
-            uiState.update { currentState ->
-                currentState.copy(errorMessage = "Index out of bounds")
-            }
-            savedUiState.update { currentState ->
-                currentState.copy(errorMessage = "Index out of bounds")
-            }
+// The mapping function
+fun mapAllCardTypesToCTs(allCardTypesList: List<AllCardTypes>): List<CT> {
+    return allCardTypesList.map { allCardTypes ->
+        when {
+            allCardTypes.basicCard != null -> CT.Basic(
+                allCardTypes.card,
+                allCardTypes.basicCard
+            )
+
+            allCardTypes.hintCard != null -> CT.Hint(
+                allCardTypes.card,
+                allCardTypes.hintCard
+            )
+
+            allCardTypes.threeFieldCard != null -> CT.ThreeField(
+                allCardTypes.card,
+                allCardTypes.threeFieldCard
+            )
+
+            allCardTypes.multiChoiceCard != null -> CT.MultiChoice(
+                allCardTypes.card,
+                allCardTypes.multiChoiceCard
+            )
+
+            else -> throw IllegalStateException("Invalid AllCardTypes: all card types are null")
         }
     }
-    return backupCardListState.value[index]
-}*/
+}
+
+fun mapACardTypeToCT(cardTypes: AllCardTypes): CT {
+    return cardTypes.let {
+        return when {
+            it.basicCard != null -> CT.Basic(it.card, it.basicCard)
+            it.hintCard != null -> CT.Hint(it.card, it.hintCard)
+            it.threeFieldCard != null -> CT.ThreeField(it.card, it.threeFieldCard)
+            it.multiChoiceCard != null -> CT.MultiChoice(it.card, it.multiChoiceCard)
+            else -> throw IllegalStateException("Invalid AllCardTypes: all card types are null")
+        }
+    }
+}
