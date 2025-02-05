@@ -10,7 +10,7 @@ Features :
 - Deck Options such as reviews per card, multipliers, name change
 - Custom Themes based off Light/Dark Theme
 
-TO DO :
+## TO DO :
 - Import Audio to use in Card
 - Import Image to use in Card
 - Create Math card, Coding/Programming card
@@ -19,6 +19,10 @@ TO DO :
 - Sealed classes rather than using cardTypes (which has null cardTypes leading to more memory/data usage)
 - Application Logo
 - Fix/report any existing glitches/bugs you find
+
+## Bugs to fix :
+- When adding a card, it should reflect easily if there is still cards due
+- Optimize speed when getting a card
 
 
 
