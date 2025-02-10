@@ -20,8 +20,5 @@ Features :
 - Application Logo
 - Fix/report any existing glitches/bugs you find
 
-## Bugs to fix :
-- When adding a card, it should reflect easily if there is still cards due
-
 
 
