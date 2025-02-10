@@ -1,4 +1,4 @@
-package com.example.flashcards.controller
+package com.example.flashcards.controller.cardHandlers
 
 import androidx.compose.runtime.Composable
 import com.example.flashcards.controller.navigation.AllTypesUiStates

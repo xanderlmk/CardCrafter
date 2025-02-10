@@ -132,28 +132,6 @@ class OfflineFlashCardRepository(
 
     override fun updateCardsLeft(deckId: Int, cardsLeft : Int) =
         deckDao.updateCardsLeft(deckId, cardsLeft)
-}
 
-/** for new migration
- *   Expected:
- *   TableInfo{name='savedCards',
- *   columns={
- *      id=Column{name='id', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=1, defaultValue='null'},
- *      nextReview=Column{name='nextReview', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
- *      prevSuccess=Column{name='prevSuccess', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
- *      reviewsLeft=Column{name='reviewsLeft', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
- *      passes=Column{name='passes', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
- *      totalPasses=Column{name='totalPasses', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'}},
- *   foreignKeys=[], indices=[]}
- *   Found:
- *   TableInfo{name='savedCards',
- *   columns={
- *      id=Column{name='id', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=1, defaultValue='null'},
- *      nextReview=Column{name='nextReview', type='INTEGER', affinity='3',
- *      , primaryKeyPosition=0, defaultValue='null'},
- *      reviewsLeft=Column{name='reviewsLeft', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
- *      passes=Column{name='passes', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
- *      prevSuccess=Column{name='prevSuccess', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'},
- *      totalPasses=Column{name='totalPasses', type='INTEGER', affinity='3', notNull=true, primaryKeyPosition=0, defaultValue='null'}},
- *   foreignKeys=[], indices=[]}
- */
+    override fun getDueDeckDetails(id: Int) = deckDao.getDueDeckDetails(id)
+}

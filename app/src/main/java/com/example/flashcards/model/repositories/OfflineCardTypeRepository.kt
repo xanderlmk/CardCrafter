@@ -103,12 +103,11 @@ class OfflineCardTypeRepository(
     ): Flow<List<MultiChoiceCardType>> =
         multiChoiceCardDao.getDueMultiChoiceCards(deckId)
 
-    override suspend fun getDueAllCardTypes(
+    override fun getAllDueCards(
         deckId: Int,
         cardAmount: Int,
         currentTime: Long
-    ) =
-        cardTypesDao.getDueAllCardTypes( deckId, cardAmount, currentTime)
+    ) = cardTypesDao.getDueAllCardTypes(deckId, cardAmount, currentTime)
 
     override suspend fun getACardType(id: Int) = cardTypesDao.getACardType(id)
 }

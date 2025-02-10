@@ -21,9 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.model.tablesAndApplication.AllCardTypes
 import com.example.flashcards.model.tablesAndApplication.BasicCard
-import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
@@ -46,51 +44,14 @@ fun FrontCard(
             is CT.Basic -> {
                 BasicFrontCard(basicCard = ct.basicCard, getModifier)
             }
-
             is CT.ThreeField ->  {
                  ThreeFrontCard(threeCard = ct.threeFieldCard, getModifier)
             }
-
             is CT.Hint-> {
                 HintFrontCard(hintCard = ct.hintCard, getModifier)
             }
             is CT.MultiChoice -> {
                ChoiceFrontCard(multiChoiceCard = ct.multiChoiceCard, getModifier)
-            }
-        }
-    }
-}
-
-@Composable
-fun FrontCard(
-    card: Pair<Card, AllCardTypes>,
-    getModifier: GetModifier,
-    modifier: Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxSize() // Fill the entire available space
-            .padding(10.dp)
-    ) {
-        when (card.first.type) {
-            "basic" -> {
-                val basicCard = card.second.basicCard
-                basicCard?.let { BasicFrontCard(basicCard = it, getModifier) }
-            }
-
-            "three" -> {
-                val threeCard = card.second.threeFieldCard
-                threeCard?.let { ThreeFrontCard(threeCard = it, getModifier) }
-            }
-
-            "hint" -> {
-                val hintCard = card.second.hintCard
-                hintCard?.let { HintFrontCard(hintCard = it, getModifier) }
-            }
-
-            "multi" -> {
-                val multiChoiceCard = card.second.multiChoiceCard
-                multiChoiceCard?.let { ChoiceFrontCard(multiChoiceCard = it, getModifier) }
             }
         }
     }

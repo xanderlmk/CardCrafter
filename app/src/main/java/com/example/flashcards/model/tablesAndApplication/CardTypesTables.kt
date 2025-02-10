@@ -123,7 +123,6 @@ data class HintCard(
             parcel.writeString(hint)
             parcel.writeString(answer)
         }
-
         override fun create(parcel: Parcel): HintCard {
             return HintCard(parcel)
         }
@@ -173,7 +172,6 @@ data class MultiChoiceCard(
             parcel.writeString(choiceD)
             parcel.writeString(correct.toString())
         }
-
         override fun create(parcel: Parcel): MultiChoiceCard {
             return MultiChoiceCard(parcel)
         }

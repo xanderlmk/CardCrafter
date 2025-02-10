@@ -3,6 +3,7 @@ import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.DeckWithCards
 import com.example.flashcards.model.tablesAndApplication.SavedCard
+import com.example.flashcards.model.uiModels.DueDeckDetails
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
@@ -77,5 +78,5 @@ interface FlashCardRepository {
 
     fun updateCardsLeft(deckId: Int, cardsLeft : Int)
 
-
+    fun getDueDeckDetails(id: Int): Flow<DueDeckDetails>
 }

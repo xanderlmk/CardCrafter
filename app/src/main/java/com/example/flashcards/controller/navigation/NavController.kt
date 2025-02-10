@@ -2,7 +2,6 @@ package com.example.flashcards.controller.navigation
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -20,7 +19,6 @@ import com.example.flashcards.views.cardViews.cardDeckViews.CardDeckView
 import com.example.flashcards.views.cardViews.editCardViews.EditCardsList
 import com.example.flashcards.views.deckViews.DeckView
 import com.example.flashcards.views.MainView
-import com.example.flashcards.model.uiModels.View
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -33,15 +31,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.navigation
 import com.example.flashcards.controller.AppViewModelProvider
-import com.example.flashcards.controller.updateDecksCardList
+import com.example.flashcards.controller.cardHandlers.updateDecksCardList
 import com.example.flashcards.controller.viewModels.NavViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.deckViewsModels.MainViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
-import com.example.flashcards.controller.viewModels.deckViewsModels.AddDeckViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Card
-import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.BasicCardUiState
 import com.example.flashcards.model.uiModels.HintCardUiState
 import com.example.flashcards.model.uiModels.MultiChoiceUiCardState
@@ -92,7 +88,6 @@ fun AppNavHost(
         )
 
     val cardsToUpdate by cardDeckVM.cardListToUpdate.collectAsState()
-    val cardList by cardDeckVM.sealedDueCTs.collectAsState()
     val listState = rememberLazyListState()
     val colorScheme = remember { ColorSchemeClass() }
     var onDeckView by remember { mutableStateOf(false) }
@@ -100,12 +95,11 @@ fun AppNavHost(
     val isDarkTheme = isSystemInDarkTheme()
 
     val getModifier = remember { GetModifier(colorScheme, isDarkTheme) }
-    val view = remember { View() }
     val selectedCard: MutableState<Card?> = rememberSaveable { mutableStateOf(null) }
 
 
     val cardDeckView = CardDeckView(
-        cardDeckVM, getModifier
+        cardDeckVM, getModifier, fields
     )
     val editDeckView = EditDeckView(fields, getModifier)
     val deckEditView =
@@ -126,7 +120,7 @@ fun AppNavHost(
     val generalSettings = GeneralSettings(getModifier, preferences)
 
     val coroutineScope = rememberCoroutineScope()
-    val deck = navViewModel.deck.collectAsState()
+    val deck by navViewModel.deck.collectAsState()
 
     NavHost(
         navController = navController,
@@ -142,13 +136,12 @@ fun AppNavHost(
                 mainViewModel,
                 // In DeckList Composable
                 onNavigateToDeck = { id ->
-                    Log.d("Nav Controller", "Navigating into to deck.$id")
+                    fields.leftDueCardView.value = false
                     fields.scrollPosition.value = 0
                     onDeckView = true
                     navController.navigate(DeckOptionsDestination.createRoute(id))
                     coroutineScope.launch {
                         navViewModel.getDeckById(id)
-                        cardDeckVM.getDueCards(id)
                     }
                     coroutineScope.launch {
                         editingCardListVM.getAllCardsForDeck(id)
@@ -178,8 +171,6 @@ fun AppNavHost(
         }
         composable(AddDeckDestination.route) {
             BackHandler {
-                view.whichView.intValue = 0
-                view.onView.value = false
                 fields.mainClicked.value = false
                 navController.popBackStack(
                     DeckListDestination.route,
@@ -188,8 +179,6 @@ fun AppNavHost(
             }
             addDeckView.AddDeck(
                 onNavigate = {
-                    view.whichView.intValue = 0
-                    view.onView.value = false
                     fields.mainClicked.value = false
                     navController.navigate(DeckListDestination.route)
                 }
@@ -205,8 +194,6 @@ fun AppNavHost(
                 val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
                 BackHandler {
                     fields.scrollPosition.value = 0
-                    view.whichView.intValue = 0
-                    view.onView.value = false
                     fields.mainClicked.value = false
                     navController.popBackStack(
                         DeckListDestination.route,
@@ -223,31 +210,27 @@ fun AppNavHost(
                     if (!onDeckView) {
                         coroutineScope.launch {
                             navViewModel.getDeckById(deckId ?: 0)
+                            cardDeckVM.updateWhichDeck(deckId?: 0)
                         }
                     }
                 }
-                Log.d("Nav Controller", "ViewEditDeck - Deck Value: ${deck.value}")
-
-                deck.value?.let {
+                deck?.let {
                     deckView.ViewEditDeck(
                         deck = it,
                         onNavigate = {
                             fields.scrollPosition.value = 0
-                            view.whichView.intValue = 0
-                            view.onView.value = false
                             fields.mainClicked.value = false
                             navController.navigate(DeckListDestination.route)
                         },
-                        whichView = view,
                         goToAddCard = { id ->
                             fields.mainClicked.value = false
                             navController.navigate(AddCardDestination.createRoute(id))
-                            view.onView.value = true
                         },
-                        goToViewCard = { id ->
+                        goToDueCards = { id ->
+                            cardDeckVM.updateWhichDeck(id)
                             fields.mainClicked.value = false
+                            fields.leftDueCardView.value = false
                             navController.navigate(ViewCardDestination.createRoute(id))
-                            view.onView.value = true
                         },
                         goToEditDeck = { id, name ->
                             fields.mainClicked.value = false
@@ -257,12 +240,10 @@ fun AppNavHost(
                                     name
                                 )
                             )
-                            view.onView.value = true
                         },
                         goToViewCards = { id ->
                             fields.mainClicked.value = false
                             navController.navigate(ViewAllCardsDestination.createRoute(id))
-                            view.onView.value = true
                         },
                     )
                 }
@@ -271,16 +252,6 @@ fun AppNavHost(
                 val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
 
                 BackHandler {
-                    /**
-                     * User added a card to get to Studying! lol
-                     */
-                    if(cardList.allCTs.isEmpty()) {
-                        coroutineScope.launch {
-                            cardDeckVM.getDueCards(deckId ?: 0)
-                        }
-                    }
-                    view.whichView.intValue = 0
-                    view.onView.value = false
                     fields.inDeckClicked.value = false
                     fields.resetFields()
                     navController.popBackStack(
@@ -288,21 +259,11 @@ fun AppNavHost(
                         inclusive = false
                     )
                 }
-                // Pass the deckId to AddCard composable
-                deck.value?.let {
+
+                deck?.let {
                     addCardView.AddCard(
                         deck = it,
                         onNavigate = {
-                            /**
-                             * User added a card to get to Studying! lol
-                             */
-                            if (cardList.allCTs.isEmpty()) {
-                                coroutineScope.launch {
-                                    cardDeckVM.getDueCards(deckId ?: 0)
-                                }
-                            }
-                            view.whichView.intValue = 0
-                            view.onView.value = false
                             fields.inDeckClicked.value = false
                             fields.resetFields()
                             navController.navigate(DeckViewDestination.createRoute(deckId ?: 0))
@@ -314,17 +275,15 @@ fun AppNavHost(
                 val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
 
                 BackHandler {
-                    view.whichView.intValue = 0
-                    view.onView.value = false
                     fields.inDeckClicked.value = false
                     getModifier.clickedChoice.value = '?'
                     navController.popBackStack(
                         DeckViewDestination.createRoute(deckId ?: 0),
                         inclusive = false
                     )
-                    deck.value?.let {
+                    fields.leftDueCardView.value = true
+                    deck?.let {
                         coroutineScope.launch {
-                            /** This function also gets the due cards */
                             updateDecksCardList(
                                 it,
                                 cardsToUpdate,
@@ -333,17 +292,16 @@ fun AppNavHost(
                         }
                     }
                 }
-                Log.d("Nav Controller", "ViewCard - Deck Value: ${deck.value}")
-                deck.value?.let {
+
+                deck?.let {
                     cardDeckView.ViewCard(
                         deck = it,
                         onNavigate = {
-                            view.whichView.intValue = 0
-                            view.onView.value = false
                             fields.inDeckClicked.value = false
+                            getModifier.clickedChoice.value = '?'
                             navController.navigate(DeckViewDestination.createRoute(deckId ?: 0))
+                            fields.leftDueCardView.value = true
                             coroutineScope.launch {
-                                /** This function also gets the due cards */
                                 updateDecksCardList(
                                     it,
                                     cardsToUpdate,
@@ -360,27 +318,21 @@ fun AppNavHost(
                 val currentName = backStackEntry.arguments?.getString("currentName")
 
                 BackHandler {
-                    view.whichView.intValue = 0
-                    view.onView.value = false
                     fields.inDeckClicked.value = false
                     navController.popBackStack(
                         DeckViewDestination.createRoute(deckId ?: 0),
                         inclusive = false
                     )
                 }
-                deck.value?.let {
+                deck?.let {
                     editDeckView.EditDeck(
                         currentName = currentName ?: "",
                         deck = it,
                         onNavigate = {
-                            view.whichView.intValue = 0
-                            view.onView.value = false
                             fields.inDeckClicked.value = false
                             navController.navigate(DeckViewDestination.createRoute(deckId ?: 0))
                         },
                         onDelete = {
-                            view.whichView.intValue = 0
-                            view.onView.value = false
                             fields.inDeckClicked.value = false
                             navController.navigate(DeckListDestination.route)
                         }
@@ -391,19 +343,16 @@ fun AppNavHost(
             composable(ViewAllCardsDestination.route) { backStackEntry ->
                 val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
                 BackHandler {
-                    view.whichView.intValue = 0
-                    view.onView.value = false
                     fields.inDeckClicked.value = false
                     navController.popBackStack(
                         DeckViewDestination.createRoute(deckId ?: 0),
                         inclusive = false
                     )
                 }
-                deck.value?.let {
+                deck?.let {
                     deckEditView.ViewFlashCards(
                         deck = it,
                         onNavigate = {
-                            view.whichView.intValue = 0
                             fields.inDeckClicked.value = false
                             navController.navigate(DeckViewDestination.createRoute(deckId ?: 0))
                         },
@@ -425,7 +374,6 @@ fun AppNavHost(
 
                 BackHandler {
                     selectedCard.value = null
-                    view.whichView.intValue = 0
                     deckEditView.isEditing.value = false
                     fields.inDeckClicked.value = false
                     fields.resetFields()
@@ -441,7 +389,6 @@ fun AppNavHost(
                         selectedCard = selectedCard,
                         onNavigateBack = {
                             selectedCard.value = null
-                            view.whichView.intValue = 0
                             deckEditView.isEditing.value = false
                             fields.inDeckClicked.value = false
                             fields.resetFields()

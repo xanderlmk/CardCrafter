@@ -1,4 +1,4 @@
-package com.example.flashcards.controller
+package com.example.flashcards.controller.cardHandlers
 
 import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.example.flashcards.model.tablesAndApplication.Card
@@ -101,7 +101,7 @@ fun handleCardUpdate(
 suspend fun updateDecksCardList(
     deck: Deck,
     cardList: List<Card>,
-    cardDeckViewModel: CardDeckViewModel
+    cardDeckViewModel: CardDeckViewModel,
 ): Boolean {
     return cardDeckViewModel.updateCards(deck, cardList)
 }

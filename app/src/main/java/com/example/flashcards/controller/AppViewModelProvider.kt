@@ -54,7 +54,8 @@ object AppViewModelProvider {
         initializer {
             CardDeckViewModel(
                 flashCardApplication().container.flashCardRepository,
-                flashCardApplication().container.cardTypeRepository
+                flashCardApplication().container.cardTypeRepository,
+                this.createSavedStateHandle()
             )
         }
         initializer {

@@ -28,10 +28,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcards.R
 import com.example.flashcards.controller.AppViewModelProvider
-import com.example.flashcards.controller.BasicCardTypeHandler
-import com.example.flashcards.controller.ChoiceCardTypeHandler
-import com.example.flashcards.controller.HintCardTypeHandler
-import com.example.flashcards.controller.ThreeCardTypeHandler
+import com.example.flashcards.controller.cardHandlers.BasicCardTypeHandler
+import com.example.flashcards.controller.cardHandlers.ChoiceCardTypeHandler
+import com.example.flashcards.controller.cardHandlers.HintCardTypeHandler
+import com.example.flashcards.controller.cardHandlers.ThreeCardTypeHandler
 import com.example.flashcards.controller.navigation.AllTypesUiStates
 import com.example.flashcards.controller.onClickActions.saveCard
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
@@ -57,7 +57,8 @@ class EditingCardView(
         val editCardVM : EditCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val fillOutfields = stringResource(R.string.fill_out_all_fields).toString()
         val coroutineScope = rememberCoroutineScope()
-        val cardListUiState by editingCardListVM.cardListUiState.collectAsState()
+        val sealedAllCTs by editingCardListVM.sealedAllCTs.collectAsState()
+
         Box(
             modifier = getModifier.boxViewsModifier()
         ) {
@@ -102,7 +103,6 @@ class EditingCardView(
                         "multi" -> {
                             ChoiceCardTypeHandler()
                         }
-
                         else -> {
                             println("NULL")
                             null
@@ -114,9 +114,9 @@ class EditingCardView(
                         fields = fields,
                         getModifier = getModifier
                     )
-                    if (cardListUiState.errorMessage.isNotEmpty()) {
+                    if (sealedAllCTs.errorMessage.isNotEmpty()) {
                         Text(
-                            text = cardListUiState.errorMessage,
+                            text = sealedAllCTs.errorMessage,
                             color = Color.Red,
                             modifier = Modifier.fillMaxWidth(),
                             fontSize = 16.sp,

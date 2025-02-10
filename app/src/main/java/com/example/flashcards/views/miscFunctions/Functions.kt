@@ -33,7 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.flashcards.R
-
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.ui.theme.textColor
 import kotlinx.coroutines.delay
@@ -45,11 +44,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
-import com.example.flashcards.model.uiModels.CardDeckCardLists
+import com.example.flashcards.controller.cardHandlers.returnReviewsLeft
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.uiModels.SealedDueCTs
 import com.example.flashcards.ui.theme.GetModifier
-import com.example.flashcards.views.cardViews.cardDeckViews.returnReviewsLeft
 
 
 @Composable
@@ -61,26 +59,6 @@ fun AgainText(getModifier: GetModifier) {
         lineHeight = 14.sp
     )
 }
-
-@Composable
-fun HardText(
-    updatedDueCards: CardDeckCardLists,
-    index: MutableIntState, hard: Int,
-    getModifier: GetModifier
-) {
-    Text(
-        text =
-        if (updatedDueCards.allCards[index.intValue].card.reviewsLeft == 1) {
-            "$hard " + stringResource(R.string.days)
-        } else {
-            "${updatedDueCards.allCards[index.intValue].card.reviewsLeft} " + "reviews left"
-        },
-        color = getModifier.titleColor(),
-        fontSize = 12.sp,
-        lineHeight = 14.sp
-    )
-}
-
 @Composable
 fun HardText(
     updatedDueCards : SealedDueCTs,
@@ -99,28 +77,6 @@ fun HardText(
         lineHeight = 14.sp
     )
 
-}
-
-@Composable
-fun GoodText(
-    updatedDueCards: CardDeckCardLists,
-    index: MutableIntState, good: Int,
-    getModifier: GetModifier
-) {
-    Text(
-        text =
-        if (updatedDueCards.allCards[index.intValue].card.reviewsLeft == 1) {
-            "$good " + stringResource(R.string.days)
-        } else {
-            "${
-                updatedDueCards.allCards[index.intValue].card.reviewsLeft - 1
-            } " +
-                    "reviews left"
-        },
-        color = getModifier.titleColor(),
-        fontSize = 12.sp,
-        lineHeight = 14.sp
-    )
 }
 @Composable
 fun GoodText(
@@ -253,7 +209,7 @@ fun EditIntField(
 fun NoDueCards(getModifier: GetModifier) {
     var delay by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        delay(150)
+        delay(100)
         delay = true
     }
     if (delay) {
@@ -433,7 +389,8 @@ fun getSavableFields(fields: Fields): Fields {
         correct = rememberSaveable { mutableStateOf('?') },
         scrollPosition = fields.scrollPosition,
         inDeckClicked = fields.inDeckClicked,
-        mainClicked = fields.mainClicked
+        mainClicked = fields.mainClicked,
+        leftDueCardView = fields.leftDueCardView
     )
 }
 

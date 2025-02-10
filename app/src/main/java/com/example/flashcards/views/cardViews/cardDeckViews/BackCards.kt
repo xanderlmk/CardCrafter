@@ -15,10 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.model.tablesAndApplication.AllCardTypes
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.CT
-import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
@@ -280,36 +278,6 @@ fun BackCard(ct : CT,
             }
             is CT.MultiChoice -> {
                ChoiceBackCard(multiChoiceCard = ct.multiChoiceCard, getModifier)
-            }
-        }
-    }
-}
-@Composable
-fun BackCard(card : Pair<Card,AllCardTypes>,
-             getModifier: GetModifier,
-             modifier: Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(10.dp),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        when (card.first.type) {
-            "basic" -> {
-                val basicCard = card.second.basicCard
-                basicCard?.let { BasicBackCard(basicCard = it, getModifier) }
-            }
-            "three" -> {
-                val threeCard = card.second.threeFieldCard
-                threeCard?.let { ThreeBackCard(threeCard = it, getModifier) }
-            }
-            "hint" -> {
-                val hintCard = card.second.hintCard
-                hintCard?.let { HintBackCard(hintCard = it, getModifier) }
-            }
-            "multi" -> {
-                val multiCard = card.second.multiChoiceCard
-                multiCard?.let { ChoiceBackCard(multiChoiceCard = it, getModifier) }
             }
         }
     }

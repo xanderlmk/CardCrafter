@@ -77,7 +77,7 @@ interface CardTypeRepository {
         currentTime: Long = Date().time
     ): Flow<List<MultiChoiceCardType>>
 
-    suspend fun getDueAllCardTypes(
+    fun getAllDueCards(
         deckId: Int,
         cardAmount: Int,
         currentTime: Long = Date().time

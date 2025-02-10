@@ -25,6 +25,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.flashcards.controller.cardHandlers.returnCard
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
@@ -43,13 +44,12 @@ class EditCardsList(
     var isEditing = mutableStateOf(false)
 
     @SuppressLint("CoroutineCreationDuringComposition")
-
     @Composable
     fun ViewFlashCards(
         deck: Deck, onNavigate: () -> Unit, goToEditCard: () -> Unit
     ) {
         //var deckWithCards by remember { mutableStateOf(DeckWithCards(Deck(0, loading.toString() ), emptyList())) }
-        val cardListUiState by editingCardListVM.cardListUiState.collectAsState()
+        val sealedCardsList by editingCardListVM.sealedAllCTs.collectAsState()
         val middleCard = rememberSaveable { mutableIntStateOf(0) }
         var clicked by remember { mutableStateOf(false) }
 
@@ -80,13 +80,13 @@ class EditCardsList(
                         .fillMaxSize(),
                     state = listState
                 ) {
-                    items(cardListUiState.allCards.size) { index ->
+                    items(sealedCardsList.allCTs.size) { index ->
                         Button(
                             onClick = {
                                 if (!clicked) {
                                     fields.scrollPosition.value = index
                                     selectedCard.value =
-                                        cardListUiState.allCards[index].card
+                                        returnCard(sealedCardsList.allCTs[index])
                                     isEditing.value = true
                                     clicked = true
                                     goToEditCard()
@@ -101,7 +101,7 @@ class EditCardsList(
                                 .padding(8.dp)
                         ) {
                             CardSelector(
-                                cardListUiState,
+                                sealedCardsList,
                                 index
                             )
                         }

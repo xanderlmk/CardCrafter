@@ -34,7 +34,9 @@ interface CardDao {
     @Query(
         """
         SELECT * FROM cards WHERE deckId = :deckId 
-        AND nextReview <= :currentTime LIMIT :cardAmount"""
+        AND nextReview <= :currentTime 
+        ORDER BY nextReview ASC, partOfList DESC
+        LIMIT :cardAmount"""
     )
     suspend fun getBackupDueCards(
         deckId: Int,
