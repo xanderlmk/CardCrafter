@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.flashcards.model.tablesAndApplication.Deck
+import com.example.flashcards.model.uiModels.DueDeckDetails
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
 import java.util.Date
@@ -93,6 +94,7 @@ interface DeckDao {
         FROM cards c
         WHERE c.deckId = decks.id
         AND c.partOfList = 1
+        AND decks.lastUpdated == :startOfDay
         )
     """
     )
@@ -172,11 +174,40 @@ interface DeckDao {
     fun updateCardsLeft(deckId: Int, cardsLeft : Int)
 
     @Query("""
+    WITH RankedCards AS (
+        SELECT
+            c.deckId,
+            COUNT(*) AS cardCount,
+            d.cardAmount,
+            d.cardsLeft
+        FROM cards c
+        INNER JOIN decks d ON c.deckId = d.id
+        WHERE c.nextReview <= :currentTime 
+        AND d.nextReview <= :currentTime
+        GROUP BY c.deckId, d.cardAmount, d.cardsLeft
+        ORDER BY c.partOfList DESC, c.nextReview ASC 
+    )
         UPDATE decks
-        SET cardAmount = :cardAmount
-        where id = :deckId 
+        SET cardAmount = :cardAmount,
+        cardsLeft =  (
+            SELECT
+                CASE
+                    WHEN rc.cardCount IS NULL THEN 0
+                    WHEN cardsLeft >= :cardAmount then :cardAmount
+                    ELSE cardsLeft
+                END
+            FROM RankedCards rc
+            WHERE rc.deckId = :deckId
+        )
+        WHERE id = :deckId 
         AND cardAmount > 4
-        And cardAmount < 1001
+        AND cardAmount < 1001
     """)
-    fun updateCardAmount(cardAmount : Int, deckId: Int) : Int
+    fun updateCardAmount(cardAmount : Int, deckId: Int, currentTime: Long = Date().time) : Int
+
+    @Query("""
+        SELECT id, cardsLeft, nextReview
+        FROM decks WHERE id = :id
+        """)
+    fun getDueDeckDetails(id: Int): Flow<DueDeckDetails>
 }

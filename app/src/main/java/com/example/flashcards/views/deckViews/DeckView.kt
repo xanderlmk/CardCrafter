@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -17,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.model.tablesAndApplication.Deck
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import com.example.flashcards.R
@@ -25,9 +23,7 @@ import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.AddCardButton
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.views.miscFunctions.SettingsButton
-import com.example.flashcards.model.uiModels.View
 import com.example.flashcards.ui.theme.GetModifier
-import com.example.flashcards.views.miscFunctions.delayNavigate
 
 
 class DeckView(
@@ -38,42 +34,11 @@ class DeckView(
     fun ViewEditDeck(
         deck: Deck,
         onNavigate: () -> Unit,
-        whichView: View,
         goToAddCard : (Int) -> Unit,
-        goToViewCard: (Int) -> Unit,
+        goToDueCards: (Int) -> Unit,
         goToEditDeck: (Int,String) -> Unit,
         goToViewCards: (Int) -> Unit
     ) {
-        val view = remember { whichView }
-        LaunchedEffect(view.whichView.intValue) {
-            when (view.whichView.intValue) {
-                0 -> {
-                    view.onView.value = false
-                }
-                2 -> {
-                    // Navigate to ViewCard screen
-                    delayNavigate()
-                    goToViewCard(deck.id)
-                    view.whichView.intValue = 0
-                    view.onView.value = true
-                }
-                3 -> {
-                    // Navigate to EditDeckScreen
-                    delayNavigate()
-                    goToEditDeck(deck.id, deck.name)
-                    view.whichView.intValue = 0
-                    view.onView.value = true
-                }
-                4 -> {
-                    // Navigate to ViewFlashCardList
-                    delayNavigate()
-                    goToViewCards(deck.id)
-                    view.whichView.intValue = 0
-                    view.onView.value = true
-
-                }
-            }
-        }
         Box(
             modifier = getModifier
                 .boxViewsModifier()
@@ -86,14 +51,14 @@ class DeckView(
             SettingsButton(
                 onNavigateToEditDeck = {
                     if (!fields.inDeckClicked.value) {
-                        view.whichView.intValue = 3
                         fields.inDeckClicked.value = true
+                        goToEditDeck(deck.id, deck.name)
                     }
                 },
                 onNavigateToEditCards = {
                     if (!fields.inDeckClicked.value) {
-                        view.whichView.intValue = 4
                         fields.inDeckClicked.value = true
+                        goToViewCards(deck.id)
                     }
                 },
                 modifier = getModifier
@@ -139,8 +104,8 @@ class DeckView(
                             Button(
                                 onClick = {
                                     if (!fields.inDeckClicked.value) {
-                                        view.whichView.intValue = 2
                                         fields.inDeckClicked.value = true
+                                        goToDueCards(deck.id)
                                     }
                                 },
                                 modifier = Modifier
@@ -168,9 +133,10 @@ class DeckView(
                     ) {
                         AddCardButton(
                             onClick = {
-                                goToAddCard(deck.id)
-                                view.whichView.intValue = 0
-                                view.onView.value = true
+                                if (!fields.inDeckClicked.value) {
+                                    fields.inDeckClicked.value = true
+                                    goToAddCard(deck.id)
+                                }
                             }
                         )
                     }

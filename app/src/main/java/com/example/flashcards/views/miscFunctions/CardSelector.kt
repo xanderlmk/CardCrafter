@@ -6,10 +6,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.flashcards.R
 import com.example.flashcards.model.tablesAndApplication.BasicCard
+import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
-import com.example.flashcards.model.uiModels.CardListUiState
+import com.example.flashcards.model.uiModels.SealedAllCTs
 
 @Composable
 fun BasicCardQuestion(basicCard: BasicCard) {
@@ -52,32 +53,22 @@ fun ChoiceCardQuestion(multiChoiceCard: MultiChoiceCard) {
 
 @Composable
 fun CardSelector(
-    cardListUiState: CardListUiState,
+    sealedAllCTs: SealedAllCTs,
     index: Int
 ) {
-    when (cardListUiState.allCards[index].card.type) {
-        "basic" -> {
-            val basicCard =
-                cardListUiState.allCards[index].basicCard
-            basicCard?.let { BasicCardQuestion(basicCard) }
+    val ct = sealedAllCTs.allCTs[index]
+    when(ct){
+        is CT.Basic -> {
+            BasicCardQuestion(ct.basicCard)
         }
-
-        "three" -> {
-            val threeCard =
-                cardListUiState.allCards[index].threeFieldCard
-            threeCard?.let { ThreeCardQuestion(threeCard) }
+        is CT.ThreeField -> {
+            ThreeCardQuestion(ct.threeFieldCard)
         }
-
-        "hint" -> {
-            val hintCard =
-                cardListUiState.allCards[index].hintCard
-            hintCard?.let { HintCardQuestion(hintCard) }
+        is CT.Hint -> {
+            HintCardQuestion(ct.hintCard)
         }
-
-        "multi" -> {
-            val choiceCard =
-                cardListUiState.allCards[index].multiChoiceCard
-            choiceCard?.let { ChoiceCardQuestion(choiceCard) }
+        is CT.MultiChoice -> {
+            ChoiceCardQuestion(ct.multiChoiceCard)
         }
     }
 }

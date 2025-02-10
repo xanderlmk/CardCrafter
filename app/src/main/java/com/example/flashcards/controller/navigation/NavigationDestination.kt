@@ -28,12 +28,6 @@ object DeckViewDestination : NavigationDestination {
                 return "DeckView/$deckId"
         }
 }
-object WhichViewDestination : NavigationDestination {
-        override val route = "WhichView/{deckId}"
-        fun createRoute(deckId: Int): String {
-                return "WhichView/$deckId"
-        }
-}
 object AddCardDestination : NavigationDestination{
         override val route = "AddCard/{deckId}"
         fun createRoute(deckId: Int): String {
