@@ -20,19 +20,19 @@ import com.example.flashcards.views.cardViews.editCardViews.EditCardsList
 import com.example.flashcards.views.deckViews.DeckView
 import com.example.flashcards.views.MainView
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.navigation
 import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.cardHandlers.updateDecksCardList
-import com.example.flashcards.controller.viewModels.NavViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.deckViewsModels.MainViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
@@ -48,6 +48,7 @@ import com.example.flashcards.views.GeneralSettings
 import com.example.flashcards.views.deckViews.EditDeckView
 import com.example.flashcards.views.cardViews.editCardViews.EditingCardView
 import com.example.flashcards.ui.theme.GetModifier
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 data class AllTypesUiStates(
@@ -72,13 +73,13 @@ fun AppNavHost(
     val navViewModel: NavViewModel = viewModel(factory = AppViewModelProvider.Factory)
 
     val basicCardUiState by
-    editingCardListVM.basicCardUiState.collectAsState()
+    editingCardListVM.basicCardUiState.collectAsStateWithLifecycle()
     val hintCardUiState by
-    editingCardListVM.hintCardUiState.collectAsState()
+    editingCardListVM.hintCardUiState.collectAsStateWithLifecycle()
     val threeCardUiState by
-    editingCardListVM.threeCardUiState.collectAsState()
+    editingCardListVM.threeCardUiState.collectAsStateWithLifecycle()
     val multiCardUiState by
-    editingCardListVM.multiChoiceUiState.collectAsState()
+    editingCardListVM.multiChoiceUiState.collectAsStateWithLifecycle()
     val allTypesUiStates =
         AllTypesUiStates(
             basicCardUiState,
@@ -87,14 +88,19 @@ fun AppNavHost(
             multiCardUiState
         )
 
-    val cardsToUpdate by cardDeckVM.cardListToUpdate.collectAsState()
+    val cardsToUpdate by cardDeckVM.cardListToUpdate.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
     val colorScheme = remember { ColorSchemeClass() }
     var onDeckView by remember { mutableStateOf(false) }
     colorScheme.colorScheme = MaterialTheme.colorScheme
-    val isDarkTheme = isSystemInDarkTheme()
 
-    val getModifier = remember { GetModifier(colorScheme, isDarkTheme) }
+    val getModifier = rememberUpdatedState (
+        GetModifier(
+            colorScheme,
+            preferences.darkTheme.value
+        )
+    ).value
+
     val selectedCard: MutableState<Card?> = rememberSaveable { mutableStateOf(null) }
 
 
@@ -210,7 +216,7 @@ fun AppNavHost(
                     if (!onDeckView) {
                         coroutineScope.launch {
                             navViewModel.getDeckById(deckId ?: 0)
-                            cardDeckVM.updateWhichDeck(deckId?: 0)
+                            cardDeckVM.updateWhichDeck(deckId ?: 0)
                         }
                     }
                 }
@@ -283,7 +289,7 @@ fun AppNavHost(
                     )
                     fields.leftDueCardView.value = true
                     deck?.let {
-                        coroutineScope.launch {
+                        coroutineScope.launch(Dispatchers.IO) {
                             updateDecksCardList(
                                 it,
                                 cardsToUpdate,
@@ -301,7 +307,7 @@ fun AppNavHost(
                             getModifier.clickedChoice.value = '?'
                             navController.navigate(DeckViewDestination.createRoute(deckId ?: 0))
                             fields.leftDueCardView.value = true
-                            coroutineScope.launch {
+                            coroutineScope.launch(Dispatchers.IO) {
                                 updateDecksCardList(
                                     it,
                                     cardsToUpdate,

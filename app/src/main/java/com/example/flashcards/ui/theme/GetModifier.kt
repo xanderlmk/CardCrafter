@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -144,9 +143,6 @@ class GetModifier(
     fun onTertiaryButtonColor(): Color{
         return colorScheme.colorScheme.onTertiaryContainer
     }
-    /**fun tertiaryColor(): Color{
-        return colorScheme.colorScheme.tertiary
-    }*/
     fun onTertiaryColor(): Color{
         return colorScheme.colorScheme.onTertiary
     }
@@ -154,7 +150,11 @@ class GetModifier(
         return colorScheme.colorScheme.onSecondary
     }
     fun correctChoice(): Color {
-        return colorScheme.colorScheme.onPrimary
+        return if (isDarkTheme) {
+            darkCorrectChoice
+        } else {
+            correctChoice
+        }
     }
     fun onCorrectChoice(): Color {
         return colorScheme.colorScheme.onSurfaceVariant

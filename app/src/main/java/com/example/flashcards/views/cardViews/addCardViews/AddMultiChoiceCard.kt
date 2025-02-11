@@ -33,6 +33,7 @@ import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.views.miscFunctions.EditTextFieldNonDone
 import com.example.flashcards.views.miscFunctions.PickAnswerChar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -68,7 +69,7 @@ fun AddMultiChoiceCard(
                 .padding(start = 8.dp, end = 8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            EditTextField(
+            EditTextFieldNonDone(
                 value = fields.question.value,
                 onValueChanged = { newText ->
                     fields.question.value =

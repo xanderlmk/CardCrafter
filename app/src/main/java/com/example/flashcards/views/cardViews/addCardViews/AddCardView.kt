@@ -47,7 +47,6 @@ class AddCardView(
         val type = rememberSaveable { mutableStateOf("basic") }
         val addCardVM : AddCardViewModel =
             viewModel(factory = AppViewModelProvider.Factory)
-        //val scrollState = rememberScrollState()
 
         fields = getSavableFields(fields)
         Box(

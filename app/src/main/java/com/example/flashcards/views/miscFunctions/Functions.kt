@@ -3,13 +3,10 @@ package com.example.flashcards.views.miscFunctions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.DropdownMenu
@@ -18,15 +15,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
@@ -34,16 +28,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.flashcards.R
 import com.example.flashcards.model.tablesAndApplication.Deck
-import com.example.flashcards.ui.theme.textColor
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.input.ImeAction
 import com.example.flashcards.controller.cardHandlers.returnReviewsLeft
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.uiModels.SealedDueCTs
@@ -99,111 +88,6 @@ fun GoodText(
         lineHeight = 14.sp
     )
 }
-
-@Composable
-fun EditTextField(
-    value: String,
-    onValueChanged: (String) -> Unit,
-    labelStr: String,
-    modifier: Modifier,
-    inputColor: Color = Color.Transparent
-) {
-    val focusManager = LocalFocusManager.current
-    val colors = if (inputColor == Color.Transparent) {
-        TextFieldDefaults.colors(
-            focusedTextColor = MaterialTheme.colorScheme.onBackground,
-            unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-
-        )
-    } else {
-        TextFieldDefaults.colors(
-            unfocusedTextColor = inputColor,
-            focusedTextColor = inputColor,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
-    }
-    TextField(
-        value = value,
-        singleLine = false,
-        modifier = modifier,
-        onValueChange = onValueChanged,
-        label = { Text(labelStr, color = textColor) },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = {
-                focusManager.clearFocus()
-            }
-        ),
-        colors = colors,
-        textStyle =
-        if (inputColor == Color.Transparent) {
-            TextStyle.Default
-        } else {
-            TextStyle(
-                fontWeight = FontWeight.ExtraBold,
-                fontStyle = FontStyle.Italic,
-                background = MaterialTheme.colorScheme.surface
-            )
-        }
-    )
-}
-
-@Composable
-fun EditDoubleField(
-    value: String,
-    onValueChanged: (String) -> Unit,
-    labelStr: String,
-    modifier: Modifier
-) {
-    val colors = TextFieldDefaults.colors(
-        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-
-    )
-    TextField(
-        value = value,
-        singleLine = true,
-        modifier = modifier,
-        onValueChange = onValueChanged,
-        label = { Text(labelStr, color = textColor) },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-        colors = colors
-
-    )
-}
-
-@Composable
-fun EditIntField(
-    value: String,
-    onValueChanged: (String) -> Unit,
-    labelStr: String,
-    modifier: Modifier
-) {
-    val colors = TextFieldDefaults.colors(
-        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-    )
-    TextField(
-        value = value,
-        singleLine = true,
-        modifier = modifier,
-        onValueChange = onValueChanged,
-        label = {
-            Text(
-                labelStr, color = textColor, fontSize = 12.sp
-            )
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        colors = colors,
-    )
-}
-
 
 @Composable
 fun NoDueCards(getModifier: GetModifier) {
@@ -371,7 +255,7 @@ fun returnDeckError(): List<String> {
 }
 
 @Composable
-fun returnCardAmountError() : List<String>{
+fun returnCardAmountError() : List<String> {
     return listOf(
         "daily card Amount must be at least 5",
         "only 1000 cards a day are allowed",

@@ -30,8 +30,8 @@ import com.example.flashcards.R
 import com.example.flashcards.controller.viewModels.cardViewsModels.AddCardViewModel
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
-import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.views.miscFunctions.EditTextFieldNonDone
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -64,7 +64,7 @@ fun AddThreeCard(vm : AddCardViewModel,deck: Deck,
                 .padding(start = 8.dp, end = 8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            EditTextField(
+            EditTextFieldNonDone(
                 value = fields.question.value,
                 onValueChanged = { newText ->
                     fields.question.value =
@@ -90,7 +90,7 @@ fun AddThreeCard(vm : AddCardViewModel,deck: Deck,
                 .padding(start = 8.dp, end = 8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            EditTextField(
+            EditTextFieldNonDone(
                 value = fields.middleField.value,
                 onValueChanged = { newText ->
                     fields.middleField.value =
@@ -115,7 +115,7 @@ fun AddThreeCard(vm : AddCardViewModel,deck: Deck,
                 .padding(start = 8.dp, end = 8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            EditTextField(
+            EditTextFieldNonDone(
                 value = fields.answer.value,
                 onValueChanged = { newText ->
                     fields.answer.value =

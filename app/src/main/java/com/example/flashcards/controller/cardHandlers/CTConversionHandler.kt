@@ -189,8 +189,13 @@ fun mapAllCardTypesToCTs(allCardTypesList: List<AllCardTypes>): List<CT> {
                 allCardTypes.card,
                 allCardTypes.multiChoiceCard
             )
-
-            else -> throw IllegalStateException("Invalid AllCardTypes: all card types are null")
+            else -> throw IllegalStateException(
+                """Mapping error for AllCardTypes element: 
+                card=${allCardTypes.card}, 
+                basicCard=${allCardTypes.basicCard}, 
+                hintCard=${allCardTypes.hintCard},
+                threeFieldCard=${allCardTypes.threeFieldCard},
+                multiChoiceCard=${allCardTypes.multiChoiceCard}""")
         }
     }
 }
