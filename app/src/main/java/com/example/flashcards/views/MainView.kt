@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.flashcards.R
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.ui.theme.GetModifier
@@ -47,7 +48,7 @@ class MainView(
     ) {
 
         val lineModifier = getModifier.mainViewModifier()
-        val uiState by viewModel.deckUiState.collectAsState()
+        val deckUiState by viewModel.deckUiState.collectAsStateWithLifecycle()
         val cardCount by viewModel.cardCountUiState.collectAsState()
         val coroutineScope = rememberCoroutineScope()
         val settingsModifier = getModifier.mainSettingsButtonModifier()
@@ -87,7 +88,7 @@ class MainView(
                         .padding(16.dp)
                 ) {
                     LazyColumn {
-                        items(uiState.deckList.size) { index ->
+                        items(deckUiState.deckList.size) { index ->
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -96,7 +97,7 @@ class MainView(
                                         if (!fields.mainClicked.value) {
                                             fields.mainClicked.value = true
                                             onNavigateToDeck(
-                                                uiState.deckList[index].id
+                                                deckUiState.deckList[index].id
                                             )
                                         }
                                     },
@@ -109,7 +110,7 @@ class MainView(
                                         Modifier.align(Alignment.TopStart)
                                     ) {
                                         Text(
-                                            text = uiState.deckList[index].name + " ",
+                                            text = deckUiState.deckList[index].name + " ",
                                             textAlign = TextAlign.Start,
                                             fontSize = 20.sp,
                                             lineHeight = 22.sp,

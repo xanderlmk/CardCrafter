@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.flashcards.R
 import com.example.flashcards.controller.cardHandlers.redoACard
 import com.example.flashcards.controller.cardHandlers.returnCard
@@ -62,10 +63,10 @@ class CardDeckView(
     fun ViewCard(
         deck: Deck, onNavigate: () -> Unit
     ) {
-        val backupList by cardDeckVM.backupCardList.collectAsState()
-        val sealedCL by cardDeckVM.cardListUiState.collectAsState()
+        val sealedCL by cardDeckVM.cardListUiState.collectAsStateWithLifecycle()
+        val cardsToUpdate by cardDeckVM.cardListToUpdate.collectAsStateWithLifecycle()
 
-        val cardsToUpdate by cardDeckVM.cardListToUpdate.collectAsState()
+        val backupList by cardDeckVM.backupCardList.collectAsState()
         val errorState by cardDeckVM.errorState.collectAsState()
 
         var dueCTs = remember {

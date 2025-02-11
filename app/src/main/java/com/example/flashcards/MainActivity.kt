@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.flashcards.controller.navigation.AppNavHost
@@ -54,7 +55,7 @@ class MainActivity : ComponentActivity() {
              * so you should perform database update
              **/
             if ((mainViewModel.appStarted.value == null ||
-                mainViewModel.appStarted.value == false ) &&
+                        mainViewModel.appStarted.value == false) &&
                 !preferences.isFirstTime
             ) {
                 LaunchedEffect(Unit) {
@@ -63,7 +64,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            fields = remember { Fields() }
+            fields = rememberSaveable { Fields() }
 
 
             val isSystemDark = isSystemInDarkTheme()
@@ -96,16 +97,16 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         if (::preferences.isInitialized) {
-        preferences.saveDarkTheme()
-        preferences.saveCustomScheme()
+            preferences.saveDarkTheme()
+            preferences.saveCustomScheme()
         }
     }
 
     override fun onPause() {
         super.onPause()
         if (::preferences.isInitialized) {
-        preferences.saveDarkTheme()
-        preferences.saveCustomScheme()
+            preferences.saveDarkTheme()
+            preferences.saveCustomScheme()
         }
     }
 

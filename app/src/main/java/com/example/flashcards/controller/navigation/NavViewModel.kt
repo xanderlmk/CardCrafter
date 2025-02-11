@@ -1,4 +1,4 @@
-package com.example.flashcards.controller.viewModels
+package com.example.flashcards.controller.navigation
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

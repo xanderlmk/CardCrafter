@@ -14,6 +14,7 @@ import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.EditTextField
+import com.example.flashcards.views.miscFunctions.EditTextFieldNonDone
 import com.example.flashcards.views.miscFunctions.PickAnswerChar
 import com.example.flashcards.views.miscFunctions.createChoiceCardDetails
 
@@ -36,7 +37,7 @@ fun EditChoiceCard(
     fields.correct = rememberSaveable { mutableStateOf(cardDetails.correct.value) }
 
 
-    EditTextField(
+    EditTextFieldNonDone(
         value = fields.question.value,
         onValueChanged = {
             fields.question.value = it

@@ -174,30 +174,25 @@ interface DeckDao {
     fun updateCardsLeft(deckId: Int, cardsLeft : Int)
 
     @Query("""
-    WITH RankedCards AS (
-        SELECT
-            c.deckId,
-            COUNT(*) AS cardCount,
-            d.cardAmount,
-            d.cardsLeft
-        FROM cards c
-        INNER JOIN decks d ON c.deckId = d.id
-        WHERE c.nextReview <= :currentTime 
-        AND d.nextReview <= :currentTime
-        GROUP BY c.deckId, d.cardAmount, d.cardsLeft
-        ORDER BY c.partOfList DESC, c.nextReview ASC 
-    )
+        WITH CurrentCards AS (
+            SELECT COUNT(*) as cardCount, deckId FROM cards 
+            WHERE deckId = :deckId 
+            AND nextReview <= :currentTime 
+            ORDER BY partOfList DESC, nextReview ASC
+            LIMIT :cardAmount
+        )
         UPDATE decks
         SET cardAmount = :cardAmount,
         cardsLeft =  (
             SELECT
                 CASE
-                    WHEN rc.cardCount IS NULL THEN 0
-                    WHEN cardsLeft >= :cardAmount then :cardAmount
-                    ELSE cardsLeft
-                END
-            FROM RankedCards rc
-            WHERE rc.deckId = :deckId
+                    WHEN nextReview > :currentTime THEN 0
+                    WHEN CC.cardCount IS NULL THEN 0
+                    WHEN CC.cardCount >= :cardAmount then :cardAmount
+                    ELSE CC.cardCount
+                END 
+            FROM CurrentCards CC
+            WHERE CC.deckId = :deckId
         )
         WHERE id = :deckId 
         AND cardAmount > 4
