@@ -15,7 +15,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -25,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcards.R
 import com.example.flashcards.controller.AppViewModelProvider
@@ -57,7 +57,7 @@ class EditingCardView(
         val editCardVM : EditCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val fillOutfields = stringResource(R.string.fill_out_all_fields).toString()
         val coroutineScope = rememberCoroutineScope()
-        val sealedAllCTs by editingCardListVM.sealedAllCTs.collectAsState()
+        val sealedAllCTs by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
 
         Box(
             modifier = getModifier.boxViewsModifier()

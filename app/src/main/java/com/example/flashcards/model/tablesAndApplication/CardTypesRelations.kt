@@ -46,9 +46,6 @@ data class MultiChoiceCardType(
     val multiChoiceCard: MultiChoiceCard?
 )
 
-sealed class CardType {
-    abstract val cardId: Int
-}
 
 
 @Parcelize

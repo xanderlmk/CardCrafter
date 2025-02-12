@@ -33,7 +33,9 @@ class MainViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
+    companion object {
+        private const val TIMEOUT_MILLIS = 5_000L
+    }
     private val uiState: StateFlow<DeckUiState> =
         flashCardRepository.getAllDecksStream().map { DeckUiState(it) }
             .stateIn(
@@ -43,7 +45,8 @@ class MainViewModel(
             )
 
     private val thisCardCountUiState: StateFlow<CardListUiCount> =
-        flashCardRepository.getCardCount().map { CardListUiCount(it) }
+        flashCardRepository.getCardCount().map {
+            CardListUiCount(it) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -56,10 +59,6 @@ class MainViewModel(
     private val savedCardUiState =
         MutableStateFlow(SavedCardUiState())
     val appStarted = mutableStateOf(savedStateHandle.get<Boolean>("appStarted"))
-
-    companion object {
-        private const val TIMEOUT_MILLIS = 5_000L
-    }
 
     private fun updateActivity() {
         appStarted.value = true

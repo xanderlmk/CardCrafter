@@ -154,6 +154,7 @@ fun AddBasicCard(
                         fields.answer.value = ""
                         fields.question.value = ""
                         successMessage = cardAdded
+                        fields.cardsAdded.value += 1
                     }
                 },
                 modifier = Modifier.padding(top = 4.dp),

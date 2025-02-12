@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -49,7 +48,7 @@ class MainView(
 
         val lineModifier = getModifier.mainViewModifier()
         val deckUiState by viewModel.deckUiState.collectAsStateWithLifecycle()
-        val cardCount by viewModel.cardCountUiState.collectAsState()
+        val cardCount by viewModel.cardCountUiState.collectAsStateWithLifecycle()
         val coroutineScope = rememberCoroutineScope()
         val settingsModifier = getModifier.mainSettingsButtonModifier()
 
@@ -122,8 +121,12 @@ class MainView(
                                         Text(
                                             text =
                                             if (cardCount.cardListCount.isNotEmpty()) {
-                                                cardCount.cardListCount[index].toString() }
-                                            else {"0"},
+                                                cardCount.cardListCount[
+                                                    index % cardCount.cardListCount.size
+                                                ].toString()
+                                            } else {
+                                                "0"
+                                            },
                                             textAlign = TextAlign.End,
                                             fontSize = 14.sp,
                                             color = getModifier.titleColor(),

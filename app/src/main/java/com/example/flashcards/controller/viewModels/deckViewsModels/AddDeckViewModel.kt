@@ -62,9 +62,9 @@ class AddDeckViewModel(
         }
     }
 
-    fun addDeck(name: String, reviewAmount: Int,
-                cardAmount: Int) {
-        if (name.isNotEmpty() && reviewAmount in MIN_REVIEWS .. MAX_REVIEWS &&
+    fun addDeck(name: String, reviewAmount: Int, cardAmount: Int) {
+        if (name.isNotEmpty() &&
+            reviewAmount in MIN_REVIEWS .. MAX_REVIEWS &&
             cardAmount in MIN_CARDS .. MAX_CARDS) {
             viewModelScope.launch {
                 try {
@@ -72,6 +72,8 @@ class AddDeckViewModel(
                         Deck(
                             name = name,
                             reviewAmount = reviewAmount,
+                            cardAmount = cardAmount,
+                            cardsLeft = cardAmount,
                             nextReview = Date(),
                             lastUpdated = Date()
                         )

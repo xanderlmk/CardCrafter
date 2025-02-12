@@ -312,6 +312,7 @@ fun AddMultiChoiceCard(
                         )
                         fields.resetFields()
                         successMessage = cardAdded
+                        fields.cardsAdded.value += 1
                     }
                 },
                 modifier = Modifier.padding(top = 4.dp),
