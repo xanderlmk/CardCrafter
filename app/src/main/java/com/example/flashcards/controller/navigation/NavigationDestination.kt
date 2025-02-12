@@ -34,7 +34,7 @@ object AddCardDestination : NavigationDestination{
                 return "AddCard/$deckId"
         }
 }
-object ViewCardDestination : NavigationDestination{
+object ViewDueCardsDestination : NavigationDestination{
         override val route = "ViewCard/{deckId}"
         fun createRoute(deckId: Int): String {
                 return "ViewCard/$deckId"

@@ -6,8 +6,10 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
+import org.json.JSONArray
 
 @Parcelize
 @Entity(
@@ -23,10 +25,10 @@ import kotlinx.parcelize.Parcelize
     indices = [Index(value = ["cardId"])]
 )
 data class BasicCard(
-    @PrimaryKey override val cardId: Int,
+    @PrimaryKey val cardId: Int,
     val question: String,
     val answer: String,
-) : CardType(), Parcelable {
+) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readString()!!,
@@ -62,11 +64,11 @@ data class BasicCard(
     indices = [Index(value = ["cardId"])]
 )
 data class ThreeFieldCard(
-    @PrimaryKey override val cardId: Int,
+    @PrimaryKey val cardId: Int,
     val question: String,
     val middle: String,
     val answer: String,
-) : CardType(), Parcelable {
+) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readString()!!,
@@ -103,11 +105,11 @@ data class ThreeFieldCard(
     indices = [Index(value = ["cardId"])]
 )
 data class HintCard(
-    @PrimaryKey override val cardId: Int,
+    @PrimaryKey val cardId: Int,
     val question: String,
     val hint: String,
     val answer: String,
-) : CardType(), Parcelable  {
+) : Parcelable  {
     constructor(parcel: Parcel) : this(
     parcel.readInt(),
     parcel.readString()!!,
@@ -143,14 +145,14 @@ data class HintCard(
     indices = [Index(value = ["cardId"])]
 )
 data class MultiChoiceCard(
-    @PrimaryKey override val cardId: Int,
+    @PrimaryKey val cardId: Int,
     val question: String,
     val choiceA: String,
     val choiceB: String,
     val choiceC: String = "",
     val choiceD: String = "",
     val correct: Char
-) : CardType(), Parcelable {
+) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readString()!!,
@@ -160,7 +162,6 @@ data class MultiChoiceCard(
         parcel.readString()!!,
         parcel.readString()!![0]
     )
-
     companion object : Parceler<MultiChoiceCard> {
 
         override fun MultiChoiceCard.write(parcel: Parcel, flags: Int) {
@@ -175,5 +176,27 @@ data class MultiChoiceCard(
         override fun create(parcel: Parcel): MultiChoiceCard {
             return MultiChoiceCard(parcel)
         }
+    }
+}
+
+data class MathCard (
+    val question: String,
+    val steps: List<String> = listOf(),
+    val answer: String
+)
+
+class MathCardConverter {
+    @TypeConverter
+    fun fromString(value: String): List<String> {
+        val jsonArray = JSONArray(value)
+        val list = mutableListOf<String>()
+        for (i in 0 until jsonArray.length()) {
+            list.add(jsonArray.getString(i))
+        }
+        return list
+    }
+    @TypeConverter
+    fun listToString(listOfStrings: List<String>): String {
+        return JSONArray(listOfStrings).toString()
     }
 }

@@ -8,6 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 
+/** This class will have all our UI variable declarations
+ *  used throughout the entire application.
+ */
 @Parcelize
 class Fields(
     var question : MutableState<String> = mutableStateOf(""),
@@ -18,7 +21,8 @@ class Fields(
     var scrollPosition : MutableState<Int> = mutableIntStateOf(0),
     val mainClicked : MutableState<Boolean> = mutableStateOf(false),
     val inDeckClicked : MutableState<Boolean> = mutableStateOf(false),
-    val leftDueCardView : MutableState<Boolean> = mutableStateOf(false)
+    val leftDueCardView : MutableState<Boolean> = mutableStateOf(false),
+    val cardsAdded : MutableState<Int> = mutableIntStateOf(0)
 ) : Parcelable {
     fun resetFields() {
         question.value = ""
@@ -39,7 +43,8 @@ class Fields(
         scrollPosition = mutableIntStateOf(parcel.readInt()),
         mainClicked = mutableStateOf(parcel.readByte() != 0.toByte()),
         inDeckClicked = mutableStateOf(parcel.readByte() != 0.toByte()),
-        leftDueCardView = mutableStateOf(parcel.readByte() != 0.toByte())
+        leftDueCardView = mutableStateOf(parcel.readByte() != 0.toByte()),
+        cardsAdded = mutableIntStateOf(parcel.readInt())
     )
 
     companion object : Parceler<Fields> {
@@ -53,6 +58,7 @@ class Fields(
             parcel.writeByte(if (mainClicked.value) 1 else 0)
             parcel.writeByte(if (inDeckClicked.value) 1 else 0)
             parcel.writeByte(if (leftDueCardView.value) 1 else 0)
+            parcel.writeInt(cardsAdded.value)
         }
         override fun create(parcel: Parcel): Fields {
             return Fields(parcel)

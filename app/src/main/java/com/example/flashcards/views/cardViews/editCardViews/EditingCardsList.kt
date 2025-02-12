@@ -14,7 +14,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -25,6 +24,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.flashcards.controller.cardHandlers.returnCard
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
@@ -49,7 +49,7 @@ class EditCardsList(
         deck: Deck, onNavigate: () -> Unit, goToEditCard: () -> Unit
     ) {
         //var deckWithCards by remember { mutableStateOf(DeckWithCards(Deck(0, loading.toString() ), emptyList())) }
-        val sealedCardsList by editingCardListVM.sealedAllCTs.collectAsState()
+        val sealedCardsList by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
         val middleCard = rememberSaveable { mutableIntStateOf(0) }
         var clicked by remember { mutableStateOf(false) }
 

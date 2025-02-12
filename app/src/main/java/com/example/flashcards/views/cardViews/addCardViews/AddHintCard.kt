@@ -182,6 +182,7 @@ fun AddHintCard(
                         fields.middleField.value = ""
                         fields.answer.value = ""
                         successMessage = cardAdded
+                        fields.cardsAdded.value += 1
                     }
                 },
                 modifier = Modifier.padding(top = 4.dp),

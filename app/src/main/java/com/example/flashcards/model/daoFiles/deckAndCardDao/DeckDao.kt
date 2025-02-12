@@ -32,9 +32,9 @@ interface DeckDao {
     @Query("SELECT * from decks ORDER BY name ASC")
     fun getAllDecks(): Flow<List<Deck>>
 
-
     @Query(
-        """WITH RankedCards AS (
+        """
+    WITH RankedCards AS (
     SELECT
         c.deckId,
         COUNT(*) AS cardCount,
@@ -45,16 +45,17 @@ interface DeckDao {
     AND d.nextReview <= :currentTime
     GROUP BY c.deckId, d.cardsLeft
     ORDER BY c.nextReview ASC 
-    )
+    ) -- Collecting due cards pertaining to their deck
     SELECT 
     COALESCE(
         CASE 
-            WHEN rc.cardCount > d.cardsLeft THEN d.cardsLeft
+            WHEN rc.cardCount >= d.cardsLeft THEN d.cardsLeft
             ELSE rc.cardCount
         END, 0
-    ) AS limitedCardCount
+    ) -- if there is no cards, return 0
     FROM decks d
-    LEFT JOIN RankedCards rc ON d.id = rc.deckId"""
+    LEFT JOIN RankedCards rc ON d.id = rc.deckId
+    ORDER BY d.name"""
     )
     fun getCardCount(currentTime: Long = Date().time): Flow<List<Int>>
 
@@ -93,8 +94,9 @@ interface DeckDao {
         SELECT 1 
         FROM cards c
         WHERE c.deckId = decks.id
-        AND c.partOfList = 1
-        AND decks.lastUpdated == :startOfDay
+        AND c.partOfList = 1                    -- Making sure there's no cards in a list.
+        AND decks.lastUpdated == :startOfDay    -- Making sure it's only updated once a day.
+        AND decks.nextReview > :currentTime     -- If the deck isn't due, Don't update.
         )
     """
     )
@@ -169,7 +171,6 @@ interface DeckDao {
         UPDATE decks 
         SET cardsLeft = :cardsLeft
         WHERE id = :deckId
-        AND cardsLeft > 0
     """)
     fun updateCardsLeft(deckId: Int, cardsLeft : Int)
 

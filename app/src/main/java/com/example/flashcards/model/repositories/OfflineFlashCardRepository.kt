@@ -89,7 +89,7 @@ class OfflineFlashCardRepository(
     override fun updateCardAmount(cardAmount: Int, deckId: Int) =
         try {
             deckDao.updateCardAmount(cardAmount, deckId)
-        } catch(e : Exception){
+        } catch (e: Exception) {
             throw (e)
         }
     override suspend fun insertCard(card: Card) = cardDao.insertCard(card)
@@ -119,7 +119,7 @@ class OfflineFlashCardRepository(
         passes: Int,
         prevSuccess: Boolean,
         totalPasses: Int,
-        partOfList : Boolean
+        partOfList: Boolean
     ) = savedCardDao.updateCardsOnStart(
         cardId, reviewsLeft, nextReview,
         passes, prevSuccess, totalPasses, partOfList
@@ -130,7 +130,7 @@ class OfflineFlashCardRepository(
 
     override suspend fun becomePartOfList(id: Int) = cardDao.becomePartOfList(id)
 
-    override fun updateCardsLeft(deckId: Int, cardsLeft : Int) =
+    override fun updateCardsLeft(deckId: Int, cardsLeft: Int) =
         deckDao.updateCardsLeft(deckId, cardsLeft)
 
     override fun getDueDeckDetails(id: Int) = deckDao.getDueDeckDetails(id)

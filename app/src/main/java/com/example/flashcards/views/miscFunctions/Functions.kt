@@ -274,7 +274,8 @@ fun getSavableFields(fields: Fields): Fields {
         scrollPosition = fields.scrollPosition,
         inDeckClicked = fields.inDeckClicked,
         mainClicked = fields.mainClicked,
-        leftDueCardView = fields.leftDueCardView
+        leftDueCardView = fields.leftDueCardView,
+        cardsAdded = fields.cardsAdded
     )
 }
 

@@ -189,6 +189,7 @@ fun mapAllCardTypesToCTs(allCardTypesList: List<AllCardTypes>): List<CT> {
                 allCardTypes.card,
                 allCardTypes.multiChoiceCard
             )
+            /** This error will probably only happen when you add a new card. */
             else -> throw IllegalStateException(
                 """Mapping error for AllCardTypes element: 
                 card=${allCardTypes.card}, 
@@ -207,6 +208,7 @@ fun mapACardTypeToCT(cardTypes: AllCardTypes): CT {
             it.hintCard != null -> CT.Hint(it.card, it.hintCard)
             it.threeFieldCard != null -> CT.ThreeField(it.card, it.threeFieldCard)
             it.multiChoiceCard != null -> CT.MultiChoice(it.card, it.multiChoiceCard)
+            /** This error will probably only happen when you add a new card. */
             else -> throw IllegalStateException("Invalid AllCardTypes: all card types are null")
         }
     }

@@ -5,12 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.repositories.FlashCardRepository
 import com.example.flashcards.model.tablesAndApplication.Deck
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 
 /**
@@ -38,5 +40,11 @@ class NavViewModel(
     val deck = thisDeck
     fun getDeckById(id: Int) {
         deckId.value = id
+    }
+
+    fun updateCardsLeft(deck: Deck, cardsToAdd : Int){
+        viewModelScope.launch(Dispatchers.IO){
+            flashCardRepository.updateCardsLeft(deck.id, (deck.cardsLeft + cardsToAdd))
+        }
     }
 }

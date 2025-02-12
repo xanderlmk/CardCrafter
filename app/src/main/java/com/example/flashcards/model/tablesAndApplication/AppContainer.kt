@@ -8,6 +8,9 @@ import com.example.flashcards.model.repositories.OfflineCardTypeRepository
 import com.example.flashcards.model.repositories.OfflineFlashCardRepository
 import kotlinx.coroutines.CoroutineScope
 
+/** Creating our App Container which will get the repositories,
+ * who have all our Dao interfaces, which are tied by the database.
+ */
 interface AppContainer {
     val flashCardRepository: FlashCardRepository
     val cardTypeRepository : CardTypeRepository

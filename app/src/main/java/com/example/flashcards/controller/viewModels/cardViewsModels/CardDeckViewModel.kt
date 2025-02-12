@@ -2,6 +2,7 @@ package com.example.flashcards.controller.viewModels.cardViewsModels
 
 import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteException
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
@@ -202,12 +203,17 @@ class CardDeckViewModel(
     private fun clearErrorState() {
         thisErrorState.value = null
     }
-    fun updateNextReview(deck: Deck) {
+
+    /** Updating the nextReview for the deck which will only be
+     * to the next day (++1 day).
+     */
+    private fun updateNextReview(deck: Deck) {
         return with(Dispatchers.IO) {
             viewModelScope.launch(Dispatchers.IO) {
                 val time = Calendar.getInstance()
                 time.add(Calendar.DAY_OF_YEAR, 1)
                 deck.nextReview = time.time
+                Log.d("${deck.name}.nextReview", "${deck.nextReview}")
                 flashCardRepository.updateNextReview(
                     deck.nextReview, deck.id
                 )

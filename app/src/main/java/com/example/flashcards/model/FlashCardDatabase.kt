@@ -36,11 +36,11 @@ import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.TimeConverter
 import com.example.flashcards.model.tablesAndApplication.SavedCard
 import kotlinx.coroutines.CoroutineScope
-
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
+/** The database instance. */
 @Database(
     entities = [
         Deck::class,
