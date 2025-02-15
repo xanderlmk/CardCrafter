@@ -30,17 +30,17 @@ class OfflineCardTypeRepository(
     override suspend fun insertMultiChoiceCard(multiChoiceCard: MultiChoiceCard) =
         multiChoiceCardDao.insertMultiChoiceCard(multiChoiceCard)
 
-    override suspend fun deleteBasicCard(cardId: Int) =
-        basicCardDao.deleteBasicCard(cardId)
+    override suspend fun deleteBasicCard(basicCard: BasicCard) =
+        basicCardDao.deleteBasicCard(basicCard)
 
-    override suspend fun deleteHintCard(cardId: Int) =
-        hintCardDao.deleteHintCard(cardId)
+    override suspend fun deleteHintCard(hintCard: HintCard) =
+        hintCardDao.deleteHintCard(hintCard)
 
-    override suspend fun deleteThreeCard(cardId: Int) =
-        threeCardDao.deleteThreeCard(cardId)
+    override suspend fun deleteThreeCard(threeFieldCard: ThreeFieldCard) =
+        threeCardDao.deleteThreeCard(threeFieldCard)
 
-    override suspend fun deleteMultiChoiceCard(cardId: Int) =
-        multiChoiceCardDao.deleteMultiChoiceCard(cardId)
+    override suspend fun deleteMultiChoiceCard(multiChoiceCard: MultiChoiceCard) =
+        multiChoiceCardDao.deleteMultiChoiceCard(multiChoiceCard)
 
     override suspend fun updateBasicCard(id: Int, question: String, answer: String) =
         basicCardDao.updateBasicCard(id, question, answer)

@@ -17,12 +17,12 @@ data class CardDetails(
 fun createChoiceCardDetails(multiChoiceCard: MultiChoiceCard): CardDetails {
     return CardDetails(
         question = mutableStateOf(multiChoiceCard.question),
-        choices = MutableList(4) {
-                mutableStateOf(multiChoiceCard.choiceA)
-                mutableStateOf(multiChoiceCard.choiceB)
-                mutableStateOf(multiChoiceCard.choiceC)
-                mutableStateOf(multiChoiceCard.choiceD)
-        },
+        choices = mutableListOf(
+                mutableStateOf(multiChoiceCard.choiceA),
+                mutableStateOf(multiChoiceCard.choiceB),
+                mutableStateOf(multiChoiceCard.choiceC),
+                mutableStateOf(multiChoiceCard.choiceD),
+        ),
         correct = mutableStateOf(multiChoiceCard.correct)
     )
 }

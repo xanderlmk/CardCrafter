@@ -49,6 +49,7 @@ interface FlashCardRepository {
 
     suspend fun updateCardType(cardId: Int, type: String)
 
+    fun getCardStream(cardId: Int) : Flow<Card>
 
     fun getDeckWithCards(deckId: Int): Flow<DeckWithCards>
 

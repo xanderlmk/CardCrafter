@@ -1,6 +1,7 @@
 package com.example.flashcards.model.daoFiles.allCardTypesDao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -12,8 +13,8 @@ interface HintCardDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertHintCard(hintCard: HintCard) : Long
 
-    @Query("DELETE FROM hintCard WHERE cardId = :cardId")
-    suspend fun deleteHintCard(cardId: Int)
+    @Delete
+    suspend fun deleteHintCard(hintCard: HintCard)
 
     @Query("""
         Update hintCard

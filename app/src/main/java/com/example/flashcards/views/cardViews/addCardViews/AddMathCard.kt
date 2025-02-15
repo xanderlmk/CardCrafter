@@ -158,8 +158,10 @@ fun AddMathCard(
                 }
                 Button(
                     onClick = {
-                        steps -= 1
-                        fields.stringList.removeAt(steps)
+                        if (steps > 0) {
+                            steps -= 1
+                            fields.stringList.removeAt(steps)
+                        }
                     },
                     modifier = Modifier.padding(top = 4.dp),
                     colors = ButtonDefaults.buttonColors(

@@ -60,14 +60,11 @@ fun AppNavHost(
 ) {
     val cardDeckVM: CardDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val navViewModel: NavViewModel = viewModel(factory = AppViewModelProvider.Factory)
-
-
     val cardsToUpdate by cardDeckVM.cardListToUpdate.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
     val colorScheme = remember { ColorSchemeClass() }
     var onDeckView by remember { mutableStateOf(false) }
     colorScheme.colorScheme = MaterialTheme.colorScheme
-
     val getModifier = rememberUpdatedState(
         remember {
             GetModifier(
@@ -78,8 +75,6 @@ fun AppNavHost(
     ).value
 
     val selectedCard: MutableState<Card?> = rememberSaveable { mutableStateOf(null) }
-
-
     val cardDeckView = CardDeckView(
         cardDeckVM, getModifier, fields
     )
@@ -100,7 +95,6 @@ fun AppNavHost(
     )
     val addCardView = AddCardView(fields, getModifier)
     val generalSettings = GeneralSettings(getModifier, preferences)
-
     val coroutineScope = rememberCoroutineScope()
     val deck by navViewModel.deck.collectAsStateWithLifecycle()
 
@@ -289,7 +283,6 @@ fun AppNavHost(
                         }
                     }
                 }
-
                 deck?.let {
                     cardDeckView.ViewCard(
                         deck = it,
@@ -309,7 +302,6 @@ fun AppNavHost(
                     )
                 }
             }
-
             composable(EditDeckDestination.route) { backStackEntry ->
                 val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
                 val currentName = backStackEntry.arguments?.getString("currentName")
@@ -336,7 +328,6 @@ fun AppNavHost(
                     )
                 }
             }
-
             composable(ViewAllCardsDestination.route) { backStackEntry ->
                 val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
                 BackHandler {
