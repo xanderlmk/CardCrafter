@@ -9,8 +9,6 @@ import com.example.flashcards.model.daoFiles.allCardTypesDao.MultiChoiceCardDao
 import com.example.flashcards.model.daoFiles.allCardTypesDao.ThreeCardDao
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
-import com.example.flashcards.model.tablesAndApplication.MultiChoiceCardType
-import kotlinx.coroutines.flow.Flow
 
 class OfflineCardTypeRepository(
     private val cardTypesDao: CardTypesDao,
@@ -31,12 +29,6 @@ class OfflineCardTypeRepository(
 
     override suspend fun insertMultiChoiceCard(multiChoiceCard: MultiChoiceCard) =
         multiChoiceCardDao.insertMultiChoiceCard(multiChoiceCard)
-
-    override fun getBasicCard(cardId: Int) = basicCardDao.getBasicCard(cardId)
-    override fun getHintCard(cardId: Int) = hintCardDao.getHintCard(cardId)
-    override fun getThreeCard(cardId: Int) = threeCardDao.getThreeCard(cardId)
-    override fun getMultiChoiceCard(cardId: Int) =
-        multiChoiceCardDao.getMultiChoiceCard(cardId)
 
     override suspend fun deleteBasicCard(cardId: Int) =
         basicCardDao.deleteBasicCard(cardId)
@@ -80,28 +72,7 @@ class OfflineCardTypeRepository(
         newChoiceC, newChoiceD, newCorrect
     )
 
-    override fun getAllBasicCards(deckId: Int) = basicCardDao.getAllBasicCards(deckId)
-    override fun getAllThreeCards(deckId: Int) = threeCardDao.getAllThreeCards(deckId)
-    override fun getAllHintCards(deckId: Int) = hintCardDao.getAllHintCards(deckId)
-    override fun getAllMultiChoiceCards(deckId: Int) =
-        multiChoiceCardDao.getAllMultiChoiceCards(deckId)
-
     override fun getAllCardTypes(deckId: Int) = cardTypesDao.getAllCardTypes(deckId)
-
-    override fun getDueBasicCards(deckId: Int, currentTime: Long) =
-        basicCardDao.getDueBasicCards(deckId, currentTime)
-
-    override fun getDueThreeCards(deckId: Int, currentTime: Long) =
-        threeCardDao.getDueThreeCards(deckId, currentTime)
-
-    override fun getDueHintCards(deckId: Int, currentTime: Long) =
-        hintCardDao.getDueHintCards(deckId, currentTime)
-
-    override fun getDueMultiChoiceCards(
-        deckId: Int,
-        currentTime: Long
-    ): Flow<List<MultiChoiceCardType>> =
-        multiChoiceCardDao.getDueMultiChoiceCards(deckId)
 
     override fun getAllDueCards(
         deckId: Int,

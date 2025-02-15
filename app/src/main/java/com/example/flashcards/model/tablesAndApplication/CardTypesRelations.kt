@@ -9,45 +9,6 @@ import androidx.room.Relation
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 
-
-data class BasicCardType(
-    @Embedded val card: Card,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "cardId"
-    )
-    val basicCard: BasicCard?
-)
-
-data class HintCardType(
-    @Embedded val card: Card,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "cardId"
-    )
-    val hintCard: HintCard?
-)
-
-data class ThreeCardType(
-    @Embedded val card: Card,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "cardId"
-    )
-    val threeFieldCard: ThreeFieldCard?
-)
-
-data class MultiChoiceCardType(
-    @Embedded val card: Card,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "cardId"
-    )
-    val multiChoiceCard: MultiChoiceCard?
-)
-
-
-
 @Parcelize
 data class AllCardTypes(
     @Embedded var card: Card,
@@ -70,7 +31,12 @@ data class AllCardTypes(
         parentColumn = "id",
         entityColumn = "cardId"
     )
-    val multiChoiceCard: MultiChoiceCard?
+    val multiChoiceCard: MultiChoiceCard?,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "cardId"
+    )
+    val mathCard: MathCard?
 ) : Parcelable {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     constructor(parcel: Parcel) : this(
@@ -78,7 +44,8 @@ data class AllCardTypes(
         parcel.readParcelable(BasicCard::class.java.classLoader, BasicCard::class.java),
         parcel.readParcelable(HintCard::class.java.classLoader, HintCard::class.java),
         parcel.readParcelable(ThreeFieldCard::class.java.classLoader, ThreeFieldCard::class.java),
-        parcel.readParcelable(MultiChoiceCard::class.java.classLoader, MultiChoiceCard::class.java)
+        parcel.readParcelable(MultiChoiceCard::class.java.classLoader, MultiChoiceCard::class.java),
+        parcel.readParcelable(MathCard::class.java.classLoader, MathCard::class.java)
     )
 
     companion object : Parceler<AllCardTypes> {
@@ -89,6 +56,7 @@ data class AllCardTypes(
             parcel.writeParcelable(hintCard, flags)
             parcel.writeParcelable(threeFieldCard, flags)
             parcel.writeParcelable(multiChoiceCard, flags)
+            parcel.writeParcelable(mathCard, flags)
         }
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -221,6 +189,34 @@ sealed class CT : Parcelable {
             @RequiresApi(Build.VERSION_CODES.TIRAMISU)
             override fun create(parcel: Parcel): MultiChoice {
                 return MultiChoice(parcel)
+            }
+        }
+    }
+    @Parcelize
+    data class Math(
+        @Embedded var card: Card,
+        @Relation(
+            parentColumn = "id",
+            entityColumn = "cardId"
+        )
+        val mathCard: MathCard
+    ) : CT() {
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        constructor(parcel: Parcel) : this(
+            parcel.readParcelable(Card::class.java.classLoader, Card::class.java)!!,
+            parcel.readParcelable(
+                MathCard::class.java.classLoader,
+                MathCard::class.java
+            )!!,
+        )
+        companion object : Parceler<Math>  {
+            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+            override fun create(parcel: Parcel): Math {
+                return Math(parcel)
+            }
+            override fun Math.write(parcel: Parcel, flags: Int) {
+                parcel.writeParcelable(card, flags)
+                parcel.writeParcelable(mathCard, flags)
             }
         }
     }

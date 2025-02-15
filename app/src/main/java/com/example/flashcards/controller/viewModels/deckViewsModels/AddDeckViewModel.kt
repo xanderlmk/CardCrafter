@@ -73,7 +73,7 @@ class AddDeckViewModel(
                             name = name,
                             reviewAmount = reviewAmount,
                             cardAmount = cardAmount,
-                            cardsLeft = cardAmount,
+                            cardsLeft = 0, // No cards in deck yet .
                             nextReview = Date(),
                             lastUpdated = Date()
                         )

@@ -34,7 +34,7 @@ class OfflineFlashCardRepository(
 
     override fun getDeck(id: Int) = deckDao.getDeck(id)
 
-    override fun getCardCount() = deckDao.getCardCount()
+    override fun getCardCount(currentTime: Long) = deckDao.getCardCount(currentTime)
 
     override fun resetCardLefts() = deckDao.resetCardLefts()
 

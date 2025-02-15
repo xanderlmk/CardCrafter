@@ -2,13 +2,9 @@ package com.example.flashcards.model.uiModels
 
 
 import com.example.flashcards.model.tablesAndApplication.AllCardTypes
-import com.example.flashcards.model.tablesAndApplication.BasicCardType
 import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.Deck
-import com.example.flashcards.model.tablesAndApplication.HintCardType
-import com.example.flashcards.model.tablesAndApplication.MultiChoiceCardType
 import com.example.flashcards.model.tablesAndApplication.SavedCard
-import com.example.flashcards.model.tablesAndApplication.ThreeCardType
 import java.util.Date
 
 /** MainViewModel States */
@@ -26,22 +22,6 @@ data class CardListUiState(
 data class SealedAllCTs(
     var allCTs: MutableList<CT> = mutableListOf(),
     var errorMessage: String = ""
-)
-data class BasicCardUiState(
-    var basicCards: List<BasicCardType> = emptyList(),
-    var errorMessage: String = "",
-)
-data class HintCardUiState(
-    var hintCards: List<HintCardType> = emptyList(),
-    var errorMessage: String = "",
-)
-data class ThreeCardUiState(
-    var threeFieldCards: List<ThreeCardType> = emptyList(),
-    var errorMessage: String = "",
-)
-data class MultiChoiceUiCardState(
-    var multiChoiceCard: List<MultiChoiceCardType> = emptyList(),
-    var errorMessage: String = "",
 )
  /** DueCards States */
 data class DueDeckDetails(

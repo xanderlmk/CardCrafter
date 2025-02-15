@@ -1,5 +1,6 @@
 package com.example.flashcards.views
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -120,10 +121,8 @@ class MainView(
                                         )
                                         Text(
                                             text =
-                                            if (cardCount.cardListCount.isNotEmpty()) {
-                                                cardCount.cardListCount[
-                                                    index % cardCount.cardListCount.size
-                                                ].toString()
+                                            if (index in 0..cardCount.cardListCount.lastIndex){
+                                                cardCount.cardListCount[index].toString()
                                             } else {
                                                 "0"
                                             },

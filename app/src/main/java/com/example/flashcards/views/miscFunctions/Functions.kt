@@ -80,8 +80,7 @@ fun GoodText(
         } else {
             "${
                 returnReviewsLeft(updatedDueCards.allCTs[index.intValue]) - 1
-            } " +
-                    "reviews left"
+            } " + "reviews left"
         },
         color = getModifier.titleColor(),
         fontSize = 12.sp,
@@ -257,10 +256,11 @@ fun returnDeckError(): List<String> {
 @Composable
 fun returnCardAmountError() : List<String> {
     return listOf(
-        "daily card Amount must be at least 5",
-        "only 1000 cards a day are allowed",
-        "card amount is the same",
-        "failed to update card amount")
+        stringResource(R.string.card_amount_under_5).toString(),
+        stringResource(R.string.card_amount_over_1k).toString(),
+        stringResource(R.string.card_amount_same).toString(),
+        stringResource(R.string.failed_card_amount).toString()
+    )
 }
 
 @Composable

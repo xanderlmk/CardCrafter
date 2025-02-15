@@ -21,6 +21,9 @@ fun returnCard(ct: CT) : Card{
         is CT.MultiChoice->{
             ct.card
         }
+        is CT.Math -> {
+            ct.card
+        }
     }
 }
 fun updateCTCard(ct: CT, dueCT: CT,
@@ -83,6 +86,19 @@ fun updateCTCard(ct: CT, dueCT: CT,
                 multiChoiceCard = ct.multiChoiceCard
             )
         }
+        is CT.Math -> {
+            ct.copy(
+                card = handleCardUpdate(
+                    returnCard(dueCT),
+                    success = success,
+                    vm,
+                    deck.goodMultiplier,
+                    deck.badMultiplier,
+                    deck.reviewAmount,
+                    again = again
+                )
+            )
+        }
     }
 }
 
@@ -129,6 +145,15 @@ suspend fun redoACard(ct : CT, cardDeckVM : CardDeckViewModel, index : Int,
                 dueCTs[index] = ct
             }
         }
+        is CT.Math -> {
+            ct.card = cardDeckVM.getRedoCard(ct.card.id)
+            cardDeckVM.getRedoCardType(
+                ct.card.id,
+                index
+            ).also {
+                dueCTs[index] = ct
+            }
+        }
     }
 }
 
@@ -146,6 +171,9 @@ fun showReviewsLeft(ct : CT): String{
         is CT.MultiChoice->{
             ct.card.reviewsLeft.toString()
         }
+        is CT.Math -> {
+            ct.card.reviewsLeft.toString()
+        }
     }
 }
 
@@ -161,6 +189,9 @@ fun returnReviewsLeft(ct: CT): Int{
             ct.card.reviewsLeft
         }
         is CT.MultiChoice->{
+            ct.card.reviewsLeft
+        }
+        is CT.Math -> {
             ct.card.reviewsLeft
         }
     }
@@ -189,6 +220,10 @@ fun mapAllCardTypesToCTs(allCardTypesList: List<AllCardTypes>): List<CT> {
                 allCardTypes.card,
                 allCardTypes.multiChoiceCard
             )
+            allCardTypes.mathCard != null -> CT.Math(
+                allCardTypes.card,
+                allCardTypes.mathCard
+            )
             /** This error will probably only happen when you add a new card. */
             else -> throw IllegalStateException(
                 """Mapping error for AllCardTypes element: 
@@ -196,7 +231,8 @@ fun mapAllCardTypesToCTs(allCardTypesList: List<AllCardTypes>): List<CT> {
                 basicCard=${allCardTypes.basicCard}, 
                 hintCard=${allCardTypes.hintCard},
                 threeFieldCard=${allCardTypes.threeFieldCard},
-                multiChoiceCard=${allCardTypes.multiChoiceCard}""")
+                multiChoiceCard=${allCardTypes.multiChoiceCard},
+                mathCard=${allCardTypes.mathCard}""")
         }
     }
 }
@@ -208,6 +244,7 @@ fun mapACardTypeToCT(cardTypes: AllCardTypes): CT {
             it.hintCard != null -> CT.Hint(it.card, it.hintCard)
             it.threeFieldCard != null -> CT.ThreeField(it.card, it.threeFieldCard)
             it.multiChoiceCard != null -> CT.MultiChoice(it.card, it.multiChoiceCard)
+            it.mathCard != null -> CT.Math(it.card, it.mathCard)
             /** This error will probably only happen when you add a new card. */
             else -> throw IllegalStateException("Invalid AllCardTypes: all card types are null")
         }

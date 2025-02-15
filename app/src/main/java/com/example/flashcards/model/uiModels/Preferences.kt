@@ -10,17 +10,13 @@ class PreferencesManager(
     ) {
 
     private val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-
     val customScheme: MutableState<Boolean> = mutableStateOf(false)
     val darkTheme: MutableState<Boolean> = mutableStateOf(false)
-
     init {
         // Initialize themes
         darkTheme.value = isDarkThemeEnabled
         customScheme.value = isDynamicThemeEnabled
     }
-
-
     fun saveCustomScheme() {
         isDynamicThemeEnabled = customScheme.value
     }

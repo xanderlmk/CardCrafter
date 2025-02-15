@@ -1,20 +1,22 @@
 package com.example.flashcards.controller.cardHandlers
 
 import androidx.compose.runtime.Composable
-import com.example.flashcards.controller.navigation.AllTypesUiStates
+import com.example.flashcards.model.tablesAndApplication.CT
+import com.example.flashcards.model.tablesAndApplication.CT.Basic
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.cardViews.editCardViews.EditBasicCard
 import com.example.flashcards.views.cardViews.editCardViews.EditHintCard
 import com.example.flashcards.views.cardViews.editCardViews.EditThreeCard
 import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.cardViews.editCardViews.EditChoiceCard
+import com.example.flashcards.views.cardViews.editCardViews.EditMathCard
 
 interface CardTypeHandler {
     @Composable
     fun HandleCardEdit(
         cardId: Int,
         fields: Fields,
-        state: AllTypesUiStates,
+        ct : CT,
         getModifier: GetModifier
     )
 }
@@ -24,14 +26,11 @@ class BasicCardTypeHandler : CardTypeHandler {
     override fun HandleCardEdit(
         cardId: Int,
         fields: Fields,
-        state: AllTypesUiStates,
+        ct : CT,
         getModifier: GetModifier
     ) {
-        val basicCard = state.basicCardUiState.basicCards.find {
-            it.card.id == cardId
-        }?.basicCard
-        basicCard?.let {
-            EditBasicCard(basicCard, fields)
+        if (ct is Basic) {
+            EditBasicCard(ct.basicCard, fields)
         }
     }
 }
@@ -41,15 +40,11 @@ class ThreeCardTypeHandler : CardTypeHandler {
     override fun HandleCardEdit(
         cardId: Int,
         fields: Fields,
-        state: AllTypesUiStates,
+        ct : CT,
         getModifier: GetModifier
     ) {
-        val threeCard =
-            state.threeCardUiState.threeFieldCards.find {
-                it.card.id == cardId
-            }?.threeFieldCard
-        threeCard?.let {
-            EditThreeCard(threeCard, fields)
+        if (ct is CT.ThreeField){
+            EditThreeCard(ct.threeFieldCard, fields)
         }
     }
 }
@@ -59,16 +54,11 @@ class HintCardTypeHandler : CardTypeHandler {
     override fun HandleCardEdit(
         cardId: Int,
         fields: Fields,
-        state: AllTypesUiStates,
+        ct : CT,
         getModifier: GetModifier
     ) {
-        val hintCard =
-            state.hintUiStates.hintCards.find {
-                it.card.id == cardId
-            }?.hintCard
-
-        hintCard?.let {
-            EditHintCard(hintCard, fields)
+        if (ct is CT.Hint){
+            EditHintCard(ct.hintCard, fields)
         }
     }
 }
@@ -78,16 +68,25 @@ class ChoiceCardTypeHandler : CardTypeHandler {
     override fun HandleCardEdit(
         cardId: Int,
         fields: Fields,
-        state: AllTypesUiStates,
+        ct : CT,
         getModifier: GetModifier
     ) {
+        if (ct is CT.MultiChoice){
+            EditChoiceCard(ct.multiChoiceCard, fields, getModifier)
+        }
+    }
+}
 
-        val choiceCard =
-            state.multiChoiceUiCardState.multiChoiceCard.find {
-                it.card.id == cardId
-            }?.multiChoiceCard
-        choiceCard?.let {
-            EditChoiceCard(choiceCard, fields, getModifier)
+class MathCardTypeHandler : CardTypeHandler {
+    @Composable
+    override fun HandleCardEdit(
+        cardId: Int,
+        fields: Fields,
+        ct: CT,
+        getModifier: GetModifier
+    ) {
+        if (ct is CT.Math){
+            EditMathCard(ct.mathCard, fields, getModifier)
         }
     }
 }

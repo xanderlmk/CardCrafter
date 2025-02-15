@@ -53,8 +53,8 @@ object ViewAllCardsDestination : NavigationDestination{
         }
 }
 object EditingCardDestination : NavigationDestination {
-        override val route = "EditingCard/{deckId}"
-        fun createRoute(deckId: Int) : String {
-                return "EditingCard/${deckId}"
+        override val route = "EditingCard/{deckId}/{index}"
+        fun createRoute(deckId: Int, index : Int) : String {
+                return "EditingCard/${deckId}/${index}"
         }
 }

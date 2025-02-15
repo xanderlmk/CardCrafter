@@ -49,6 +49,7 @@ object AppViewModelProvider {
             AddCardViewModel(
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.cardTypeRepository,
+                flashCardApplication().container.scienceSpecificRepository
             )
         }
         initializer {
@@ -66,7 +67,8 @@ object AppViewModelProvider {
         initializer {
             EditCardViewModel(
                 flashCardApplication().container.flashCardRepository,
-                flashCardApplication().container.cardTypeRepository
+                flashCardApplication().container.cardTypeRepository,
+                flashCardApplication().container.scienceSpecificRepository
             )
         }
     }

@@ -17,8 +17,11 @@ import com.example.flashcards.model.uiModels.CardListUiCount
 import com.example.flashcards.model.uiModels.CardUpdateError
 import com.example.flashcards.model.uiModels.SavedCardUiState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -27,12 +30,15 @@ import kotlin.collections.map
 
 
 /**
- * ViewModel to retrieve all items in the Room database.
+ * ViewModel to retrieve all decks and the cards due with the respective deck
  */
 class MainViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    /** Updating this value whenever a user adds a cards and goes back to the
+     * DeckOptionsDestination route */
+    private val currentTime = MutableStateFlow(Date().time)
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
@@ -44,8 +50,10 @@ class MainViewModel(
                 initialValue = DeckUiState()
             )
 
-    private val thisCardCountUiState: StateFlow<CardListUiCount> =
-        flashCardRepository.getCardCount().map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val thisCardCountUiState: StateFlow<CardListUiCount> = currentTime.flatMapLatest {
+        flashCardRepository.getCardCount(it)
+        }.map {
             CardListUiCount(it) }
             .stateIn(
                 scope = viewModelScope,
@@ -63,6 +71,11 @@ class MainViewModel(
     private fun updateActivity() {
         appStarted.value = true
         savedStateHandle["appStarted"] = true
+    }
+    fun updateCurrentTime(){
+        currentTime.update {
+            Date().time
+        }
     }
 
     suspend fun performDatabaseUpdate() {

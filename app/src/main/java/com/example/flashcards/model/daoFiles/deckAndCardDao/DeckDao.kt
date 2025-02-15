@@ -57,7 +57,7 @@ interface DeckDao {
     LEFT JOIN RankedCards rc ON d.id = rc.deckId
     ORDER BY d.name"""
     )
-    fun getCardCount(currentTime: Long = Date().time): Flow<List<Int>>
+    fun getCardCount(currentTime: Long): Flow<List<Int>>
 
     @Query("""
     WITH RankedCards AS (
