@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import java.util.Date
 
 
 /**
@@ -27,6 +30,7 @@ class NavViewModel(
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
     }
+
     private val deckId = MutableStateFlow(savedStateHandle["id"] ?: 0)
     private val thisDeck: StateFlow<Deck?> = deckId
         .flatMapLatest { id ->
@@ -42,9 +46,26 @@ class NavViewModel(
         deckId.value = id
     }
 
-    fun updateCardsLeft(deck: Deck, cardsToAdd : Int){
-        viewModelScope.launch(Dispatchers.IO){
-            flashCardRepository.updateCardsLeft(deck.id, (deck.cardsLeft + cardsToAdd))
+    suspend fun updateCardsLeft(deck: Deck, cardsToAdd: Int) {
+        return withContext(Dispatchers.IO) {
+            /** Only add the cards if the deck's review is due */
+            if (deck.nextReview <= Date()) {
+                /** Make sure the cardsLeft + cardsAdded don't
+                 * exceed the deck's cardAmount
+                 */
+                viewModelScope.launch(Dispatchers.IO) {
+                    withTimeout(TIMEOUT_MILLIS) {
+                        if ((deck.cardsLeft + cardsToAdd) < deck.cardAmount) {
+                            flashCardRepository.updateCardsLeft(
+                                deck.id,
+                                (deck.cardsLeft + cardsToAdd)
+                            )
+                        } else {
+                            flashCardRepository.updateCardsLeft(deck.id, deck.cardAmount)
+                        }
+                    }
+                }
+            }
         }
     }
 }

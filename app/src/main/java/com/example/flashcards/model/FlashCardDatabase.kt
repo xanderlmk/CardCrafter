@@ -11,6 +11,7 @@ import com.example.flashcards.model.daoFiles.deckAndCardDao.CardDao
 import com.example.flashcards.model.daoFiles.deckAndCardDao.CardTypesDao
 import com.example.flashcards.model.daoFiles.deckAndCardDao.DeckDao
 import com.example.flashcards.model.daoFiles.allCardTypesDao.HintCardDao
+import com.example.flashcards.model.daoFiles.allCardTypesDao.MathCardDao
 import com.example.flashcards.model.daoFiles.allCardTypesDao.MultiChoiceCardDao
 import com.example.flashcards.model.daoFiles.deckAndCardDao.SavedCardDao
 import com.example.flashcards.model.daoFiles.allCardTypesDao.ThreeCardDao
@@ -21,6 +22,8 @@ import com.example.flashcards.model.migrations.MIGRATION_13_14
 import com.example.flashcards.model.migrations.MIGRATION_14_15
 import com.example.flashcards.model.migrations.MIGRATION_15_16
 import com.example.flashcards.model.migrations.MIGRATION_16_17
+import com.example.flashcards.model.migrations.MIGRATION_17_18
+import com.example.flashcards.model.migrations.MIGRATION_18_19
 import com.example.flashcards.model.migrations.MIGRATION_3_5
 import com.example.flashcards.model.migrations.MIGRATION_5_6
 import com.example.flashcards.model.migrations.MIGRATION_6_7
@@ -32,6 +35,8 @@ import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.model.tablesAndApplication.Deck
+import com.example.flashcards.model.tablesAndApplication.MathCard
+import com.example.flashcards.model.tablesAndApplication.MathCardConverter
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.TimeConverter
 import com.example.flashcards.model.tablesAndApplication.SavedCard
@@ -49,9 +54,13 @@ import java.util.Calendar
         ThreeFieldCard::class,
         HintCard::class,
         MultiChoiceCard::class,
-        SavedCard::class], version = 17
+        MathCard::class,
+        SavedCard::class], version = 19
 )
-@TypeConverters(TimeConverter::class)
+@TypeConverters(
+    TimeConverter::class,
+    MathCardConverter::class
+)
 abstract class FlashCardDatabase : RoomDatabase() {
     abstract fun deckDao(): DeckDao
     abstract fun cardDao(): CardDao
@@ -60,6 +69,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
     abstract fun hintCardDao(): HintCardDao
     abstract fun threeCardDao(): ThreeCardDao
     abstract fun multiChoiceCardDao(): MultiChoiceCardDao
+    abstract fun mathCardDao() : MathCardDao
     abstract fun savedCardDao(): SavedCardDao
 
     companion object {
@@ -84,7 +94,9 @@ abstract class FlashCardDatabase : RoomDatabase() {
                             MIGRATION_13_14,
                             MIGRATION_14_15,
                             MIGRATION_15_16,
-                            MIGRATION_16_17
+                            MIGRATION_16_17,
+                            MIGRATION_17_18,
+                            MIGRATION_18_19
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(FlashCardDatabaseCallback(scope))

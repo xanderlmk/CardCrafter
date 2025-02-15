@@ -70,4 +70,8 @@
     <string name="reviews_left">Revisiones restantes de la carta: </string>
     <string name="default_value">Predeterminado:</string>
     <string name="updated_card_amount">Cantidad de tarjetas actualizadas!</string>
+    <string name="card_amount_under_5">La cantidad de cartas tiene que ser almenos 5</string>
+    <string name="card_amount_over_1k">Sólo se permiten 1000 cartas al día</string>
+    <string name="card_amount_same">Cantidad de cartas es el mismo</string>
+    <string name="failed_card_amount">Fracaso en actualizar la cantidad de cartas</string>
 </resources>

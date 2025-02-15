@@ -1,9 +1,11 @@
 package com.example.flashcards.views.cardViews.addCardViews
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -14,9 +16,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +40,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddThreeCard(
+fun AddMathCard(
     vm: AddCardViewModel, deck: Deck,
     fields: Fields, getModifier: GetModifier
 ) {
@@ -46,6 +50,7 @@ fun AddThreeCard(
     val cardAdded = stringResource(R.string.card_added).toString()
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
+    var steps by rememberSaveable { mutableIntStateOf(0) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -77,31 +82,94 @@ fun AddThreeCard(
                     .weight(1f)
             )
         }
+
         Text(
-            text = stringResource(R.string.middle_field),
+            text = "Steps",
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
             lineHeight = 30.sp,
             color = getModifier.titleColor(),
-            modifier = Modifier
-                .padding(top = 8.dp)
+            modifier = Modifier.padding(top = 8.dp)
         )
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp),
-            horizontalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            EditTextFieldNonDone(
-                value = fields.middleField.value,
-                onValueChanged = { newText ->
-                    fields.middleField.value =
-                        newText
-                },
-                labelStr = stringResource(R.string.middle_field),
-                modifier = Modifier
-                    .weight(1f)
-            )
+            if (steps == 0) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Add a step",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable {
+                                steps = 1
+                                fields.stringList.add(mutableStateOf(""))
+                            }
+                            .padding(8.dp)
+                            .align(Alignment.CenterVertically),
+                        textAlign = TextAlign.Center,
+                        fontSize = 18.sp
+                    )
+                }
+            } else {
+                var index = 0
+                fields.stringList.forEach {
+                    index += 1
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        EditTextFieldNonDone(
+                            value = it.value,
+                            onValueChanged = { newText ->
+                                it.value = newText
+                            },
+                            labelStr = "Step: $index",
+                            modifier = Modifier
+                                .weight(1f)
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Add a step",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable {
+                                steps += 1
+                                fields.stringList.add(mutableStateOf(""))
+                            }
+                            .padding(8.dp)
+                            .align(Alignment.CenterVertically),
+                        textAlign = TextAlign.Center,
+                        fontSize = 18.sp
+                    )
+                }
+                Button(
+                    onClick = {
+                        steps -= 1
+                        fields.stringList.removeAt(steps)
+                    },
+                    modifier = Modifier.padding(top = 4.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = getModifier.secondaryButtonColor(),
+                        contentColor = getModifier.buttonTextColor()
+                    )
+                ) {
+                    Text("Remove Step")
+                }
+            }
         }
         Text(
             text = stringResource(R.string.answer),
@@ -168,19 +236,26 @@ fun AddThreeCard(
         ) {
             Button(
                 onClick = {
-                    if (fields.question.value.isBlank() ||
-                        fields.answer.value.isBlank() ||
-                        fields.middleField.value.isBlank()
+                    if (
+                        fields.question.value.isBlank() ||
+                        fields.answer.value.isBlank()
                     ) {
                         vm.setErrorMessage(fillOutFields)
                         successMessage = ""
+                    } else if (
+                        fields.stringList.isNotEmpty() &&
+                        fields.stringList.all { it.value.isBlank() }
+                    ) {
+                        vm.setErrorMessage("Steps can't be blank")
+                        successMessage = ""
                     } else {
-                        vm.addThreeCard(
+                        vm.addMathCard(
                             deck, fields.question.value,
-                            fields.middleField.value, fields.answer.value
+                            fields.stringList.map { it.value }, fields.answer.value
                         )
                         fields.question.value = ""
-                        fields.middleField.value = ""
+                        fields.stringList.clear()
+                        steps = 0
                         fields.answer.value = ""
                         successMessage = cardAdded
                         fields.cardsAdded.value += 1

@@ -178,16 +178,49 @@ data class MultiChoiceCard(
         }
     }
 }
-
-data class MathCard (
-    val question: String,
-    val steps: List<String> = listOf(),
-    val answer: String
+@Entity(
+    tableName = "mathCard",
+    foreignKeys = [
+        ForeignKey(
+            entity = Card::class,
+            parentColumns = ["id"],
+            childColumns = ["cardId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index(value = ["cardId"])]
 )
+@Parcelize
+data class MathCard(
+    @PrimaryKey val cardId: Int,
+    val question: String,
+    val steps: List<String> = emptyList(),
+    val answer: String
+) : Parcelable {
+    constructor(parcel: Parcel) : this (
+        parcel.readInt(),
+        parcel.readString()!!,
+        listOf(parcel.readString()!!),
+        parcel.readString()!!
+    )
+    companion object : Parceler<MathCard> {
+        override fun MathCard.write(parcel: Parcel, flags: Int) {
+            parcel.writeInt(cardId)
+            parcel.writeString(question)
+            parcel.writeList(steps)
+            parcel.writeString(answer)
+        }
+        override fun create(parcel: Parcel): MathCard {
+            return MathCard(parcel)
+        }
+    }
+}
 
 class MathCardConverter {
     @TypeConverter
     fun fromString(value: String): List<String> {
+
+        if (value == "none"){ return emptyList() }
         val jsonArray = JSONArray(value)
         val list = mutableListOf<String>()
         for (i in 0 until jsonArray.length()) {
@@ -197,6 +230,7 @@ class MathCardConverter {
     }
     @TypeConverter
     fun listToString(listOfStrings: List<String>): String {
+        if (listOfStrings.isEmpty()) { return "none" }
         return JSONArray(listOfStrings).toString()
     }
 }

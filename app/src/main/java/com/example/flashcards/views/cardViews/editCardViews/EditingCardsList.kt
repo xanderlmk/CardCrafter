@@ -46,7 +46,7 @@ class EditCardsList(
     @SuppressLint("CoroutineCreationDuringComposition")
     @Composable
     fun ViewFlashCards(
-        deck: Deck, onNavigate: () -> Unit, goToEditCard: () -> Unit
+        deck: Deck, onNavigate: () -> Unit, goToEditCard: (Int) -> Unit
     ) {
         //var deckWithCards by remember { mutableStateOf(DeckWithCards(Deck(0, loading.toString() ), emptyList())) }
         val sealedCardsList by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
@@ -89,7 +89,7 @@ class EditCardsList(
                                         returnCard(sealedCardsList.allCTs[index])
                                     isEditing.value = true
                                     clicked = true
-                                    goToEditCard()
+                                    goToEditCard(index)
                                 }
                             },
                             colors = ButtonDefaults.buttonColors(

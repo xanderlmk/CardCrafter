@@ -22,7 +22,8 @@ class Fields(
     val mainClicked : MutableState<Boolean> = mutableStateOf(false),
     val inDeckClicked : MutableState<Boolean> = mutableStateOf(false),
     val leftDueCardView : MutableState<Boolean> = mutableStateOf(false),
-    val cardsAdded : MutableState<Int> = mutableIntStateOf(0)
+    val cardsAdded : MutableState<Int> = mutableIntStateOf(0),
+    var stringList : MutableList<MutableState<String>> = mutableListOf()
 ) : Parcelable {
     fun resetFields() {
         question.value = ""
@@ -44,7 +45,8 @@ class Fields(
         mainClicked = mutableStateOf(parcel.readByte() != 0.toByte()),
         inDeckClicked = mutableStateOf(parcel.readByte() != 0.toByte()),
         leftDueCardView = mutableStateOf(parcel.readByte() != 0.toByte()),
-        cardsAdded = mutableIntStateOf(parcel.readInt())
+        cardsAdded = mutableIntStateOf(parcel.readInt()),
+        stringList = mutableListOf(mutableStateOf(parcel.readString()!!))
     )
 
     companion object : Parceler<Fields> {
@@ -59,6 +61,7 @@ class Fields(
             parcel.writeByte(if (inDeckClicked.value) 1 else 0)
             parcel.writeByte(if (leftDueCardView.value) 1 else 0)
             parcel.writeInt(cardsAdded.value)
+            parcel.writeList(stringList.toMutableList())
         }
         override fun create(parcel: Parcel): Fields {
             return Fields(parcel)

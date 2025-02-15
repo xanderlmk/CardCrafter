@@ -8,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.res.stringResource
 import com.example.flashcards.R
-import com.example.flashcards.controller.navigation.AllTypesUiStates
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditCardViewModel
+import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.ui.theme.GetModifier
@@ -18,52 +18,35 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 fun saveCard(
-    selectedCard: MutableState<Card?>,
     fields: Fields,
     editCardVM: EditCardViewModel,
-    typesUiStates: AllTypesUiStates
+    ct: CT
 ): Boolean {
-    val cardId = selectedCard.value?.id
-    when (selectedCard.value?.type) {
-        "basic" -> {
+
+    when (ct) {
+        is CT.Basic -> {
             if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()) {
-                val basicCard =
-                    typesUiStates.basicCardUiState.basicCards.find {
-                        it.card.id == cardId
-                    }?.basicCard
-                basicCard.let { card ->
-                    card?.cardId?.let { cardId ->
-                        editCardVM.updateBasicCard(
-                            cardId,
-                            fields.question.value,
-                            fields.answer.value
-                        )
-                    }
-                }
+                editCardVM.updateBasicCard(
+                    ct.card.id,
+                    fields.question.value,
+                    fields.answer.value
+                )
                 return true
             } else {
                 return false
             }
         }
 
-        "three" -> {
+        is CT.ThreeField -> {
             if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()
                 && fields.middleField.value.isNotBlank()
             ) {
-                val threeCard =
-                    typesUiStates.threeCardUiState.threeFieldCards.find {
-                        it.card.id == cardId
-                    }?.threeFieldCard
-                threeCard.let { card ->
-                    card?.cardId?.let { cardId ->
-                        editCardVM.updateThreeCard(
-                            cardId,
-                            fields.question.value,
-                            fields.middleField.value,
-                            fields.answer.value
-                        )
-                    }
-                }
+                editCardVM.updateThreeCard(
+                    ct.card.id,
+                    fields.question.value,
+                    fields.middleField.value,
+                    fields.answer.value
+                )
                 return true
             } else {
                 return false
@@ -71,31 +54,22 @@ fun saveCard(
 
         }
 
-        "hint" -> {
+        is CT.Hint -> {
             if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()
                 && fields.middleField.value.isNotBlank()
             ) {
-                val hintCard =
-                    typesUiStates.hintUiStates.hintCards.find {
-                        it.card.id == cardId
-                    }?.hintCard
-                hintCard.let { card ->
-                    card?.cardId?.let { cardId ->
-                        editCardVM.updateHintCard(
-                            cardId,
-                            fields.question.value,
-                            fields.middleField.value,
-                            fields.answer.value
-                        )
-                    }
-                }
+                editCardVM.updateHintCard(
+                    ct.card.id,
+                    fields.question.value,
+                    fields.middleField.value,
+                    fields.answer.value
+                )
                 return true
             } else {
                 return false
             }
         }
-
-        "multi" -> {
+        is CT.MultiChoice -> {
             if (
                 fields.question.value.isNotBlank() &&
                 fields.choices[0].value.isNotBlank() &&
@@ -108,23 +82,34 @@ fun saveCard(
                                 fields.correct.value == 'd')
                         )
             ) {
-                val choiceCard =
-                    typesUiStates.multiChoiceUiCardState.multiChoiceCard.find {
-                        it.card.id == cardId
-                    }?.multiChoiceCard
-                choiceCard.let { card ->
-                    card?.cardId?.let { cardId ->
-                        editCardVM.updateMultiChoiceCard(
-                            cardId,
-                            fields.question.value,
-                            fields.choices[0].value,
-                            fields.choices[1].value,
-                            fields.choices[2].value,
-                            fields.choices[3].value,
-                            fields.correct.value
-                        )
-                    }
-                }
+                editCardVM.updateMultiChoiceCard(
+                    ct.card.id,
+                    fields.question.value,
+                    fields.choices[0].value,
+                    fields.choices[1].value,
+                    fields.choices[2].value,
+                    fields.choices[3].value,
+                    fields.correct.value
+                )
+                return true
+            } else {
+                return false
+            }
+        }
+        is CT.Math -> {
+            if (fields.question.value.isNotBlank() &&
+                fields.answer.value.isNotBlank() &&
+                ( fields.stringList.isEmpty() ||
+                        fields.stringList.all { it.value.isNotBlank() }
+                        )) {
+                editCardVM.updateMathCard(
+                    ct.card.id,
+                    fields.question.value,
+                    fields.stringList.map {
+                        it.value
+                    },
+                    fields.answer.value
+                )
                 return true
             } else {
                 return false

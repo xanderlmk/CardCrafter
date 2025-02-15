@@ -31,8 +31,8 @@ import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.cardHandlers.BasicCardTypeHandler
 import com.example.flashcards.controller.cardHandlers.ChoiceCardTypeHandler
 import com.example.flashcards.controller.cardHandlers.HintCardTypeHandler
+import com.example.flashcards.controller.cardHandlers.MathCardTypeHandler
 import com.example.flashcards.controller.cardHandlers.ThreeCardTypeHandler
-import com.example.flashcards.controller.navigation.AllTypesUiStates
 import com.example.flashcards.controller.onClickActions.saveCard
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditCardViewModel
@@ -44,7 +44,6 @@ import kotlinx.coroutines.launch
 
 class EditingCardView(
     private var editingCardListVM: EditingCardListViewModel,
-    private var allTypesUiStates: AllTypesUiStates,
     private var getModifier: GetModifier
 ) {
     @Composable
@@ -52,6 +51,7 @@ class EditingCardView(
         card: Card,
         fields: Fields,
         selectedCard: MutableState<Card?>,
+        index : Int,
         onNavigateBack: () -> Unit
     ) {
         val editCardVM : EditCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -103,13 +103,16 @@ class EditingCardView(
                         "multi" -> {
                             ChoiceCardTypeHandler()
                         }
+                        "math" -> {
+                            MathCardTypeHandler()
+                        }
                         else -> {
                             println("NULL")
                             null
                         }
                     }
                     cardTypeHandler?.HandleCardEdit(
-                        state = allTypesUiStates,
+                        ct = sealedAllCTs.allCTs[index],
                         cardId = card.id,
                         fields = fields,
                         getModifier = getModifier
@@ -146,8 +149,8 @@ class EditingCardView(
                             onClick = {
                                 coroutineScope.launch {
                                     val success = saveCard(
-                                        selectedCard, fields, editCardVM,
-                                        allTypesUiStates
+                                        fields, editCardVM,
+                                        sealedAllCTs.allCTs[index]
                                     )
                                     if (success) {
                                         onNavigateBack()

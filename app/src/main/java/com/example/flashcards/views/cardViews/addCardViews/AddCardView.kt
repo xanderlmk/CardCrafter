@@ -97,18 +97,24 @@ class AddCardView(
                         DropdownMenuItem(
                             onClick = { type.value = "multi" },
                             text = { Text(stringResource(R.string.multi_choice_card)) })
+                        DropdownMenuItem(
+                            onClick = { type.value = "math"},
+                            text = { Text("Math")}
+                        )
                     }
                 }
                 val text = when (type.value) {
                     "hint" -> {
                         stringResource(R.string.hint)
                     }
-
                     "three" -> {
                         stringResource(R.string.three_fields)
                     }
                     "multi" -> {
                         stringResource(R.string.multi)
+                    }
+                    "math" -> {
+                        "Math"
                     }
                     else -> {
                         stringResource(R.string.basic)
@@ -139,6 +145,8 @@ class AddCardView(
                         addCardVM, deck,
                         fields, getModifier
                     )
+                    "math" -> AddMathCard(addCardVM, deck,
+                        fields, getModifier)
                     else -> AddBasicCard(
                         addCardVM, deck,
                         fields, getModifier
