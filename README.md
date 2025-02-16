@@ -22,6 +22,12 @@ Features :
 - Application Logo
 - Fix/report any existing glitches/bugs you find
 - More langauges + Allowing language change
+- Add the following for the project:
+  - Description 
+  - Code of conduct
+  - Write contributing guidelines
+  - Set up a security policy
+  - Pull request template
 
 
 
