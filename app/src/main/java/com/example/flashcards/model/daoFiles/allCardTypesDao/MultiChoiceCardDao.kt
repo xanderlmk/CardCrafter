@@ -1,6 +1,7 @@
 package com.example.flashcards.model.daoFiles.allCardTypesDao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -11,8 +12,8 @@ interface MultiChoiceCardDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertMultiChoiceCard(multiChoiceCard: MultiChoiceCard) : Long
 
-    @Query("DELETE FROM multiChoiceCard WHERE cardId = :cardId")
-    suspend fun deleteMultiChoiceCard(cardId : Int)
+    @Delete
+    suspend fun deleteMultiChoiceCard(multiChoiceCard: MultiChoiceCard)
 
     @Query("""
         Update multiChoiceCard set question = :newQuestion, 

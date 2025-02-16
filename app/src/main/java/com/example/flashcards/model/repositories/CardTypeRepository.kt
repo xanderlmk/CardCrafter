@@ -15,10 +15,10 @@ interface CardTypeRepository {
     suspend fun insertHintCard(hintCard: HintCard): Long
     suspend fun insertMultiChoiceCard(multiChoiceCard: MultiChoiceCard): Long
 
-    suspend fun deleteBasicCard(cardId: Int)
-    suspend fun deleteThreeCard(cardId: Int)
-    suspend fun deleteHintCard(cardId: Int)
-    suspend fun deleteMultiChoiceCard(cardId: Int)
+    suspend fun deleteBasicCard(basicCard: BasicCard)
+    suspend fun deleteThreeCard(threeFieldCard: ThreeFieldCard)
+    suspend fun deleteHintCard(hintCard: HintCard)
+    suspend fun deleteMultiChoiceCard(multiChoiceCard: MultiChoiceCard)
 
     suspend fun updateBasicCard(id: Int, question: String, answer: String)
 

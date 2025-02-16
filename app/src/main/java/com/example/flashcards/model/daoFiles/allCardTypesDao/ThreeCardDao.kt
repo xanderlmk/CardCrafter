@@ -1,6 +1,7 @@
 package com.example.flashcards.model.daoFiles.allCardTypesDao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -12,9 +13,8 @@ interface ThreeCardDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertThreeCard(threeFieldCard: ThreeFieldCard) : Long
 
-
-    @Query("DELETE FROM threeFieldCard WHERE cardId = :cardId")
-    suspend fun deleteThreeCard(cardId: Int)
+    @Delete
+    suspend fun deleteThreeCard(threeFieldCard: ThreeFieldCard)
 
     @Query("""
         Update threeFieldCard

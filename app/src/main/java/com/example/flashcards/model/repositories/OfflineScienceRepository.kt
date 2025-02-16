@@ -6,12 +6,11 @@ import com.example.flashcards.model.tablesAndApplication.MathCard
 class OfflineScienceRepository(
     private val mathCardDao: MathCardDao
 ) : ScienceSpecificRepository {
-    override fun insertMathCard(mathCard: MathCard) =
+    override suspend fun insertMathCard(mathCard: MathCard) =
         mathCardDao.insertMathCard(mathCard)
 
-    override fun deleteMathCard(cardId: Int) =
-        mathCardDao.deleteMathCard(cardId)
-
+    override suspend fun deleteMathCard(mathCard: MathCard) =
+        mathCardDao.deleteMathCard(mathCard)
     override fun updateMathCard(
         question: String, steps: String,
         answer: String, cardId: Int

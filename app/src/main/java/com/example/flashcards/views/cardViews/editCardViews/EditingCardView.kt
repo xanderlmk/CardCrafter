@@ -16,7 +16,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,18 +30,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcards.R
 import com.example.flashcards.controller.AppViewModelProvider
-import com.example.flashcards.controller.cardHandlers.BasicCardTypeHandler
-import com.example.flashcards.controller.cardHandlers.ChoiceCardTypeHandler
-import com.example.flashcards.controller.cardHandlers.HintCardTypeHandler
-import com.example.flashcards.controller.cardHandlers.MathCardTypeHandler
-import com.example.flashcards.controller.cardHandlers.ThreeCardTypeHandler
+import com.example.flashcards.controller.cardHandlers.returnCardTypeHandler
 import com.example.flashcards.controller.onClickActions.saveCard
+import com.example.flashcards.controller.onClickActions.updateCardType
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.ui.theme.GetModifier
-import com.example.flashcards.views.miscFunctions.DeleteCardButton
+import com.example.flashcards.views.miscFunctions.CardOptionsButton
 import kotlinx.coroutines.launch
 
 class EditingCardView(
@@ -51,12 +50,15 @@ class EditingCardView(
         card: Card,
         fields: Fields,
         selectedCard: MutableState<Card?>,
-        index : Int,
+        index: Int,
         onNavigateBack: () -> Unit
     ) {
-        val editCardVM : EditCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
+        val editCardVM: EditCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val fillOutfields = stringResource(R.string.fill_out_all_fields).toString()
         val coroutineScope = rememberCoroutineScope()
+        val cardTypeChanged = rememberSaveable { mutableStateOf(false) }
+        val expanded = rememberSaveable { mutableStateOf(false) }
+        val newType = rememberSaveable { mutableStateOf(selectedCard.value?.type?: "") }
         val sealedAllCTs by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
 
         Box(
@@ -72,7 +74,8 @@ class EditingCardView(
             ) {
                 Box(
                     contentAlignment = Alignment.TopCenter,
-                    modifier = Modifier.fillMaxSize()) {
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     Text(
                         text = stringResource(R.string.edit_flashcard),
                         fontSize = 25.sp,
@@ -81,40 +84,24 @@ class EditingCardView(
                         color = getModifier.titleColor(),
                         modifier = getModifier.editCardModifier()
                     )
-                    DeleteCardButton(
-                        editCardVM, getModifier, card, fields, onNavigateBack,
-                        Modifier.align(Alignment.TopEnd)
+
+                    CardOptionsButton(
+                        editCardVM, getModifier, card, fields, newType,
+                        expanded, onNavigateBack,
                     )
                 }
                 if (selectedCard.value != null) {
-                    val cardTypeHandler = when (selectedCard.value?.type) {
-                        "basic" -> {
-                            BasicCardTypeHandler()
-                        }
-
-                        "three" -> {
-                            ThreeCardTypeHandler()
-                        }
-
-                        "hint" -> {
-                            HintCardTypeHandler()
-                        }
-
-                        "multi" -> {
-                            ChoiceCardTypeHandler()
-                        }
-                        "math" -> {
-                            MathCardTypeHandler()
-                        }
-                        else -> {
-                            println("NULL")
-                            null
-                        }
+                    val cardTypeHandler = returnCardTypeHandler(
+                        newType.value, selectedCard.value?.type ?: ""
+                    )
+                    if (newType.value != selectedCard.value?.type){
+                        cardTypeChanged.value = true
                     }
                     cardTypeHandler?.HandleCardEdit(
                         ct = sealedAllCTs.allCTs[index],
                         cardId = card.id,
                         fields = fields,
+                        changed = cardTypeChanged.value,
                         getModifier = getModifier
                     )
                     if (sealedAllCTs.errorMessage.isNotEmpty()) {
@@ -135,7 +122,7 @@ class EditingCardView(
                     ) {
                         Button(
                             onClick = {
-                                    onNavigateBack()
+                                onNavigateBack()
                             },
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(
@@ -148,14 +135,27 @@ class EditingCardView(
                         Button(
                             onClick = {
                                 coroutineScope.launch {
-                                    val success = saveCard(
-                                        fields, editCardVM,
-                                        sealedAllCTs.allCTs[index]
-                                    )
-                                    if (success) {
-                                        onNavigateBack()
+                                    if (newType.value == selectedCard.value?.type) {
+                                        val success = saveCard(
+                                            fields, editCardVM,
+                                            sealedAllCTs.allCTs[index]
+                                        )
+                                        if (success) {
+                                            onNavigateBack()
+                                        } else {
+                                            editingCardListVM.setErrorMessage(fillOutfields)
+                                        }
                                     } else {
-                                        editingCardListVM.setErrorMessage(fillOutfields)
+                                        val success = updateCardType(
+                                            fields, editCardVM,
+                                            sealedAllCTs.allCTs[index],
+                                            newType.value
+                                        )
+                                        if (success) {
+                                            onNavigateBack()
+                                        } else {
+                                            editingCardListVM.setErrorMessage(fillOutfields)
+                                        }
                                     }
                                 }
                             },

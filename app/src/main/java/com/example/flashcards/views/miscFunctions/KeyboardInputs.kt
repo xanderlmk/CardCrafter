@@ -32,16 +32,12 @@ fun EditTextField(
         TextFieldDefaults.colors(
             focusedTextColor = MaterialTheme.colorScheme.onBackground,
             unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
 
         )
     } else {
         TextFieldDefaults.colors(
             unfocusedTextColor = inputColor,
             focusedTextColor = inputColor,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
         )
     }
     TextField(

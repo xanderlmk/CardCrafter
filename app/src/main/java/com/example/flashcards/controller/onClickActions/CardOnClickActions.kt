@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.res.stringResource
 import com.example.flashcards.R
+import com.example.flashcards.controller.cardHandlers.returnCard
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.Card
@@ -22,7 +23,6 @@ fun saveCard(
     editCardVM: EditCardViewModel,
     ct: CT
 ): Boolean {
-
     when (ct) {
         is CT.Basic -> {
             if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()) {
@@ -110,6 +110,80 @@ fun saveCard(
                     },
                     fields.answer.value
                 )
+                return true
+            } else {
+                return false
+            }
+        }
+    }
+    return false
+}
+
+
+suspend fun updateCardType(
+    fields: Fields,
+    editCardVM: EditCardViewModel,
+    ct: CT,
+    newType : String
+): Boolean {
+    val card = returnCard(ct)
+    when (newType) {
+        "basic" -> {
+            if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()) {
+                editCardVM.updateCardType(card.id,newType,fields,ct)
+                return true
+            } else {
+                return false
+            }
+        }
+        "three" -> {
+            if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()
+                && fields.middleField.value.isNotBlank()
+            ) {
+                editCardVM.updateCardType(card.id,newType,fields,ct)
+                return true
+            } else {
+                return false
+            }
+
+        }
+        "hint" -> {
+            if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()
+                && fields.middleField.value.isNotBlank()
+            ) {
+                editCardVM.updateCardType(card.id,newType,fields,ct)
+                return true
+            } else {
+                return false
+            }
+        }
+        "multi" -> {
+            if (
+                fields.question.value.isNotBlank() &&
+                fields.choices[0].value.isNotBlank() &&
+                fields.choices[1].value.isNotBlank() &&
+                !(fields.choices[2].value.isBlank() &&
+                        fields.choices[3].value.isNotBlank()) &&
+                !((fields.choices[2].value.isBlank() &&
+                        fields.correct.value == 'c') ||
+                        (fields.choices[3].value.isBlank() &&
+                                fields.correct.value == 'd')
+                        ) &&
+                fields.correct.value in 'a' .. 'd'
+            ) {
+                editCardVM.updateCardType(card.id,newType,fields,ct)
+                return true
+            } else {
+                return false
+            }
+        }
+        "math" -> {
+            if (fields.question.value.isNotBlank() &&
+                fields.answer.value.isNotBlank() &&
+                ( fields.stringList.isEmpty() ||
+                        fields.stringList.all { it.value.isNotBlank() }
+                        )) {
+                editCardVM.updateCardType(card.id,newType,fields,ct)
                 return true
             } else {
                 return false

@@ -12,7 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -20,33 +19,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
-import com.example.flashcards.model.tablesAndApplication.MathCard
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.EditTextFieldNonDone
-import com.example.flashcards.views.miscFunctions.createMathCardDetails
 
 @Composable
 fun EditMathCard(
-    mathCard: MathCard,
     fields: Fields,
     getModifier : GetModifier
 ) {
-
-    val cardDetails by remember {
-        mutableStateOf(
-            createMathCardDetails(
-                mathCard.question,
-                mathCard.steps,
-                mathCard.answer
-            )
-        )
-    }
-
-    fields.question = rememberSaveable { mutableStateOf(cardDetails.question.value) }
-    fields.stringList = rememberSaveable { cardDetails.stringList }
-    fields.answer = rememberSaveable { mutableStateOf(cardDetails.answer.value) }
-    var steps by rememberSaveable { mutableIntStateOf(cardDetails.stringList.size) }
+    var steps by rememberSaveable { mutableIntStateOf(fields.stringList.size) }
 
     EditTextFieldNonDone(
         value = fields.question.value,
@@ -92,8 +74,10 @@ fun EditMathCard(
         )
         Button(
             onClick = {
-                steps -= 1
-                fields.stringList.removeAt(steps)
+                if (steps > 0) {
+                    steps -= 1
+                    fields.stringList.removeAt(steps)
+                }
             },
             modifier = Modifier.padding(top = 4.dp),
             colors = ButtonDefaults.buttonColors(
