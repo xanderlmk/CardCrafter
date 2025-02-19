@@ -1,1 +1,18 @@
-
+# TO DO :
+- Variable encapsulation
+- Import Audio to use in Card
+- Import Image to use in Card
+- Create Coding/Programming card, Custom Card Type
+- More MathCard symbols (and mapping)
+  - And Documentation on the symbol mapping
+- Create an Export for decks and it's cards
+  - Then create server to allow sharing of decks
+- Application Logo
+- Fix/report any existing glitches/bugs you find
+- More langauges + Allowing language change
+- Add the following for the project:
+  - Description 
+  - Code of conduct
+  - Write contributing guidelines
+  - Set up a security policy
+  - Pull request template
