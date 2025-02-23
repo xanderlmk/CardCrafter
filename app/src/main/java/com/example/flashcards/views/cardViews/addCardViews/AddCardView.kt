@@ -1,8 +1,10 @@
 package com.example.flashcards.views.cardViews.addCardViews
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,6 +37,7 @@ import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.getSavableFields
+import com.example.flashcards.views.miscFunctions.symbols.SymbolDocumentation
 
 
 class AddCardView(
@@ -47,11 +50,13 @@ class AddCardView(
         val type = rememberSaveable { mutableStateOf("basic") }
         val addCardVM : AddCardViewModel =
             viewModel(factory = AppViewModelProvider.Factory)
+        val helpForMath = rememberSaveable { mutableStateOf(false) }
 
         fields = getSavableFields(fields)
         Box(
             modifier = getModifier.boxViewsModifier()
         ) {
+            SymbolDocumentation(helpForMath,getModifier)
             BackButton(
                 onBackClick = {
                     fields.resetFields()
@@ -120,14 +125,36 @@ class AddCardView(
                         stringResource(R.string.basic)
                     }
                 }
-                Text(
-                    text = text,
-                    fontSize = 35.sp,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 40.sp,
-                    color = getModifier.titleColor(),
-                    fontWeight = FontWeight.Bold,
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = text,
+                        fontSize = 35.sp,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 40.sp,
+                        color = getModifier.titleColor(),
+                        fontWeight = FontWeight.Bold,
+                        modifier =
+                        if (type.value == "math") {Modifier.padding(start = 8.dp)}
+                        else {Modifier}
+                    )
+                    if (type.value == "math") {
+                        Text(
+                            text = "?", fontSize = 35.sp,
+                            textAlign = TextAlign.Right,
+                            lineHeight = 40.sp,
+                            color = getModifier.iconColor(),
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .padding(horizontal = 4.dp)
+                                .clickable {
+                                    helpForMath.value = true
+                                }
+                        )
+                    }
+                }
                 when (type.value) {
                     "basic" -> AddBasicCard(
                         addCardVM, deck,

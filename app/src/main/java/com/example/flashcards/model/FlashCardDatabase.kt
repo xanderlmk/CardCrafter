@@ -724,7 +724,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                     question = "Why does a motorcycle have an engine cut-off switch?",
                     choiceA = "as an emergency backup to the key",
                     choiceB = "to offer another option for turning off the engine",
-                    choiceC = "so the rider does not have to take hands off of the handgrip to turn the engine off",
+                    choiceC = "so the rider does not have to take hands off of the hand-grip to turn the engine off",
                     choiceD = "to make sure the engine is really off after turning off the key",
                     correct = 'c'
                 ),
@@ -775,7 +775,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                 ),
                 MultiChoiceCard(
                     cardId = 74,
-                    question = "Counterweighting is used...",
+                    question = "Counter-weighting is used...",
                     choiceA = "in low-speed tight turns",
                     choiceB = "in high-speed turns",
                     choiceC = "in every turn",
@@ -919,7 +919,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                 ),
                 MultiChoiceCard(
                     cardId = 90,
-                    question = "Upshifting or downshifting in a curve:",
+                    question = "Up-shifting or downshifting in a curve:",
                     choiceA = "Should only be done if it can be done smoothly",
                     choiceB = "Is better than shifting before the curve",
                     choiceC = "Is the best way to control your speed",

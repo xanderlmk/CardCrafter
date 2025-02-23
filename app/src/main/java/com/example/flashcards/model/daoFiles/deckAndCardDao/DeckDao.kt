@@ -70,6 +70,7 @@ interface DeckDao {
     INNER JOIN decks d ON c.deckId = d.id
     WHERE c.nextReview <= :currentTime 
       AND d.nextReview <= :currentTime
+      AND d.lastUpdated != :startOfDay
     GROUP BY c.deckId, d.cardAmount, d.cardsLeft
     ORDER BY c.nextReview ASC 
     )
@@ -96,7 +97,6 @@ interface DeckDao {
         WHERE c.deckId = decks.id
         AND c.partOfList = 1                    -- Making sure there's no cards in a list.
         AND decks.lastUpdated == :startOfDay    -- Making sure it's only updated once a day.
-        AND decks.nextReview > :currentTime     -- If the deck isn't due, Don't update.
         )
     """
     )

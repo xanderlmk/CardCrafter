@@ -45,7 +45,7 @@ import com.example.flashcards.views.miscFunctions.EditDoubleField
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.miscFunctions.EditIntField
-import com.example.flashcards.views.miscFunctions.createDeckDetails
+import com.example.flashcards.views.miscFunctions.details.createDeckDetails
 import com.example.flashcards.views.miscFunctions.returnCardAmountError
 import com.example.flashcards.views.miscFunctions.returnDeckError
 import com.example.flashcards.views.miscFunctions.returnMultiplierError

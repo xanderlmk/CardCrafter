@@ -26,6 +26,25 @@ fun returnCard(ct: CT) : Card{
         }
     }
 }
+fun returnCardId(ct : CT) : Int {
+    return when (ct) {
+        is CT.Basic -> {
+            ct.card.id
+        }
+        is CT.Hint -> {
+            ct.card.id
+        }
+        is CT.ThreeField -> {
+            ct.card.id
+        }
+        is CT.MultiChoice->{
+            ct.card.id
+        }
+        is CT.Math -> {
+            ct.card.id
+        }
+    }
+}
 fun updateCTCard(ct: CT, dueCT: CT,
                  deck: Deck, vm: CardDeckViewModel,
                  success : Boolean, again : Boolean) : CT {

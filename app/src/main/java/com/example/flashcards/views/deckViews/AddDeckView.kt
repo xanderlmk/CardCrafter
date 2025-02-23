@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import kotlinx.coroutines.launch
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
@@ -38,20 +39,22 @@ import com.example.flashcards.views.miscFunctions.EditIntField
 
 
 class AddDeckView(
-    private var getModifier: GetModifier
+    private var getModifier: GetModifier,
 ) {
     @Composable
-    fun AddDeck(onNavigate: () -> Unit) {
+    fun AddDeck(onNavigate: () -> Unit, reviewAmount : String,
+                cardAmount : String) {
         val viewModel: AddDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
         var errorMessage by remember { mutableStateOf("") }
-        var deckName by remember {  mutableStateOf(viewModel.deckName) }
-        var deckReviewAmount by remember {mutableStateOf(viewModel.deckReviewAmount) }
-        var deckCardAmount by remember { mutableStateOf(viewModel.deckCardAmount) }
+        var deckName by rememberSaveable {  mutableStateOf("") }
+        var deckReviewAmount by rememberSaveable { mutableStateOf(reviewAmount) }
+        var deckCardAmount by rememberSaveable { mutableStateOf(cardAmount) }
         val coroutineScope = rememberCoroutineScope()
         val fieldOutAllFields = stringResource(R.string.fill_out_all_fields).toString()
         val deckNameAlreadyExists = stringResource(R.string.deck_already_exists).toString()
         val reviewAmount0 = stringResource(R.string.review_amount_0).toString()
         val reviewAmount10 = stringResource(R.string.review_amount_10).toString()
+        val wrongCardAmount = stringResource(R.string.card_amount_5_1000).toString()
         val error = stringResource(R.string.error).toString()
         val scrollState = rememberScrollState()
 
@@ -92,7 +95,6 @@ class AddDeckView(
                         value = deckName,
                         onValueChanged = {
                             deckName = it
-                            viewModel.updateDeckName(it)
                         },
                         labelStr = stringResource(R.string.deck_name),
                         modifier = Modifier
@@ -119,16 +121,15 @@ class AddDeckView(
                         value = deckReviewAmount,
                         onValueChanged = {
                             deckReviewAmount = it
-                            viewModel.updateDeckReviewAmount(it)
                         },
                         labelStr = stringResource(R.string.review_amount) +
-                                " (" + stringResource(R.string.default_value) + " 1)",
+                                " (" + stringResource(R.string.default_value) + " $reviewAmount)",
                         modifier = Modifier
                             .weight(1f)
                     )
                 }
                 Text(
-                    text = "Card Amount",
+                    text = stringResource(R.string.card_amount),
                     fontSize = 25.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 28.sp,
@@ -147,10 +148,9 @@ class AddDeckView(
                         value = deckCardAmount,
                         onValueChanged = {
                             deckCardAmount = it
-                            viewModel.updateDeckCardAmount(it)
                         },
-                        labelStr = "Card Amount" +
-                                " (" + stringResource(R.string.default_value) + " 20)",
+                        labelStr = stringResource(R.string.card_amount) +
+                                " (" + stringResource(R.string.default_value) + " $cardAmount)",
                         modifier = Modifier
                             .weight(1f)
                     )
@@ -185,8 +185,8 @@ class AddDeckView(
                                             errorMessage = reviewAmount10
                                         } else if ((deckCardAmount.toIntOrNull() ?: 0)
                                             !in 5..1000){
-                                            errorMessage =
-                                                "Card Amount must be in between 5 and 1000"
+                                            errorMessage = wrongCardAmount
+
                                         } else {
                                             viewModel.addDeck(
                                                 deckName,

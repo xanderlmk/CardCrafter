@@ -2,10 +2,6 @@ package com.example.flashcards.controller.viewModels.deckViewsModels
 
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.repositories.FlashCardRepository
@@ -19,16 +15,10 @@ import java.util.Date
 
 class AddDeckViewModel(
     private val flashCardRepository: FlashCardRepository,
-    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _errorMessage = MutableStateFlow<String>("")
 
-    var deckName by mutableStateOf(savedStateHandle["deckName"] ?: "")
-        private set
-    var deckReviewAmount by mutableStateOf(savedStateHandle["deckReviewAmount"] ?: "1")
-        private set
-    var deckCardAmount by mutableStateOf(savedStateHandle["deckCardAmount"] ?: "20")
 
     companion object {
         private const val MIN_CARDS = 5
@@ -37,20 +27,6 @@ class AddDeckViewModel(
         private const val MAX_REVIEWS = 40
     }
 
-    fun updateDeckName(name: String) {
-        deckName = name
-        savedStateHandle["deckName"] = name
-    }
-
-    fun updateDeckReviewAmount(reviewAmount: String) {
-        deckReviewAmount = reviewAmount
-        savedStateHandle["deckReviewAmount"] = reviewAmount
-    }
-
-    fun updateDeckCardAmount(cardAmount : String){
-        deckCardAmount = cardAmount
-        savedStateHandle["deckCardAmount"] = cardAmount
-    }
 
     suspend fun checkIfDeckExists(name: String): Int {
         return withContext(Dispatchers.IO) {

@@ -17,6 +17,10 @@ object SettingsDestination : NavigationDestination {
         override val route = "Settings"
 }
 @Serializable
+object SupabaseDestination : NavigationDestination {
+        override val route = "Supabase"
+}
+@Serializable
 object DeckOptionsDestination : NavigationDestination {
         override val route = "DeckOptions/{deckId}"
         fun createRoute(deckId: Int): String {

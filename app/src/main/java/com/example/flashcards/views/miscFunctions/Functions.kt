@@ -92,7 +92,7 @@ fun GoodText(
 fun NoDueCards(getModifier: GetModifier) {
     var delay by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        delay(100)
+        delay(200)
         delay = true
     }
     if (delay) {

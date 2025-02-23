@@ -6,12 +6,14 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.flashcards.controller.navigation.NavViewModel
+import com.example.flashcards.supabase.controller.SupabaseViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.deckViewsModels.MainViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.AddCardViewModel
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.example.flashcards.controller.viewModels.deckViewsModels.AddDeckViewModel
+import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
 import com.example.flashcards.controller.viewModels.deckViewsModels.EditDeckViewModel
 import com.example.flashcards.model.tablesAndApplication.FlashCardApplication
 
@@ -37,7 +39,11 @@ object AppViewModelProvider {
         initializer {
             AddDeckViewModel(
                 flashCardApplication().container.flashCardRepository,
-                this.createSavedStateHandle()
+            )
+        }
+        initializer {
+            DeckViewModel(
+                flashCardApplication().container.flashCardRepository
             )
         }
         initializer {
@@ -70,6 +76,9 @@ object AppViewModelProvider {
                 flashCardApplication().container.cardTypeRepository,
                 flashCardApplication().container.scienceSpecificRepository
             )
+        }
+        initializer {
+            SupabaseViewModel()
         }
     }
 }

@@ -32,7 +32,6 @@ fun EditTextField(
         TextFieldDefaults.colors(
             focusedTextColor = MaterialTheme.colorScheme.onBackground,
             unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
-
         )
     } else {
         TextFieldDefaults.colors(
@@ -102,11 +101,6 @@ fun EditDoubleField(
     labelStr: String,
     modifier: Modifier
 ) {
-    val colors = TextFieldDefaults.colors(
-        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-
-    )
     TextField(
         value = value,
         singleLine = true,
@@ -114,8 +108,6 @@ fun EditDoubleField(
         onValueChange = onValueChanged,
         label = { Text(labelStr, color = textColor) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-        colors = colors
-
     )
 }
 
@@ -126,10 +118,6 @@ fun EditIntField(
     labelStr: String,
     modifier: Modifier
 ) {
-    val colors = TextFieldDefaults.colors(
-        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-    )
     TextField(
         value = value,
         singleLine = true,
@@ -137,10 +125,9 @@ fun EditIntField(
         onValueChange = onValueChanged,
         label = {
             Text(
-                labelStr, color = textColor, fontSize = 12.sp
+                labelStr, color = textColor, fontSize = 12.sp, maxLines = 1
             )
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        colors = colors,
     )
 }

@@ -277,7 +277,9 @@ class CardDeckViewModel(
                     emptyList()
                 }
             }
-            if (deck.cardsLeft <= 0){
+            /** Making sure the deck does not have any due cards left
+             *  and it's still due for review */
+            if (deck.cardsLeft <= 0 && deck.nextReview <= Date()){
                 viewModelScope.launch(Dispatchers.IO){
                     updateNextReview(deck)
                 }

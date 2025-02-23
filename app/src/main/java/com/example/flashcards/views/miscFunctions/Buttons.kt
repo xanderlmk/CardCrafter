@@ -2,7 +2,8 @@ package com.example.flashcards.views.miscFunctions
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -14,8 +15,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -33,7 +32,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -138,6 +136,8 @@ fun RedoCardButton(
 fun SettingsButton(
     onNavigateToEditDeck: () -> Unit,
     onNavigateToEditCards: () -> Unit,
+    exportDeck: () -> Unit,
+    clientExists: Boolean,
     modifier: Modifier = Modifier,
     getModifier: GetModifier,
     fields: Fields
@@ -175,14 +175,20 @@ fun SettingsButton(
                 text = { Text(stringResource(R.string.edit_deck)) })
             DropdownMenuItem(onClick = {
                 expanded = false
-                coroutineScope.launch {
-                    fields.mainClicked.value = true
-                    delayNavigate()
-                    onNavigateToEditCards()
+                fields.mainClicked.value = true
+                onNavigateToEditCards()
 
-                }
             },
                 text = { Text(stringResource(R.string.edit_flashcards)) })
+            if (clientExists) {
+                DropdownMenuItem(onClick = {
+                    expanded = false
+                    fields.mainClicked.value = true
+                    exportDeck()
+
+                },
+                    text = { Text("Export Deck") })
+            }
         }
     }
 }
@@ -218,63 +224,6 @@ fun MainSettingsButton(
     }
 }
 
-@Composable
-fun SystemThemeButton(
-    customScheme: () -> Unit,
-    darkTheme: () -> Unit,
-    customToggled: Painter,
-    darkToggled: Painter,
-    clicked: Boolean,
-    getModifier: GetModifier
-) {
-    var expanded by remember { mutableStateOf(false) }
-    if (clicked) {
-        expanded = false
-    }
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.TopEnd)
-    ) {
-        Button(
-            onClick = {
-                if (!clicked) {
-                    expanded = true
-                }
-            },
-            modifier = Modifier.padding(top = 4.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = getModifier.secondaryButtonColor(),
-                contentColor = getModifier.buttonTextColor()
-            )
-        ) {
-            Text(stringResource(R.string.system_theme))
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                DropdownMenuItem(
-                    onClick = {
-                        customScheme()
-                    },
-                    text = { Text(stringResource(R.string.custom_theme)) },
-                    leadingIcon = {
-                        Icon(
-                            painter = customToggled,
-                            contentDescription = "Custom Theme"
-                        )
-                    })
-                DropdownMenuItem(onClick = {
-                    darkTheme()
-                },
-                    text = { Text(stringResource(R.string.dark_theme)) },
-                    leadingIcon = {
-                        Icon(
-                            painter = darkToggled,
-                            contentDescription = "Toggle Dynamic Theme"
-                        )
-                    })
-            }
-        }
-    }
-}
 
 @Composable
 fun CardOptionsButton(
@@ -283,20 +232,22 @@ fun CardOptionsButton(
     fields: Fields,
     type: MutableState<String>,
     expanded: MutableState<Boolean>,
+    modifier: Modifier,
     onDelete: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(false) }
     Box(
-        Modifier
-            .fillMaxWidth()
+        modifier = modifier
+            .fillMaxSize()
             .wrapContentSize(Alignment.TopEnd)
     ) {
         IconButton(
             onClick = { expanded.value = true },
             modifier = Modifier
-                .padding(4.dp)
                 .size(54.dp)
+                .align(Alignment.TopEnd)
+                .offset(y = (-8).dp)
         ) {
             Icon(
                 Icons.Default.MoreVert,
@@ -326,7 +277,7 @@ fun CardOptionsButton(
                 onClick = {
                     showDialog.value = true
                 },
-                text = {Text("Delete Card")},
+                text = { Text("Delete Card") },
                 trailingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Delete,

@@ -13,10 +13,10 @@ import com.example.flashcards.views.cardViews.editCardViews.EditThreeCard
 import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.views.cardViews.editCardViews.EditChoiceCard
 import com.example.flashcards.views.cardViews.editCardViews.EditMathCard
-import com.example.flashcards.views.miscFunctions.createBasicCardDetails
-import com.example.flashcards.views.miscFunctions.createChoiceCardDetails
-import com.example.flashcards.views.miscFunctions.createMathCardDetails
-import com.example.flashcards.views.miscFunctions.createThreeOrHintCardDetails
+import com.example.flashcards.views.miscFunctions.details.createBasicCardDetails
+import com.example.flashcards.views.miscFunctions.details.createChoiceCardDetails
+import com.example.flashcards.views.miscFunctions.details.createMathCardDetails
+import com.example.flashcards.views.miscFunctions.details.createThreeOrHintCardDetails
 
 interface CardTypeHandler {
     @Composable

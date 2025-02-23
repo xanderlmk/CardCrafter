@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -31,11 +32,13 @@ import com.example.flashcards.ui.theme.GetModifier
 import com.example.flashcards.R
 import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.MathCard
+import com.example.flashcards.views.miscFunctions.symbols.RenderTextWithSymbols
 
 @Composable
 fun FrontCard(
     ct: CT,
     getModifier: GetModifier,
+    clickedChoice: MutableState<Char>,
     modifier: Modifier
 ) {
     Column(
@@ -57,8 +60,13 @@ fun FrontCard(
             }
 
             is CT.MultiChoice -> {
-                ChoiceFrontCard(multiChoiceCard = ct.multiChoiceCard, getModifier)
+                ChoiceFrontCard(
+                    multiChoiceCard = ct.multiChoiceCard,
+                    clickedChoice = clickedChoice,
+                    getModifier = getModifier
+                )
             }
+
             is CT.Math -> {
                 MathFrontCard(mathCard = ct.mathCard, getModifier)
             }
@@ -183,7 +191,8 @@ fun HintFrontCard(
 @Composable
 fun ChoiceFrontCard(
     multiChoiceCard: MultiChoiceCard,
-    getModifier: GetModifier
+    getModifier: GetModifier,
+    clickedChoice: MutableState<Char>
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
     Box(
@@ -219,11 +228,11 @@ fun ChoiceFrontCard(
                         .align(Alignment.CenterHorizontally)
                         .padding(vertical = 4.dp)
                         .clickable {
-                            getModifier.clickedChoice.value = 'a'
+                            clickedChoice.value = 'a'
                             focusManager.clearFocus()
                         }
                         .background(
-                            color = if (getModifier.clickedChoice.value == 'a') {
+                            color = if (clickedChoice.value == 'a') {
                                 getModifier.pickedChoice()
                             } else {
                                 getModifier.onTertiaryColor()
@@ -243,11 +252,11 @@ fun ChoiceFrontCard(
                         .align(Alignment.CenterHorizontally)
                         .padding(vertical = 4.dp)
                         .clickable {
-                            getModifier.clickedChoice.value = 'b'
+                            clickedChoice.value = 'b'
                             focusManager.clearFocus()
                         }
                         .background(
-                            color = if (getModifier.clickedChoice.value == 'b') {
+                            color = if (clickedChoice.value == 'b') {
                                 getModifier.pickedChoice()
                             } else {
                                 getModifier.onTertiaryColor()
@@ -269,11 +278,11 @@ fun ChoiceFrontCard(
                             .align(Alignment.CenterHorizontally)
                             .padding(vertical = 4.dp)
                             .clickable {
-                                getModifier.clickedChoice.value = 'c'
+                                clickedChoice.value = 'c'
                                 focusManager.clearFocus()
                             }
                             .background(
-                                color = if (getModifier.clickedChoice.value == 'c') {
+                                color = if (clickedChoice.value == 'c') {
                                     getModifier.pickedChoice()
                                 } else {
                                     getModifier.onTertiaryColor()
@@ -295,11 +304,11 @@ fun ChoiceFrontCard(
                             .align(Alignment.CenterHorizontally)
                             .padding(vertical = 4.dp)
                             .clickable {
-                                getModifier.clickedChoice.value = 'd'
+                                clickedChoice.value = 'd'
                                 focusManager.clearFocus()
                             }
                             .background(
-                                color = if (getModifier.clickedChoice.value == 'd') {
+                                color = if (clickedChoice.value == 'd') {
                                     getModifier.pickedChoice()
                                 } else {
                                     getModifier.onTertiaryColor()
