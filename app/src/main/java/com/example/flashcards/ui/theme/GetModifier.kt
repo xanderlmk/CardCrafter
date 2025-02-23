@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -21,7 +19,6 @@ import androidx.compose.ui.unit.dp
 class GetModifier(
     private var colorScheme: ColorSchemeClass,
     private var isDarkTheme : Boolean,
-    val clickedChoice : MutableState<Char> = mutableStateOf('?'),
 ) {
     fun mainViewModifier(): Modifier {
         return Modifier
@@ -35,7 +32,6 @@ class GetModifier(
                     end = Offset(size.width, strokeWidth / 2),
                     strokeWidth = strokeWidth
                 )
-
                 // Bottom border
                 drawLine(
                     color = colorScheme.colorScheme.outline,
@@ -122,6 +118,36 @@ class GetModifier(
             .wrapContentWidth(Alignment.CenterHorizontally)
     }
 
+    fun generalSettingsOptionsModifier() : Modifier{
+        return Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .drawBehind {
+                val strokeWidth = 2.dp.toPx()
+                // Top border
+                drawLine(
+                    color = colorScheme.colorScheme.outline,
+                    start = Offset(0f, strokeWidth / 2),
+                    end = Offset(size.width, strokeWidth / 2),
+                    strokeWidth = strokeWidth
+                )
+                // Bottom border
+                drawLine(
+                    color = colorScheme.colorScheme.outline,
+                    start = Offset(
+                        0f,
+                        size.height - strokeWidth / 2
+                    ),
+                    end = Offset(
+                        size.width,
+                        size.height - strokeWidth / 2
+                    ),
+                    strokeWidth = strokeWidth
+                )
+            }
+            .padding(vertical = 4.dp)
+    }
+
     fun buttonColor(): Color {
         return colorScheme.colorScheme.primaryContainer
     }
@@ -158,5 +184,12 @@ class GetModifier(
     }
     fun onCorrectChoice(): Color {
         return colorScheme.colorScheme.onSurfaceVariant
+    }
+    fun isThemeOn() : Color {
+        return if (isDarkTheme) {
+            Color.White
+        } else {
+            darkBackground
+        }
     }
 }

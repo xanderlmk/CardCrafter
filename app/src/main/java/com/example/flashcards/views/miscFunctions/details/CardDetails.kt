@@ -1,4 +1,4 @@
-package com.example.flashcards.views.miscFunctions
+package com.example.flashcards.views.miscFunctions.details
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf

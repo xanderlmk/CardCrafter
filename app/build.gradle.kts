@@ -1,4 +1,6 @@
+@file:Suppress("PropertyName")
 
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -9,14 +11,21 @@ plugins {
     alias(libs.plugins.parcelize)
 }
 
+val SUPABASE_URL = gradleLocalProperties(rootDir, providers)
+    .getProperty("SUPABASE_URL", "")
+val SUPABASE_KEY = gradleLocalProperties(rootDir, providers)
+    .getProperty("SUPABASE_KEY", "")
+val GOOGLE_CLIENTID = gradleLocalProperties(rootDir, providers)
+    .getProperty("GOOGLE_CLIENTID", "")
 android {
     namespace = "com.example.flashcards"
-    compileSdk = 34
+    // For sdk 34 just change compileSdk and targetSdk.
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.flashcards"
         minSdk = 25
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -24,6 +33,21 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        resValue(
+            "string",
+            "SUPABASE_URL",
+            "\"" + SUPABASE_URL + "\""
+        )
+        resValue(
+            "string",
+            "SUPABASE_KEY",
+            "\"" + SUPABASE_KEY + "\""
+        )
+        resValue(
+            "string",
+            "GOOGLE_CLIENTID",
+            "\"" + GOOGLE_CLIENTID + "\""
+        )
     }
 
     buildTypes {
@@ -105,6 +129,7 @@ dependencies {
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.ktx)
+    implementation(libs.bcrypt)
 
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
@@ -127,8 +152,24 @@ dependencies {
     // Serialization
     implementation(libs.kotlinx.serialization.json)
 
+    // Network Image
+    implementation(libs.coil.compose)
+
+    // Supabase
+    implementation(platform(libs.supabase.bom))
+    implementation(libs.realtime.kt)
+    implementation(libs.postgrest.kt)
+    implementation(libs.gotrue.kt)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.cio)
+
+    // Google
+    implementation(libs.androidx.credentials)
+    implementation (libs.googleid)
 
 
-    //implementation("com.google.accompanist:accompanist-themeadapter-material3:0.28.0")
+    // optional - needed for credentials support from play services, for devices running
+    // Android 13 and below.
+    implementation(libs.androidx.credentials.play.services.auth)
 
 }

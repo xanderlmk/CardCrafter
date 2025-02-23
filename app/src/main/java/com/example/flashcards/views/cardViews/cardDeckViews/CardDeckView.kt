@@ -79,6 +79,8 @@ class CardDeckView(
         val coroutineScope = rememberCoroutineScope()
         var clicked by remember { mutableStateOf(false) }
         var started by rememberSaveable { mutableStateOf(false) }
+        val clickedChoice = rememberSaveable { mutableStateOf('?') }
+
 
         val scrollState = rememberScrollState()
         val focusManager = LocalFocusManager.current // Get focus manager
@@ -96,7 +98,7 @@ class CardDeckView(
             if (!fields.leftDueCardView.value) {
                 BackButton(
                     onBackClick = {
-                        getModifier.clickedChoice.value = '?'
+                        clickedChoice.value = '?'
                         onNavigate()
                     },
                     modifier = getModifier
@@ -111,15 +113,18 @@ class CardDeckView(
                                 index.intValue -= 1
                                 val ct = sealedCL.allCTs[index.intValue]
                                 redoACard(ct, cardDeckVM, index.intValue, dueCTs.value)
+                                clickedChoice.value = '?'
                                 show = false
                             } else {
                                 if (sealedCL.allCTs.isNotEmpty() && started) {
                                     index.intValue = sealedCL.allCTs.size - 1
                                     val ct = sealedCL.allCTs[index.intValue]
                                     redoACard(ct, cardDeckVM, index.intValue, dueCTs.value)
+                                    clickedChoice.value = '?'
                                     show = false
                                 } else {
                                     if (backupList.isNotEmpty() && started) {
+                                        clickedChoice.value = '?'
                                         Log.d("CardDeckView", "Backup logic not implemented yet.")
                                     }
                                 }
@@ -143,12 +148,12 @@ class CardDeckView(
                         Text(
                             text = stringResource(R.string.reviews_left) +
                                     showReviewsLeft(sealedCL.savedCTs[index.intValue]),
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .align(Alignment.TopCenter)
-                                .padding(start = 46.dp, end = 46.dp, top = 8.dp)
+                                .padding(start = 48.dp, end = 48.dp, top = 8.dp)
                                 .clickable(interactionSource = null, indication = null){
                                     focusManager.clearFocus()
                                 }
@@ -158,6 +163,7 @@ class CardDeckView(
                                 FrontCard(
                                     dueCTs.value[index.intValue],
                                     getModifier,
+                                    clickedChoice,
                                     Modifier
                                         .align(Alignment.TopCenter)
                                         .padding(bottom = 62.dp, top = 80.dp)
@@ -184,7 +190,8 @@ class CardDeckView(
                                 dueCTs.value[index.intValue],
                                 getModifier, Modifier
                                     .align(Alignment.TopCenter)
-                                    .padding(bottom = 62.dp, top = 80.dp)
+                                    .padding(bottom = 62.dp, top = 80.dp),
+                                clickedChoice.value
                             )
                             Row(
                                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -265,7 +272,7 @@ class CardDeckView(
                                                             success = false,
                                                             again = false
                                                         )
-                                                    getModifier.clickedChoice.value = '?'
+                                                    clickedChoice.value = '?'
                                                     show = !show
                                                 }
                                                 coroutineScope.launch {
@@ -314,7 +321,7 @@ class CardDeckView(
                                                             success = true,
                                                             again = false
                                                         )
-                                                    getModifier.clickedChoice.value = '?'
+                                                    clickedChoice.value = '?'
                                                     show = !show
                                                 }
                                                 coroutineScope.launch {
@@ -355,14 +362,11 @@ class CardDeckView(
                                     cardDeckVM
                                 )
                                 while (cardDeckVM.getState() == CardState.Loading) {
-                                    delay(30)
+                                    delay(50)
                                 }
-                                if (
-                                    (sealedCL.allCTs.isEmpty() || sealedCL.savedCTs.isEmpty()) &&
+                                if ((sealedCL.allCTs.isEmpty() || sealedCL.savedCTs.isEmpty()) &&
                                     deck.cardsLeft == 0
-                                ) {
-                                    dueCTs.value.clear()
-                                }
+                                ) { dueCTs.value.clear() }
                                 if (!errorState?.message.isNullOrEmpty()) {
                                     println(errorState?.message)
                                 }

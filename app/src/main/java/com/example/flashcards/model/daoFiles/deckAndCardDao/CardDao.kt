@@ -59,7 +59,6 @@ interface CardDao {
     @Query("SELECT * FROM cards WHERE id = :cardId")
     suspend fun getCardById(cardId: Int): Card
 
-
     @Query(
         """
         update cards
@@ -70,17 +69,3 @@ interface CardDao {
     fun updateReviewAmount(newReviewAmount: Int, deckId: Int): Int
 
 }
-/**
- * data class Card(
- *     @PrimaryKey(autoGenerate = true) val id: Int = 0,
- *     var deckId : Int,
- *     val deckUUID: String,
- *     var reviewsLeft : Int,
- *     var nextReview: Date?,
- *     var passes: Int = 0,
- *     var prevSuccess: Boolean,
- *     var totalPasses: Int = 0,
- *     val type: String,
- *     val createdOn: Long = Date().time
- * )
- */

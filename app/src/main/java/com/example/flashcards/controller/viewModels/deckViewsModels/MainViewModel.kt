@@ -51,7 +51,8 @@ class MainViewModel(
             )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val thisCardCountUiState: StateFlow<CardListUiCount> = currentTime.flatMapLatest {
+    private val thisCardCountUiState: StateFlow<CardListUiCount> = currentTime
+        .flatMapLatest {
         flashCardRepository.getCardCount(it)
         }.map {
             CardListUiCount(it) }

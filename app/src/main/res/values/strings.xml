@@ -69,9 +69,12 @@
     <string name="sure_to_delete_card">Are you sure you want to delete this card?</string>
     <string name="reviews_left">Card reviews left: </string>
     <string name="default_value">Default:</string>
-    <string name="updated_card_amount">updated card amount!</string>
-    <string name="card_amount_under_5">daily card Amount must be at least 5</string>
-    <string name="card_amount_over_1k">only 1000 cards a day are allowed</string>
-    <string name="card_amount_same">card amount is the same</string>
-    <string name="failed_card_amount">failed to update card amount</string>
+    <string name="card_amount">Card Amount</string>
+    <string name="updated_card_amount">Updated card amount!</string>
+    <string name="card_amount_under_5">Card Amount must be at least 5</string>
+    <string name="card_amount_over_1k">Only 1000 cards a day are allowed</string>
+    <string name="card_amount_same">Card amount is the same</string>
+    <string name="failed_card_amount">Failed to update card amount</string>
+    <string name="card_amount_5_1000">Card amount must be in between 5 and 1000!</string>
+    <string name="review_amount_1_40">Review amount must be between 1 and 40!</string>
 </resources>

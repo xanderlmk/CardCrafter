@@ -51,6 +51,7 @@ fun AddMathCard(
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     var steps by rememberSaveable { mutableIntStateOf(0) }
+    fields.stringList  = rememberSaveable { mutableListOf() }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -82,7 +83,6 @@ fun AddMathCard(
                     .weight(1f)
             )
         }
-
         Text(
             text = "Steps",
             fontSize = 25.sp,
@@ -98,25 +98,18 @@ fun AddMathCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (steps == 0) {
-                Row(
+                Text(
+                    text = "Add a step",
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Add a step",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clickable {
-                                steps = 1
-                                fields.stringList.add(mutableStateOf(""))
-                            }
-                            .padding(8.dp)
-                            .align(Alignment.CenterVertically),
-                        textAlign = TextAlign.Center,
-                        fontSize = 18.sp
-                    )
-                }
+                        .fillMaxSize()
+                        .clickable {
+                            fields.stringList.add(mutableStateOf(""))
+                            steps = 1
+                        }
+                        .padding(8.dp),
+                    textAlign = TextAlign.Center,
+                    fontSize = 18.sp
+                )
             } else {
                 var index = 0
                 fields.stringList.forEach {
@@ -134,6 +127,7 @@ fun AddMathCard(
                             labelStr = "Step: $index",
                             modifier = Modifier
                                 .weight(1f)
+                                .padding(0.5.dp)
                         )
                     }
                 }
@@ -147,8 +141,8 @@ fun AddMathCard(
                         modifier = Modifier
                             .fillMaxSize()
                             .clickable {
-                                steps += 1
                                 fields.stringList.add(mutableStateOf(""))
+                                steps += 1
                             }
                             .padding(8.dp)
                             .align(Alignment.CenterVertically),

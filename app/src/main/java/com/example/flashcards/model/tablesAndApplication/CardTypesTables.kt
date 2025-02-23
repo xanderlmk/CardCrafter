@@ -9,8 +9,10 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 import org.json.JSONArray
 
+@Serializable
 @Parcelize
 @Entity(
     tableName = "basicCard",
@@ -49,7 +51,7 @@ data class BasicCard(
     }
 }
 
-
+@Serializable
 @Parcelize
 @Entity(
     tableName = "threeFieldCard",
@@ -91,6 +93,7 @@ data class ThreeFieldCard(
     }
 }
 
+@Serializable
 @Parcelize
 @Entity(
     tableName = "hintCard",
@@ -131,6 +134,7 @@ data class HintCard(
     }
 }
 
+@Serializable
 @Parcelize
 @Entity(
     tableName = "multiChoiceCard",
@@ -190,6 +194,8 @@ data class MultiChoiceCard(
     ],
     indices = [Index(value = ["cardId"])]
 )
+
+@Serializable
 @Parcelize
 data class MathCard(
     @PrimaryKey val cardId: Int,

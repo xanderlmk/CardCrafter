@@ -25,6 +25,7 @@ import com.example.flashcards.model.tablesAndApplication.MathCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.views.miscFunctions.symbols.RenderTextWithSymbols
 
 @Composable
 fun MathBackCard(mathCard: MathCard, getModifier: GetModifier) {
@@ -45,7 +46,7 @@ fun MathBackCard(mathCard: MathCard, getModifier: GetModifier) {
                         RenderTextWithSymbols(it, getModifier)
                     }
                 }
-                RenderTextWithSymbols(mathCard.answer,getModifier)
+                RenderTextWithSymbols(mathCard.answer, getModifier)
             }
 
         }
@@ -189,6 +190,7 @@ fun HintBackCard(
 @Composable
 fun ChoiceBackCard(
     multiChoiceCard: MultiChoiceCard,
+    clickedChoice : Char,
     getModifier: GetModifier
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
@@ -223,16 +225,18 @@ fun ChoiceBackCard(
                         .padding(vertical = 4.dp)
                         .background(
                             color =
-                            if (getModifier.clickedChoice.value == 'a' &&
-                                multiChoiceCard.correct != getModifier.clickedChoice.value
+                            if (clickedChoice == 'a' &&
+                                multiChoiceCard.correct != clickedChoice
                             ) {
                                 getModifier.pickedChoice()
-                            } else if (getModifier.clickedChoice.value == 'a' &&
-                                multiChoiceCard.correct == getModifier.clickedChoice.value
+                            } else if (
+                                multiChoiceCard.correct == 'a' &&
+                                clickedChoice != multiChoiceCard.correct
                             ) {
                                 getModifier.correctChoice()
-                            } else if (multiChoiceCard.correct == 'a' &&
-                                multiChoiceCard.correct != getModifier.clickedChoice.value
+                            } else if (
+                                clickedChoice == multiChoiceCard.correct &&
+                                multiChoiceCard.correct == 'a'
                             ) {
                                 getModifier.correctChoice()
                             } else {
@@ -254,16 +258,18 @@ fun ChoiceBackCard(
                         .padding(vertical = 4.dp)
                         .background(
                             color =
-                            if (getModifier.clickedChoice.value == 'b' &&
-                                multiChoiceCard.correct != getModifier.clickedChoice.value
+                            if (clickedChoice == 'b' &&
+                                multiChoiceCard.correct != clickedChoice
                             ) {
                                 getModifier.pickedChoice()
-                            } else if (getModifier.clickedChoice.value == 'b' &&
-                                multiChoiceCard.correct == getModifier.clickedChoice.value
+                            } else if (
+                                multiChoiceCard.correct == 'b' &&
+                                clickedChoice != multiChoiceCard.correct
                             ) {
                                 getModifier.correctChoice()
-                            } else if (multiChoiceCard.correct == 'b' &&
-                                multiChoiceCard.correct != getModifier.clickedChoice.value
+                            } else if (
+                                clickedChoice == multiChoiceCard.correct &&
+                                multiChoiceCard.correct == 'b'
                             ) {
                                 getModifier.correctChoice()
                             } else {
@@ -287,16 +293,18 @@ fun ChoiceBackCard(
                             .padding(vertical = 4.dp)
                             .background(
                                 color =
-                                if (getModifier.clickedChoice.value == 'c' &&
-                                    multiChoiceCard.correct != getModifier.clickedChoice.value
+                                if (clickedChoice == 'c' &&
+                                    multiChoiceCard.correct != clickedChoice
                                 ) {
                                     getModifier.pickedChoice()
-                                } else if (getModifier.clickedChoice.value == 'c' &&
-                                    multiChoiceCard.correct == getModifier.clickedChoice.value
+                                } else if (
+                                    multiChoiceCard.correct == 'c' &&
+                                    clickedChoice != multiChoiceCard.correct
                                 ) {
                                     getModifier.correctChoice()
-                                } else if (multiChoiceCard.correct == 'c' &&
-                                    multiChoiceCard.correct != getModifier.clickedChoice.value
+                                } else if (
+                                    clickedChoice == multiChoiceCard.correct &&
+                                    multiChoiceCard.correct == 'c'
                                 ) {
                                     getModifier.correctChoice()
                                 } else {
@@ -320,16 +328,18 @@ fun ChoiceBackCard(
                             .padding(vertical = 4.dp)
                             .background(
                                 color =
-                                if (getModifier.clickedChoice.value == 'd' &&
-                                    multiChoiceCard.correct != getModifier.clickedChoice.value
+                                if (clickedChoice == 'd' &&
+                                    multiChoiceCard.correct != clickedChoice
                                 ) {
                                     getModifier.pickedChoice()
-                                } else if (getModifier.clickedChoice.value == 'd' &&
-                                    multiChoiceCard.correct == getModifier.clickedChoice.value
+                                } else if (
+                                    multiChoiceCard.correct == 'd' &&
+                                    clickedChoice != multiChoiceCard.correct
                                 ) {
                                     getModifier.correctChoice()
-                                } else if (multiChoiceCard.correct == 'd' &&
-                                    multiChoiceCard.correct != getModifier.clickedChoice.value
+                                } else if (
+                                    clickedChoice == multiChoiceCard.correct &&
+                                    multiChoiceCard.correct == 'd'
                                 ) {
                                     getModifier.correctChoice()
                                 } else {
@@ -349,7 +359,8 @@ fun ChoiceBackCard(
 fun BackCard(
     ct: CT,
     getModifier: GetModifier,
-    modifier: Modifier
+    modifier: Modifier,
+    clickedChoice: Char
 ) {
     Box(
         modifier = modifier
@@ -371,7 +382,8 @@ fun BackCard(
             }
 
             is CT.MultiChoice -> {
-                ChoiceBackCard(multiChoiceCard = ct.multiChoiceCard, getModifier)
+                ChoiceBackCard(multiChoiceCard = ct.multiChoiceCard,
+                    clickedChoice, getModifier)
             }
             is CT.Math -> {
                 MathBackCard(mathCard = ct.mathCard, getModifier)

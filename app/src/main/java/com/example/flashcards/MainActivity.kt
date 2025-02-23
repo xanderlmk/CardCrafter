@@ -1,18 +1,18 @@
 package com.example.flashcards
 
+import android.os.Build
 import android.os.Bundle
-
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
-
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
@@ -20,10 +20,15 @@ import com.example.flashcards.controller.navigation.AppNavHost
 import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.controller.viewModels.deckViewsModels.MainViewModel
+import com.example.flashcards.supabase.model.createSupabase
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.uiModels.PreferencesManager
 import com.example.flashcards.ui.theme.FlashcardsTheme
+import io.github.jan.supabase.annotations.SupabaseInternal
+import io.github.jan.supabase.realtime.realtime
 import kotlinx.coroutines.coroutineScope
+
+@OptIn(SupabaseInternal::class)
 
 class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModels {
@@ -37,16 +42,24 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var fields: Fields
 
-
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        /** Getting our supabase credentials */
+        val supabaseUrl = getString(R.string.SUPABASE_URL)
+        val supabaseKey = getString(R.string.SUPABASE_KEY)
+        var supabase = createSupabase(
+            supabaseUrl = supabaseUrl,
+            supabaseKey = supabaseKey
+        )
         enableEdgeToEdge()
         setContent {
-            preferences = remember {
+            preferences = rememberUpdatedState(
                 PreferencesManager(
                     applicationContext
                 )
-            }
+            ).value
+
             /**
              * Making sure that if it's their first time,
              * there is no database update,
@@ -56,7 +69,7 @@ class MainActivity : ComponentActivity() {
              **/
             if ((mainViewModel.appStarted.value == null ||
                         mainViewModel.appStarted.value == false) &&
-                !preferences.isFirstTime
+                !preferences.getIsFirstTime()
             ) {
                 LaunchedEffect(Unit) {
                     coroutineScope {
@@ -65,14 +78,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
             fields = rememberSaveable { Fields() }
-
-
+            LaunchedEffect(Unit) {
+                supabase.realtime.connect()
+            }
             val isSystemDark = isSystemInDarkTheme()
 
-            if (preferences.isFirstTime) {
+            if (preferences.getIsFirstTime()) {
                 preferences.darkTheme.value = isSystemDark
-                preferences.isDarkThemeEnabled = isSystemDark
-                preferences.isFirstTime = false
+                preferences.setDarkTheme(isSystemDark)
+                preferences.setIsFirstTime()
             }
 
             FlashcardsTheme(
@@ -86,6 +100,7 @@ class MainActivity : ComponentActivity() {
                         editingCardListVM = editingCardListViewModel,
                         preferences = preferences,
                         fields = fields,
+                        supabase = supabase,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -97,16 +112,14 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         if (::preferences.isInitialized) {
-            preferences.saveDarkTheme()
-            preferences.saveCustomScheme()
+            preferences.savePreferences()
         }
     }
 
     override fun onPause() {
         super.onPause()
         if (::preferences.isInitialized) {
-            preferences.saveDarkTheme()
-            preferences.saveCustomScheme()
+            preferences.savePreferences()
         }
     }
 

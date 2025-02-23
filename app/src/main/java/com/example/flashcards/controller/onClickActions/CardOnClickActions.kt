@@ -80,7 +80,8 @@ fun saveCard(
                         fields.correct.value == 'c') ||
                         (fields.choices[3].value.isBlank() &&
                                 fields.correct.value == 'd')
-                        )
+                        ) &&
+                fields.correct.value in 'a' .. 'd'
             ) {
                 editCardVM.updateMultiChoiceCard(
                     ct.card.id,

@@ -76,6 +76,11 @@ class EditingCardView(
                     contentAlignment = Alignment.TopCenter,
                     modifier = Modifier.fillMaxSize()
                 ) {
+                    CardOptionsButton(
+                        editCardVM, getModifier, card, fields, newType,
+                        expanded, Modifier
+                            .align(Alignment.TopEnd), onNavigateBack
+                    )
                     Text(
                         text = stringResource(R.string.edit_flashcard),
                         fontSize = 25.sp,
@@ -83,11 +88,6 @@ class EditingCardView(
                         textAlign = TextAlign.Center,
                         color = getModifier.titleColor(),
                         modifier = getModifier.editCardModifier()
-                    )
-
-                    CardOptionsButton(
-                        editCardVM, getModifier, card, fields, newType,
-                        expanded, onNavigateBack,
                     )
                 }
                 if (selectedCard.value != null) {

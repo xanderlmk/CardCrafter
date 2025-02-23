@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flashcards.model.repositories.FlashCardRepository
+import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,6 +34,8 @@ class NavViewModel(
     }
 
     private val deckId = MutableStateFlow(savedStateHandle["id"] ?: 0)
+    private val cardId = MutableStateFlow(savedStateHandle["cardId"] ?: 0)
+
     private val thisDeck: StateFlow<Deck?> = deckId
         .flatMapLatest { id ->
             flashCardRepository.getDeckStream(id)
@@ -42,8 +46,29 @@ class NavViewModel(
             initialValue = null
         )
     val deck = thisDeck
+
+    private val thisCard : StateFlow<Card?> = cardId
+        .flatMapLatest {
+            if (it == 0){
+                flowOf(null)
+            } else {
+                flashCardRepository.getCardStream(it)
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = null
+        )
+    val card = thisCard
     fun getDeckById(id: Int) {
         deckId.value = id
+    }
+    fun getCardById(id : Int) {
+        cardId.value = id
+    }
+    fun resetCard(){
+        cardId.value = 0
     }
 
     suspend fun updateCardsLeft(deck: Deck, cardsToAdd: Int) {

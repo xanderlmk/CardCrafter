@@ -13,7 +13,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -25,8 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.flashcards.controller.cardHandlers.returnCard
-import com.example.flashcards.model.tablesAndApplication.Card
+import com.example.flashcards.controller.cardHandlers.returnCardId
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.model.uiModels.Fields
@@ -38,7 +36,6 @@ class EditCardsList(
     private var editingCardListVM: EditingCardListViewModel,
     private var fields: Fields,
     private var listState: LazyListState,
-    private val selectedCard: MutableState<Card?>,
     private var getModifier: GetModifier
 ) {
     var isEditing = mutableStateOf(false)
@@ -46,15 +43,11 @@ class EditCardsList(
     @SuppressLint("CoroutineCreationDuringComposition")
     @Composable
     fun ViewFlashCards(
-        deck: Deck, onNavigate: () -> Unit, goToEditCard: (Int) -> Unit
+        deck: Deck, onNavigate: () -> Unit, goToEditCard: (Int, Int) -> Unit
     ) {
-        //var deckWithCards by remember { mutableStateOf(DeckWithCards(Deck(0, loading.toString() ), emptyList())) }
         val sealedCardsList by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
         val middleCard = rememberSaveable { mutableIntStateOf(0) }
         var clicked by remember { mutableStateOf(false) }
-
-        val presetModifier = getModifier.backButtonModifier()
-
         // Restore the scroll position when returning from editing
         LaunchedEffect(Unit) {
             snapshotFlow { listState.layoutInfo.visibleItemsInfo }
@@ -72,7 +65,7 @@ class EditCardsList(
                     modifier = getModifier.bottomLineModifier()
                 ) {
                     ShowBackButtonAndDeckName(
-                        onNavigate, deck, presetModifier, getModifier
+                        onNavigate, deck, getModifier.backButtonModifier(), getModifier
                     )
                 }
                 LazyColumn(
@@ -85,11 +78,9 @@ class EditCardsList(
                             onClick = {
                                 if (!clicked) {
                                     fields.scrollPosition.value = index
-                                    selectedCard.value =
-                                        returnCard(sealedCardsList.allCTs[index])
                                     isEditing.value = true
                                     clicked = true
-                                    goToEditCard(index)
+                                    goToEditCard(index, returnCardId(sealedCardsList.allCTs[index]))
                                 }
                             },
                             colors = ButtonDefaults.buttonColors(

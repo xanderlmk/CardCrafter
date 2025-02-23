@@ -39,14 +39,20 @@ class Fields(
         question = mutableStateOf(parcel.readString()!!),
         middleField = mutableStateOf(parcel.readString()!!),
         answer = mutableStateOf(parcel.readString()!!),
-        choices = List(4) { mutableStateOf(parcel.readString()!!) }.toMutableList(),
+        choices = mutableListOf<MutableState<String>>().apply {
+            parcel.readStringList(this.map { it.value }.toMutableList())
+            addAll(this)
+        },
         correct = mutableStateOf(parcel.readString()!![0]),
         scrollPosition = mutableIntStateOf(parcel.readInt()),
         mainClicked = mutableStateOf(parcel.readByte() != 0.toByte()),
         inDeckClicked = mutableStateOf(parcel.readByte() != 0.toByte()),
         leftDueCardView = mutableStateOf(parcel.readByte() != 0.toByte()),
         cardsAdded = mutableIntStateOf(parcel.readInt()),
-        stringList = mutableListOf(mutableStateOf(parcel.readString()!!))
+        stringList = mutableListOf<MutableState<String>>().apply {
+            parcel.readStringList(this.map { it.value }.toMutableList())
+            addAll(this)
+        }
     )
 
     companion object : Parceler<Fields> {
@@ -54,14 +60,14 @@ class Fields(
             parcel.writeString(question.value)
             parcel.writeString(middleField.value)
             parcel.writeString(answer.value)
-            parcel.writeList(choices.toMutableList())
+            parcel.writeStringList(choices.map { it.value })
             parcel.writeString(choices.toString())
             parcel.writeInt(scrollPosition.value)
             parcel.writeByte(if (mainClicked.value) 1 else 0)
             parcel.writeByte(if (inDeckClicked.value) 1 else 0)
             parcel.writeByte(if (leftDueCardView.value) 1 else 0)
             parcel.writeInt(cardsAdded.value)
-            parcel.writeList(stringList.toMutableList())
+            parcel.writeStringList(stringList.map { it.value })
         }
         override fun create(parcel: Parcel): Fields {
             return Fields(parcel)
