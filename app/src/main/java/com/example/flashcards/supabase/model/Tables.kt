@@ -31,4 +31,3 @@ data class SBMathCard(
     val answer : String
 )
 
-
