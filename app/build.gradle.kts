@@ -11,12 +11,6 @@ plugins {
     alias(libs.plugins.parcelize)
 }
 
-val SUPABASE_URL = gradleLocalProperties(rootDir, providers)
-    .getProperty("SUPABASE_URL", "")
-val SUPABASE_KEY = gradleLocalProperties(rootDir, providers)
-    .getProperty("SUPABASE_KEY", "")
-val GOOGLE_CLIENTID = gradleLocalProperties(rootDir, providers)
-    .getProperty("GOOGLE_CLIENTID", "")
 android {
     namespace = "com.example.flashcards"
     // For sdk 34 just change compileSdk and targetSdk.
@@ -33,26 +27,21 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        resValue(
-            "string",
-            "SUPABASE_URL",
-            "\"" + SUPABASE_URL + "\""
+        buildConfigField(
+            "String",
+            "SUPABASE_URL", "\"" + "${gradleLocalProperties(rootDir, providers)
+                .getProperty("SUPABASE_URL", "")}" + "\""
         )
-        resValue(
-            "string",
-            "SUPABASE_KEY",
-            "\"" + SUPABASE_KEY + "\""
-        )
-        resValue(
-            "string",
-            "GOOGLE_CLIENTID",
-            "\"" + GOOGLE_CLIENTID + "\""
+        buildConfigField(
+            "String",
+            "SUPABASE_KEY", "\"" + "${gradleLocalProperties(rootDir, providers)
+                .getProperty("SUPABASE_KEY", "")}" + "\""
         )
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -64,7 +53,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     // Delete this kotlin section to run on Koala version
-    kotlin{
+    kotlin {
         jvmToolchain {
             languageVersion.set(JavaLanguageVersion.of(17)) // or 1.8 if using an older JDK
         }
@@ -74,6 +63,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.2"
@@ -83,10 +73,9 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-   ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas")
     }
-
 
 
 }
@@ -97,6 +86,10 @@ dependencies {
 
     // Jetpack Compose Integration
     implementation(libs.androidx.navigation.compose)
+
+    // to use https.
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
 
     // Views/Fragments Integration
     implementation(libs.androidx.navigation.fragment)
@@ -131,6 +124,7 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.bcrypt)
 
+    // Room database
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     annotationProcessor(libs.androidx.room.compiler)
@@ -165,7 +159,7 @@ dependencies {
 
     // Google
     implementation(libs.androidx.credentials)
-    implementation (libs.googleid)
+    implementation(libs.googleid)
 
 
     // optional - needed for credentials support from play services, for devices running

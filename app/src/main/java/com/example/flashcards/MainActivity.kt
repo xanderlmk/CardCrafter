@@ -29,7 +29,6 @@ import io.github.jan.supabase.realtime.realtime
 import kotlinx.coroutines.coroutineScope
 
 @OptIn(SupabaseInternal::class)
-
 class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModels {
         AppViewModelProvider.Factory
@@ -46,8 +45,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /** Getting our supabase credentials */
-        val supabaseUrl = getString(R.string.SUPABASE_URL)
-        val supabaseKey = getString(R.string.SUPABASE_KEY)
+        val supabaseUrl = BuildConfig.SUPABASE_URL
+        val supabaseKey = BuildConfig.SUPABASE_KEY
         var supabase = createSupabase(
             supabaseUrl = supabaseUrl,
             supabaseKey = supabaseKey
@@ -59,7 +58,6 @@ class MainActivity : ComponentActivity() {
                     applicationContext
                 )
             ).value
-
             /**
              * Making sure that if it's their first time,
              * there is no database update,
@@ -82,6 +80,7 @@ class MainActivity : ComponentActivity() {
                 supabase.realtime.connect()
             }
             val isSystemDark = isSystemInDarkTheme()
+
 
             if (preferences.getIsFirstTime()) {
                 preferences.darkTheme.value = isSystemDark

@@ -16,7 +16,7 @@ import com.example.flashcards.controller.viewModels.deckViewsModels.AddDeckViewM
 import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
 import com.example.flashcards.controller.viewModels.deckViewsModels.EditDeckViewModel
 import com.example.flashcards.model.tablesAndApplication.FlashCardApplication
-
+import com.example.flashcards.supabase.controller.APIViewModel
 
 
 /**
@@ -79,6 +79,9 @@ object AppViewModelProvider {
         }
         initializer {
             SupabaseViewModel()
+        }
+        initializer {
+            APIViewModel()
         }
     }
 }

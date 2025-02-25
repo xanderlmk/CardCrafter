@@ -24,11 +24,8 @@ import kotlinx.coroutines.launch
 @OptIn(SupabaseExperimental::class, ExperimentalCoroutinesApi::class)
 class SupabaseViewModel(
 ) : ViewModel() {
-
     private val privateList = MutableStateFlow(SBDeckList())
     val deckList = privateList.asStateFlow()
-
-
     suspend fun signUpWithGoogle(
         supabase: SupabaseClient,
         googleIdToken: String,
