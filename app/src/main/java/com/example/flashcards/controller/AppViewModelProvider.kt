@@ -78,7 +78,11 @@ object AppViewModelProvider {
             )
         }
         initializer {
-            SupabaseViewModel()
+            SupabaseViewModel(
+                flashCardApplication().container.flashCardRepository,
+                flashCardApplication().container.cardTypeRepository,
+                flashCardApplication().container.scienceSpecificRepository
+            )
         }
         initializer {
             APIViewModel()

@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.flashcards.R
 import com.example.flashcards.model.uiModels.Fields
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 import com.example.flashcards.views.miscFunctions.EditTextField
 import com.example.flashcards.views.miscFunctions.EditTextFieldNonDone
 import com.example.flashcards.views.miscFunctions.PickAnswerChar
@@ -15,7 +15,7 @@ import com.example.flashcards.views.miscFunctions.PickAnswerChar
 @Composable
 fun EditChoiceCard(
     fields: Fields,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
 
 
@@ -51,5 +51,5 @@ fun EditChoiceCard(
         labelStr = stringResource(R.string.choice_d),
         modifier = Modifier.fillMaxWidth()
     )
-    PickAnswerChar(fields, getModifier)
+    PickAnswerChar(fields, getUIStyle)
 }

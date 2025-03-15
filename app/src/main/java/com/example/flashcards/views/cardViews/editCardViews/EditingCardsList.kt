@@ -29,14 +29,17 @@ import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.CardSelector
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
+import com.example.flashcards.ui.theme.backButtonModifier
+import com.example.flashcards.ui.theme.bottomLineModifier
+import com.example.flashcards.ui.theme.boxViewsModifier
 import com.example.flashcards.views.miscFunctions.ShowBackButtonAndDeckName
 
 class EditCardsList(
     private var editingCardListVM: EditingCardListViewModel,
     private var fields: Fields,
     private var listState: LazyListState,
-    private var getModifier: GetModifier
+    private var getUIStyle: GetUIStyle
 ) {
     var isEditing = mutableStateOf(false)
 
@@ -57,15 +60,17 @@ class EditCardsList(
             getListState(listState, middleCard.intValue)
         }
         Box(
-            modifier = getModifier.boxViewsModifier(),
+            modifier = Modifier
+                .boxViewsModifier(getUIStyle.getColorScheme()),
             contentAlignment = Alignment.Center
         ) {
             Column {
                 Box(
-                    modifier = getModifier.bottomLineModifier()
+                    modifier = Modifier
+                        .bottomLineModifier(getUIStyle.getColorScheme())
                 ) {
                     ShowBackButtonAndDeckName(
-                        onNavigate, deck, getModifier.backButtonModifier(), getModifier
+                        onNavigate, deck, Modifier.backButtonModifier(), getUIStyle
                     )
                 }
                 LazyColumn(
@@ -84,8 +89,8 @@ class EditCardsList(
                                 }
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.secondaryButtonColor(),
-                                contentColor = getModifier.buttonTextColor()
+                                containerColor = getUIStyle.secondaryButtonColor(),
+                                contentColor = getUIStyle.buttonTextColor()
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()

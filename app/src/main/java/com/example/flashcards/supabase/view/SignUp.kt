@@ -27,7 +27,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcards.supabase.controller.SupabaseViewModel
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -38,19 +38,21 @@ import java.security.MessageDigest
 import java.util.UUID
 import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.supabase.controller.APIViewModel
+import com.example.flashcards.ui.theme.boxViewsModifier
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun SignUp(
     supabase: SupabaseClient,
     supabaseVM: SupabaseViewModel,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     val apiVM : APIViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val clientId by apiVM.clientId.collectAsStateWithLifecycle()
     Box(
         contentAlignment = Alignment.TopCenter,
-        modifier = getModifier.boxViewsModifier()
+        modifier = Modifier
+            .boxViewsModifier(getUIStyle.getColorScheme())
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -61,7 +63,7 @@ fun SignUp(
         ) {
             Text(
                 text = "You must use Google to Sign In/Sign Up",
-                color = getModifier.titleColor(),
+                color = getUIStyle.titleColor(),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 fontSize = 22.sp
@@ -80,10 +82,8 @@ fun GoogleSignInButton(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-
     val onClick: () -> Unit = {
         val credentialManager = CredentialManager.create(context)
-
         // Generate a nonce and hash it with sha-256
         // Providing a nonce is optional but recommended
         val rawNonce = UUID.randomUUID()
@@ -134,7 +134,7 @@ fun GoogleSignInButton(
     }
 
     Button(
-        onClick = onClick,
+        onClick = {onClick()},
     ) {
         Text("Sign in with Google")
     }

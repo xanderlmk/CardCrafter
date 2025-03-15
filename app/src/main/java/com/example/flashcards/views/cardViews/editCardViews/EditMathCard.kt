@@ -20,13 +20,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.model.uiModels.Fields
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 import com.example.flashcards.views.miscFunctions.EditTextFieldNonDone
 
 @Composable
 fun EditMathCard(
     fields: Fields,
-    getModifier : GetModifier
+    getUIStyle : GetUIStyle
 ) {
     var steps by rememberSaveable { mutableIntStateOf(fields.stringList.size) }
 
@@ -81,8 +81,8 @@ fun EditMathCard(
             },
             modifier = Modifier.padding(top = 4.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = getModifier.secondaryButtonColor(),
-                contentColor = getModifier.buttonTextColor()
+                containerColor = getUIStyle.secondaryButtonColor(),
+                contentColor = getUIStyle.buttonTextColor()
             )
         ) {
             Text("Remove Step")

@@ -2,6 +2,7 @@
 
 package com.example.flashcards.supabase.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -14,7 +15,7 @@ data class SBDecks(
 @Serializable
 data class SBCards(
     val id: Int = -1,
-    val deckUUID: String,
+    @SerialName("deckUUID") val deckUUID: String,
     val type: String
 )
 

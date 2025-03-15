@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.content.edit
 
 class PreferencesManager(
     context: Context,
@@ -14,7 +15,6 @@ class PreferencesManager(
     val darkTheme: MutableState<Boolean> = mutableStateOf(false)
     val cardAmount: MutableIntState = mutableIntStateOf(20)
     val reviewAmount: MutableIntState = mutableIntStateOf(1)
-
     init {
         // Initialize themes
         darkTheme.value = isDarkThemeEnabled
@@ -47,12 +47,12 @@ class PreferencesManager(
     private var isDynamicThemeEnabled: Boolean
         get() = sharedPreferences.getBoolean("dynamic_theme", false)
         set(value) {
-            sharedPreferences.edit().putBoolean("dynamic_theme", value).apply()
+            sharedPreferences.edit { putBoolean("dynamic_theme", value) }
         }
     private var isDarkThemeEnabled: Boolean
         get() = sharedPreferences.getBoolean("dark_theme", false)
         set(value) {
-            sharedPreferences.edit().putBoolean("dark_theme", value).apply()
+            sharedPreferences.edit { putBoolean("dark_theme", value) }
         }
     fun setDarkTheme(isDarkTheme : Boolean ){
         isDarkThemeEnabled = isDarkTheme
@@ -61,7 +61,7 @@ class PreferencesManager(
     private var isFirstTime: Boolean
         get() = sharedPreferences.getBoolean("first_time", true)
         set(value) {
-            sharedPreferences.edit().putBoolean("first_time", value).apply()
+            sharedPreferences.edit { putBoolean("first_time", value) }
         }
     fun getIsFirstTime() : Boolean {
         return isFirstTime
@@ -72,12 +72,12 @@ class PreferencesManager(
     private var allCardAmounts: Int
         get() = sharedPreferences.getInt("card_amount", 20)
         set(value) {
-            sharedPreferences.edit().putInt("card_amount", value).apply()
+            sharedPreferences.edit { putInt("card_amount", value) }
         }
 
     private var allReviewAmounts: Int
         get() = sharedPreferences.getInt("review_amount", 1)
         set(value) {
-            sharedPreferences.edit().putInt("review_amount", value).apply()
+            sharedPreferences.edit { putInt("review_amount", value) }
         }
 }

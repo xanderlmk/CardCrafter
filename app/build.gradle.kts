@@ -160,8 +160,6 @@ dependencies {
     // Google
     implementation(libs.androidx.credentials)
     implementation(libs.googleid)
-
-
     // optional - needed for credentials support from play services, for devices running
     // Android 13 and below.
     implementation(libs.androidx.credentials.play.services.auth)

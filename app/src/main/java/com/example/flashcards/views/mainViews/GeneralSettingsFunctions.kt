@@ -33,7 +33,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
+import com.example.flashcards.ui.theme.generalSettingsOptionsModifier
 import com.example.flashcards.views.miscFunctions.EditIntField
 
 @Composable
@@ -43,7 +44,7 @@ fun SystemThemeButton(
     customToggled: Painter,
     darkToggled: Painter,
     clicked: Boolean,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     var expanded by remember { mutableStateOf(false) }
     if (clicked) {
@@ -62,8 +63,8 @@ fun SystemThemeButton(
             },
             modifier = Modifier.padding(top = 4.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = getModifier.secondaryButtonColor(),
-                contentColor = getModifier.buttonTextColor()
+                containerColor = getUIStyle.secondaryButtonColor(),
+                contentColor = getUIStyle.buttonTextColor()
             )
         ) {
             Text(stringResource(R.string.system_theme))
@@ -77,7 +78,7 @@ fun SystemThemeButton(
                         Icon(
                             painter = customToggled,
                             contentDescription = "Toggle Custom Theme",
-                            tint = getModifier.isThemeOn()
+                            tint = getUIStyle.isThemeOn()
                         )
                     })
                 DropdownMenuItem(onClick = {
@@ -88,7 +89,7 @@ fun SystemThemeButton(
                         Icon(
                             painter = darkToggled,
                             contentDescription = "Toggle Dynamic Theme",
-                            tint = getModifier.isThemeOn()
+                            tint = getUIStyle.isThemeOn()
                         )
                     })
             }
@@ -105,7 +106,7 @@ fun DefaultDeckOptions(
     reviewSuccess: Boolean,
     cardSuccess: Boolean,
     clicked: Boolean,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     var expanded by remember { mutableStateOf(false) }
     if (clicked) {
@@ -121,7 +122,7 @@ fun DefaultDeckOptions(
             fontSize = 20.sp,
             lineHeight = 22.sp,
             fontWeight = FontWeight.Bold,
-            color = getModifier.titleColor(),
+            color = getUIStyle.titleColor(),
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .clickable {
@@ -133,7 +134,8 @@ fun DefaultDeckOptions(
         )
         if (expanded) {
             Column(
-                modifier = getModifier.generalSettingsOptionsModifier(),
+                modifier = Modifier
+                    .generalSettingsOptionsModifier(getUIStyle.getColorScheme()),
             ) {
                 Text(
                     text = stringResource(R.string.review_amount),
@@ -141,7 +143,7 @@ fun DefaultDeckOptions(
                     textAlign = TextAlign.Center,
                     lineHeight = 20.sp,
                     fontStyle = FontStyle.Italic,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
@@ -167,14 +169,14 @@ fun DefaultDeckOptions(
                             .padding(vertical = 1.dp, horizontal = 2.dp)
                             .align(Alignment.CenterVertically),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = getModifier.secondaryButtonColor(),
-                            contentColor = getModifier.buttonTextColor()
+                            containerColor = getUIStyle.secondaryButtonColor(),
+                            contentColor = getUIStyle.buttonTextColor()
                         )
                     ) {
                         Text(
                             text = stringResource(R.string.save),
                             color = if (!reviewSuccess){
-                                getModifier.titleColor()
+                                getUIStyle.titleColor()
                             } else {
                                 Color.Green
                             })
@@ -182,7 +184,8 @@ fun DefaultDeckOptions(
                 }
             }
             Column(
-                modifier = getModifier.generalSettingsOptionsModifier(),
+                modifier = Modifier
+                    .generalSettingsOptionsModifier(getUIStyle.getColorScheme()),
             ) {
                 Text(
                     text = stringResource(R.string.card_amount),
@@ -190,7 +193,7 @@ fun DefaultDeckOptions(
                     textAlign = TextAlign.Center,
                     lineHeight = 20.sp,
                     fontStyle = FontStyle.Italic,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
@@ -216,14 +219,14 @@ fun DefaultDeckOptions(
                             .padding(vertical = 1.dp, horizontal = 2.dp)
                             .align(Alignment.CenterVertically),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = getModifier.secondaryButtonColor(),
-                            contentColor = getModifier.buttonTextColor()
+                            containerColor = getUIStyle.secondaryButtonColor(),
+                            contentColor = getUIStyle.buttonTextColor()
                         )
                     ) {
                         Text(
                             text = stringResource(R.string.save),
                             color = if (!cardSuccess){
-                                getModifier.titleColor()
+                                getUIStyle.titleColor()
                             } else {
                                 Color.Green
                             }
@@ -238,7 +241,7 @@ fun DefaultDeckOptions(
 @Composable
 fun InvalidXXAmount(
     pressed: MutableState<Boolean>,
-    getModifier: GetModifier,
+    getUIStyle: GetUIStyle,
     error : String
     ){
     if (pressed.value) {
@@ -248,7 +251,7 @@ fun InvalidXXAmount(
             text = {
                 Text(
                     text = error,
-                    color = getModifier.titleColor()
+                    color = getUIStyle.titleColor()
                 )
             },
             confirmButton = {},
@@ -256,8 +259,8 @@ fun InvalidXXAmount(
                 Button(
                     onClick = { pressed.value = false },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = getModifier.secondaryButtonColor(),
-                        contentColor = getModifier.buttonTextColor()
+                        containerColor = getUIStyle.secondaryButtonColor(),
+                        contentColor = getUIStyle.buttonTextColor()
                     )
                 ) {
                     Text("Ok")

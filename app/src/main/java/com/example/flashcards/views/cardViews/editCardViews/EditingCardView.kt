@@ -37,13 +37,15 @@ import com.example.flashcards.controller.viewModels.cardViewsModels.EditingCardL
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Card
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
+import com.example.flashcards.ui.theme.boxViewsModifier
+import com.example.flashcards.ui.theme.editCardModifier
 import com.example.flashcards.views.miscFunctions.CardOptionsButton
 import kotlinx.coroutines.launch
 
 class EditingCardView(
     private var editingCardListVM: EditingCardListViewModel,
-    private var getModifier: GetModifier
+    private var getUIStyle: GetUIStyle
 ) {
     @Composable
     fun EditFlashCardView(
@@ -62,7 +64,8 @@ class EditingCardView(
         val sealedAllCTs by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
 
         Box(
-            modifier = getModifier.boxViewsModifier()
+            modifier = Modifier
+                .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
             Column(
                 modifier = Modifier
@@ -77,7 +80,7 @@ class EditingCardView(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     CardOptionsButton(
-                        editCardVM, getModifier, card, fields, newType,
+                        editCardVM, getUIStyle, card, fields, newType,
                         expanded, Modifier
                             .align(Alignment.TopEnd), onNavigateBack
                     )
@@ -86,8 +89,8 @@ class EditingCardView(
                         fontSize = 25.sp,
                         lineHeight = 30.sp,
                         textAlign = TextAlign.Center,
-                        color = getModifier.titleColor(),
-                        modifier = getModifier.editCardModifier()
+                        color = getUIStyle.titleColor(),
+                        modifier = Modifier.editCardModifier()
                     )
                 }
                 if (selectedCard.value != null) {
@@ -102,7 +105,7 @@ class EditingCardView(
                         cardId = card.id,
                         fields = fields,
                         changed = cardTypeChanged.value,
-                        getModifier = getModifier
+                        getUIStyle = getUIStyle
                     )
                     if (sealedAllCTs.errorMessage.isNotEmpty()) {
                         Text(
@@ -126,8 +129,8 @@ class EditingCardView(
                             },
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.secondaryButtonColor(),
-                                contentColor = getModifier.buttonTextColor()
+                                containerColor = getUIStyle.secondaryButtonColor(),
+                                contentColor = getUIStyle.buttonTextColor()
                             )
                         ) {
                             Text(stringResource(R.string.cancel))
@@ -162,8 +165,8 @@ class EditingCardView(
                             modifier = Modifier
                                 .weight(1f),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.secondaryButtonColor(),
-                                contentColor = getModifier.buttonTextColor()
+                                containerColor = getUIStyle.secondaryButtonColor(),
+                                contentColor = getUIStyle.buttonTextColor()
                             )
                         ) {
                             Text(stringResource(R.string.save))

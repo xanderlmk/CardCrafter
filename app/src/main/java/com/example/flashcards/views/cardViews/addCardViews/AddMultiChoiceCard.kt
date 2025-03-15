@@ -32,7 +32,7 @@ import com.example.flashcards.controller.viewModels.cardViewsModels.AddCardViewM
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.EditTextField
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 import com.example.flashcards.views.miscFunctions.EditTextFieldNonDone
 import com.example.flashcards.views.miscFunctions.PickAnswerChar
 import kotlinx.coroutines.delay
@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddMultiChoiceCard(
     vm: AddCardViewModel, deck: Deck,
-    fields: Fields, getModifier: GetModifier
+    fields: Fields, getUIStyle: GetUIStyle
 ) {
     var successMessage by remember { mutableStateOf("") }
     val errorMessage by vm.errorMessage.collectAsStateWithLifecycle()
@@ -59,7 +59,7 @@ fun AddMultiChoiceCard(
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
             lineHeight = 30.sp,
-            color = getModifier.titleColor(),
+            color = getUIStyle.titleColor(),
             modifier = Modifier
                 .padding(top = 10.dp)
         )
@@ -85,13 +85,13 @@ fun AddMultiChoiceCard(
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
             lineHeight = 30.sp,
-            color = getModifier.titleColor(),
+            color = getUIStyle.titleColor(),
             modifier = Modifier
                 .padding(top = 8.dp)
                 .background(
                     color =
                     if (fields.correct.value == 'a') {
-                        getModifier.correctChoice()
+                        getUIStyle.correctChoice()
                     } else {
                         Color.Transparent
                     }
@@ -114,7 +114,7 @@ fun AddMultiChoiceCard(
                     .weight(1f),
                 inputColor =
                 if (fields.correct.value == 'a') {
-                    getModifier.onCorrectChoice()
+                    getUIStyle.onCorrectChoice()
                 } else {
                     Color.Transparent
                 }
@@ -125,13 +125,13 @@ fun AddMultiChoiceCard(
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
             lineHeight = 30.sp,
-            color = getModifier.titleColor(),
+            color = getUIStyle.titleColor(),
             modifier = Modifier
                 .padding(top = 8.dp)
                 .background(
                     color =
                     if (fields.correct.value == 'b') {
-                        getModifier.correctChoice()
+                        getUIStyle.correctChoice()
                     } else {
                         Color.Transparent
                     }
@@ -154,7 +154,7 @@ fun AddMultiChoiceCard(
                     .weight(1f),
                 inputColor =
                 if (fields.correct.value == 'b') {
-                    getModifier.onCorrectChoice()
+                    getUIStyle.onCorrectChoice()
                 } else {
                     Color.Transparent
                 }
@@ -165,13 +165,13 @@ fun AddMultiChoiceCard(
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
             lineHeight = 30.sp,
-            color = getModifier.titleColor(),
+            color = getUIStyle.titleColor(),
             modifier = Modifier
                 .padding(top = 8.dp)
                 .background(
                     color =
                     if (fields.correct.value == 'c') {
-                        getModifier.correctChoice()
+                        getUIStyle.correctChoice()
                     } else {
                         Color.Transparent
                     }
@@ -194,7 +194,7 @@ fun AddMultiChoiceCard(
                     .weight(1f),
                 inputColor =
                 if (fields.correct.value == 'c') {
-                    getModifier.onCorrectChoice()
+                    getUIStyle.onCorrectChoice()
                 } else {
                     Color.Transparent
                 }
@@ -205,13 +205,13 @@ fun AddMultiChoiceCard(
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
             lineHeight = 30.sp,
-            color = getModifier.titleColor(),
+            color = getUIStyle.titleColor(),
             modifier = Modifier
                 .padding(top = 8.dp)
                 .background(
                     color =
                     if (fields.correct.value == 'd') {
-                        getModifier.correctChoice()
+                        getUIStyle.correctChoice()
                     } else {
                         Color.Transparent
                     }
@@ -234,14 +234,14 @@ fun AddMultiChoiceCard(
                     .weight(1f),
                 inputColor =
                 if (fields.correct.value == 'd') {
-                    getModifier.onCorrectChoice()
+                    getUIStyle.onCorrectChoice()
                 } else {
                     Color.Transparent
                 }
             )
         }
 
-        PickAnswerChar(fields, getModifier)
+        PickAnswerChar(fields, getUIStyle)
 
         if (errorMessage.isNotEmpty()) {
             Text(
@@ -256,7 +256,7 @@ fun AddMultiChoiceCard(
         if (successMessage.isNotEmpty()) {
             Text(
                 text = successMessage,
-                color = getModifier.titleColor(),
+                color = getUIStyle.titleColor(),
                 modifier = Modifier.padding(4.dp),
                 fontSize = 16.sp
             )
@@ -317,8 +317,8 @@ fun AddMultiChoiceCard(
                 },
                 modifier = Modifier.padding(top = 4.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = getModifier.secondaryButtonColor(),
-                    contentColor = getModifier.buttonTextColor()
+                    containerColor = getUIStyle.secondaryButtonColor(),
+                    contentColor = getUIStyle.buttonTextColor()
                 )
             ) {
                 Text(stringResource(R.string.submit))

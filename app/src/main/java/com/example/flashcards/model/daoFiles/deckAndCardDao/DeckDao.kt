@@ -15,7 +15,7 @@ import java.util.Date
 @Dao
 interface DeckDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertDeck(deck: Deck)
+    suspend fun insertDeck(deck: Deck) : Long
 
     @Update
     suspend fun updateDeck(deck: Deck)
