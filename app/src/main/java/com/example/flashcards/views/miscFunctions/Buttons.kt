@@ -40,14 +40,14 @@ import com.example.flashcards.controller.onClickActions.DeleteCard
 import com.example.flashcards.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.uiModels.Fields
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 import kotlinx.coroutines.launch
 
 @Composable
 fun SmallAddButton(
     onClick: () -> Unit,
     iconSize: Int = 45,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     FloatingActionButton(
         onClick = {
@@ -55,14 +55,14 @@ fun SmallAddButton(
         },
         modifier = Modifier
             .padding(16.dp),
-        containerColor = getModifier.buttonColor()
+        containerColor = getUIStyle.buttonColor()
 
     ) {
         Icon(
             Icons.Outlined.Add,
             "Add Deck",
             modifier = Modifier.size(iconSize.dp),
-            tint = getModifier.iconColor(),
+            tint = getUIStyle.iconColor(),
         )
     }
 }
@@ -87,7 +87,7 @@ fun AddCardButton(
 fun BackButton(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     IconButton(
         onClick = {
@@ -95,7 +95,7 @@ fun BackButton(
         },
         modifier = modifier
             .background(
-                color = getModifier.buttonColor(),
+                color = getUIStyle.buttonColor(),
                 shape = RoundedCornerShape(16.dp)
             )
     ) {
@@ -104,7 +104,7 @@ fun BackButton(
             modifier = Modifier
                 .size(32.dp),
             contentDescription = "Back",
-            tint = getModifier.iconColor()
+            tint = getUIStyle.iconColor()
         )
     }
 }
@@ -113,7 +113,7 @@ fun BackButton(
 fun RedoCardButton(
     onRedoClick: () -> Unit,
     modifier: Modifier = Modifier,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     IconButton(
         onClick = {
@@ -126,7 +126,7 @@ fun RedoCardButton(
             modifier = Modifier
                 .size(22.dp),
             contentDescription = "Redo",
-            tint = getModifier.iconColor()
+            tint = getUIStyle.iconColor()
         )
     }
 
@@ -139,7 +139,7 @@ fun SettingsButton(
     exportDeck: () -> Unit,
     clientExists: Boolean,
     modifier: Modifier = Modifier,
-    getModifier: GetModifier,
+    getUIStyle: GetUIStyle,
     fields: Fields
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -152,7 +152,7 @@ fun SettingsButton(
         },
         modifier = modifier
             .background(
-                color = getModifier.buttonColor(),
+                color = getUIStyle.buttonColor(),
                 shape = RoundedCornerShape(16.dp)
             )
     ) {
@@ -161,7 +161,7 @@ fun SettingsButton(
             modifier = Modifier
                 .size(24.dp),
             contentDescription = "Settings",
-            tint = getModifier.iconColor()
+            tint = getUIStyle.iconColor()
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(onClick = {
@@ -198,7 +198,7 @@ fun SettingsButton(
 fun MainSettingsButton(
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
-    getModifier: GetModifier,
+    getUIStyle: GetUIStyle,
     fields: Fields
 ) {
     IconButton(
@@ -210,7 +210,7 @@ fun MainSettingsButton(
         },
         modifier = modifier
             .background(
-                color = getModifier.buttonColor(),
+                color = getUIStyle.buttonColor(),
                 shape = RoundedCornerShape(16.dp)
             )
     ) {
@@ -219,7 +219,7 @@ fun MainSettingsButton(
             modifier = Modifier
                 .size(24.dp),
             contentDescription = "Main Settings",
-            tint = getModifier.iconColor()
+            tint = getUIStyle.iconColor()
         )
     }
 }
@@ -228,7 +228,7 @@ fun MainSettingsButton(
 @Composable
 fun CardOptionsButton(
     editCardVM: EditCardViewModel,
-    getModifier: GetModifier, card: Card,
+    getUIStyle: GetUIStyle, card: Card,
     fields: Fields,
     type: MutableState<String>,
     expanded: MutableState<Boolean>,
@@ -252,7 +252,7 @@ fun CardOptionsButton(
             Icon(
                 Icons.Default.MoreVert,
                 contentDescription = "Card Type",
-                tint = getModifier.titleColor()
+                tint = getUIStyle.titleColor()
             )
         }
         DropdownMenu(expanded = expanded.value, onDismissRequest = { expanded.value = false }) {
@@ -284,7 +284,7 @@ fun CardOptionsButton(
                         modifier = Modifier
                             .size(28.dp),
                         contentDescription = "Delete Card",
-                        tint = getModifier.iconColor()
+                        tint = getUIStyle.iconColor()
                     )
                 }
             )
@@ -292,7 +292,7 @@ fun CardOptionsButton(
         DeleteCard(
             editCardVM, coroutineScope,
             card, fields, showDialog,
-            onDelete, getModifier
+            onDelete, getUIStyle
         )
     }
 }

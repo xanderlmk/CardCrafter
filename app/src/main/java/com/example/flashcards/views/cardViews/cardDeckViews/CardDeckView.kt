@@ -46,7 +46,10 @@ import com.example.flashcards.model.uiModels.CardState
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.BackButton
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
+import com.example.flashcards.ui.theme.backButtonModifier
+import com.example.flashcards.ui.theme.boxViewsModifier
+import com.example.flashcards.ui.theme.redoButtonModifier
 import com.example.flashcards.views.miscFunctions.AgainText
 import com.example.flashcards.views.miscFunctions.GoodText
 import com.example.flashcards.views.miscFunctions.HardText
@@ -57,7 +60,7 @@ import java.util.Date
 
 class CardDeckView(
     private var cardDeckVM: CardDeckViewModel,
-    private var getModifier: GetModifier,
+    private var getUIStyle: GetUIStyle,
     private var fields: Fields
 ) {
     @SuppressLint("CoroutineCreationDuringComposition")
@@ -91,8 +94,8 @@ class CardDeckView(
             } else {
                 Alignment.TopCenter
             },
-            modifier = getModifier
-                .boxViewsModifier()
+            modifier = Modifier
+                .boxViewsModifier(getUIStyle.getColorScheme())
                 .verticalScroll(scrollState)
         ) {
             if (!fields.leftDueCardView.value) {
@@ -101,10 +104,10 @@ class CardDeckView(
                         clickedChoice.value = '?'
                         onNavigate()
                     },
-                    modifier = getModifier
+                    modifier = Modifier
                         .backButtonModifier()
                         .align(Alignment.TopStart),
-                    getModifier = getModifier
+                    getUIStyle = getUIStyle
                 )
                 RedoCardButton(
                     onRedoClick = {
@@ -132,16 +135,16 @@ class CardDeckView(
                         }
                         focusManager.clearFocus()
                     },
-                    modifier = getModifier
+                    modifier = Modifier
                         .redoButtonModifier()
                         .align(Alignment.TopEnd),
-                    getModifier = getModifier
+                    getUIStyle = getUIStyle
                 )
                 if (sealedCL.allCTs.isEmpty() || dueCTs.value.isEmpty() ||
                     deck.nextReview > Date()
                 ) {
                     dueCTs.value.clear()
-                    NoDueCards(getModifier)
+                    NoDueCards(getUIStyle)
 
                 } else {
                     if (index.intValue < dueCTs.value.size) {
@@ -162,7 +165,7 @@ class CardDeckView(
                             if (cardDeckVM.getState() == CardState.Finished) {
                                 FrontCard(
                                     dueCTs.value[index.intValue],
-                                    getModifier,
+                                    getUIStyle,
                                     clickedChoice,
                                     Modifier
                                         .align(Alignment.TopCenter)
@@ -177,8 +180,8 @@ class CardDeckView(
                                         .align(Alignment.BottomCenter)
                                         .padding(bottom = 16.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = getModifier.secondaryButtonColor(),
-                                        contentColor = getModifier.buttonTextColor()
+                                        containerColor = getUIStyle.secondaryButtonColor(),
+                                        contentColor = getUIStyle.buttonTextColor()
                                     )
                                 ) {
                                     Text(stringResource(R.string.show_answer))
@@ -188,7 +191,7 @@ class CardDeckView(
                         } else {
                             BackCard(
                                 dueCTs.value[index.intValue],
-                                getModifier, Modifier
+                                getUIStyle, Modifier
                                     .align(Alignment.TopCenter)
                                     .padding(bottom = 62.dp, top = 80.dp),
                                 clickedChoice.value
@@ -247,11 +250,11 @@ class CardDeckView(
                                         },
                                         modifier = Modifier,
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = getModifier.secondaryButtonColor(),
-                                            contentColor = getModifier.buttonTextColor()
+                                            containerColor = getUIStyle.secondaryButtonColor(),
+                                            contentColor = getUIStyle.buttonTextColor()
                                         )
                                     ) { Text(stringResource(R.string.again)) }
-                                    AgainText(getModifier)
+                                    AgainText(getUIStyle)
                                 }
                                 Column(
                                     verticalArrangement = Arrangement.Top,
@@ -295,11 +298,11 @@ class CardDeckView(
                                         },
                                         modifier = Modifier,
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = getModifier.secondaryButtonColor(),
-                                            contentColor = getModifier.buttonTextColor()
+                                            containerColor = getUIStyle.secondaryButtonColor(),
+                                            contentColor = getUIStyle.buttonTextColor()
                                         )
                                     ) { Text(stringResource(R.string.hard)) }
-                                    HardText(sealedCL, index, hard, getModifier)
+                                    HardText(sealedCL, index, hard, getUIStyle)
 
                                 }
                                 Column(
@@ -344,11 +347,11 @@ class CardDeckView(
                                         },
                                         modifier = Modifier,
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = getModifier.secondaryButtonColor(),
-                                            contentColor = getModifier.buttonTextColor()
+                                            containerColor = getUIStyle.secondaryButtonColor(),
+                                            contentColor = getUIStyle.buttonTextColor()
                                         )
                                     ) { Text(stringResource(R.string.good)) }
-                                    GoodText(sealedCL, index, good, getModifier)
+                                    GoodText(sealedCL, index, good, getUIStyle)
                                 }
                             }
                         }

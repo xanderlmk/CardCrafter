@@ -42,12 +42,12 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 
 @Composable
 fun SymbolDocumentation(
     pressed: MutableState<Boolean>,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     val symbolToVectorMap = mapOf(
         "/pi" to R.drawable.icons_pi,
@@ -98,10 +98,10 @@ fun SymbolDocumentation(
 
     val returnToTop = "\nReturn to top"
     val annotatedString = buildAnnotatedStringForDocumentation(symbols, symbolToVectorMap)
-    val inlineContent = mapValues(symbolToVectorMap, annotatedString, getModifier)
+    val inlineContent = mapValues(symbolToVectorMap, annotatedString, getUIStyle)
 
     val annotatedExamples = buildAnnotatedStringForExample(examples, symbolToVectorMap)
-    val inlineExamples = mapValues(symbolToVectorMap, annotatedExamples, getModifier)
+    val inlineExamples = mapValues(symbolToVectorMap, annotatedExamples, getUIStyle)
 
     var secondToLastPosition by rememberSaveable { mutableIntStateOf(0) }
     if (pressed.value) {
@@ -117,7 +117,7 @@ fun SymbolDocumentation(
                 ) {
                     Text(
                         text = introduction,
-                        color = getModifier.titleColor(),
+                        color = getUIStyle.titleColor(),
                         fontSize = 20.sp,
                         lineHeight = 21.sp
                     )
@@ -134,14 +134,14 @@ fun SymbolDocumentation(
                     Text(
                         text = annotatedString,
                         inlineContent = inlineContent,
-                        color = getModifier.titleColor(),
+                        color = getUIStyle.titleColor(),
                         fontSize = 20.sp,
                         lineHeight = 30.sp
                     )
                     Text(
                         text = exampleHeader,
                         fontStyle = FontStyle.Italic ,
-                        color = getModifier.titleColor(),
+                        color = getUIStyle.titleColor(),
                         fontSize = 22.sp,
                         lineHeight = 22.sp,
                         modifier = Modifier
@@ -153,7 +153,7 @@ fun SymbolDocumentation(
                     Text(
                         text = annotatedExamples,
                         inlineContent = inlineExamples,
-                        color = getModifier.titleColor(),
+                        color = getUIStyle.titleColor(),
                         fontSize = 20.sp,
                         lineHeight = 30.sp
                     )
@@ -174,8 +174,8 @@ fun SymbolDocumentation(
                 Button(
                     onClick = { pressed.value = false },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = getModifier.secondaryButtonColor(),
-                        contentColor = getModifier.buttonTextColor()
+                        containerColor = getUIStyle.secondaryButtonColor(),
+                        contentColor = getUIStyle.buttonTextColor()
                     )
                 ) {
                     Text("OK")
@@ -287,7 +287,7 @@ fun buildAnnotatedStringForDocumentation(
 
 fun mapValues(
     symbolToVectorMap: Map<String, Int>,
-    annotatedString: AnnotatedString, getModifier: GetModifier
+    annotatedString: AnnotatedString, getUIStyle: GetUIStyle
 ): Map<String, InlineTextContent> {
     return symbolToVectorMap.mapValues { (value, vectorResId) ->
         if (value == "/Nintegral") {
@@ -300,7 +300,7 @@ fun mapValues(
                 val upper = annotatedString.getStringAnnotations(
                     "x2", 0, annotatedString.length
                 ).firstOrNull()?.item
-                IntegralWithBounds(lower ?: "", upper ?: "", getModifier)
+                IntegralWithBounds(lower ?: "", upper ?: "", getUIStyle)
             }
         } else if (value == "*Nintegral") {
             InlineTextContent(
@@ -312,7 +312,7 @@ fun mapValues(
                 val upper = annotatedString.getStringAnnotations(
                     "e.g. upper", 0, annotatedString.length
                 ).firstOrNull()?.item
-                IntegralWithBounds(lower ?: "", upper ?: "", getModifier)
+                IntegralWithBounds(lower ?: "", upper ?: "", getUIStyle)
             }
         }else if (value == "/^") {
             val exponent = annotatedString.getStringAnnotations(
@@ -321,7 +321,7 @@ fun mapValues(
             InlineTextContent(
                 Placeholder(24.sp, 24.sp, PlaceholderVerticalAlign.TextCenter)
             ) {
-                ExponentNumber(exponent ?: "", getModifier)
+                ExponentNumber(exponent ?: "", getUIStyle)
             }
         } else if (value == "/()") {
             val numerator = annotatedString.getStringAnnotations(
@@ -334,7 +334,7 @@ fun mapValues(
                 Placeholder(32.sp, 48.sp, PlaceholderVerticalAlign.TextCenter)
             ) {
                 DocumentationFraction(
-                    numerator ?: "", denominator ?: "", getModifier
+                    numerator ?: "", denominator ?: "", getUIStyle
                 )
             }
         } else if (value == "/>") {
@@ -344,7 +344,7 @@ fun mapValues(
                 val subscript = annotatedString.getStringAnnotations(
                     "subscript", 0, annotatedString.length
                 ).firstOrNull()?.item
-                Subscript(subscript ?: "", getModifier)
+                Subscript(subscript ?: "", getUIStyle)
             }
         } else {
             InlineTextContent(
@@ -353,7 +353,7 @@ fun mapValues(
                 Image(
                     painter = painterResource(id = vectorResId),
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(getModifier.titleColor())
+                    colorFilter = ColorFilter.tint(getUIStyle.titleColor())
                 )
             }
         }
@@ -406,7 +406,7 @@ fun buildAnnotatedStringForExample(
 fun DocumentationFraction(
     numerator: String,
     denominator: String,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -419,7 +419,7 @@ fun DocumentationFraction(
             modifier = Modifier
                 .offset(x = (-2).dp, y = (-5).dp)
                 .padding(vertical = 1.dp),
-            color = getModifier.titleColor()
+            color = getUIStyle.titleColor()
         )
         Canvas(
             modifier = Modifier
@@ -429,7 +429,7 @@ fun DocumentationFraction(
             drawLine(
                 start = Offset(x = 0f, y = 0f),
                 end = Offset(x = 48f, y = 0f),
-                color = getModifier.titleColor(),
+                color = getUIStyle.titleColor(),
                 strokeWidth = 5f
             )
         }
@@ -440,7 +440,7 @@ fun DocumentationFraction(
         modifier = Modifier
             .offset(x = 10.dp, y = (24).dp)
             .padding(vertical = 1.dp),
-        color = getModifier.titleColor()
+        color = getUIStyle.titleColor()
     )
 
 }

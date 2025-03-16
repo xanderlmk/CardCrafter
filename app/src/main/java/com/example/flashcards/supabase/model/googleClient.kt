@@ -2,7 +2,6 @@
 
 package com.example.flashcards.supabase.model
 
-import com.example.flashcards.BuildConfig
 import retrofit2.Call
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
@@ -18,7 +17,7 @@ data class GoogleClientResponse(
     @SerializedName("google_id") val GOOGLE_CLIENT_ID: String
 )
 object RetrofitClient {
-    private const val BASE_URL: String = BuildConfig.SUPABASE_URL.toString()
+    private val BASE_URL: String = getSBUrl()
     val instance: SupabaseApi by lazy {
         val client = OkHttpClient.Builder()
             .followRedirects(true)

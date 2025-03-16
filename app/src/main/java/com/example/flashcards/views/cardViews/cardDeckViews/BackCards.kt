@@ -24,11 +24,11 @@ import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.MathCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 import com.example.flashcards.views.miscFunctions.symbols.RenderTextWithSymbols
 
 @Composable
-fun MathBackCard(mathCard: MathCard, getModifier: GetModifier) {
+fun MathBackCard(mathCard: MathCard, getUIStyle: GetUIStyle) {
     val focusManager = LocalFocusManager.current
     Box {
         SelectionContainer(
@@ -40,13 +40,13 @@ fun MathBackCard(mathCard: MathCard, getModifier: GetModifier) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                RenderTextWithSymbols(mathCard.question, getModifier)
+                RenderTextWithSymbols(mathCard.question, getUIStyle)
                 if (mathCard.steps.isNotEmpty()) {
                     mathCard.steps.map {
-                        RenderTextWithSymbols(it, getModifier)
+                        RenderTextWithSymbols(it, getUIStyle)
                     }
                 }
-                RenderTextWithSymbols(mathCard.answer, getModifier)
+                RenderTextWithSymbols(mathCard.answer, getUIStyle)
             }
 
         }
@@ -56,7 +56,7 @@ fun MathBackCard(mathCard: MathCard, getModifier: GetModifier) {
 @Composable
 fun BasicBackCard(
     basicCard: BasicCard,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
     Box {
@@ -72,7 +72,7 @@ fun BasicBackCard(
                     text = basicCard.question,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -82,7 +82,7 @@ fun BasicBackCard(
                     text = basicCard.answer,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -97,7 +97,7 @@ fun BasicBackCard(
 @Composable
 fun ThreeBackCard(
     threeCard: ThreeFieldCard,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
     Box {
@@ -113,7 +113,7 @@ fun ThreeBackCard(
                     text = threeCard.question,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -123,7 +123,7 @@ fun ThreeBackCard(
                     text = threeCard.middle,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -134,7 +134,7 @@ fun ThreeBackCard(
                     text = threeCard.answer,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -149,7 +149,7 @@ fun ThreeBackCard(
 @Composable
 fun HintBackCard(
     hintCard: HintCard,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
     Box {
@@ -165,7 +165,7 @@ fun HintBackCard(
                     text = hintCard.question,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -175,7 +175,7 @@ fun HintBackCard(
                     text = hintCard.answer,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -191,7 +191,7 @@ fun HintBackCard(
 fun ChoiceBackCard(
     multiChoiceCard: MultiChoiceCard,
     clickedChoice : Char,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
     Box {
@@ -207,7 +207,7 @@ fun ChoiceBackCard(
                     text = multiChoiceCard.question,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -217,7 +217,7 @@ fun ChoiceBackCard(
                     text = multiChoiceCard.choiceA,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -228,19 +228,19 @@ fun ChoiceBackCard(
                             if (clickedChoice == 'a' &&
                                 multiChoiceCard.correct != clickedChoice
                             ) {
-                                getModifier.pickedChoice()
+                                getUIStyle.pickedChoice()
                             } else if (
                                 multiChoiceCard.correct == 'a' &&
                                 clickedChoice != multiChoiceCard.correct
                             ) {
-                                getModifier.correctChoice()
+                                getUIStyle.correctChoice()
                             } else if (
                                 clickedChoice == multiChoiceCard.correct &&
                                 multiChoiceCard.correct == 'a'
                             ) {
-                                getModifier.correctChoice()
+                                getUIStyle.correctChoice()
                             } else {
-                                getModifier.onTertiaryColor()
+                                getUIStyle.onTertiaryColor()
                             },
                             shape = RoundedCornerShape(8.dp)
                         )
@@ -250,7 +250,7 @@ fun ChoiceBackCard(
                     text = multiChoiceCard.choiceB,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -261,19 +261,19 @@ fun ChoiceBackCard(
                             if (clickedChoice == 'b' &&
                                 multiChoiceCard.correct != clickedChoice
                             ) {
-                                getModifier.pickedChoice()
+                                getUIStyle.pickedChoice()
                             } else if (
                                 multiChoiceCard.correct == 'b' &&
                                 clickedChoice != multiChoiceCard.correct
                             ) {
-                                getModifier.correctChoice()
+                                getUIStyle.correctChoice()
                             } else if (
                                 clickedChoice == multiChoiceCard.correct &&
                                 multiChoiceCard.correct == 'b'
                             ) {
-                                getModifier.correctChoice()
+                                getUIStyle.correctChoice()
                             } else {
-                                getModifier.onTertiaryColor()
+                                getUIStyle.onTertiaryColor()
                             },
                             shape = RoundedCornerShape(8.dp)
                         )
@@ -285,7 +285,7 @@ fun ChoiceBackCard(
                         text = multiChoiceCard.choiceC,
                         fontSize = 20.sp,
                         lineHeight = 22.sp,
-                        color = getModifier.titleColor(),
+                        color = getUIStyle.titleColor(),
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
@@ -296,19 +296,19 @@ fun ChoiceBackCard(
                                 if (clickedChoice == 'c' &&
                                     multiChoiceCard.correct != clickedChoice
                                 ) {
-                                    getModifier.pickedChoice()
+                                    getUIStyle.pickedChoice()
                                 } else if (
                                     multiChoiceCard.correct == 'c' &&
                                     clickedChoice != multiChoiceCard.correct
                                 ) {
-                                    getModifier.correctChoice()
+                                    getUIStyle.correctChoice()
                                 } else if (
                                     clickedChoice == multiChoiceCard.correct &&
                                     multiChoiceCard.correct == 'c'
                                 ) {
-                                    getModifier.correctChoice()
+                                    getUIStyle.correctChoice()
                                 } else {
-                                    getModifier.onTertiaryColor()
+                                    getUIStyle.onTertiaryColor()
                                 },
                                 shape = RoundedCornerShape(8.dp)
                             )
@@ -320,7 +320,7 @@ fun ChoiceBackCard(
                         text = multiChoiceCard.choiceD,
                         fontSize = 20.sp,
                         lineHeight = 22.sp,
-                        color = getModifier.titleColor(),
+                        color = getUIStyle.titleColor(),
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
@@ -331,19 +331,19 @@ fun ChoiceBackCard(
                                 if (clickedChoice == 'd' &&
                                     multiChoiceCard.correct != clickedChoice
                                 ) {
-                                    getModifier.pickedChoice()
+                                    getUIStyle.pickedChoice()
                                 } else if (
                                     multiChoiceCard.correct == 'd' &&
                                     clickedChoice != multiChoiceCard.correct
                                 ) {
-                                    getModifier.correctChoice()
+                                    getUIStyle.correctChoice()
                                 } else if (
                                     clickedChoice == multiChoiceCard.correct &&
                                     multiChoiceCard.correct == 'd'
                                 ) {
-                                    getModifier.correctChoice()
+                                    getUIStyle.correctChoice()
                                 } else {
-                                    getModifier.onTertiaryColor()
+                                    getUIStyle.onTertiaryColor()
                                 },
                                 shape = RoundedCornerShape(8.dp)
                             )
@@ -358,7 +358,7 @@ fun ChoiceBackCard(
 @Composable
 fun BackCard(
     ct: CT,
-    getModifier: GetModifier,
+    getUIStyle: GetUIStyle,
     modifier: Modifier,
     clickedChoice: Char
 ) {
@@ -370,23 +370,23 @@ fun BackCard(
     ) {
         when (ct) {
             is CT.Basic -> {
-                BasicBackCard(basicCard = ct.basicCard, getModifier)
+                BasicBackCard(basicCard = ct.basicCard, getUIStyle)
             }
 
             is CT.ThreeField -> {
-                ThreeBackCard(threeCard = ct.threeFieldCard, getModifier)
+                ThreeBackCard(threeCard = ct.threeFieldCard, getUIStyle)
             }
 
             is CT.Hint -> {
-                HintBackCard(hintCard = ct.hintCard, getModifier)
+                HintBackCard(hintCard = ct.hintCard, getUIStyle)
             }
 
             is CT.MultiChoice -> {
                 ChoiceBackCard(multiChoiceCard = ct.multiChoiceCard,
-                    clickedChoice, getModifier)
+                    clickedChoice, getUIStyle)
             }
             is CT.Math -> {
-                MathBackCard(mathCard = ct.mathCard, getModifier)
+                MathBackCard(mathCard = ct.mathCard, getUIStyle)
             }
         }
     }

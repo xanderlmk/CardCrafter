@@ -36,14 +36,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.flashcards.R
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
+import com.example.flashcards.ui.theme.boxViewsModifier
+import com.example.flashcards.ui.theme.mainSettingsButtonModifier
+import com.example.flashcards.ui.theme.mainViewModifier
 import com.example.flashcards.views.miscFunctions.MainSettingsButton
 import com.example.flashcards.views.miscFunctions.SmallAddButton
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class MainView(
-    private var getModifier: GetModifier,
+    private var getUIStyle: GetUIStyle,
     private var fields: Fields
 ) {
     @Composable
@@ -56,20 +59,21 @@ class MainView(
     ) {
         val deckUiState by viewModel.deckUiState.collectAsStateWithLifecycle()
         val cardCount by viewModel.cardCountUiState.collectAsStateWithLifecycle()
-        val settingsModifier = getModifier.mainSettingsButtonModifier()
         var deckIndex by rememberSaveable { mutableIntStateOf(0) }
         var pressed = rememberSaveable { mutableStateOf(false) }
         var expanded by rememberSaveable { mutableStateOf(false) }
 
 
         Box(
-            modifier = getModifier.boxViewsModifier()
+            modifier = Modifier
+                .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
             MainSettingsButton(
                 onNavigateToSettings,
-                settingsModifier
+                Modifier
+                    .mainSettingsButtonModifier()
                     .align(Alignment.TopEnd),
-                getModifier, fields
+                getUIStyle, fields
             )
             if (deckIndex in deckUiState.deckList.indices) {
                 ShowNextReview(pressed, deckUiState.deckList[deckIndex])
@@ -90,7 +94,7 @@ class MainView(
                         text = stringResource(R.string.deck_list),
                         fontSize = 30.sp,
                         fontWeight = FontWeight.Bold,
-                        color = getModifier.titleColor()
+                        color = getUIStyle.titleColor()
                     )
                 }
                 Box(
@@ -122,8 +126,8 @@ class MainView(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Row(
-                                    modifier = getModifier
-                                        .mainViewModifier()
+                                    modifier = Modifier
+                                        .mainViewModifier(getUIStyle.getColorScheme())
                                         .align(Alignment.TopStart)
                                 ) {
                                     Text(
@@ -131,7 +135,7 @@ class MainView(
                                         textAlign = TextAlign.Start,
                                         fontSize = 20.sp,
                                         lineHeight = 22.sp,
-                                        color = getModifier.titleColor(),
+                                        color = getUIStyle.titleColor(),
                                         style = MaterialTheme.typography.titleLarge,
                                         modifier = Modifier.fillMaxWidth(.85f),
                                         softWrap = true
@@ -145,7 +149,7 @@ class MainView(
                                         },
                                         textAlign = TextAlign.End,
                                         fontSize = 14.sp,
-                                        color = getModifier.titleColor(),
+                                        color = getUIStyle.titleColor(),
                                         style = MaterialTheme.typography.titleLarge,
                                         modifier = Modifier.fillMaxWidth(),
                                         softWrap = false
@@ -171,7 +175,7 @@ class MainView(
                             onClick = {
                                 expanded = true
                             },
-                            getModifier = getModifier
+                            getUIStyle = getUIStyle
                         )
 
                         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -215,7 +219,7 @@ class MainView(
                 ) {
                     Text(
                         text = "Next Review: $formattedDate",
-                        color = getModifier.titleColor(),
+                        color = getUIStyle.titleColor(),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 6.dp, horizontal = 0.dp),

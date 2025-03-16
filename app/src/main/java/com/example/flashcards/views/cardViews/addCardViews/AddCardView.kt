@@ -35,14 +35,16 @@ import com.example.flashcards.controller.viewModels.cardViewsModels.AddCardViewM
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.miscFunctions.BackButton
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
+import com.example.flashcards.ui.theme.backButtonModifier
+import com.example.flashcards.ui.theme.boxViewsModifier
 import com.example.flashcards.views.miscFunctions.getSavableFields
 import com.example.flashcards.views.miscFunctions.symbols.SymbolDocumentation
 
 
 class AddCardView(
     private var fields: Fields,
-    private var getModifier: GetModifier
+    private var getUIStyle: GetUIStyle
 ) {
     @Composable
     fun AddCard(deck: Deck, onNavigate: () -> Unit) {
@@ -54,16 +56,17 @@ class AddCardView(
 
         fields = getSavableFields(fields)
         Box(
-            modifier = getModifier.boxViewsModifier()
+            modifier = Modifier
+                .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
-            SymbolDocumentation(helpForMath,getModifier)
+            SymbolDocumentation(helpForMath,getUIStyle)
             BackButton(
                 onBackClick = {
                     fields.resetFields()
                     onNavigate()
                 },
-                modifier = getModifier.backButtonModifier(),
-                getModifier = getModifier
+                modifier = Modifier.backButtonModifier(),
+                getUIStyle = getUIStyle
             )
             Column(
                 modifier = Modifier
@@ -86,7 +89,7 @@ class AddCardView(
                         Icon(
                             Icons.Default.MoreVert,
                             contentDescription = "Card Type",
-                            tint = getModifier.titleColor()
+                            tint = getUIStyle.titleColor()
                         )
                     }
                     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -134,7 +137,7 @@ class AddCardView(
                         fontSize = 35.sp,
                         textAlign = TextAlign.Center,
                         lineHeight = 40.sp,
-                        color = getModifier.titleColor(),
+                        color = getUIStyle.titleColor(),
                         fontWeight = FontWeight.Bold,
                         modifier =
                         if (type.value == "math") {Modifier.padding(start = 8.dp)}
@@ -145,7 +148,7 @@ class AddCardView(
                             text = "?", fontSize = 35.sp,
                             textAlign = TextAlign.Right,
                             lineHeight = 40.sp,
-                            color = getModifier.iconColor(),
+                            color = getUIStyle.iconColor(),
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
                                 .padding(horizontal = 4.dp)
@@ -158,25 +161,25 @@ class AddCardView(
                 when (type.value) {
                     "basic" -> AddBasicCard(
                         addCardVM, deck,
-                        fields, getModifier
+                        fields, getUIStyle
                     )
                     "three" -> AddThreeCard(
                         addCardVM, deck,
-                        fields, getModifier
+                        fields, getUIStyle
                     )
                     "hint" -> AddHintCard(
                         addCardVM, deck,
-                        fields, getModifier
+                        fields, getUIStyle
                     )
                     "multi" -> AddMultiChoiceCard(
                         addCardVM, deck,
-                        fields, getModifier
+                        fields, getUIStyle
                     )
                     "math" -> AddMathCard(addCardVM, deck,
-                        fields, getModifier)
+                        fields, getUIStyle)
                     else -> AddBasicCard(
                         addCardVM, deck,
-                        fields, getModifier
+                        fields, getUIStyle
                     )
                 }
             }

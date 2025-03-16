@@ -43,7 +43,9 @@ import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.views.miscFunctions.EditDoubleField
 import com.example.flashcards.views.miscFunctions.EditTextField
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
+import com.example.flashcards.ui.theme.backButtonModifier
+import com.example.flashcards.ui.theme.scrollableBoxViewModifier
 import com.example.flashcards.views.miscFunctions.EditIntField
 import com.example.flashcards.views.miscFunctions.details.createDeckDetails
 import com.example.flashcards.views.miscFunctions.returnCardAmountError
@@ -55,7 +57,7 @@ import kotlin.String
 
 class EditDeckView(
     private var fields: Fields,
-    private var getModifier: GetModifier
+    private var getUIStyle: GetUIStyle
 ) {
     @Composable
     fun EditDeck(
@@ -89,15 +91,15 @@ class EditDeckView(
         val scrollState = rememberScrollState()
 
         Box(
-            modifier = getModifier
-                .scrollableBoxViewModifier(scrollState)
+            modifier = Modifier
+                .scrollableBoxViewModifier(scrollState, getUIStyle.getColorScheme())
         ) {
             BackButton(
                 onBackClick = {
                     onNavigate()
                 },
-                modifier = getModifier.backButtonModifier(),
-                getModifier = getModifier
+                modifier = Modifier.backButtonModifier(),
+                getUIStyle = getUIStyle
             )
             Column(
                 modifier = Modifier
@@ -110,7 +112,7 @@ class EditDeckView(
                     fontSize = 30.sp,
                     lineHeight = 32.sp,
                     textAlign = TextAlign.Center,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     fontWeight = Bold,
                     modifier = Modifier.padding(
                         top = 20.dp,
@@ -131,8 +133,8 @@ class EditDeckView(
                                 expanded[0].value = true
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.secondaryButtonColor(),
-                                contentColor = getModifier.buttonTextColor()
+                                containerColor = getUIStyle.secondaryButtonColor(),
+                                contentColor = getUIStyle.buttonTextColor()
                             ),
                             modifier = Modifier.weight(1f)
                         ) {
@@ -180,8 +182,8 @@ class EditDeckView(
                                 expanded[0].value = false
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.tertiaryButtonColor(),
-                                contentColor = getModifier.onTertiaryButtonColor()
+                                containerColor = getUIStyle.tertiaryButtonColor(),
+                                contentColor = getUIStyle.onTertiaryButtonColor()
                             ),
                             modifier = Modifier.weight(1f)
                         ) {
@@ -198,15 +200,15 @@ class EditDeckView(
                                 )
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.tertiaryButtonColor(),
-                                contentColor = getModifier.onTertiaryButtonColor()
+                                containerColor = getUIStyle.tertiaryButtonColor(),
+                                contentColor = getUIStyle.onTertiaryButtonColor()
                             ),
                             enabled = !isSubmitting.value,
                             modifier = Modifier.weight(1f)
                         ) {
                             if (isSubmitting.value) {
                                 CircularProgressIndicator(
-                                    color = getModifier.titleColor(),
+                                    color = getUIStyle.titleColor(),
                                     modifier = Modifier.size(24.dp)
                                 )
                             } else {
@@ -229,8 +231,8 @@ class EditDeckView(
                                 expanded[1].value = true
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.secondaryButtonColor(),
-                                contentColor = getModifier.buttonTextColor()
+                                containerColor = getUIStyle.secondaryButtonColor(),
+                                contentColor = getUIStyle.buttonTextColor()
                             ),
                             modifier = Modifier.weight(1f)
                         ) {
@@ -306,8 +308,8 @@ class EditDeckView(
                                 expanded[1].value = false
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.tertiaryButtonColor(),
-                                contentColor = getModifier.onTertiaryButtonColor()
+                                containerColor = getUIStyle.tertiaryButtonColor(),
+                                contentColor = getUIStyle.onTertiaryButtonColor()
                             ),
                             modifier = Modifier.weight(1f)
                         ) {
@@ -328,15 +330,15 @@ class EditDeckView(
                                 )
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.tertiaryButtonColor(),
-                                contentColor = getModifier.onTertiaryButtonColor()
+                                containerColor = getUIStyle.tertiaryButtonColor(),
+                                contentColor = getUIStyle.onTertiaryButtonColor()
                             ),
                             enabled = !isSubmitting.value,
                             modifier = Modifier.weight(1f)
                         ) {
                             if (isSubmitting.value) {
                                 CircularProgressIndicator(
-                                    color = getModifier.titleColor(),
+                                    color = getUIStyle.titleColor(),
                                     modifier = Modifier.size(24.dp)
                                 )
                             } else {
@@ -359,8 +361,8 @@ class EditDeckView(
                                 expanded[2].value = true
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.secondaryButtonColor(),
-                                contentColor = getModifier.buttonTextColor()
+                                containerColor = getUIStyle.secondaryButtonColor(),
+                                contentColor = getUIStyle.buttonTextColor()
                             ),
                             modifier = Modifier
                                 .weight(1f)
@@ -422,8 +424,8 @@ class EditDeckView(
                                 expanded[2].value = false
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.tertiaryButtonColor(),
-                                contentColor = getModifier.onTertiaryButtonColor()
+                                containerColor = getUIStyle.tertiaryButtonColor(),
+                                contentColor = getUIStyle.onTertiaryButtonColor()
                             ),
                             modifier = Modifier.weight(1f)
                         ) {
@@ -440,15 +442,15 @@ class EditDeckView(
                                 )
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.tertiaryButtonColor(),
-                                contentColor = getModifier.onTertiaryButtonColor()
+                                containerColor = getUIStyle.tertiaryButtonColor(),
+                                contentColor = getUIStyle.onTertiaryButtonColor()
                             ),
                             enabled = !isSubmitting.value,
                             modifier = Modifier.weight(1f)
                         ) {
                             if (isSubmitting.value) {
                                 CircularProgressIndicator(
-                                    color = getModifier.titleColor(),
+                                    color = getUIStyle.titleColor(),
                                     modifier = Modifier.size(24.dp)
                                 )
                             } else {
@@ -471,8 +473,8 @@ class EditDeckView(
                                 expanded[3].value = true
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.secondaryButtonColor(),
-                                contentColor = getModifier.buttonTextColor()
+                                containerColor = getUIStyle.secondaryButtonColor(),
+                                contentColor = getUIStyle.buttonTextColor()
                             ),
                             modifier = Modifier.weight(1f)
                         ) {
@@ -530,8 +532,8 @@ class EditDeckView(
                                 expanded[3].value = false
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.tertiaryButtonColor(),
-                                contentColor = getModifier.onTertiaryButtonColor()
+                                containerColor = getUIStyle.tertiaryButtonColor(),
+                                contentColor = getUIStyle.onTertiaryButtonColor()
                             ),
                             modifier = Modifier.weight(1f)
                         ) {
@@ -548,15 +550,15 @@ class EditDeckView(
                                 )
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = getModifier.tertiaryButtonColor(),
-                                contentColor = getModifier.onTertiaryButtonColor()
+                                containerColor = getUIStyle.tertiaryButtonColor(),
+                                contentColor = getUIStyle.onTertiaryButtonColor()
                             ),
                             enabled = !isSubmitting.value,
                             modifier = Modifier.weight(1f)
                         ) {
                             if (isSubmitting.value) {
                                 CircularProgressIndicator(
-                                    color = getModifier.titleColor(),
+                                    color = getUIStyle.titleColor(),
                                     modifier = Modifier.size(24.dp)
                                 )
                             } else {
@@ -578,7 +580,7 @@ class EditDeckView(
                     ) {
                         DeleteDeck(
                             vm, deck,
-                            getModifier, coroutineScope,
+                            getUIStyle, coroutineScope,
                             fields, onDelete
                         )
                     }

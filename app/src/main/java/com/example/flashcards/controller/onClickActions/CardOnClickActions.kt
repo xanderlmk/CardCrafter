@@ -13,7 +13,7 @@ import com.example.flashcards.controller.viewModels.cardViewsModels.EditCardView
 import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.uiModels.Fields
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 import com.example.flashcards.ui.theme.deleteTextColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -202,7 +202,7 @@ fun DeleteCard(
     fields: Fields,
     pressed: MutableState<Boolean>,
     onDelete: () -> Unit,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     if (pressed.value) {
         AlertDialog(
@@ -211,7 +211,7 @@ fun DeleteCard(
             text = {
                 Text(
                     text = stringResource(R.string.sure_to_delete_card),
-                    color = getModifier.titleColor()
+                    color = getUIStyle.titleColor()
                 )
             },
             confirmButton = {
@@ -225,7 +225,7 @@ fun DeleteCard(
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = getModifier.secondaryButtonColor(),
+                        containerColor = getUIStyle.secondaryButtonColor(),
                         contentColor = deleteTextColor
                     )
                 ) {
@@ -236,8 +236,8 @@ fun DeleteCard(
                 Button(
                     onClick = { pressed.value = false },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = getModifier.secondaryButtonColor(),
-                        contentColor = getModifier.buttonTextColor()
+                        containerColor = getUIStyle.secondaryButtonColor(),
+                        contentColor = getUIStyle.buttonTextColor()
                     )
                 ) {
                     Text(stringResource(R.string.cancel))

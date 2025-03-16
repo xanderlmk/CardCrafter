@@ -9,16 +9,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.example.flashcards.R
 import com.example.flashcards.model.uiModels.PreferencesManager
 import com.example.flashcards.views.miscFunctions.BackButton
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
+import com.example.flashcards.ui.theme.backButtonModifier
+import com.example.flashcards.ui.theme.boxViewsModifier
 import kotlinx.coroutines.delay
 
 class GeneralSettings(
-    private var getModifier: GetModifier,
+    private var getUIStyle: GetUIStyle,
     private var preferences: PreferencesManager
 ) {
     @Composable
@@ -53,17 +56,17 @@ class GeneralSettings(
             reviewSuccess = false
         }
         Box(
-            modifier =
-            getModifier.boxViewsModifier()
+            modifier = Modifier
+                .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
             BackButton(
                 onBackClick = {
                     themeClicked = true
                     onNavigate() },
-                modifier = getModifier.backButtonModifier(),
-                getModifier = getModifier
+                modifier = Modifier.backButtonModifier(),
+                getUIStyle = getUIStyle
             )
-            InvalidXXAmount(invalid, getModifier, errorMessage.value)
+            InvalidXXAmount(invalid, getUIStyle, errorMessage.value)
             Column {
                 SystemThemeButton(
                     customScheme = {
@@ -79,7 +82,7 @@ class GeneralSettings(
                     customToggled = customToggled,
                     darkToggled = darkToggled,
                     clicked = themeClicked,
-                    getModifier = getModifier
+                    getUIStyle = getUIStyle
                 )
                 DefaultDeckOptions(
                     changeReviewAmount = {
@@ -110,7 +113,7 @@ class GeneralSettings(
                     reviewSuccess = reviewSuccess,
                     cardSuccess = cardSuccess,
                     clicked = deckOptionsClicked,
-                    getModifier = getModifier
+                    getUIStyle = getUIStyle
                 )
             }
         }

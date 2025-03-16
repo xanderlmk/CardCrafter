@@ -30,7 +30,7 @@ import com.example.flashcards.R
 import com.example.flashcards.controller.viewModels.cardViewsModels.AddCardViewModel
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 import com.example.flashcards.views.miscFunctions.EditTextFieldNonDone
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddBasicCard(
     vm: AddCardViewModel, deck: Deck,
-    fields: Fields, getModifier: GetModifier
+    fields: Fields, getUIStyle: GetUIStyle
 ) {
     val errorMessage by vm.errorMessage.collectAsStateWithLifecycle()
 
@@ -57,7 +57,7 @@ fun AddBasicCard(
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
             lineHeight = 30.sp,
-            color = getModifier.titleColor(),
+            color = getUIStyle.titleColor(),
             modifier = Modifier
                 .padding(top = 15.dp)
         )
@@ -83,7 +83,7 @@ fun AddBasicCard(
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
             lineHeight = 30.sp,
-            color = getModifier.titleColor(),
+            color = getUIStyle.titleColor(),
             modifier = Modifier.padding(top = 8.dp)
         )
         Row(
@@ -117,7 +117,7 @@ fun AddBasicCard(
         if (successMessage.isNotEmpty()) {
             Text(
                 text = successMessage,
-                color = getModifier.titleColor(),
+                color = getUIStyle.titleColor(),
                 modifier = Modifier.padding(4.dp),
                 fontSize = 16.sp
             )
@@ -159,8 +159,8 @@ fun AddBasicCard(
                 },
                 modifier = Modifier.padding(top = 4.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = getModifier.secondaryButtonColor(),
-                    contentColor = getModifier.buttonTextColor()
+                    containerColor = getUIStyle.secondaryButtonColor(),
+                    contentColor = getUIStyle.buttonTextColor()
                 )
             ) {
                 Text(stringResource(R.string.submit))

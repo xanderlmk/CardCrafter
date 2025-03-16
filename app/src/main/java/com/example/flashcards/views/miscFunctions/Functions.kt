@@ -36,14 +36,14 @@ import androidx.compose.ui.Alignment
 import com.example.flashcards.controller.cardHandlers.returnReviewsLeft
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.uiModels.SealedDueCTs
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 
 
 @Composable
-fun AgainText(getModifier: GetModifier) {
+fun AgainText(getUIStyle: GetUIStyle) {
     Text(
         "-----",
-        color = getModifier.titleColor(),
+        color = getUIStyle.titleColor(),
         fontSize = 12.sp,
         lineHeight = 14.sp
     )
@@ -51,8 +51,8 @@ fun AgainText(getModifier: GetModifier) {
 @Composable
 fun HardText(
     updatedDueCards : SealedDueCTs,
-             index: MutableIntState, hard: Int,
-             getModifier: GetModifier
+    index: MutableIntState, hard: Int,
+    getUIStyle: GetUIStyle
 ) {
     Text(
         text =
@@ -61,7 +61,7 @@ fun HardText(
         } else {
             "${returnReviewsLeft(updatedDueCards.allCTs[index.intValue])} " + "reviews left"
         },
-        color = getModifier.titleColor(),
+        color = getUIStyle.titleColor(),
         fontSize = 12.sp,
         lineHeight = 14.sp
     )
@@ -71,7 +71,7 @@ fun HardText(
 fun GoodText(
     updatedDueCards: SealedDueCTs,
     index: MutableIntState, good: Int,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     Text(
         text =
@@ -82,14 +82,14 @@ fun GoodText(
                 returnReviewsLeft(updatedDueCards.allCTs[index.intValue]) - 1
             } " + "reviews left"
         },
-        color = getModifier.titleColor(),
+        color = getUIStyle.titleColor(),
         fontSize = 12.sp,
         lineHeight = 14.sp
     )
 }
 
 @Composable
-fun NoDueCards(getModifier: GetModifier) {
+fun NoDueCards(getUIStyle: GetUIStyle) {
     var delay by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         delay(200)
@@ -105,7 +105,7 @@ fun NoDueCards(getModifier: GetModifier) {
                 fontSize = 25.sp,
                 lineHeight = 26.sp,
                 textAlign = TextAlign.Center,
-                color = getModifier.titleColor(),
+                color = getUIStyle.titleColor(),
                 style = MaterialTheme.typography.titleLarge
             )
         }
@@ -117,7 +117,7 @@ fun ShowBackButtonAndDeckName(
     onNavigate: () -> Unit,
     deck: Deck,
     presetModifier: Modifier,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     Row {
         BackButton(
@@ -126,7 +126,7 @@ fun ShowBackButtonAndDeckName(
             },
             modifier = presetModifier
                 .fillMaxSize(),
-            getModifier = getModifier
+            getUIStyle = getUIStyle
         )
         Text(
             text = stringResource(R.string.deck) + ": ${deck.name}",
@@ -137,13 +137,13 @@ fun ShowBackButtonAndDeckName(
                 .padding(top = 16.dp, start = 8.dp, end = 8.dp)
                 .fillMaxWidth(),
             textAlign = TextAlign.Center,
-            color = getModifier.buttonTextColor()
+            color = getUIStyle.buttonTextColor()
         )
     }
 }
 
 @Composable
-fun PickAnswerChar(fields: Fields, getModifier: GetModifier) {
+fun PickAnswerChar(fields: Fields, getUIStyle: GetUIStyle) {
     var expanded by remember { mutableStateOf(false) }
     Column(
         Modifier
@@ -166,7 +166,7 @@ fun PickAnswerChar(fields: Fields, getModifier: GetModifier) {
                 Icon(
                     Icons.Default.CheckCircle,
                     contentDescription = "Answer",
-                    tint = getModifier.titleColor(),
+                    tint = getUIStyle.titleColor(),
                     modifier = Modifier.padding(2.dp)
                 )
             }

@@ -46,7 +46,11 @@ import com.example.flashcards.supabase.controller.SupabaseViewModel
 import com.example.flashcards.views.miscFunctions.AddCardButton
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.views.miscFunctions.SettingsButton
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
+import com.example.flashcards.ui.theme.addButtonModifier
+import com.example.flashcards.ui.theme.backButtonModifier
+import com.example.flashcards.ui.theme.boxViewsModifier
+import com.example.flashcards.ui.theme.settingsButtonModifier
 import com.example.flashcards.views.miscFunctions.EditTextFieldNonDone
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.auth
@@ -56,7 +60,7 @@ import kotlinx.coroutines.launch
 
 class DeckView(
     private var fields: Fields,
-    private var getModifier: GetModifier,
+    private var getUIStyle: GetUIStyle,
     private val supabaseVM: SupabaseViewModel,
 ) {
     @Composable
@@ -75,18 +79,18 @@ class DeckView(
         val uploadPress = rememberSaveable { mutableStateOf(false) }
         val coroutineScope = rememberCoroutineScope()
         Box(
-            modifier = getModifier
-                .boxViewsModifier()
+            modifier = Modifier
+                .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
             UploadThisDeck(
                 uploadPress, deck, sealedAllCTs.allCTs,
-                supabase, supabaseVM, coroutineScope, getModifier
+                supabase, supabaseVM, coroutineScope, getUIStyle
             )
             ResetDeckDueDate(pressed, deckVM, deck.id, deck.cardAmount)
             BackButton(
                 onBackClick = { onNavigate() },
-                modifier = getModifier.backButtonModifier(),
-                getModifier = getModifier
+                modifier = Modifier.backButtonModifier(),
+                getUIStyle = getUIStyle
             )
             SettingsButton(
                 onNavigateToEditDeck = {
@@ -105,10 +109,10 @@ class DeckView(
                     uploadPress.value = true
                 },
                 clientExists = supabase.auth.currentUserOrNull() != null,
-                modifier = getModifier
+                modifier = Modifier
                     .settingsButtonModifier()
                     .align(Alignment.TopEnd),
-                getModifier = getModifier,
+                getUIStyle = getUIStyle,
                 fields = fields
             )
             Column(
@@ -126,7 +130,7 @@ class DeckView(
                         lineHeight = 42.sp,
                         fontSize = 38.sp,
                         fontWeight = FontWeight.Bold,
-                        color = getModifier.titleColor(),
+                        color = getUIStyle.titleColor(),
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .padding(top = 50.dp)
@@ -162,13 +166,13 @@ class DeckView(
                                     )
                                 }
                                 .background(
-                                    color = getModifier.secondaryButtonColor(),
+                                    color = getUIStyle.secondaryButtonColor(),
                                     shape = RoundedCornerShape(24.dp)
                                 ),
                         ) {
                             Text(
                                 text = stringResource(R.string.start_deck),
-                                color = getModifier.buttonTextColor(),
+                                color = getUIStyle.buttonTextColor(),
                                 modifier = Modifier
                                     .align(Alignment.Center),
                                 textAlign = TextAlign.Center,
@@ -179,7 +183,8 @@ class DeckView(
                     }
                 }
                 Column(
-                    modifier = getModifier.addButtonModifier()
+                    modifier = Modifier
+                        .addButtonModifier(getUIStyle.getColorScheme())
                 ) {
                     val bottomLeftModifier = Modifier
                         .padding(bottom = 12.dp)
@@ -222,7 +227,7 @@ class DeckView(
                     ) {
                         Text(
                             text = "Would you like to reset the due date to today?",
-                            color = getModifier.titleColor(),
+                            color = getUIStyle.titleColor(),
                             modifier = Modifier
                                 .fillMaxWidth(),
                             textAlign = TextAlign.Center,
@@ -240,7 +245,7 @@ class DeckView(
                                 },
                                 modifier = Modifier.padding(horizontal = 10.dp)
                             ) {
-                                Text("Cancel")
+                                Text(stringResource(R.string.cancel))
                             }
                             Button(
                                 onClick = {
@@ -288,8 +293,9 @@ fun FailedUpload(dismiss: MutableState<Boolean>) {
 fun UploadThisDeck(
     dismiss: MutableState<Boolean>, deck: Deck, cts: List<CT>,
     supabase: SupabaseClient, supabaseVM: SupabaseViewModel,
-    coroutineScope: CoroutineScope, getModifier: GetModifier
+    coroutineScope: CoroutineScope, getUIStyle: GetUIStyle
 ) {
+    var enabled by rememberSaveable { mutableStateOf(true) }
     if (dismiss.value) {
         var description by rememberSaveable { mutableStateOf("") }
         var failed = remember { mutableStateOf(false) }
@@ -317,14 +323,14 @@ fun UploadThisDeck(
                     onClick = {
                         if (description.length > 20) {
                             coroutineScope.launch {
+                                enabled = false
                                 supabaseVM.insertDeckAndCards(
-                                    deck,
-                                    supabase,
-                                    cts,
-                                    description
+                                    deck, supabase,
+                                    cts, description
                                 ).let {
                                     if (it > 0) {
-                                        failed.value = false
+                                        enabled = true
+                                        failed.value = true
                                     } else {
                                         success = true
                                     }
@@ -336,15 +342,16 @@ fun UploadThisDeck(
                                 "Description must be longer!", Toast.LENGTH_SHORT
                             ).show()
                         }
-                    }) {
-                    Text("Ok")
-                }
+                    },
+                    enabled = enabled
+                ) { Text("Ok") }
             },
             title = {
                 Text(
                     text = "Upload ${deck.name}?",
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth())
+                    modifier = Modifier.fillMaxWidth()
+                )
             },
             text = {
                 Column(
@@ -352,7 +359,7 @@ fun UploadThisDeck(
                 ) {
                     Text(
                         text = "Enter a description",
-                        color = getModifier.titleColor(),
+                        color = getUIStyle.titleColor(),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )

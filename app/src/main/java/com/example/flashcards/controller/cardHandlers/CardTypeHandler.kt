@@ -10,7 +10,7 @@ import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.views.cardViews.editCardViews.EditBasicCard
 import com.example.flashcards.views.cardViews.editCardViews.EditHintCard
 import com.example.flashcards.views.cardViews.editCardViews.EditThreeCard
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 import com.example.flashcards.views.cardViews.editCardViews.EditChoiceCard
 import com.example.flashcards.views.cardViews.editCardViews.EditMathCard
 import com.example.flashcards.views.miscFunctions.details.createBasicCardDetails
@@ -25,7 +25,7 @@ interface CardTypeHandler {
         fields: Fields,
         ct : CT,
         changed : Boolean,
-        getModifier: GetModifier
+        getUIStyle: GetUIStyle
     )
 }
 
@@ -36,7 +36,7 @@ class BasicCardTypeHandler : CardTypeHandler {
         fields: Fields,
         ct : CT,
         changed : Boolean,
-        getModifier: GetModifier
+        getUIStyle: GetUIStyle
     ) {
 
         if (ct is CT.Basic) {
@@ -71,7 +71,7 @@ class ThreeCardTypeHandler : CardTypeHandler {
         fields: Fields,
         ct : CT,
         changed : Boolean,
-        getModifier: GetModifier
+        getUIStyle: GetUIStyle
     ) {
         if (ct is CT.ThreeField){
             if (!changed) {
@@ -113,7 +113,7 @@ class HintCardTypeHandler : CardTypeHandler {
         fields: Fields,
         ct : CT,
         changed : Boolean,
-        getModifier: GetModifier
+        getUIStyle: GetUIStyle
     ) {
         if (ct is CT.Hint) {
             if (!changed){
@@ -153,7 +153,7 @@ class ChoiceCardTypeHandler : CardTypeHandler {
         fields: Fields,
         ct : CT,
         changed : Boolean,
-        getModifier: GetModifier
+        getUIStyle: GetUIStyle
     ) {
         if (ct is CT.MultiChoice) {
             if (!changed){
@@ -173,16 +173,16 @@ class ChoiceCardTypeHandler : CardTypeHandler {
                     mutableStateOf(cardDetails.choices[3].value) }
                 fields.correct = rememberSaveable { mutableStateOf(cardDetails.correct.value) }
             }
-            EditChoiceCard(fields, getModifier)
+            EditChoiceCard(fields, getUIStyle)
         } else {
             if (ct is CT.Basic) {
-                EditChoiceCard(fields, getModifier)
+                EditChoiceCard(fields, getUIStyle)
             } else if (ct is CT.ThreeField) {
-                EditChoiceCard(fields, getModifier)
+                EditChoiceCard(fields, getUIStyle)
             } else if (ct is CT.Hint) {
-                EditChoiceCard(fields, getModifier)
+                EditChoiceCard(fields, getUIStyle)
             } else if (ct is CT.Math) {
-                EditChoiceCard(fields, getModifier)
+                EditChoiceCard(fields, getUIStyle)
             }
         }
     }
@@ -195,7 +195,7 @@ class MathCardTypeHandler : CardTypeHandler {
         fields: Fields,
         ct: CT,
         changed : Boolean,
-        getModifier: GetModifier
+        getUIStyle: GetUIStyle
     ) {
         if (ct is CT.Math){
             if (!changed){
@@ -212,16 +212,16 @@ class MathCardTypeHandler : CardTypeHandler {
                 fields.stringList = rememberSaveable { cardDetails.stringList }
                 fields.answer = rememberSaveable { mutableStateOf(cardDetails.answer.value) }
             }
-            EditMathCard(fields, getModifier)
+            EditMathCard(fields, getUIStyle)
         } else {
             if (ct is CT.Basic) {
-                EditMathCard(fields, getModifier)
+                EditMathCard(fields, getUIStyle)
             } else if (ct is CT.ThreeField) {
-                EditMathCard(fields, getModifier)
+                EditMathCard(fields, getUIStyle)
             } else if (ct is CT.Hint) {
-                EditMathCard(fields, getModifier)
+                EditMathCard(fields, getUIStyle)
             } else if (ct is CT.MultiChoice) {
-                EditMathCard(fields, getModifier)
+                EditMathCard(fields, getUIStyle)
             }
         }
     }

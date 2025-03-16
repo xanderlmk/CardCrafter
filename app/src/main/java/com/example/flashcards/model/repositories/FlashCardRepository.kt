@@ -35,7 +35,7 @@ interface FlashCardRepository {
 
     fun resetCardLefts()
 
-    suspend fun insertDeck(deck: Deck)
+    suspend fun insertDeck(deck: Deck) : Long
 
     suspend fun deleteDeck(deck: Deck)
 

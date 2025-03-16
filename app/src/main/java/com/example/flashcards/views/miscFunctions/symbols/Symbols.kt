@@ -23,11 +23,11 @@ import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.controller.specialCardConverters.buildAnnotatedStringForMC
 import com.example.flashcards.controller.specialCardConverters.mapMathCardValues
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 
 
 @Composable
-fun ExponentNumber(exponent: String, getModifier: GetModifier) {
+fun ExponentNumber(exponent: String, getUIStyle: GetUIStyle) {
     Box {
         Text(
             text = exponent,
@@ -35,13 +35,13 @@ fun ExponentNumber(exponent: String, getModifier: GetModifier) {
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset(y = (-5).dp),
-            color = getModifier.titleColor()
+            color = getUIStyle.titleColor()
         )
     }
 }
 
 @Composable
-fun Subscript(subscript : String, getModifier : GetModifier){
+fun Subscript(subscript : String, getUIStyle : GetUIStyle){
     Box{
         Text(
             text = subscript,
@@ -49,7 +49,7 @@ fun Subscript(subscript : String, getModifier : GetModifier){
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset(y = (5).dp),
-            color = getModifier.titleColor()
+            color = getUIStyle.titleColor()
         )
     }
 }
@@ -58,7 +58,7 @@ fun Subscript(subscript : String, getModifier : GetModifier){
 fun Fraction(
     numerator: String,
     denominator: String,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -70,7 +70,7 @@ fun Fraction(
             modifier = Modifier
                 .offset(x = (1).dp, y = (-6.25).dp)
                 .padding(vertical = 1.dp),
-            color = getModifier.titleColor()
+            color = getUIStyle.titleColor()
         )
         if (numerator.length > 8 || denominator.length > 8){
             Canvas(
@@ -81,7 +81,7 @@ fun Fraction(
                 drawLine(
                     start = Offset(x = 0f, y = 0f),
                     end = Offset(x = 320f, y = 0f),
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     strokeWidth = 5f
                 )
             }
@@ -94,7 +94,7 @@ fun Fraction(
                 drawLine(
                     start = Offset(x = 0f, y = 0f),
                     end = Offset(x = 124f, y = 0f),
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     strokeWidth = 5f
                 )
             }
@@ -107,7 +107,7 @@ fun Fraction(
                 drawLine(
                     start = Offset(x = 0f, y = 0f),
                     end = Offset(x = 48f, y = 0f),
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     strokeWidth = 5f
                 )
             }
@@ -118,7 +118,7 @@ fun Fraction(
             modifier = Modifier
                 .offset(x = 1.dp, y = (-5.75).dp)
                 .padding(vertical = 1.dp),
-            color = getModifier.titleColor()
+            color = getUIStyle.titleColor()
         )
     }
 }
@@ -127,7 +127,7 @@ fun Fraction(
 fun IntegralWithBounds(
     lower: String,
     upper: String,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     Box(
         modifier = Modifier
@@ -137,7 +137,7 @@ fun IntegralWithBounds(
             painter = painterResource(R.drawable.icons_integral),
             contentDescription = null,
             modifier = Modifier.size(32.dp),
-            colorFilter = ColorFilter.tint(getModifier.titleColor())
+            colorFilter = ColorFilter.tint(getUIStyle.titleColor())
         )
         // Lower bound (bottom-left)
         Text(
@@ -146,7 +146,7 @@ fun IntegralWithBounds(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .offset(y = 10.dp, x = (-10).dp),
-            color =  getModifier.titleColor()
+            color =  getUIStyle.titleColor()
         )
 
         // Upper bound (top-right)
@@ -156,13 +156,13 @@ fun IntegralWithBounds(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .offset(y = (-10).dp, x = 10.dp),
-            color = getModifier.titleColor()
+            color = getUIStyle.titleColor()
         )
     }
 }
 
 @Composable
-fun RenderTextWithSymbols(text: String, getModifier: GetModifier) {
+fun RenderTextWithSymbols(text: String, getUIStyle: GetUIStyle) {
     val symbolToVectorMap = mapOf(
         ":pi" to R.drawable.icons_pi,
         ":sigma" to R.drawable.icons_sigma,
@@ -179,14 +179,14 @@ fun RenderTextWithSymbols(text: String, getModifier: GetModifier) {
     val annotatedString = buildAnnotatedStringForMC(text, symbolToVectorMap)
     // Define the inline content for each symbol
     val inlineContent = mapMathCardValues(
-        symbolToVectorMap, annotatedString, getModifier
+        symbolToVectorMap, annotatedString, getUIStyle
     )
     Text(
         text = annotatedString,
         inlineContent = inlineContent,
         fontSize = 20.sp,
         lineHeight = 22.sp,
-        color = getModifier.titleColor(),
+        color = getUIStyle.titleColor(),
         style = MaterialTheme.typography.titleLarge,
         textAlign = TextAlign.Center,
         modifier = Modifier

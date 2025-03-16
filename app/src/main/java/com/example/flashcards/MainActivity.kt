@@ -23,6 +23,8 @@ import com.example.flashcards.controller.viewModels.deckViewsModels.MainViewMode
 import com.example.flashcards.supabase.model.createSupabase
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.uiModels.PreferencesManager
+import com.example.flashcards.supabase.model.getSBKey
+import com.example.flashcards.supabase.model.getSBUrl
 import com.example.flashcards.ui.theme.FlashcardsTheme
 import io.github.jan.supabase.annotations.SupabaseInternal
 import io.github.jan.supabase.realtime.realtime
@@ -45,8 +47,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /** Getting our supabase credentials */
-        val supabaseUrl = BuildConfig.SUPABASE_URL
-        val supabaseKey = BuildConfig.SUPABASE_KEY
+        val supabaseUrl = getSBUrl()
+        val supabaseKey = getSBKey()
         var supabase = createSupabase(
             supabaseUrl = supabaseUrl,
             supabaseKey = supabaseKey
@@ -78,6 +80,7 @@ class MainActivity : ComponentActivity() {
             fields = rememberSaveable { Fields() }
             LaunchedEffect(Unit) {
                 supabase.realtime.connect()
+                supabase.useHTTPS
             }
             val isSystemDark = isSystemInDarkTheme()
 

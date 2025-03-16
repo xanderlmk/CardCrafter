@@ -11,7 +11,7 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.sp
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 import com.example.flashcards.views.miscFunctions.symbols.ExponentNumber
 import com.example.flashcards.views.miscFunctions.symbols.Fraction
 import com.example.flashcards.views.miscFunctions.symbols.IntegralWithBounds
@@ -132,7 +132,7 @@ fun buildAnnotatedStringForMC(
 
 fun mapMathCardValues(
     symbolToVectorMap: Map<String, Int>,
-    annotatedString: AnnotatedString, getModifier: GetModifier
+    annotatedString: AnnotatedString, getUIStyle: GetUIStyle
 ): Map<String, InlineTextContent> {
     var subscriptCounter = 0
     return symbolToVectorMap.mapValues { (value, vectorResId) ->
@@ -146,7 +146,7 @@ fun mapMathCardValues(
                 integralList.map { integral ->
                     val lower = integral.item.substringBefore('-')
                     val upper = integral.item.substringAfter('-')
-                    IntegralWithBounds(lower, upper, getModifier)
+                    IntegralWithBounds(lower, upper, getUIStyle)
                 }
             }
         } else if (value == "^") {
@@ -156,7 +156,7 @@ fun mapMathCardValues(
             InlineTextContent(
                 Placeholder(24.sp, 24.sp, PlaceholderVerticalAlign.TextCenter)
             ) {
-                ExponentNumber(exponent ?: "", getModifier)
+                ExponentNumber(exponent ?: "", getUIStyle)
             }
         } else if (value == "()0") {
             val fractionList = annotatedString.getStringAnnotations(
@@ -168,7 +168,7 @@ fun mapMathCardValues(
                 fractionList.map { fraction ->
                     val numerator = fraction.item.substringBefore('-')
                     val denominator = fraction.item.substringAfter('-')
-                    Fraction(numerator, denominator, getModifier)
+                    Fraction(numerator, denominator, getUIStyle)
                 }
             }
 
@@ -182,7 +182,7 @@ fun mapMathCardValues(
                 fractionList.map { fraction ->
                     val numerator = fraction.item.substringBefore('-')
                     val denominator = fraction.item.substringAfter('-')
-                    Fraction(numerator, denominator, getModifier)
+                    Fraction(numerator, denominator, getUIStyle)
                 }
             }
 
@@ -196,7 +196,7 @@ fun mapMathCardValues(
                 fractionList.map { fraction ->
                     val numerator = fraction.item.substringBefore('-')
                     val denominator = fraction.item.substringAfter('-')
-                    Fraction(numerator, denominator, getModifier)
+                    Fraction(numerator, denominator, getUIStyle)
                 }
             }
         } else if (value == ":>") {
@@ -226,7 +226,7 @@ fun mapMathCardValues(
                 )
                 // Render the subscript text for this position
                 annotations.forEach { annotation ->
-                    Subscript(annotation.item, getModifier)
+                    Subscript(annotation.item, getUIStyle)
                 }
             }
         } else {
@@ -236,7 +236,7 @@ fun mapMathCardValues(
                 Image(
                     painter = painterResource(id = vectorResId),
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(getModifier.titleColor())
+                    colorFilter = ColorFilter.tint(getUIStyle.titleColor())
                 )
             }
         }

@@ -21,7 +21,7 @@ import com.example.flashcards.controller.viewModels.deckViewsModels.EditDeckView
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.ui.theme.deleteTextColor
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -199,7 +199,7 @@ fun updateDeckName(
 fun DeleteDeck(
     viewModel: EditDeckViewModel,
     deck: Deck,
-    getModifier: GetModifier,
+    getUIStyle: GetUIStyle,
     coroutineScope: CoroutineScope,
     fields: Fields,
     onDelete: () -> Unit
@@ -214,7 +214,7 @@ fun DeleteDeck(
                 .fillMaxWidth(fraction = 0.55f)
                 .align(Alignment.Center),
             colors = ButtonDefaults.buttonColors(
-                containerColor = getModifier.secondaryButtonColor(),
+                containerColor = getUIStyle.secondaryButtonColor(),
                 contentColor = deleteTextColor
             )
         ) {
@@ -230,12 +230,12 @@ fun DeleteDeck(
                 title = {
                     Text(
                         stringResource(R.string.delete_deck),
-                        color = getModifier.titleColor()
+                        color = getUIStyle.titleColor()
                     )
                 },
                 text = { Text(
                     text = stringResource(R.string.sure_to_delete_deck),
-                    color = getModifier.titleColor()) },
+                    color = getUIStyle.titleColor()) },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -247,7 +247,7 @@ fun DeleteDeck(
                             }
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = getModifier.secondaryButtonColor(),
+                            containerColor = getUIStyle.secondaryButtonColor(),
                             contentColor = deleteTextColor
                         )
                     ) {
@@ -258,8 +258,8 @@ fun DeleteDeck(
                     Button(
                         onClick = { showConfirmationDialog = false },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = getModifier.secondaryButtonColor(),
-                            contentColor = getModifier.buttonTextColor()
+                            containerColor = getUIStyle.secondaryButtonColor(),
+                            contentColor = getUIStyle.buttonTextColor()
                         )
                     ) {
                         Text(stringResource(R.string.cancel))

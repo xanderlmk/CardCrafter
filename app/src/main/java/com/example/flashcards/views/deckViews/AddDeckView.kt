@@ -34,12 +34,14 @@ import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.viewModels.deckViewsModels.AddDeckViewModel
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.views.miscFunctions.EditTextField
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
+import com.example.flashcards.ui.theme.backButtonModifier
+import com.example.flashcards.ui.theme.scrollableBoxViewModifier
 import com.example.flashcards.views.miscFunctions.EditIntField
 
 
 class AddDeckView(
-    private var getModifier: GetModifier,
+    private var getUIStyle: GetUIStyle,
 ) {
     @Composable
     fun AddDeck(onNavigate: () -> Unit, reviewAmount : String,
@@ -59,14 +61,15 @@ class AddDeckView(
         val scrollState = rememberScrollState()
 
         Box(
-            modifier = getModifier.scrollableBoxViewModifier(scrollState)
+            modifier = Modifier
+                .scrollableBoxViewModifier(scrollState, getUIStyle.getColorScheme())
         ) {
             BackButton(
                 onBackClick = {
                     onNavigate()
                 },
-                modifier = getModifier.backButtonModifier(),
-                getModifier = getModifier
+                modifier = Modifier.backButtonModifier(),
+                getUIStyle = getUIStyle
             )
             Column(
                 modifier = Modifier
@@ -80,7 +83,7 @@ class AddDeckView(
                     fontSize = 35.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 100.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .padding(top = 20.dp)
@@ -106,7 +109,7 @@ class AddDeckView(
                     fontSize = 25.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 28.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .padding(top = 20.dp)
@@ -133,7 +136,7 @@ class AddDeckView(
                     fontSize = 25.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 28.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .padding(top = 20.dp)
@@ -203,8 +206,8 @@ class AddDeckView(
                             }
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = getModifier.secondaryButtonColor(),
-                            contentColor = getModifier.buttonTextColor()
+                            containerColor = getUIStyle.secondaryButtonColor(),
+                            contentColor = getUIStyle.buttonTextColor()
                         )
                     ) {
                         Text(stringResource(R.string.submit))

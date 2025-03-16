@@ -28,7 +28,7 @@ import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.HintCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
-import com.example.flashcards.ui.theme.GetModifier
+import com.example.flashcards.ui.theme.GetUIStyle
 import com.example.flashcards.R
 import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.MathCard
@@ -37,7 +37,7 @@ import com.example.flashcards.views.miscFunctions.symbols.RenderTextWithSymbols
 @Composable
 fun FrontCard(
     ct: CT,
-    getModifier: GetModifier,
+    getUIStyle: GetUIStyle,
     clickedChoice: MutableState<Char>,
     modifier: Modifier
 ) {
@@ -48,27 +48,27 @@ fun FrontCard(
     ) {
         when (ct) {
             is CT.Basic -> {
-                BasicFrontCard(basicCard = ct.basicCard, getModifier)
+                BasicFrontCard(basicCard = ct.basicCard, getUIStyle)
             }
 
             is CT.ThreeField -> {
-                ThreeFrontCard(threeCard = ct.threeFieldCard, getModifier)
+                ThreeFrontCard(threeCard = ct.threeFieldCard, getUIStyle)
             }
 
             is CT.Hint -> {
-                HintFrontCard(hintCard = ct.hintCard, getModifier)
+                HintFrontCard(hintCard = ct.hintCard, getUIStyle)
             }
 
             is CT.MultiChoice -> {
                 ChoiceFrontCard(
                     multiChoiceCard = ct.multiChoiceCard,
                     clickedChoice = clickedChoice,
-                    getModifier = getModifier
+                    getUIStyle = getUIStyle
                 )
             }
 
             is CT.Math -> {
-                MathFrontCard(mathCard = ct.mathCard, getModifier)
+                MathFrontCard(mathCard = ct.mathCard, getUIStyle)
             }
         }
     }
@@ -77,7 +77,7 @@ fun FrontCard(
 @Composable
 fun BasicFrontCard(
     basicCard: BasicCard,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
     Box {
@@ -91,7 +91,7 @@ fun BasicFrontCard(
                 text = basicCard.question,
                 fontSize = 20.sp,
                 lineHeight = 22.sp,
-                color = getModifier.titleColor(),
+                color = getUIStyle.titleColor(),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -104,7 +104,7 @@ fun BasicFrontCard(
 @Composable
 fun ThreeFrontCard(
     threeCard: ThreeFieldCard,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
     Box {
@@ -118,7 +118,7 @@ fun ThreeFrontCard(
                 text = threeCard.question,
                 fontSize = 20.sp,
                 lineHeight = 22.sp,
-                color = getModifier.titleColor(),
+                color = getUIStyle.titleColor(),
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -132,7 +132,7 @@ fun ThreeFrontCard(
 @Composable
 fun HintFrontCard(
     hintCard: HintCard,
-    getModifier: GetModifier
+    getUIStyle: GetUIStyle
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
     var isHintRevealed by rememberSaveable { mutableStateOf(false) }
@@ -151,7 +151,7 @@ fun HintFrontCard(
                     text = hintCard.question,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -167,7 +167,7 @@ fun HintFrontCard(
                     },
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -178,7 +178,7 @@ fun HintFrontCard(
                             focusManager.clearFocus()
                         }
                         .background(
-                            color = getModifier.onTertiaryColor(),
+                            color = getUIStyle.onTertiaryColor(),
                             shape = RoundedCornerShape(8.dp)
                         )
                         .fillMaxWidth()
@@ -191,7 +191,7 @@ fun HintFrontCard(
 @Composable
 fun ChoiceFrontCard(
     multiChoiceCard: MultiChoiceCard,
-    getModifier: GetModifier,
+    getUIStyle: GetUIStyle,
     clickedChoice: MutableState<Char>
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
@@ -210,7 +210,7 @@ fun ChoiceFrontCard(
                     text = multiChoiceCard.question,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -221,7 +221,7 @@ fun ChoiceFrontCard(
                     text = multiChoiceCard.choiceA,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -233,9 +233,9 @@ fun ChoiceFrontCard(
                         }
                         .background(
                             color = if (clickedChoice.value == 'a') {
-                                getModifier.pickedChoice()
+                                getUIStyle.pickedChoice()
                             } else {
-                                getModifier.onTertiaryColor()
+                                getUIStyle.onTertiaryColor()
                             },
                             shape = RoundedCornerShape(8.dp)
                         )
@@ -245,7 +245,7 @@ fun ChoiceFrontCard(
                     text = multiChoiceCard.choiceB,
                     fontSize = 20.sp,
                     lineHeight = 22.sp,
-                    color = getModifier.titleColor(),
+                    color = getUIStyle.titleColor(),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
@@ -257,9 +257,9 @@ fun ChoiceFrontCard(
                         }
                         .background(
                             color = if (clickedChoice.value == 'b') {
-                                getModifier.pickedChoice()
+                                getUIStyle.pickedChoice()
                             } else {
-                                getModifier.onTertiaryColor()
+                                getUIStyle.onTertiaryColor()
                             },
                             shape = RoundedCornerShape(8.dp)
                         )
@@ -271,7 +271,7 @@ fun ChoiceFrontCard(
                         text = multiChoiceCard.choiceC,
                         fontSize = 20.sp,
                         lineHeight = 22.sp,
-                        color = getModifier.titleColor(),
+                        color = getUIStyle.titleColor(),
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
@@ -283,9 +283,9 @@ fun ChoiceFrontCard(
                             }
                             .background(
                                 color = if (clickedChoice.value == 'c') {
-                                    getModifier.pickedChoice()
+                                    getUIStyle.pickedChoice()
                                 } else {
-                                    getModifier.onTertiaryColor()
+                                    getUIStyle.onTertiaryColor()
                                 },
                                 shape = RoundedCornerShape(8.dp)
                             )
@@ -297,7 +297,7 @@ fun ChoiceFrontCard(
                         text = multiChoiceCard.choiceD,
                         fontSize = 20.sp,
                         lineHeight = 22.sp,
-                        color = getModifier.titleColor(),
+                        color = getUIStyle.titleColor(),
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
@@ -309,9 +309,9 @@ fun ChoiceFrontCard(
                             }
                             .background(
                                 color = if (clickedChoice.value == 'd') {
-                                    getModifier.pickedChoice()
+                                    getUIStyle.pickedChoice()
                                 } else {
-                                    getModifier.onTertiaryColor()
+                                    getUIStyle.onTertiaryColor()
                                 },
                                 shape = RoundedCornerShape(8.dp)
                             )
@@ -324,7 +324,7 @@ fun ChoiceFrontCard(
 }
 
 @Composable
-fun MathFrontCard(mathCard: MathCard, getModifier: GetModifier) {
+fun MathFrontCard(mathCard: MathCard, getUIStyle: GetUIStyle) {
     val focusManager = LocalFocusManager.current
     Box {
         SelectionContainer(
@@ -333,7 +333,7 @@ fun MathFrontCard(mathCard: MathCard, getModifier: GetModifier) {
                 indication = null
             ) { focusManager.clearFocus() }
         ) {
-            RenderTextWithSymbols(mathCard.question, getModifier)
+            RenderTextWithSymbols(mathCard.question, getUIStyle)
         }
     }
 }
