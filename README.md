@@ -10,7 +10,9 @@
 - Different Card Types
 - Deck Options such as reviews per card, multipliers, name change
 - Custom Themes based off Light/Dark Theme
-### To see what other feautres to add please look at TODO.md
+- Spanish and English Language Support
+- KaTeX for MathCard.
+### To see what other features to add, please look at TODO.md
 
 
 
