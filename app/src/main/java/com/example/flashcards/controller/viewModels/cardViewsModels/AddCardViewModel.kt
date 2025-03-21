@@ -10,7 +10,7 @@ import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.HintCard
-import com.example.flashcards.model.tablesAndApplication.MathCard
+import com.example.flashcards.model.tablesAndApplication.NotationCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import kotlinx.coroutines.Dispatchers
@@ -156,7 +156,7 @@ class AddCardViewModel(
         }
     }
 
-    fun addMathCard(
+    fun addNotationCard(
         deck: Deck,
         question: String,
         steps : List<String>,
@@ -172,13 +172,13 @@ class AddCardViewModel(
                         passes = 0,
                         prevSuccess = false,
                         totalPasses = 0,
-                        type = "math",
+                        type = "notation",
                         deckUUID = deck.uuid,
                         reviewsLeft = deck.reviewAmount
                     )
                 )
-                scienceSpecificRepository.insertMathCard(
-                    MathCard(
+                scienceSpecificRepository.insertNotationCard(
+                    NotationCard(
                         cardId = cardId.toInt(),
                         question = question,
                         steps = steps,

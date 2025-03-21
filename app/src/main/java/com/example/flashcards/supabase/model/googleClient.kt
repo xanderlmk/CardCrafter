@@ -14,7 +14,7 @@ import retrofit2.http.POST
 
 @Serializable
 data class GoogleClientResponse(
-    @SerializedName("google_id") val GOOGLE_CLIENT_ID: String
+    @SerializedName(GOOGLE_ID) val GOOGLE_CLIENT_ID: String
 )
 object RetrofitClient {
     private val BASE_URL: String = getSBUrl()
@@ -32,8 +32,10 @@ object RetrofitClient {
 }
 interface SupabaseApi {
     @Headers("Content-Type: application/json")
-    @POST("functions/v1/getKeys")
+    @POST(POST_FUNCTION_STRING)
     fun getGoogleClientId(
         @Header("Authorization") authHeader: String
     ): Call<GoogleClientResponse>
 }
+private const val POST_FUNCTION_STRING = "functions/v1/getKeys"
+private const val GOOGLE_ID = "google_id"

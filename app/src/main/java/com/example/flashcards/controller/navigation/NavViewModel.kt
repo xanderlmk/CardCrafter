@@ -27,7 +27,7 @@ import java.util.Date
 @OptIn(ExperimentalCoroutinesApi::class)
 class NavViewModel(
     private val flashCardRepository: FlashCardRepository,
-    savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
@@ -63,9 +63,11 @@ class NavViewModel(
     val card = thisCard
     fun getDeckById(id: Int) {
         deckId.value = id
+        savedStateHandle["id"] = id
     }
     fun getCardById(id : Int) {
         cardId.value = id
+        savedStateHandle["cardId"] = id
     }
     fun resetCard(){
         cardId.value = 0

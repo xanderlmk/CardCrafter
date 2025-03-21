@@ -21,34 +21,39 @@ import androidx.compose.ui.unit.sp
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.HintCard
-import com.example.flashcards.model.tablesAndApplication.MathCard
+import com.example.flashcards.model.tablesAndApplication.NotationCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.ui.theme.GetUIStyle
-import com.example.flashcards.views.miscFunctions.symbols.RenderTextWithSymbols
+import com.example.flashcards.views.miscFunctions.symbols.KaTeXWebView
+
+private const val line = "$$\\\\text{---}\\\\text{---}\\\\text{---}\\\\text{---}\\\\text{---}" +
+        "\\\\text{---}\\\\text{---}\\\\text{---}$$"
 
 @Composable
-fun MathBackCard(mathCard: MathCard, getUIStyle: GetUIStyle) {
+fun NotationBackCard(notationCard: NotationCard, getUIStyle: GetUIStyle) {
     val focusManager = LocalFocusManager.current
-    Box {
+    Box(contentAlignment = Alignment.TopCenter) {
         SelectionContainer(
             modifier = Modifier.clickable(
                 interactionSource = null,
                 indication = null
             ) { focusManager.clearFocus() }
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                RenderTextWithSymbols(mathCard.question, getUIStyle)
-                if (mathCard.steps.isNotEmpty()) {
-                    mathCard.steps.map {
-                        RenderTextWithSymbols(it, getUIStyle)
+            val longString = buildString {
+                append(notationCard.question)
+                append(line)
+                if (notationCard.steps.isNotEmpty()) {
+                    notationCard.steps.mapIndexed { index, step ->
+                        append("<p>Step ${index + 1}: $step</p>")
+                        if (index == notationCard.steps.lastIndex) {
+                            append(line)
+                        }
                     }
                 }
-                RenderTextWithSymbols(mathCard.answer, getUIStyle)
+                append("<p>${notationCard.answer}</p>")
             }
-
+            KaTeXWebView(longString, getUIStyle)
         }
     }
 }
@@ -190,7 +195,7 @@ fun HintBackCard(
 @Composable
 fun ChoiceBackCard(
     multiChoiceCard: MultiChoiceCard,
-    clickedChoice : Char,
+    clickedChoice: Char,
     getUIStyle: GetUIStyle
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
@@ -225,23 +230,23 @@ fun ChoiceBackCard(
                         .padding(vertical = 4.dp)
                         .background(
                             color =
-                            if (clickedChoice == 'a' &&
-                                multiChoiceCard.correct != clickedChoice
-                            ) {
-                                getUIStyle.pickedChoice()
-                            } else if (
-                                multiChoiceCard.correct == 'a' &&
-                                clickedChoice != multiChoiceCard.correct
-                            ) {
-                                getUIStyle.correctChoice()
-                            } else if (
-                                clickedChoice == multiChoiceCard.correct &&
-                                multiChoiceCard.correct == 'a'
-                            ) {
-                                getUIStyle.correctChoice()
-                            } else {
-                                getUIStyle.onTertiaryColor()
-                            },
+                                if (clickedChoice == 'a' &&
+                                    multiChoiceCard.correct != clickedChoice
+                                ) {
+                                    getUIStyle.pickedChoice()
+                                } else if (
+                                    multiChoiceCard.correct == 'a' &&
+                                    clickedChoice != multiChoiceCard.correct
+                                ) {
+                                    getUIStyle.correctChoice()
+                                } else if (
+                                    clickedChoice == multiChoiceCard.correct &&
+                                    multiChoiceCard.correct == 'a'
+                                ) {
+                                    getUIStyle.correctChoice()
+                                } else {
+                                    getUIStyle.onTertiaryColor()
+                                },
                             shape = RoundedCornerShape(8.dp)
                         )
                         .fillMaxWidth()
@@ -258,23 +263,23 @@ fun ChoiceBackCard(
                         .padding(vertical = 4.dp)
                         .background(
                             color =
-                            if (clickedChoice == 'b' &&
-                                multiChoiceCard.correct != clickedChoice
-                            ) {
-                                getUIStyle.pickedChoice()
-                            } else if (
-                                multiChoiceCard.correct == 'b' &&
-                                clickedChoice != multiChoiceCard.correct
-                            ) {
-                                getUIStyle.correctChoice()
-                            } else if (
-                                clickedChoice == multiChoiceCard.correct &&
-                                multiChoiceCard.correct == 'b'
-                            ) {
-                                getUIStyle.correctChoice()
-                            } else {
-                                getUIStyle.onTertiaryColor()
-                            },
+                                if (clickedChoice == 'b' &&
+                                    multiChoiceCard.correct != clickedChoice
+                                ) {
+                                    getUIStyle.pickedChoice()
+                                } else if (
+                                    multiChoiceCard.correct == 'b' &&
+                                    clickedChoice != multiChoiceCard.correct
+                                ) {
+                                    getUIStyle.correctChoice()
+                                } else if (
+                                    clickedChoice == multiChoiceCard.correct &&
+                                    multiChoiceCard.correct == 'b'
+                                ) {
+                                    getUIStyle.correctChoice()
+                                } else {
+                                    getUIStyle.onTertiaryColor()
+                                },
                             shape = RoundedCornerShape(8.dp)
                         )
                         .fillMaxWidth()
@@ -293,23 +298,23 @@ fun ChoiceBackCard(
                             .padding(vertical = 4.dp)
                             .background(
                                 color =
-                                if (clickedChoice == 'c' &&
-                                    multiChoiceCard.correct != clickedChoice
-                                ) {
-                                    getUIStyle.pickedChoice()
-                                } else if (
-                                    multiChoiceCard.correct == 'c' &&
-                                    clickedChoice != multiChoiceCard.correct
-                                ) {
-                                    getUIStyle.correctChoice()
-                                } else if (
-                                    clickedChoice == multiChoiceCard.correct &&
-                                    multiChoiceCard.correct == 'c'
-                                ) {
-                                    getUIStyle.correctChoice()
-                                } else {
-                                    getUIStyle.onTertiaryColor()
-                                },
+                                    if (clickedChoice == 'c' &&
+                                        multiChoiceCard.correct != clickedChoice
+                                    ) {
+                                        getUIStyle.pickedChoice()
+                                    } else if (
+                                        multiChoiceCard.correct == 'c' &&
+                                        clickedChoice != multiChoiceCard.correct
+                                    ) {
+                                        getUIStyle.correctChoice()
+                                    } else if (
+                                        clickedChoice == multiChoiceCard.correct &&
+                                        multiChoiceCard.correct == 'c'
+                                    ) {
+                                        getUIStyle.correctChoice()
+                                    } else {
+                                        getUIStyle.onTertiaryColor()
+                                    },
                                 shape = RoundedCornerShape(8.dp)
                             )
                             .fillMaxWidth()
@@ -328,23 +333,23 @@ fun ChoiceBackCard(
                             .padding(vertical = 4.dp)
                             .background(
                                 color =
-                                if (clickedChoice == 'd' &&
-                                    multiChoiceCard.correct != clickedChoice
-                                ) {
-                                    getUIStyle.pickedChoice()
-                                } else if (
-                                    multiChoiceCard.correct == 'd' &&
-                                    clickedChoice != multiChoiceCard.correct
-                                ) {
-                                    getUIStyle.correctChoice()
-                                } else if (
-                                    clickedChoice == multiChoiceCard.correct &&
-                                    multiChoiceCard.correct == 'd'
-                                ) {
-                                    getUIStyle.correctChoice()
-                                } else {
-                                    getUIStyle.onTertiaryColor()
-                                },
+                                    if (clickedChoice == 'd' &&
+                                        multiChoiceCard.correct != clickedChoice
+                                    ) {
+                                        getUIStyle.pickedChoice()
+                                    } else if (
+                                        multiChoiceCard.correct == 'd' &&
+                                        clickedChoice != multiChoiceCard.correct
+                                    ) {
+                                        getUIStyle.correctChoice()
+                                    } else if (
+                                        clickedChoice == multiChoiceCard.correct &&
+                                        multiChoiceCard.correct == 'd'
+                                    ) {
+                                        getUIStyle.correctChoice()
+                                    } else {
+                                        getUIStyle.onTertiaryColor()
+                                    },
                                 shape = RoundedCornerShape(8.dp)
                             )
                             .fillMaxWidth()
@@ -382,11 +387,14 @@ fun BackCard(
             }
 
             is CT.MultiChoice -> {
-                ChoiceBackCard(multiChoiceCard = ct.multiChoiceCard,
-                    clickedChoice, getUIStyle)
+                ChoiceBackCard(
+                    multiChoiceCard = ct.multiChoiceCard,
+                    clickedChoice, getUIStyle
+                )
             }
-            is CT.Math -> {
-                MathBackCard(mathCard = ct.mathCard, getUIStyle)
+
+            is CT.Notation -> {
+                NotationBackCard(notationCard = ct.notationCard, getUIStyle)
             }
         }
     }

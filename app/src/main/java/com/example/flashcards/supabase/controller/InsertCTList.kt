@@ -73,14 +73,14 @@ suspend fun insertCTList(
                     return false
                 }
             }
-            is CT.Math -> {
+            is CT.Notation -> {
                 try {
                     val response = insertCard(
                         supabase,
                         uuid = deck.uuid,
                         type = ct.card.type
                     )
-                    insertMathCT(response.id, supabase, ct.mathCard)
+                    insertNotationCT(response.id, supabase, ct.notationCard)
                 } catch (e: Exception) {
                     Log.d(
                         "SupabaseViewModel", "Unable to upload Card: $e"

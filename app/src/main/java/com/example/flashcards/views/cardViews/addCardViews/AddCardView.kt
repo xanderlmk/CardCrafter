@@ -52,14 +52,14 @@ class AddCardView(
         val type = rememberSaveable { mutableStateOf("basic") }
         val addCardVM : AddCardViewModel =
             viewModel(factory = AppViewModelProvider.Factory)
-        val helpForMath = rememberSaveable { mutableStateOf(false) }
+        val helpForNotation = rememberSaveable { mutableStateOf(false) }
 
         fields = getSavableFields(fields)
         Box(
             modifier = Modifier
                 .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
-            SymbolDocumentation(helpForMath,getUIStyle)
+            SymbolDocumentation(helpForNotation,getUIStyle)
             BackButton(
                 onBackClick = {
                     fields.resetFields()
@@ -106,8 +106,8 @@ class AddCardView(
                             onClick = { type.value = "multi" },
                             text = { Text(stringResource(R.string.multi_choice_card)) })
                         DropdownMenuItem(
-                            onClick = { type.value = "math"},
-                            text = { Text("Math")}
+                            onClick = { type.value = "notation"},
+                            text = { Text("Notation")}
                         )
                     }
                 }
@@ -121,8 +121,8 @@ class AddCardView(
                     "multi" -> {
                         stringResource(R.string.multi)
                     }
-                    "math" -> {
-                        "Math"
+                    "notation" -> {
+                        "Notation"
                     }
                     else -> {
                         stringResource(R.string.basic)
@@ -140,10 +140,10 @@ class AddCardView(
                         color = getUIStyle.titleColor(),
                         fontWeight = FontWeight.Bold,
                         modifier =
-                        if (type.value == "math") {Modifier.padding(start = 8.dp)}
+                        if (type.value == "notation") {Modifier.padding(start = 8.dp)}
                         else {Modifier}
                     )
-                    if (type.value == "math") {
+                    if (type.value == "notation") {
                         Text(
                             text = "?", fontSize = 35.sp,
                             textAlign = TextAlign.Right,
@@ -153,7 +153,7 @@ class AddCardView(
                             modifier = Modifier
                                 .padding(horizontal = 4.dp)
                                 .clickable {
-                                    helpForMath.value = true
+                                    helpForNotation.value = true
                                 }
                         )
                     }
@@ -175,7 +175,7 @@ class AddCardView(
                         addCardVM, deck,
                         fields, getUIStyle
                     )
-                    "math" -> AddMathCard(addCardVM, deck,
+                    "notation" -> AddNotationCard(addCardVM, deck,
                         fields, getUIStyle)
                     else -> AddBasicCard(
                         addCardVM, deck,

@@ -12,10 +12,10 @@ import com.example.flashcards.views.cardViews.editCardViews.EditHintCard
 import com.example.flashcards.views.cardViews.editCardViews.EditThreeCard
 import com.example.flashcards.ui.theme.GetUIStyle
 import com.example.flashcards.views.cardViews.editCardViews.EditChoiceCard
-import com.example.flashcards.views.cardViews.editCardViews.EditMathCard
+import com.example.flashcards.views.cardViews.editCardViews.EditNotationCard
 import com.example.flashcards.views.miscFunctions.details.createBasicCardDetails
 import com.example.flashcards.views.miscFunctions.details.createChoiceCardDetails
-import com.example.flashcards.views.miscFunctions.details.createMathCardDetails
+import com.example.flashcards.views.miscFunctions.details.createNotationCardDetails
 import com.example.flashcards.views.miscFunctions.details.createThreeOrHintCardDetails
 
 interface CardTypeHandler {
@@ -57,7 +57,7 @@ class BasicCardTypeHandler : CardTypeHandler {
                 EditBasicCard(fields)
             } else if (ct is CT.MultiChoice) {
                 EditBasicCard(fields)
-            } else if (ct is CT.Math) {
+            } else if (ct is CT.Notation) {
                 EditBasicCard(fields)
             }
         }
@@ -99,7 +99,7 @@ class ThreeCardTypeHandler : CardTypeHandler {
                 EditThreeCard(fields)
             } else if (ct is CT.MultiChoice) {
                 EditThreeCard(fields)
-            } else if (ct is CT.Math) {
+            } else if (ct is CT.Notation) {
                 EditThreeCard(fields)
             }
         }
@@ -139,7 +139,7 @@ class HintCardTypeHandler : CardTypeHandler {
                 EditHintCard(fields)
             } else if (ct is CT.MultiChoice) {
                 EditHintCard(fields)
-            } else if (ct is CT.Math) {
+            } else if (ct is CT.Notation) {
                 EditHintCard(fields)
             }
         }
@@ -181,14 +181,14 @@ class ChoiceCardTypeHandler : CardTypeHandler {
                 EditChoiceCard(fields, getUIStyle)
             } else if (ct is CT.Hint) {
                 EditChoiceCard(fields, getUIStyle)
-            } else if (ct is CT.Math) {
+            } else if (ct is CT.Notation) {
                 EditChoiceCard(fields, getUIStyle)
             }
         }
     }
 }
 
-class MathCardTypeHandler : CardTypeHandler {
+class NotationCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
         cardId: Int,
@@ -197,14 +197,14 @@ class MathCardTypeHandler : CardTypeHandler {
         changed : Boolean,
         getUIStyle: GetUIStyle
     ) {
-        if (ct is CT.Math){
+        if (ct is CT.Notation){
             if (!changed){
                 val cardDetails by remember {
                     mutableStateOf(
-                        createMathCardDetails(
-                            ct.mathCard.question,
-                            ct.mathCard.steps,
-                            ct.mathCard.answer
+                        createNotationCardDetails(
+                            ct.notationCard.question,
+                            ct.notationCard.steps,
+                            ct.notationCard.answer
                         )
                     )
                 }
@@ -212,16 +212,16 @@ class MathCardTypeHandler : CardTypeHandler {
                 fields.stringList = rememberSaveable { cardDetails.stringList }
                 fields.answer = rememberSaveable { mutableStateOf(cardDetails.answer.value) }
             }
-            EditMathCard(fields, getUIStyle)
+            EditNotationCard(fields, getUIStyle)
         } else {
             if (ct is CT.Basic) {
-                EditMathCard(fields, getUIStyle)
+                EditNotationCard(fields, getUIStyle)
             } else if (ct is CT.ThreeField) {
-                EditMathCard(fields, getUIStyle)
+                EditNotationCard(fields, getUIStyle)
             } else if (ct is CT.Hint) {
-                EditMathCard(fields, getUIStyle)
+                EditNotationCard(fields, getUIStyle)
             } else if (ct is CT.MultiChoice) {
-                EditMathCard(fields, getUIStyle)
+                EditNotationCard(fields, getUIStyle)
             }
         }
     }
@@ -242,8 +242,8 @@ fun returnCardTypeHandler(newType : String, currentType : String) : CardTypeHand
             "multi" -> {
                 ChoiceCardTypeHandler()
             }
-            "math" -> {
-                MathCardTypeHandler()
+            "notation" -> {
+                NotationCardTypeHandler()
             }
             else -> {
                 println("NULL")
@@ -264,8 +264,8 @@ fun returnCardTypeHandler(newType : String, currentType : String) : CardTypeHand
             "multi" -> {
                 ChoiceCardTypeHandler()
             }
-            "math" -> {
-                MathCardTypeHandler()
+            "notation" -> {
+                NotationCardTypeHandler()
             }
             else -> {
                 println("NULL")

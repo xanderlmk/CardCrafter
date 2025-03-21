@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 // Light theme
 val backgroundColor = Color(212, 241, 244)
+val secondaryBC = Color(197, 243, 246, 255)
 val onBackgroundColor = Color(50, 50, 200)
 val editingBackGroundColor = Color(190, 240, 255)
 
@@ -23,6 +24,7 @@ val onCorrectChoice = Color(10, 100, 10)
 
 // Dark theme
 val darkBackground = Color(20,20,25)
+val secondaryDBC = Color(19, 19, 38, 255)
 val darkOnBackground = Color(224, 224, 224)
 val darkEditingBackground = Color(28, 28, 68)
 

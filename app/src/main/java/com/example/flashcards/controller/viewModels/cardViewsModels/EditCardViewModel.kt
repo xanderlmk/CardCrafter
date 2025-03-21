@@ -9,8 +9,8 @@ import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.Card
 import com.example.flashcards.model.tablesAndApplication.HintCard
-import com.example.flashcards.model.tablesAndApplication.MathCard
-import com.example.flashcards.model.tablesAndApplication.MathCardConverter
+import com.example.flashcards.model.tablesAndApplication.NotationCard
+import com.example.flashcards.model.tablesAndApplication.ListStringConverter
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.model.uiModels.Fields
@@ -20,10 +20,10 @@ import kotlinx.coroutines.launch
 class EditCardViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val cardTypeRepository: CardTypeRepository,
-    private val scienceSpecificRepository: ScienceSpecificRepository
+    private val sSRepository: ScienceSpecificRepository
 ) : ViewModel() {
 
-    private val mathCardConverter = MathCardConverter()
+    private val listStringConverter = ListStringConverter()
     fun deleteCard(card: Card) {
         viewModelScope.launch {
             flashCardRepository.deleteCard(card)
@@ -61,15 +61,15 @@ class EditCardViewModel(
         }
     }
 
-    fun updateMathCard(
+    fun updateNotationCard(
         cardId: Int,
         question: String,
         steps : List<String>,
         answer: String
     ) {
         viewModelScope.launch(Dispatchers.IO){
-            val stepsToString = mathCardConverter.listToString(steps)
-            scienceSpecificRepository.updateMathCard(
+            val stepsToString = listStringConverter.listToString(steps)
+            sSRepository.updateNotationCard(
                 question, stepsToString ,answer, cardId
             )
         }
@@ -123,9 +123,9 @@ class EditCardViewModel(
                         )
                     )
                 }
-                "math" -> {
-                    scienceSpecificRepository.insertMathCard(
-                        MathCard(
+                "notation" -> {
+                    sSRepository.insertNotationCard(
+                        NotationCard(
                             cardId = cardId,
                             question = fields.question.value,
                             steps = fields.stringList.map { it.value },
@@ -152,8 +152,8 @@ class EditCardViewModel(
                 is CT.MultiChoice -> {
                     cardTypeRepository.deleteMultiChoiceCard(deleteCT.multiChoiceCard)
                 }
-                is CT.Math -> {
-                    scienceSpecificRepository.deleteMathCard(deleteCT.mathCard)
+                is CT.Notation -> {
+                    sSRepository.deleteNotationCard(deleteCT.notationCard)
                 }
             }
         }.join()

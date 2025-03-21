@@ -196,7 +196,7 @@ class MainView(
                                         expanded = false
                                     }
                                 },
-                                text = { Text("Import deck") }
+                                text = { Text("Online Decks") }
 
                             )
                         }

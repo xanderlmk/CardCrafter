@@ -1,6 +1,5 @@
 package com.example.flashcards.views.deckViews
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,27 +20,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.model.tablesAndApplication.Deck
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.flashcards.R
 import com.example.flashcards.controller.AppViewModelProvider
 import com.example.flashcards.controller.viewModels.deckViewsModels.DeckViewModel
-import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.uiModels.Fields
-import com.example.flashcards.model.uiModels.SealedAllCTs
-import com.example.flashcards.supabase.controller.SupabaseViewModel
 import com.example.flashcards.views.miscFunctions.AddCardButton
 import com.example.flashcards.views.miscFunctions.BackButton
 import com.example.flashcards.views.miscFunctions.SettingsButton
@@ -51,23 +40,15 @@ import com.example.flashcards.ui.theme.addButtonModifier
 import com.example.flashcards.ui.theme.backButtonModifier
 import com.example.flashcards.ui.theme.boxViewsModifier
 import com.example.flashcards.ui.theme.settingsButtonModifier
-import com.example.flashcards.views.miscFunctions.EditTextFieldNonDone
-import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.gotrue.auth
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 
 class DeckView(
     private var fields: Fields,
     private var getUIStyle: GetUIStyle,
-    private val supabaseVM: SupabaseViewModel,
 ) {
     @Composable
     fun ViewEditDeck(
         deck: Deck,
-        sealedAllCTs: SealedAllCTs,
-        supabase: SupabaseClient,
         onNavigate: () -> Unit,
         goToAddCard: (Int) -> Unit,
         goToDueCards: (Int) -> Unit,
@@ -76,20 +57,15 @@ class DeckView(
     ) {
         val deckVM: DeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
         var pressed = rememberSaveable { mutableStateOf(false) }
-        val uploadPress = rememberSaveable { mutableStateOf(false) }
-        val coroutineScope = rememberCoroutineScope()
         Box(
             modifier = Modifier
                 .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
-            UploadThisDeck(
-                uploadPress, deck, sealedAllCTs.allCTs,
-                supabase, supabaseVM, coroutineScope, getUIStyle
-            )
             ResetDeckDueDate(pressed, deckVM, deck.id, deck.cardAmount)
             BackButton(
                 onBackClick = { onNavigate() },
-                modifier = Modifier.backButtonModifier(),
+                modifier = Modifier
+                    .backButtonModifier(),
                 getUIStyle = getUIStyle
             )
             SettingsButton(
@@ -105,10 +81,6 @@ class DeckView(
                         goToViewCards(deck.id)
                     }
                 },
-                exportDeck = {
-                    uploadPress.value = true
-                },
-                clientExists = supabase.auth.currentUserOrNull() != null,
                 modifier = Modifier
                     .settingsButtonModifier()
                     .align(Alignment.TopEnd),
@@ -266,118 +238,3 @@ class DeckView(
     }
 }
 
-@Composable
-fun FailedUpload(dismiss: MutableState<Boolean>) {
-    if (dismiss.value) {
-        AlertDialog(
-            onDismissRequest = {
-                dismiss.value = false
-            },
-            dismissButton = {
-                Button(onClick = {
-                    dismiss.value = false
-                }) {
-                    Text("Ok")
-                }
-            },
-            confirmButton = {},
-            title = {
-                Text("Failed!")
-            },
-            modifier = Modifier.fillMaxWidth(0.75f)
-        )
-    }
-}
-
-@Composable
-fun UploadThisDeck(
-    dismiss: MutableState<Boolean>, deck: Deck, cts: List<CT>,
-    supabase: SupabaseClient, supabaseVM: SupabaseViewModel,
-    coroutineScope: CoroutineScope, getUIStyle: GetUIStyle
-) {
-    var enabled by rememberSaveable { mutableStateOf(true) }
-    if (dismiss.value) {
-        var description by rememberSaveable { mutableStateOf("") }
-        var failed = remember { mutableStateOf(false) }
-        var success by remember { mutableStateOf(false) }
-        val context = LocalContext.current
-        LaunchedEffect(success) {
-            if (success) {
-                dismiss.value = false
-            }
-        }
-        FailedUpload(failed)
-        AlertDialog(
-            onDismissRequest = {
-                dismiss.value = false
-            },
-            dismissButton = {
-                Button(onClick = {
-                    dismiss.value = false
-                }) {
-                    Text("Cancel")
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        if (description.length > 20) {
-                            coroutineScope.launch {
-                                enabled = false
-                                supabaseVM.insertDeckAndCards(
-                                    deck, supabase,
-                                    cts, description
-                                ).let {
-                                    if (it > 0) {
-                                        enabled = true
-                                        failed.value = true
-                                    } else {
-                                        success = true
-                                    }
-                                }
-                            }
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "Description must be longer!", Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    },
-                    enabled = enabled
-                ) { Text("Ok") }
-            },
-            title = {
-                Text(
-                    text = "Upload ${deck.name}?",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            text = {
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Enter a description",
-                        color = getUIStyle.titleColor(),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    EditTextFieldNonDone(
-                        value = description,
-                        onValueChanged = {
-                            description = it
-                        },
-                        labelStr = "Description",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(0.35f)
-                            .padding(2.dp)
-                    )
-                }
-
-            },
-            modifier = Modifier.fillMaxWidth(0.85f)
-        )
-    }
-}

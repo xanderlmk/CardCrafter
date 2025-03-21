@@ -116,7 +116,7 @@ fun NoDueCards(getUIStyle: GetUIStyle) {
 fun ShowBackButtonAndDeckName(
     onNavigate: () -> Unit,
     deck: Deck,
-    presetModifier: Modifier,
+    modifier: Modifier,
     getUIStyle: GetUIStyle
 ) {
     Row {
@@ -124,7 +124,7 @@ fun ShowBackButtonAndDeckName(
             onBackClick = {
                 onNavigate()
             },
-            modifier = presetModifier
+            modifier = modifier
                 .fillMaxSize(),
             getUIStyle = getUIStyle
         )

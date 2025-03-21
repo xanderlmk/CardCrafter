@@ -31,8 +31,8 @@ import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.ui.theme.GetUIStyle
 import com.example.flashcards.R
 import com.example.flashcards.model.tablesAndApplication.CT
-import com.example.flashcards.model.tablesAndApplication.MathCard
-import com.example.flashcards.views.miscFunctions.symbols.RenderTextWithSymbols
+import com.example.flashcards.model.tablesAndApplication.NotationCard
+import com.example.flashcards.views.miscFunctions.symbols.KaTeXWebView
 
 @Composable
 fun FrontCard(
@@ -67,8 +67,8 @@ fun FrontCard(
                 )
             }
 
-            is CT.Math -> {
-                MathFrontCard(mathCard = ct.mathCard, getUIStyle)
+            is CT.Notation -> {
+                NotationFrontCard(notationCard = ct.notationCard, getUIStyle)
             }
         }
     }
@@ -324,16 +324,16 @@ fun ChoiceFrontCard(
 }
 
 @Composable
-fun MathFrontCard(mathCard: MathCard, getUIStyle: GetUIStyle) {
+fun NotationFrontCard(notationCard: NotationCard, getUIStyle: GetUIStyle) {
     val focusManager = LocalFocusManager.current
-    Box {
+    Box(contentAlignment = Alignment.TopCenter) {
         SelectionContainer(
             modifier = Modifier.clickable(
                 interactionSource = null,
                 indication = null
             ) { focusManager.clearFocus() }
         ) {
-            RenderTextWithSymbols(mathCard.question, getUIStyle)
+            KaTeXWebView(notationCard.question, getUIStyle)
         }
     }
 }

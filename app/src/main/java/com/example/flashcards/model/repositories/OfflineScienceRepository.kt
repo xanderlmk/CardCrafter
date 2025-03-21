@@ -1,18 +1,18 @@
 package com.example.flashcards.model.repositories
 
-import com.example.flashcards.model.daoFiles.allCardTypesDao.MathCardDao
-import com.example.flashcards.model.tablesAndApplication.MathCard
+import com.example.flashcards.model.daoFiles.allCardTypesDao.NotationCardDao
+import com.example.flashcards.model.tablesAndApplication.NotationCard
 
 class OfflineScienceRepository(
-    private val mathCardDao: MathCardDao
+    private val notationCardDao: NotationCardDao
 ) : ScienceSpecificRepository {
-    override suspend fun insertMathCard(mathCard: MathCard) =
-        mathCardDao.insertMathCard(mathCard)
+    override suspend fun insertNotationCard(notationCard: NotationCard) =
+        notationCardDao.insertNotationCard(notationCard)
 
-    override suspend fun deleteMathCard(mathCard: MathCard) =
-        mathCardDao.deleteMathCard(mathCard)
-    override fun updateMathCard(
+    override suspend fun deleteNotationCard(notationCard: NotationCard) =
+        notationCardDao.deleteNotationCard(notationCard)
+    override fun updateNotationCard(
         question: String, steps: String,
         answer: String, cardId: Int
-    ) = mathCardDao.updateMathCard(question,steps,answer,cardId)
+    ) = notationCardDao.updateNotationCard(question,steps,answer,cardId)
 }

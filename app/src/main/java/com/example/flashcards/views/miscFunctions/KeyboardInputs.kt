@@ -7,16 +7,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
 import com.example.flashcards.ui.theme.textColor
+import com.example.flashcards.views.miscFunctions.symbols.katexMapper
 
 /** This more for the MultiChoiceCard Choice inputs */
 @Composable
@@ -56,15 +64,15 @@ fun EditTextField(
         ),
         colors = colors,
         textStyle =
-        if (inputColor == Color.Transparent) {
-            TextStyle.Default
-        } else {
-            TextStyle(
-                fontWeight = FontWeight.ExtraBold,
-                fontStyle = FontStyle.Italic,
-                background = MaterialTheme.colorScheme.surface
-            )
-        }
+            if (inputColor == Color.Transparent) {
+                TextStyle.Default
+            } else {
+                TextStyle(
+                    fontWeight = FontWeight.ExtraBold,
+                    fontStyle = FontStyle.Italic,
+                    background = MaterialTheme.colorScheme.surface
+                )
+            }
     )
 }
 
@@ -91,6 +99,66 @@ fun EditTextFieldNonDone(
                 focusManager.clearFocus()
             }
         )
+    )
+}
+
+@Composable
+fun LatexKeyboard(
+    value: String,
+    onValueChanged: (String) -> Unit,
+    labelStr: String,
+    modifier: Modifier,
+) {
+    var textFieldValue by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = value
+            )
+        )
+    }
+
+    LaunchedEffect(value) {
+        if (value.isEmpty()) {
+            textFieldValue = textFieldValue.copy(text = value)
+        }
+    }
+
+    TextField(
+        value = textFieldValue,
+        onValueChange = { newValue ->
+            val oldText = textFieldValue.text
+            val newText = newValue.text
+
+            if (newText.length > oldText.length) {
+
+                if (newValue.selection.collapsed) {
+                    val newInputs = katexMapper(newText, newValue, textFieldValue)
+                    textFieldValue = newInputs.first
+                    onValueChanged(newInputs.second)
+                } else {
+                    textFieldValue = newValue
+                    onValueChanged(newText)
+                }
+            } else { // User deletes something.
+                if (newText.endsWith("$$$") && !newText.endsWith("$$$$")) {
+                    val insertionPoint = newValue.selection.end
+                    val replaced = buildString {
+                        append(newText.dropLast(2))
+                    }
+                    textFieldValue = TextFieldValue(
+                        text = replaced,
+                        selection = TextRange(insertionPoint)
+                    )
+                    onValueChanged(replaced)
+                } else {
+                    textFieldValue = newValue
+                    onValueChanged(newText)
+                }
+            }
+        },
+        singleLine = false,
+        label = { Text(labelStr, color = textColor) },
+        modifier = modifier
     )
 }
 

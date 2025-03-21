@@ -8,7 +8,7 @@ import com.example.flashcards.R
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.HintCard
-import com.example.flashcards.model.tablesAndApplication.MathCard
+import com.example.flashcards.model.tablesAndApplication.NotationCard
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.model.uiModels.SealedAllCTs
@@ -53,9 +53,9 @@ fun ChoiceCardQuestion(multiChoiceCard: MultiChoiceCard) {
 }
 
 @Composable
-fun MathCardQuestion(mathCard: MathCard){
+fun NotationCardQuestion(notationCard: NotationCard){
     Text(
-        text = stringResource(R.string.question) + ": ${mathCard.question}",
+        text = stringResource(R.string.question) + ": ${notationCard.question}",
         maxLines = 3,
         overflow = TextOverflow.Companion.Ellipsis
     )
@@ -80,8 +80,8 @@ fun CardSelector(
         is CT.MultiChoice -> {
             ChoiceCardQuestion(ct.multiChoiceCard)
         }
-        is CT.Math -> {
-            MathCardQuestion(ct.mathCard)
+        is CT.Notation -> {
+            NotationCardQuestion(ct.notationCard)
         }
     }
 }

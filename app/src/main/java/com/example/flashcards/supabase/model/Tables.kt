@@ -25,7 +25,7 @@ data class SBDeckList(
 )
 
 @Serializable
-data class SBMathCard(
+data class SBNotationCard(
     val cardId : Int,
     val question : String,
     val steps : String,

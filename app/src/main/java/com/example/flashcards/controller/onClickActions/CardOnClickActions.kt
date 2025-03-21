@@ -97,13 +97,13 @@ fun saveCard(
                 return false
             }
         }
-        is CT.Math -> {
+        is CT.Notation -> {
             if (fields.question.value.isNotBlank() &&
                 fields.answer.value.isNotBlank() &&
                 ( fields.stringList.isEmpty() ||
                         fields.stringList.all { it.value.isNotBlank() }
                         )) {
-                editCardVM.updateMathCard(
+                editCardVM.updateNotationCard(
                     ct.card.id,
                     fields.question.value,
                     fields.stringList.map {
@@ -178,7 +178,7 @@ suspend fun updateCardType(
                 return false
             }
         }
-        "math" -> {
+        "notation" -> {
             if (fields.question.value.isNotBlank() &&
                 fields.answer.value.isNotBlank() &&
                 ( fields.stringList.isEmpty() ||

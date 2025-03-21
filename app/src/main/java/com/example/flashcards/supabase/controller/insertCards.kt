@@ -2,12 +2,12 @@ package com.example.flashcards.supabase.controller
 
 import com.example.flashcards.model.tablesAndApplication.BasicCard
 import com.example.flashcards.model.tablesAndApplication.HintCard
-import com.example.flashcards.model.tablesAndApplication.MathCard
-import com.example.flashcards.model.tablesAndApplication.MathCardConverter
+import com.example.flashcards.model.tablesAndApplication.NotationCard
+import com.example.flashcards.model.tablesAndApplication.ListStringConverter
 import com.example.flashcards.model.tablesAndApplication.MultiChoiceCard
 import com.example.flashcards.model.tablesAndApplication.ThreeFieldCard
 import com.example.flashcards.supabase.model.SBCards
-import com.example.flashcards.supabase.model.SBMathCard
+import com.example.flashcards.supabase.model.SBNotationCard
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 
@@ -69,14 +69,14 @@ suspend fun insertMultiCT(id: Int, supabase: SupabaseClient, multiChoiceCard: Mu
     )
 }
 
-suspend fun insertMathCT(id: Int, supabase: SupabaseClient, mathCard: MathCard) {
-    val mathCardConverter = MathCardConverter()
-    supabase.from("mathCard").insert(
-        SBMathCard(
+suspend fun insertNotationCT(id: Int, supabase: SupabaseClient, notationCard: NotationCard) {
+    val listStringConverter = ListStringConverter()
+    supabase.from("notationCard").insert(
+        SBNotationCard(
             cardId = id,
-            question = mathCard.question,
-            steps = mathCardConverter.listToString(mathCard.steps),
-            answer = mathCard.answer
+            question = notationCard.question,
+            steps = listStringConverter.listToString(notationCard.steps),
+            answer = notationCard.answer
         )
     )
 }
