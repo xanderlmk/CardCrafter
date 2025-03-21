@@ -35,12 +35,12 @@ import com.example.flashcards.controller.viewModels.cardViewsModels.AddCardViewM
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.ui.theme.GetUIStyle
-import com.example.flashcards.views.miscFunctions.EditTextFieldNonDone
+import com.example.flashcards.views.miscFunctions.LatexKeyboard
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddMathCard(
+fun AddNotationCard(
     vm: AddCardViewModel, deck: Deck,
     fields: Fields, getUIStyle: GetUIStyle
 ) {
@@ -72,7 +72,7 @@ fun AddMathCard(
                 .padding(start = 8.dp, end = 8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            EditTextFieldNonDone(
+            LatexKeyboard(
                 value = fields.question.value,
                 onValueChanged = { newText ->
                     fields.question.value =
@@ -119,7 +119,7 @@ fun AddMathCard(
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        EditTextFieldNonDone(
+                        LatexKeyboard(
                             value = it.value,
                             onValueChanged = { newText ->
                                 it.value = newText
@@ -181,7 +181,7 @@ fun AddMathCard(
                 .padding(start = 8.dp, end = 8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            EditTextFieldNonDone(
+            LatexKeyboard(
                 value = fields.answer.value,
                 onValueChanged = { newText ->
                     fields.answer.value =
@@ -245,7 +245,7 @@ fun AddMathCard(
                         vm.setErrorMessage("Steps can't be blank")
                         successMessage = ""
                     } else {
-                        vm.addMathCard(
+                        vm.addNotationCard(
                             deck, fields.question.value,
                             fields.stringList.map { it.value }, fields.answer.value
                         )

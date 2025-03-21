@@ -29,10 +29,7 @@ class Fields(
         question.value = ""
         middleField.value = ""
         answer.value = ""
-        choices[0].value = ""
-        choices[1].value = ""
-        choices[2].value = ""
-        choices[3].value = ""
+        choices = MutableList(4) { mutableStateOf("") }
         correct.value = '?'
     }
     constructor(parcel: Parcel) : this(

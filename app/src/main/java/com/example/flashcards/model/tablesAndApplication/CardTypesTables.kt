@@ -183,7 +183,7 @@ data class MultiChoiceCard(
     }
 }
 @Entity(
-    tableName = "mathCard",
+    tableName = "notationCard",
     foreignKeys = [
         ForeignKey(
             entity = Card::class,
@@ -197,7 +197,7 @@ data class MultiChoiceCard(
 
 @Serializable
 @Parcelize
-data class MathCard(
+data class NotationCard(
     @PrimaryKey val cardId: Int,
     val question: String,
     val steps: List<String> = emptyList(),
@@ -209,20 +209,20 @@ data class MathCard(
         listOf(parcel.readString()!!),
         parcel.readString()!!
     )
-    companion object : Parceler<MathCard> {
-        override fun MathCard.write(parcel: Parcel, flags: Int) {
+    companion object : Parceler<NotationCard> {
+        override fun NotationCard.write(parcel: Parcel, flags: Int) {
             parcel.writeInt(cardId)
             parcel.writeString(question)
             parcel.writeList(steps)
             parcel.writeString(answer)
         }
-        override fun create(parcel: Parcel): MathCard {
-            return MathCard(parcel)
+        override fun create(parcel: Parcel): NotationCard {
+            return NotationCard(parcel)
         }
     }
 }
 
-class MathCardConverter {
+class ListStringConverter {
     @TypeConverter
     fun fromString(value: String): List<String> {
 

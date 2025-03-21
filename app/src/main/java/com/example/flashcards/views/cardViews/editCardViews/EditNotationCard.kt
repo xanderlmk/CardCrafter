@@ -21,16 +21,16 @@ import androidx.compose.ui.unit.sp
 import com.example.flashcards.R
 import com.example.flashcards.model.uiModels.Fields
 import com.example.flashcards.ui.theme.GetUIStyle
-import com.example.flashcards.views.miscFunctions.EditTextFieldNonDone
+import com.example.flashcards.views.miscFunctions.LatexKeyboard
 
 @Composable
-fun EditMathCard(
+fun EditNotationCard(
     fields: Fields,
     getUIStyle : GetUIStyle
 ) {
     var steps by rememberSaveable { mutableIntStateOf(fields.stringList.size) }
 
-    EditTextFieldNonDone(
+    LatexKeyboard(
         value = fields.question.value,
         onValueChanged = { fields.question.value = it },
         labelStr = stringResource(R.string.question),
@@ -53,7 +53,7 @@ fun EditMathCard(
         var index = 0
         fields.stringList.forEach { string ->
             index += 1
-            EditTextFieldNonDone(
+            LatexKeyboard(
                 value = string.value,
                 onValueChanged = { string.value = it },
                 labelStr = "Step: $index",
@@ -88,7 +88,7 @@ fun EditMathCard(
             Text("Remove Step")
         }
     }
-    EditTextFieldNonDone(
+    LatexKeyboard(
         value = fields.answer.value,
         onValueChanged = { fields.answer.value = it },
         labelStr = stringResource(R.string.answer),

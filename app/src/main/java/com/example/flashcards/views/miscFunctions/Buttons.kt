@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
@@ -81,7 +82,20 @@ fun AddCardButton(
     }
 
 }
-
+@Composable
+fun ExportDeckButton(
+    onClick: () -> Unit,
+    modifier: Modifier
+) {
+    ExtendedFloatingActionButton(
+        onClick = { onClick() },
+        modifier = modifier
+            .padding(8.dp)
+    ) {
+        Icon(Icons.Default.AddCircle, "Export Deck")
+        Text(text = "Export Deck")
+    }
+}
 
 @Composable
 fun BackButton(
@@ -136,8 +150,6 @@ fun RedoCardButton(
 fun SettingsButton(
     onNavigateToEditDeck: () -> Unit,
     onNavigateToEditCards: () -> Unit,
-    exportDeck: () -> Unit,
-    clientExists: Boolean,
     modifier: Modifier = Modifier,
     getUIStyle: GetUIStyle,
     fields: Fields
@@ -180,15 +192,6 @@ fun SettingsButton(
 
             },
                 text = { Text(stringResource(R.string.edit_flashcards)) })
-            if (clientExists) {
-                DropdownMenuItem(onClick = {
-                    expanded = false
-                    fields.mainClicked.value = true
-                    exportDeck()
-
-                },
-                    text = { Text("Export Deck") })
-            }
         }
     }
 }
@@ -269,8 +272,8 @@ fun CardOptionsButton(
                 onClick = { type.value = "multi" },
                 text = { Text(stringResource(R.string.multi_choice_card)) })
             DropdownMenuItem(
-                onClick = { type.value = "math" },
-                text = { Text("Math") }
+                onClick = { type.value = "notation" },
+                text = { Text("Notation") }
             )
             HorizontalDivider()
             DropdownMenuItem(

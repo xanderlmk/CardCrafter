@@ -44,7 +44,7 @@ fun createThreeOrHintCardDetails(
     )
 }
 
-fun createMathCardDetails(
+fun createNotationCardDetails(
     question : String,
     stringList : List<String>,
     answer: String

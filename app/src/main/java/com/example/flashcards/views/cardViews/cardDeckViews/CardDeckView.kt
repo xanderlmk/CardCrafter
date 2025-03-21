@@ -34,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.flashcards.R
 import com.example.flashcards.controller.cardHandlers.redoACard
@@ -106,7 +107,8 @@ class CardDeckView(
                     },
                     modifier = Modifier
                         .backButtonModifier()
-                        .align(Alignment.TopStart),
+                        .align(Alignment.TopStart)
+                        .zIndex(1f),
                     getUIStyle = getUIStyle
                 )
                 RedoCardButton(
@@ -137,7 +139,8 @@ class CardDeckView(
                     },
                     modifier = Modifier
                         .redoButtonModifier()
-                        .align(Alignment.TopEnd),
+                        .align(Alignment.TopEnd)
+                        .zIndex(1f),
                     getUIStyle = getUIStyle
                 )
                 if (sealedCL.allCTs.isEmpty() || dueCTs.value.isEmpty() ||
@@ -160,6 +163,7 @@ class CardDeckView(
                                 .clickable(interactionSource = null, indication = null){
                                     focusManager.clearFocus()
                                 }
+                                .zIndex(1f)
                         )
                         if (!show) {
                             if (cardDeckVM.getState() == CardState.Finished) {

@@ -44,7 +44,7 @@ import java.util.Date
 class CardDeckViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val cardTypeRepository: CardTypeRepository,
-    savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
@@ -52,7 +52,8 @@ class CardDeckViewModel(
     private val thisErrorState = MutableStateFlow<CardUpdateError?>(null)
     val errorState: StateFlow<CardUpdateError?> = thisErrorState.asStateFlow()
 
-    private val cardState: MutableState<CardState> = mutableStateOf(CardState.Idle)
+    private val cardState : MutableStateFlow<CardState> =
+        MutableStateFlow(savedStateHandle["cardState"] ?: CardState.Idle)
     private val cardListToUpdateUiState = MutableStateFlow<List<Card>>(emptyList())
     var cardListToUpdate = cardListToUpdateUiState.asStateFlow()
 
@@ -109,6 +110,7 @@ class CardDeckViewModel(
         deckId.update {
             id
         }
+        savedStateHandle["deckId"] = id
     }
     /** As the user progresses through the deck's card,
      * more cards will be added to the cardListToUpdateUiState,
@@ -197,6 +199,7 @@ class CardDeckViewModel(
     /** CardState functions */
     fun transitionTo(newState: CardState) {
         cardState.value = newState
+        savedStateHandle["cardState"] = newState
     }
     fun getState(): CardState = cardState.value
 

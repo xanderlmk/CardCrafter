@@ -1,10 +1,12 @@
 package com.example.flashcards.model.uiModels
 
 
+import android.os.Parcelable
 import com.example.flashcards.model.tablesAndApplication.AllCardTypes
 import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.Deck
 import com.example.flashcards.model.tablesAndApplication.SavedCard
+import kotlinx.parcelize.Parcelize
 import java.util.Date
 
 /** MainViewModel States */
@@ -36,7 +38,8 @@ data class SealedDueCTs(
 data class SavedCardUiState(
     var savedCards: List<SavedCard> = emptyList()
 )
-sealed class CardState {
+@Parcelize
+sealed class CardState : Parcelable {
     data object Idle : CardState()
     data object Loading : CardState()
     data object Finished : CardState()

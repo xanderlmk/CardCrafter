@@ -1,11 +1,11 @@
 package com.example.flashcards.model.repositories
 
-import com.example.flashcards.model.tablesAndApplication.MathCard
+import com.example.flashcards.model.tablesAndApplication.NotationCard
 
 interface ScienceSpecificRepository {
-    suspend fun insertMathCard(mathCard: MathCard): Long
-    suspend fun deleteMathCard(mathCard: MathCard)
-    fun updateMathCard(
+    suspend fun insertNotationCard(notationCard: NotationCard): Long
+    suspend fun deleteNotationCard(notationCard: NotationCard)
+    fun updateNotationCard(
         question: String, steps: String,
         answer: String, cardId: Int
     )

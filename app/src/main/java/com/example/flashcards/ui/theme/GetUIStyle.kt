@@ -10,6 +10,9 @@ class GetUIStyle(
     private var colorScheme: ColorSchemeClass,
     private var isDarkTheme : Boolean,
 ) {
+    fun getTheme(): Boolean {
+        return isDarkTheme
+    }
     fun getColorScheme(): ColorScheme{
         return colorScheme.colorScheme
     }
@@ -56,6 +59,16 @@ class GetUIStyle(
         } else {
             darkBackground
         }
+    }
+    fun altBackground() : Color {
+        return if(isDarkTheme){
+            secondaryDBC
+        } else {
+            secondaryBC
+        }
+    }
+    fun background() : Color {
+        return colorScheme.colorScheme.background
     }
 }
 

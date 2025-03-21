@@ -8,7 +8,6 @@ import io.github.jan.supabase.gotrue.Auth
 
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
-import io.ktor.client.engine.cio.CIO
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.websocket.WebSockets
 
@@ -27,13 +26,9 @@ fun createSupabase(
         install(Postgrest)
         install(Auth)
         httpConfig {
-            engine {
-                CIO.create()
-                install(WebSockets)
-            }
+            install(WebSockets)
             engine {
                 OkHttp.create()
-                install(WebSockets)
             }
         }
     }

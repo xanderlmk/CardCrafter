@@ -6,12 +6,16 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.flashcards.controller.cardHandlers.mapAllCardTypesToCTs
 import com.example.flashcards.model.repositories.CardTypeRepository
 import com.example.flashcards.model.repositories.FlashCardRepository
 import com.example.flashcards.model.repositories.ScienceSpecificRepository
+import com.example.flashcards.model.tablesAndApplication.AllCardTypes
 import com.example.flashcards.model.tablesAndApplication.CT
 import com.example.flashcards.model.tablesAndApplication.Deck
+import com.example.flashcards.model.uiModels.CardListUiState
 import com.example.flashcards.model.uiModels.PreferencesManager
+import com.example.flashcards.model.uiModels.SealedAllCTs
 import com.example.flashcards.supabase.model.SBCards
 import com.example.flashcards.supabase.model.SBDeckList
 import com.example.flashcards.supabase.model.SBDecks
@@ -45,8 +49,10 @@ class SupabaseViewModel(
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
+        private const val SQLITE_CONSTRAINT_EXCEPTION = 20
+        private const val DECK_EXISTS = 100
+        private const val EMPTY_CARD_LIST = 88
     }
-
     private val privateList = MutableStateFlow(SBDeckList())
     val deckList = privateList.asStateFlow()
     private val uuid = MutableStateFlow("")
@@ -57,6 +63,41 @@ class SupabaseViewModel(
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = null
     )
+    private val sealedUiState = MutableStateFlow(SealedAllCTs())
+    var sealedAllCTs = sealedUiState.asStateFlow()
+
+    suspend fun getAllCardsForDeck(
+        deckId: Int,
+    ) {
+        return withContext(Dispatchers.IO) {
+            viewModelScope.launch {
+                cardTypeRepository.getAllCardTypes(deckId).map { allCards ->
+                    CardListUiState(allCards = allCards)
+                }.collect { state ->
+                    sealedUiState.update {
+                        updateSealedUiState(state.allCards)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateSealedUiState(
+        allCards: List<AllCardTypes>
+    ): SealedAllCTs {
+        var allCTs = try {
+            mapAllCardTypesToCTs(allCards)
+        } catch (e: IllegalStateException) {
+            Log.e(
+                "GetDueTypesForDeck",
+                "Invalid AllCardType data: ${e.message}"
+            )
+            return SealedAllCTs()
+        }
+        return SealedAllCTs(
+            allCTs = allCTs.toMutableList()
+        )
+    }
 
     fun updateUUID(thisUUID: String) {
         uuid.value = thisUUID
@@ -94,6 +135,7 @@ class SupabaseViewModel(
                     "SupabaseViewModel",
                     "Error checking deck existence: ${e.message}"
                 )
+                SQLITE_CONSTRAINT_EXCEPTION
             }
         }
     }
@@ -107,7 +149,7 @@ class SupabaseViewModel(
             val exists = checkIfDeckExists(sbDecks.name)
             if (exists > 0) {
                 /** deck already exists; return 100. */
-                returnValue = 100
+                returnValue = DECK_EXISTS
                 return@launch
             }
             val deckId = flashCardRepository.insertDeck(
@@ -133,20 +175,21 @@ class SupabaseViewModel(
                         it, supabase, sbDecks.deckUUID, flashCardRepository,
                         cardTypeRepository, deckId.toInt(), sSRepository, preferences
                     )
-                    if (success != 0){
+                    if (success != 0) {
                         returnValue = success
                         return@launch
                     }
                 }
             } else {
                 Log.d("SupabaseViewModel", "List is empty!!")
+                returnValue = EMPTY_CARD_LIST
             }
         }.join()
 
         return returnValue
     }
 
-    suspend fun insertDeckAndCards(
+    suspend fun exportDeck(
         deck: Deck,
         supabase: SupabaseClient,
         cts: List<CT>,

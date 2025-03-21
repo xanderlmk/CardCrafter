@@ -36,7 +36,7 @@ data class AllCardTypes(
         parentColumn = "id",
         entityColumn = "cardId"
     )
-    val mathCard: MathCard?
+    val notationCard: NotationCard?
 ) : Parcelable {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     constructor(parcel: Parcel) : this(
@@ -45,7 +45,7 @@ data class AllCardTypes(
         parcel.readParcelable(HintCard::class.java.classLoader, HintCard::class.java),
         parcel.readParcelable(ThreeFieldCard::class.java.classLoader, ThreeFieldCard::class.java),
         parcel.readParcelable(MultiChoiceCard::class.java.classLoader, MultiChoiceCard::class.java),
-        parcel.readParcelable(MathCard::class.java.classLoader, MathCard::class.java)
+        parcel.readParcelable(NotationCard::class.java.classLoader, NotationCard::class.java)
     )
 
     companion object : Parceler<AllCardTypes> {
@@ -56,7 +56,7 @@ data class AllCardTypes(
             parcel.writeParcelable(hintCard, flags)
             parcel.writeParcelable(threeFieldCard, flags)
             parcel.writeParcelable(multiChoiceCard, flags)
-            parcel.writeParcelable(mathCard, flags)
+            parcel.writeParcelable(notationCard, flags)
         }
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -193,30 +193,30 @@ sealed class CT : Parcelable {
         }
     }
     @Parcelize
-    data class Math(
+    data class Notation(
         @Embedded var card: Card,
         @Relation(
             parentColumn = "id",
             entityColumn = "cardId"
         )
-        val mathCard: MathCard
+        val notationCard: NotationCard
     ) : CT() {
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         constructor(parcel: Parcel) : this(
             parcel.readParcelable(Card::class.java.classLoader, Card::class.java)!!,
             parcel.readParcelable(
-                MathCard::class.java.classLoader,
-                MathCard::class.java
+                NotationCard::class.java.classLoader,
+                NotationCard::class.java
             )!!,
         )
-        companion object : Parceler<Math>  {
+        companion object : Parceler<Notation>  {
             @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-            override fun create(parcel: Parcel): Math {
-                return Math(parcel)
+            override fun create(parcel: Parcel): Notation {
+                return Notation(parcel)
             }
-            override fun Math.write(parcel: Parcel, flags: Int) {
+            override fun Notation.write(parcel: Parcel, flags: Int) {
                 parcel.writeParcelable(card, flags)
-                parcel.writeParcelable(mathCard, flags)
+                parcel.writeParcelable(notationCard, flags)
             }
         }
     }

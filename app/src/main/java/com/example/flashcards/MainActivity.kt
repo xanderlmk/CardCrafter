@@ -2,6 +2,7 @@ package com.example.flashcards
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.coroutineScope
 import androidx.navigation.compose.rememberNavController
 import com.example.flashcards.controller.navigation.AppNavHost
 import com.example.flashcards.controller.AppViewModelProvider
@@ -27,8 +29,11 @@ import com.example.flashcards.supabase.model.getSBKey
 import com.example.flashcards.supabase.model.getSBUrl
 import com.example.flashcards.ui.theme.FlashcardsTheme
 import io.github.jan.supabase.annotations.SupabaseInternal
+import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.realtime.realtime
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import java.net.SocketException
 
 @OptIn(SupabaseInternal::class)
 class MainActivity : ComponentActivity() {
@@ -43,16 +48,18 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var fields: Fields
 
+    val supabaseUrl = getSBUrl()
+    val supabaseKey = getSBKey()
+    private var supabase = createSupabase(
+        supabaseUrl = supabaseUrl,
+        supabaseKey = supabaseKey
+    )
+
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /** Getting our supabase credentials */
-        val supabaseUrl = getSBUrl()
-        val supabaseKey = getSBKey()
-        var supabase = createSupabase(
-            supabaseUrl = supabaseUrl,
-            supabaseKey = supabaseKey
-        )
+
         enableEdgeToEdge()
         setContent {
             preferences = rememberUpdatedState(
@@ -78,9 +85,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
             fields = rememberSaveable { Fields() }
+
             LaunchedEffect(Unit) {
-                supabase.realtime.connect()
                 supabase.useHTTPS
+                supabase.realtime.connect()
             }
             val isSystemDark = isSystemInDarkTheme()
 
@@ -110,12 +118,26 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        lifecycle.coroutineScope.launch {
+            try {
+                if (supabase.realtime.status.value != Realtime.Status.CONNECTED) {
+                    supabase.realtime.connect()
+                }
+
+            } catch (e: SocketException) {
+                Log.d("Socket Issue", "SocketException: $e")
+            }
+        }
+    }
 
     override fun onStop() {
         super.onStop()
         if (::preferences.isInitialized) {
             preferences.savePreferences()
         }
+        supabase.realtime.disconnect()
     }
 
     override fun onPause() {
@@ -124,8 +146,6 @@ class MainActivity : ComponentActivity() {
             preferences.savePreferences()
         }
     }
-
-
 }
 
 /*

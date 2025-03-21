@@ -5,24 +5,24 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.flashcards.model.tablesAndApplication.MathCard
+import com.example.flashcards.model.tablesAndApplication.NotationCard
 
 @Dao
-interface MathCardDao {
+interface NotationCardDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertMathCard(mathCard: MathCard): Long
+    suspend fun insertNotationCard(notationCard: NotationCard): Long
 
     @Delete
-    suspend fun deleteMathCard(mathCard: MathCard)
+    suspend fun deleteNotationCard(notationCard: NotationCard)
 
     @Query("""
-        UPDATE mathCard
+        UPDATE notationCard
         set question = :question,
         steps = :steps,
         answer = :answer
         where cardId = :cardId
         """)
-    fun updateMathCard(
+    fun updateNotationCard(
         question: String, steps: String,
         answer: String, cardId: Int
     )

@@ -82,7 +82,8 @@ fun AppNavHost(
     val onlineDatabase = OnlineDatabase(
         supabase,
         getUIStyle,
-        supabaseVM
+        supabaseVM,
+        mainViewModel.deckUiState.collectAsStateWithLifecycle().value.deckList
     )
     val importDeck = ImportDeck(
         supabase,
@@ -106,14 +107,12 @@ fun AppNavHost(
     val mainView = MainView(getUIStyle, fields)
     val addDeckView = AddDeckView(getUIStyle)
     val deckView = DeckView(
-        fields, getUIStyle, supabaseVM
+        fields, getUIStyle,
     )
     val addCardView = AddCardView(fields, getUIStyle)
     val generalSettings = GeneralSettings(getUIStyle, preferences)
     val coroutineScope = rememberCoroutineScope()
     val deck by navViewModel.deck.collectAsStateWithLifecycle()
-
-    val allCards by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
 
     NavHost(
         navController = navController,
@@ -155,6 +154,7 @@ fun AppNavHost(
         composable(SupabaseDestination.route, enterTransition = { null }, exitTransition = { null }) {
             BackHandler {
                 fields.mainClicked.value = false
+                mainViewModel.updateCurrentTime()
                 navController.popBackStack(
                     DeckListDestination.route, inclusive = false
                 )
@@ -254,8 +254,6 @@ fun AppNavHost(
                 deck?.let {
                     deckView.ViewEditDeck(
                         deck = it,
-                        supabase = supabase,
-                        sealedAllCTs = allCards,
                         onNavigate = {
                             mainViewModel.updateCurrentTime()
                             navViewModel.resetCard()

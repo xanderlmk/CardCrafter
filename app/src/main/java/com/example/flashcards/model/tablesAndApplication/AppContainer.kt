@@ -37,7 +37,7 @@ class AppDataContainer(private val context: Context, scope: CoroutineScope) : Ap
     }
     override val scienceSpecificRepository: ScienceSpecificRepository by lazy {
         OfflineScienceRepository(
-            FlashCardDatabase.Companion.getDatabase(context,scope).mathCardDao()
+            FlashCardDatabase.Companion.getDatabase(context,scope).notationCardDao()
         )
     }
 }
