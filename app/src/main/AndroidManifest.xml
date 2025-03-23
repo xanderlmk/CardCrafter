@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:name=".model.tablesAndApplication.FlashCardApplication"
+        android:name="com.belmontCrest.cardCrafter.model.tablesAndApplication.FlashCardApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -12,10 +12,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Flashcards"
-        android:enableOnBackInvokedCallback="true"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name="com.belmontCrest.cardCrafter.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Flashcards">
             <intent-filter>

@@ -1,6 +1,8 @@
 @file:Suppress("PropertyName")
 
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import com.android.build.gradle.internal.dsl.NdkOptions.DebugSymbolLevel.FULL
+import com.android.build.gradle.internal.dsl.NdkOptions.DebugSymbolLevel.SYMBOL_TABLE
 
 plugins {
     alias(libs.plugins.android.application)
@@ -11,17 +13,19 @@ plugins {
     alias(libs.plugins.parcelize)
 }
 
+
 android {
-    namespace = "com.example.flashcards"
+    namespace = "com.belmontCrest.cardCrafter"
     // For sdk 34 just change compileSdk and targetSdk.
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.flashcards"
+        applicationId = "com.belmontCrest.cardCrafter"
         minSdk = 25
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
+
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -46,8 +50,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            ndk.debugSymbolLevel = SYMBOL_TABLE.name
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -83,7 +89,7 @@ android {
 
 dependencies {
 
-
+    implementation (libs.slf4j.nop)
     // Jetpack Compose Integration
     implementation(libs.androidx.navigation.compose)
 
