@@ -23,21 +23,21 @@ class AppDataContainer(private val context: Context, scope: CoroutineScope) : Ap
         OfflineFlashCardRepository(
             FlashCardDatabase.Companion.getDatabase(context, scope).deckDao(),
             FlashCardDatabase.Companion.getDatabase(context, scope).cardDao(),
-            FlashCardDatabase.Companion.getDatabase(context,scope).savedCardDao()
+            FlashCardDatabase.Companion.getDatabase(context, scope).savedCardDao()
         )
     }
     override val cardTypeRepository: CardTypeRepository by lazy {
         OfflineCardTypeRepository(
-            FlashCardDatabase.Companion.getDatabase(context,scope).cardTypes(),
-            FlashCardDatabase.Companion.getDatabase(context,scope).basicCardDao(),
-            FlashCardDatabase.Companion.getDatabase(context,scope).hintCardDao(),
-            FlashCardDatabase.Companion.getDatabase(context,scope).threeCardDao(),
-            FlashCardDatabase.Companion.getDatabase(context,scope).multiChoiceCardDao()
+            FlashCardDatabase.Companion.getDatabase(context, scope).cardTypes(),
+            FlashCardDatabase.Companion.getDatabase(context, scope).basicCardDao(),
+            FlashCardDatabase.Companion.getDatabase(context, scope).hintCardDao(),
+            FlashCardDatabase.Companion.getDatabase(context, scope).threeCardDao(),
+            FlashCardDatabase.Companion.getDatabase(context, scope).multiChoiceCardDao()
         )
     }
     override val scienceSpecificRepository: ScienceSpecificRepository by lazy {
         OfflineScienceRepository(
-            FlashCardDatabase.Companion.getDatabase(context,scope).notationCardDao()
+            FlashCardDatabase.Companion.getDatabase(context, scope).notationCardDao()
         )
     }
 }

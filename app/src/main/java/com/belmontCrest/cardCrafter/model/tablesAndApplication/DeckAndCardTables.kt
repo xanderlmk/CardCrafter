@@ -1,3 +1,5 @@
+@file:Suppress("PropertyName")
+
 package com.belmontCrest.cardCrafter.model.tablesAndApplication
 
 import android.os.Build
@@ -164,13 +166,7 @@ data class DeckWithCards(
         entityColumn = "deckId",
     )
     val cards: List<Card>
-) : Parcelable/** {
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    constructor(parcel: Parcel) : this (
-        parcel.readParcelable(Deck::class.java.classLoader, Deck::class.java)!!,
-        listOf(parcel.readParcelable(Card::class.java.classLoader, Card::class.java)!!)
-    )
-}*/
+) : Parcelable
 
 
 class TimeConverter {

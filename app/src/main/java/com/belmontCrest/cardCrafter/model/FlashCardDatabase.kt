@@ -56,7 +56,8 @@ import java.util.Calendar
         HintCard::class,
         MultiChoiceCard::class,
         NotationCard::class,
-        SavedCard::class], version = 20
+        SavedCard::class],
+    version = 20, exportSchema = false
 )
 @TypeConverters(
     TimeConverter::class,

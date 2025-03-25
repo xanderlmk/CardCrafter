@@ -41,7 +41,6 @@ import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.model.SBDecks
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import io.github.jan.supabase.SupabaseClient
 import kotlinx.coroutines.launch
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
@@ -52,7 +51,6 @@ private const val EMPTY_STRING = -100
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class ImportDeck(
-    private val supabase: SupabaseClient,
     private val getUIStyle: GetUIStyle,
     private val supabaseVM: SupabaseViewModel,
     private val preferences: PreferencesManager
@@ -87,7 +85,6 @@ class ImportDeck(
                                 enabled = false
                                 success.intValue = supabaseVM.importDeck(
                                     sbDecks = deck,
-                                    supabase = supabase,
                                     preferences = preferences,
                                     onProgress = {
                                         progress = it
@@ -276,7 +273,7 @@ class ImportDeck(
                                     }
 
                                     result = supabaseVM.createNewDeck(
-                                        deck, supabase, preferences, newName
+                                        deck, preferences, newName
                                     )
                                     if (result == 0) {
                                         Toast.makeText(

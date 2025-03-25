@@ -22,6 +22,7 @@ import com.belmontCrest.cardCrafter.views.mainViews.MainView
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -45,11 +46,13 @@ import com.belmontCrest.cardCrafter.views.deckViews.EditDeckView
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditingCardView
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.supabase.view.OnlineDatabase
+import com.belmontCrest.cardCrafter.supabase.view.UploadThisDeck
 import io.github.jan.supabase.SupabaseClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
@@ -57,10 +60,11 @@ fun AppNavHost(
     navController: NavHostController,
     mainViewModel: MainViewModel,
     editingCardListVM: EditingCardListViewModel,
+    supabaseVM: SupabaseViewModel,
     fields: Fields,
-    modifier: Modifier = Modifier,
     supabase: SupabaseClient,
-    preferences: PreferencesManager
+    preferences: PreferencesManager,
+    modifier: Modifier
 ) {
     val cardDeckVM: CardDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val navViewModel: NavViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -72,12 +76,13 @@ fun AppNavHost(
     val getUIStyle = rememberUpdatedState(
         GetUIStyle(
             colorScheme,
-            preferences.darkTheme.value
+            preferences.darkTheme.value,
+            preferences.customScheme.value
         )
     ).value
     val selectedCard by navViewModel.card.collectAsStateWithLifecycle()
+
     /** Our Supabase Client and Views. */
-    val supabaseVM: SupabaseViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val sbDeck by supabaseVM.deck.collectAsStateWithLifecycle()
     val onlineDatabase = OnlineDatabase(
         supabase,
@@ -86,17 +91,17 @@ fun AppNavHost(
         mainViewModel.deckUiState.collectAsStateWithLifecycle().value.deckList
     )
     val importDeck = ImportDeck(
-        supabase,
         getUIStyle,
         supabaseVM,
         preferences
     )
+
     /** End of all Supabase things. */
     val cardDeckView = CardDeckView(
         cardDeckVM, getUIStyle, fields
     )
     val editDeckView = EditDeckView(fields, getUIStyle)
-    val deckEditView =
+    val editCardsList =
         EditCardsList(
             editingCardListVM,
             fields, listState, getUIStyle
@@ -113,7 +118,7 @@ fun AppNavHost(
     val generalSettings = GeneralSettings(getUIStyle, preferences)
     val coroutineScope = rememberCoroutineScope()
     val deck by navViewModel.deck.collectAsStateWithLifecycle()
-
+    val pickedDeck by supabaseVM.pickedDeck.collectAsStateWithLifecycle()
     NavHost(
         navController = navController,
         startDestination = DeckListDestination.route,
@@ -151,7 +156,10 @@ fun AppNavHost(
                 }
             )
         }
-        composable(SupabaseDestination.route, enterTransition = { null }, exitTransition = { null }) {
+        composable(
+            SupabaseDestination.route,
+            enterTransition = { null },
+            exitTransition = { null }) {
             BackHandler {
                 fields.mainClicked.value = false
                 mainViewModel.updateCurrentTime()
@@ -170,10 +178,13 @@ fun AppNavHost(
                     coroutineScope.launch {
                         supabaseVM.updateUUID(uuid)
                     }
+                },
+                onExportDeck = {
+                    navController.navigate(ExportSBDestination.route)
                 }
             )
         }
-        composable(ImportSBDestination.route){
+        composable(ImportSBDestination.route) {
             BackHandler {
                 navController.popBackStack(
                     SupabaseDestination.route, inclusive = false
@@ -188,7 +199,27 @@ fun AppNavHost(
                 )
             }
         }
-        composable(SettingsDestination.route, enterTransition = { null }, exitTransition = { null }) {
+        composable(ExportSBDestination.route) {
+            BackHandler {
+                navController.popBackStack(
+                    SupabaseDestination.route, inclusive = false
+                )
+            }
+            pickedDeck?.let {
+                UploadThisDeck(
+                    dismiss = {
+                        navController.navigate(SupabaseDestination.route)
+                    },
+                    it,
+                    supabaseVM,
+                    getUIStyle
+                )
+            }
+        }
+        composable(
+            SettingsDestination.route,
+            enterTransition = { null },
+            exitTransition = { null }) {
             BackHandler {
                 fields.mainClicked.value = false
                 navController.popBackStack(
@@ -202,7 +233,10 @@ fun AppNavHost(
                 }
             )
         }
-        composable(AddDeckDestination.route, enterTransition = { null }, exitTransition = { null }) {
+        composable(
+            AddDeckDestination.route,
+            enterTransition = { null },
+            exitTransition = { null }) {
             BackHandler {
                 fields.mainClicked.value = false
                 navController.popBackStack(
@@ -319,11 +353,18 @@ fun AppNavHost(
                             fields.resetFields()
                             coroutineScope.launch {
                                 if (fields.cardsAdded.value > 0) {
-                                    navViewModel.updateCardsLeft(it, fields.cardsAdded.value)
+                                    navViewModel.updateCardsLeft(
+                                        it,
+                                        fields.cardsAdded.value
+                                    )
                                     fields.cardsAdded.value = 0
                                 }
                             }
-                            navController.navigate(DeckViewDestination.createRoute(deckId ?: 0))
+                            navController.navigate(
+                                DeckViewDestination.createRoute(
+                                    deckId ?: 0
+                                )
+                            )
                         }
                     )
                 }
@@ -359,7 +400,11 @@ fun AppNavHost(
                         deck = it,
                         onNavigate = {
                             fields.inDeckClicked.value = false
-                            navController.navigate(DeckViewDestination.createRoute(deckId ?: 0))
+                            navController.navigate(
+                                DeckViewDestination.createRoute(
+                                    deckId ?: 0
+                                )
+                            )
                             fields.leftDueCardView.value = true
                             /** If the list is empty, no cards
                              *  have been due even before the user joined,
@@ -395,7 +440,11 @@ fun AppNavHost(
                         deck = it,
                         onNavigate = {
                             fields.inDeckClicked.value = false
-                            navController.navigate(DeckViewDestination.createRoute(deckId ?: 0))
+                            navController.navigate(
+                                DeckViewDestination.createRoute(
+                                    deckId ?: 0
+                                )
+                            )
                         },
                         onDelete = {
                             fields.inDeckClicked.value = false
@@ -414,11 +463,15 @@ fun AppNavHost(
                     )
                 }
                 deck?.let { thisDeck ->
-                    deckEditView.ViewFlashCards(
+                    editCardsList.ViewFlashCards(
                         deck = thisDeck,
                         onNavigate = {
                             fields.inDeckClicked.value = false
-                            navController.navigate(DeckViewDestination.createRoute(deckId ?: 0))
+                            navController.navigate(
+                                DeckViewDestination.createRoute(
+                                    deckId ?: 0
+                                )
+                            )
                         },
                         goToEditCard = { index, cardId ->
                             coroutineScope.launch {
@@ -434,14 +487,15 @@ fun AppNavHost(
             }
             composable(
                 route = EditingCardDestination.route,
-                arguments = listOf(navArgument("deckId") { type = NavType.IntType },
+                arguments = listOf(
+                    navArgument("deckId") { type = NavType.IntType },
                     navArgument("index") { type = NavType.IntType })
             ) { backStackEntry ->
                 val deckId = backStackEntry.arguments?.getInt("deckId")
                 val index = backStackEntry.arguments?.getInt("index")
 
                 BackHandler {
-                    deckEditView.isEditing.value = false
+                    editCardsList.isEditing.value = false
                     fields.inDeckClicked.value = false
                     navController.popBackStack(
                         ViewAllCardsDestination.createRoute(deckId ?: 0),
@@ -455,7 +509,7 @@ fun AppNavHost(
                         selectedCard = mutableStateOf(selectedCard),
                         index = index ?: 0,
                         onNavigateBack = {
-                            deckEditView.isEditing.value = false
+                            editCardsList.isEditing.value = false
                             fields.inDeckClicked.value = false
                             navController.navigate(
                                 ViewAllCardsDestination.createRoute(deckId ?: 0)

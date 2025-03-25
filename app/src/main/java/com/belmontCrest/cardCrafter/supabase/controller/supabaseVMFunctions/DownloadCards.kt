@@ -13,6 +13,7 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.model.SBCards
+import com.belmontCrest.cardCrafter.supabase.model.SBMultiCard
 import com.belmontCrest.cardCrafter.supabase.model.SBNotationCard
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -147,7 +148,7 @@ suspend fun downloadCards(
                         filter {
                             eq("cardId", card.id)
                         }
-                    }.decodeSingle<MultiChoiceCard>()
+                    }.decodeSingle<SBMultiCard>()
 
                 val cardId = flashCardRepository.insertCard(
                     Card(
@@ -167,12 +168,12 @@ suspend fun downloadCards(
                         question = multiCard.question,
                         choiceA = multiCard.choiceA,
                         choiceB = multiCard.choiceB,
-                        choiceC = if (multiCard.choiceC.isBlank()) {
+                        choiceC = if (multiCard.choiceC.isNullOrBlank()) {
                             ""
                         } else {
                             multiCard.choiceC
                         },
-                        choiceD = if (multiCard.choiceD.isBlank()) {
+                        choiceD = if (multiCard.choiceD.isNullOrBlank()) {
                             ""
                         } else {
                             multiCard.choiceD

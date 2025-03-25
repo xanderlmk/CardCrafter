@@ -1,5 +1,6 @@
 package com.belmontCrest.cardCrafter.ui.theme
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.ColorScheme
 
@@ -7,51 +8,62 @@ import androidx.compose.material3.ColorScheme
  * scheme as well as some custom colors
  * */
 class GetUIStyle(
-    private var colorScheme: ColorSchemeClass,
+    private var cS: ColorSchemeClass,
     private var isDarkTheme: Boolean,
+    private var isCustomTheme: Boolean
 ) {
     fun getIsDarkTheme(): Boolean {
         return isDarkTheme
     }
 
     fun getColorScheme(): ColorScheme {
-        return colorScheme.colorScheme
+        return cS.colorScheme
     }
 
     fun buttonColor(): Color {
-        return colorScheme.colorScheme.primaryContainer
+        return cS.colorScheme.primaryContainer
     }
 
     fun iconColor(): Color {
-        return colorScheme.colorScheme.onPrimaryContainer
+        return cS.colorScheme.onPrimaryContainer
     }
 
     fun secondaryButtonColor(): Color {
-        return colorScheme.colorScheme.secondaryContainer
+        return cS.colorScheme.secondaryContainer
     }
 
     fun buttonTextColor(): Color {
-        return colorScheme.colorScheme.onSecondaryContainer
+        return cS.colorScheme.onSecondaryContainer
     }
 
     fun titleColor(): Color {
-        return colorScheme.colorScheme.onBackground
+        return cS.colorScheme.onBackground
     }
 
     fun tertiaryButtonColor(): Color {
-        return colorScheme.colorScheme.tertiaryContainer
+        return cS.colorScheme.tertiaryContainer
     }
 
     fun onTertiaryButtonColor(): Color {
-        return colorScheme.colorScheme.onTertiaryContainer
+        return cS.colorScheme.onTertiaryContainer
     }
+
     fun choiceColor(): Color {
         return if (isDarkTheme) {
-            darkChoiceColor
+            if (isCustomTheme) {
+                blendColors(cS.colorScheme.onTertiary, darkChoiceColor, 0.25f)
+            } else {
+                darkChoiceColor
+            }
         } else {
-            choiceColor
+            if (isCustomTheme) {
+                blendColors(cS.colorScheme.onTertiary,choiceColor , 0.25f)
+            } else {
+                choiceColor
+            }
         }
     }
+
     fun pickedChoice(): Color {
         return if (isDarkTheme) {
             darkPickedChoice
@@ -69,7 +81,7 @@ class GetUIStyle(
     }
 
     fun onCorrectChoice(): Color {
-        return colorScheme.colorScheme.onSurfaceVariant
+        return cS.colorScheme.onSurfaceVariant
     }
 
     fun isThemeOn(): Color {
@@ -89,7 +101,16 @@ class GetUIStyle(
     }
 
     fun background(): Color {
-        return colorScheme.colorScheme.background
+        return cS.colorScheme.background
+    }
+
+    fun blendColors(base: Color, overlay: Color, overlayAlpha: Float): Color {
+        // overlayAlpha in [0..1]
+        val r = overlay.red * overlayAlpha + base.red * (1 - overlayAlpha)
+        val g = overlay.green * overlayAlpha + base.green * (1 - overlayAlpha)
+        val b = overlay.blue * overlayAlpha + base.blue * (1 - overlayAlpha)
+        val a = overlay.alpha * overlayAlpha + base.alpha * (1 - overlayAlpha)
+        return Color(r, g, b, a)
     }
 }
 
