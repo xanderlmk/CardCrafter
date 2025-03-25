@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.belmontCrest.cardCrafter
 
 import android.os.Build
@@ -11,23 +13,24 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.coroutineScope
 import androidx.navigation.compose.rememberNavController
-import com.belmontCrest.cardCrafter.controller.navigation.AppNavHost
 import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
+import com.belmontCrest.cardCrafter.controller.navigation.AppNavHost
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
-import com.belmontCrest.cardCrafter.supabase.model.createSupabase
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
-import com.belmontCrest.cardCrafter.supabase.model.getSBKey
-import com.belmontCrest.cardCrafter.supabase.model.getSBUrl
+import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
+import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.annotations.SupabaseInternal
 import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.realtime.realtime
@@ -44,17 +47,12 @@ class MainActivity : ComponentActivity() {
     private val editingCardListViewModel: EditingCardListViewModel by viewModels {
         AppViewModelProvider.Factory
     }
+    private val supabaseVM: SupabaseViewModel by viewModels {
+        AppViewModelProvider.Factory
+    }
+    private lateinit var supabase: SupabaseClient
     private lateinit var preferences: PreferencesManager
-
-
     private lateinit var fields: Fields
-
-    val supabaseUrl = getSBUrl()
-    val supabaseKey = getSBKey()
-    private var supabase = createSupabase(
-        supabaseUrl = supabaseUrl,
-        supabaseKey = supabaseKey
-    )
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +60,8 @@ class MainActivity : ComponentActivity() {
         /** Getting our supabase credentials */
         enableEdgeToEdge()
         setContent {
-
+            val navController = rememberNavController()
+            val supabase = supabaseVM.supabase.collectAsStateWithLifecycle()
             preferences = rememberUpdatedState(
                 PreferencesManager(
                     applicationContext
@@ -88,8 +87,8 @@ class MainActivity : ComponentActivity() {
             fields = rememberSaveable { Fields() }
 
             LaunchedEffect(Unit) {
-                supabase.useHTTPS
-                supabase.realtime.connect()
+                supabase.value.useHTTPS
+                supabase.value.realtime.connect()
             }
             val isSystemDark = isSystemInDarkTheme()
 
@@ -104,17 +103,95 @@ class MainActivity : ComponentActivity() {
                 darkTheme = preferences.darkTheme.value,
                 dynamicColor = preferences.customScheme.value
             ) {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                /*val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet(
+                            modifier = Modifier
+                                .fillMaxWidth(0.4f)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        fields.mainClicked.value = false
+                                        navController.navigate(DeckListDestination.route)
+                                    }
+                                    .padding(top = 15.dp, bottom = 6.dp, start = 6.dp, end = 6.dp)
+                            )
+                            {
+                                Text(
+                                    "Home"
+                                )
+                                Icon(
+                                    imageVector = Icons.Filled.Home,
+                                    modifier = Modifier
+                                        .size(24.dp),
+                                    contentDescription = "Home",
+                                    tint = getUIStyle.iconColor()
+                                )
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        navController.navigate(SettingsDestination.route)
+                                    }
+                                    .padding(6.dp)
+                            )
+                            {
+                                Text(
+                                    "Settings"
+                                )
+                                Icon(
+                                    imageVector = Icons.Filled.Settings,
+                                    modifier = Modifier
+                                        .size(24.dp),
+                                    contentDescription = "Main Settings",
+                                    tint = getUIStyle.iconColor()
+                                )
+                            }
+                        }
+                    },
+                ) {*/
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    /* topBar = {
+                         TopAppBar(
+                             colors = TopAppBarDefaults.topAppBarColors(
+                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                 titleContentColor = MaterialTheme.colorScheme.primary,
+                             ),
+                             title = {},
+                             navigationIcon = {
+                                 IconButton(
+                                     onClick = {
+                                         coroutineScope.launch {
+                                             drawerState.open()
+                                         }
+                                     }) {
+                                     Icon(
+                                         imageVector = Icons.Filled.Menu,
+                                         contentDescription = "Localized description"
+                                     )
+                                 }
+                             }
+                         )
+                     }*/
+                ) { innerPadding ->
                     AppNavHost(
-                        navController = rememberNavController(),
+                        navController = navController,
                         mainViewModel = mainViewModel,
                         editingCardListVM = editingCardListViewModel,
                         preferences = preferences,
                         fields = fields,
-                        supabase = supabase,
+                        supabase = supabase.value,
+                        supabaseVM = supabaseVM,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
+
             }
         }
     }
@@ -122,13 +199,15 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         lifecycle.coroutineScope.launch {
-            try {
-                if (supabase.realtime.status.value != Realtime.Status.CONNECTED) {
-                    supabase.realtime.connect()
-                }
+            if (::supabase.isInitialized) {
+                try {
+                    if (supabase.realtime.status.value != Realtime.Status.CONNECTED) {
+                        supabase.realtime.connect()
+                    }
 
-            } catch (e: SocketException) {
-                Log.d("Socket Issue", "SocketException: $e")
+                } catch (e: SocketException) {
+                    Log.d("Socket Issue", "SocketException: $e")
+                }
             }
         }
     }
@@ -138,7 +217,9 @@ class MainActivity : ComponentActivity() {
         if (::preferences.isInitialized) {
             preferences.savePreferences()
         }
-        supabase.realtime.disconnect()
+        if (::supabase.isInitialized) {
+            supabase.realtime.disconnect()
+        }
     }
 
     override fun onPause() {

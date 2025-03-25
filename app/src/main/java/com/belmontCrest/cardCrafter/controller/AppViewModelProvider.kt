@@ -24,8 +24,8 @@ import com.belmontCrest.cardCrafter.supabase.controller.APIViewModel
 /**
  * Provides Factory to create instance of ViewModel for the entire  app
  */
+@RequiresApi(Build.VERSION_CODES.Q)
 object AppViewModelProvider {
-    @RequiresApi(Build.VERSION_CODES.Q)
     val Factory = viewModelFactory {
         initializer {
             NavViewModel(
@@ -84,7 +84,8 @@ object AppViewModelProvider {
             SupabaseViewModel(
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.cardTypeRepository,
-                flashCardApplication().container.scienceSpecificRepository
+                flashCardApplication().container.scienceSpecificRepository,
+                flashCardApplication()
             )
         }
         initializer {
@@ -92,7 +93,6 @@ object AppViewModelProvider {
         }
     }
 }
-
 
 fun CreationExtras.flashCardApplication(): FlashCardApplication =
     (this[AndroidViewModelFactory.APPLICATION_KEY] as FlashCardApplication)

@@ -31,7 +31,6 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
-import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.exceptions.RestException
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
@@ -43,7 +42,6 @@ import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun SignUp(
-    supabase: SupabaseClient,
     supabaseVM: SupabaseViewModel,
     getUIStyle: GetUIStyle
 ) {
@@ -68,7 +66,7 @@ fun SignUp(
                 textAlign = TextAlign.Center,
                 fontSize = 22.sp
             )
-            GoogleSignInButton(supabase, supabaseVM, clientId)
+            GoogleSignInButton(supabaseVM, clientId)
         }
     }
 }
@@ -76,7 +74,6 @@ fun SignUp(
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun GoogleSignInButton(
-    supabase: SupabaseClient,
     supabaseVM: SupabaseViewModel,
     googleClientId : String
 ) {
@@ -116,7 +113,6 @@ fun GoogleSignInButton(
                     .createFrom(result.credential.data)
                 val googleIdToken = googleIdTokenCredential.idToken
                 supabaseVM.signUpWithGoogle(
-                    supabase = supabase,
                     googleIdToken = googleIdToken,
                     rawNonce = rawNonce
                 )

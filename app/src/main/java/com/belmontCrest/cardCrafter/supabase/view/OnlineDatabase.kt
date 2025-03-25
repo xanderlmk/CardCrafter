@@ -48,14 +48,17 @@ class OnlineDatabase(
 ) {
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Composable
-    fun SupabaseView(onNavigate: () -> Unit, onImportDeck: (String) -> Unit) {
+    fun SupabaseView(
+        onNavigate: () -> Unit,
+        onImportDeck: (String) -> Unit,
+        onExportDeck: () -> Unit) {
         val deckList by supabaseVM.deckList.collectAsStateWithLifecycle()
         var pressed = rememberSaveable { mutableStateOf(false) }
         LaunchedEffect(supabase.auth.currentUserOrNull()) {
-            supabaseVM.getDeckList(supabase)
+            supabaseVM.getDeckList()
         }
         if (supabase.auth.currentUserOrNull() == null) {
-            SignUp(supabase, supabaseVM, getUIStyle)
+            SignUp(supabaseVM, getUIStyle)
         } else {
             Box(
                 modifier = Modifier
@@ -64,7 +67,7 @@ class OnlineDatabase(
             ) {
                 LocalDecks(
                     pressed, localDeckList, getUIStyle,
-                    supabaseVM, supabase)
+                    supabaseVM, onExportDeck)
                 BackButton(
                     onBackClick = {
                         onNavigate()

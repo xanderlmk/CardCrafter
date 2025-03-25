@@ -24,6 +24,11 @@ object SupabaseDestination : NavigationDestination {
 object ImportSBDestination : NavigationDestination {
         override val route = "ImportDeck"
 }
+
+@Serializable
+object ExportSBDestination : NavigationDestination {
+        override val route = "ExportDeck"
+}
 @Serializable
 object DeckOptionsDestination : NavigationDestination {
         override val route = "DeckOptions/{deckId}"

@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions
+package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.insertDeck
 
 import android.util.Log
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
@@ -6,9 +6,9 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.ListStringConverter
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
 import com.belmontCrest.cardCrafter.supabase.model.SBCards
+import com.belmontCrest.cardCrafter.supabase.model.SBMultiCard
 import com.belmontCrest.cardCrafter.supabase.model.SBNotationCard
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -38,7 +38,7 @@ suspend fun insertCTList(
         val basicCards = mutableListOf<BasicCard>()
         val hintCards = mutableListOf<HintCard>()
         val threeFieldCards = mutableListOf<ThreeFieldCard>()
-        val multiCards = mutableListOf<MultiChoiceCard>()
+        val multiCards = mutableListOf<SBMultiCard>()
         val notationCards = mutableListOf<SBNotationCard>()
 
         responses.indices.map { index ->
@@ -70,21 +70,13 @@ suspend fun insertCTList(
                 )
 
                 is CT.MultiChoice -> multiCards.add(
-                    MultiChoiceCard(
+                    SBMultiCard(
                         cardId = responses[index].id,
                         question = ct.multiChoiceCard.question,
                         choiceA = ct.multiChoiceCard.choiceA,
                         choiceB = ct.multiChoiceCard.choiceB,
-                        choiceC = if (ct.multiChoiceCard.choiceC.isNotBlank()) {
-                            ct.multiChoiceCard.choiceC
-                        } else {
-                            " "
-                        },
-                        choiceD = if (ct.multiChoiceCard.choiceD.isNotBlank()) {
-                            ct.multiChoiceCard.choiceD
-                        } else {
-                            " "
-                        },
+                        choiceC = ct.multiChoiceCard.choiceC,
+                        choiceD = ct.multiChoiceCard.choiceD,
                         correct = ct.multiChoiceCard.correct
                     )
                 )
