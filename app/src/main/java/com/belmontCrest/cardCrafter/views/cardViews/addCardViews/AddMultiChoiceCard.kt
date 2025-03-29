@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -243,38 +242,6 @@ fun AddMultiChoiceCard(
 
         PickAnswerChar(fields, getUIStyle)
 
-        if (errorMessage.isNotEmpty()) {
-            Text(
-                text = errorMessage,
-                color = Color.Red,
-                modifier = Modifier.padding(4.dp),
-                fontSize = 16.sp
-            )
-        } else {
-            Spacer(modifier = Modifier.padding(16.dp))
-        }
-        if (successMessage.isNotEmpty()) {
-            Text(
-                text = successMessage,
-                color = getUIStyle.titleColor(),
-                modifier = Modifier.padding(4.dp),
-                fontSize = 16.sp
-            )
-        } else {
-            Spacer(modifier = Modifier.padding(16.dp))
-        }
-        LaunchedEffect(successMessage) {
-            delay(1500)
-            successMessage = ""
-            coroutineScope.launch {
-                scrollState.animateScrollTo(0)
-            }
-        }
-        LaunchedEffect(errorMessage) {
-            delay(1500)
-            vm.clearErrorMessage()
-        }
-
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -302,17 +269,18 @@ fun AddMultiChoiceCard(
                         vm.setErrorMessage("Answer can't be a blank choice")
                         successMessage = ""
                     } else {
-                        vm.addMultiChoiceCard(
-                            deck, fields.question.value,
-                            fields.choices[0].value,
-                            fields.choices[1].value,
-                            fields.choices[2].value,
-                            fields.choices[3].value,
-                            fields.correct.value
-                        )
-                        fields.resetFields()
-                        successMessage = cardAdded
-                        fields.cardsAdded.value += 1
+                        coroutineScope.launch {
+                            vm.addMultiChoiceCard(
+                                deck, fields.question.value,
+                                fields.choices[0].value,
+                                fields.choices[1].value,
+                                fields.choices[2].value,
+                                fields.choices[3].value,
+                                fields.correct.value
+                            )
+                            fields.resetFields()
+                            successMessage = cardAdded
+                        }
                     }
                 },
                 modifier = Modifier.padding(top = 4.dp),
@@ -323,6 +291,33 @@ fun AddMultiChoiceCard(
             ) {
                 Text(stringResource(R.string.submit))
             }
+        }
+        if (errorMessage.isNotEmpty()) {
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                modifier = Modifier.padding(4.dp),
+                fontSize = 16.sp
+            )
+        }
+        if (successMessage.isNotEmpty()) {
+            Text(
+                text = successMessage,
+                color = getUIStyle.titleColor(),
+                modifier = Modifier.padding(4.dp),
+                fontSize = 16.sp
+            )
+        }
+        LaunchedEffect(successMessage) {
+            delay(1500)
+            successMessage = ""
+            coroutineScope.launch {
+                scrollState.animateScrollTo(0)
+            }
+        }
+        LaunchedEffect(errorMessage) {
+            delay(1500)
+            vm.clearErrorMessage()
         }
     }
 }

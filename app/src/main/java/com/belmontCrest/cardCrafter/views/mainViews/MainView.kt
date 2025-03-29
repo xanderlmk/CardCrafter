@@ -38,9 +38,7 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.ui.theme.mainSettingsButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.mainViewModifier
-import com.belmontCrest.cardCrafter.views.miscFunctions.MainSettingsButton
 import com.belmontCrest.cardCrafter.views.miscFunctions.SmallAddButton
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -54,7 +52,6 @@ class MainView(
         viewModel: MainViewModel,
         onNavigateToDeck: (Int) -> Unit,
         onNavigateToAddDeck: () -> Unit,
-        onNavigateToSettings: () -> Unit,
         onNavigateToSBDeckList: () -> Unit
     ) {
         val deckUiState by viewModel.deckUiState.collectAsStateWithLifecycle()
@@ -68,13 +65,6 @@ class MainView(
             modifier = Modifier
                 .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
-            MainSettingsButton(
-                onNavigateToSettings,
-                Modifier
-                    .mainSettingsButtonModifier()
-                    .align(Alignment.TopEnd),
-                getUIStyle, fields
-            )
             if (deckIndex in deckUiState.deckList.indices) {
                 ShowNextReview(pressed, deckUiState.deckList[deckIndex])
             }
@@ -84,19 +74,6 @@ class MainView(
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp, start = 20.dp, end = 20.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.deck_list),
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = getUIStyle.titleColor()
-                    )
-                }
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

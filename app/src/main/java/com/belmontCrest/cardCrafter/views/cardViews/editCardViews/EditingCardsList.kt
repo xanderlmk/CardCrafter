@@ -3,7 +3,6 @@ package com.belmontCrest.cardCrafter.views.cardViews.editCardViews
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,15 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnCardId
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.views.miscFunctions.CardSelector
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
-import com.belmontCrest.cardCrafter.ui.theme.bottomLineModifier
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.views.miscFunctions.ShowBackButtonAndDeckName
 
 class EditCardsList(
     private var editingCardListVM: EditingCardListViewModel,
@@ -46,7 +41,7 @@ class EditCardsList(
     @SuppressLint("CoroutineCreationDuringComposition")
     @Composable
     fun ViewFlashCards(
-        deck: Deck, onNavigate: () -> Unit, goToEditCard: (Int, Int) -> Unit
+        onNavigate: () -> Unit, goToEditCard: (Int, Int) -> Unit
     ) {
         val sealedCardsList by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
         val middleCard = rememberSaveable { mutableIntStateOf(0) }
@@ -64,43 +59,33 @@ class EditCardsList(
                 .boxViewsModifier(getUIStyle.getColorScheme()),
             contentAlignment = Alignment.Center
         ) {
-            Column {
-                Box(
-                    modifier = Modifier
-                        .bottomLineModifier(getUIStyle.getColorScheme())
-                ) {
-                    ShowBackButtonAndDeckName(
-                        onNavigate, deck, Modifier.backButtonModifier(), getUIStyle
-                    )
-                }
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    state = listState
-                ) {
-                    items(sealedCardsList.allCTs.size) { index ->
-                        Button(
-                            onClick = {
-                                if (!clicked) {
-                                    fields.scrollPosition.value = index
-                                    isEditing.value = true
-                                    clicked = true
-                                    goToEditCard(index, returnCardId(sealedCardsList.allCTs[index]))
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = getUIStyle.secondaryButtonColor(),
-                                contentColor = getUIStyle.buttonTextColor()
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                        ) {
-                            CardSelector(
-                                sealedCardsList,
-                                index
-                            )
-                        }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+                state = listState
+            ) {
+                items(sealedCardsList.allCTs.size) { index ->
+                    Button(
+                        onClick = {
+                            if (!clicked) {
+                                fields.scrollPosition.value = index
+                                isEditing.value = true
+                                clicked = true
+                                goToEditCard(index, returnCardId(sealedCardsList.allCTs[index]))
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = getUIStyle.secondaryButtonColor(),
+                            contentColor = getUIStyle.buttonTextColor()
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        CardSelector(
+                            sealedCardsList,
+                            index
+                        )
                     }
                 }
             }

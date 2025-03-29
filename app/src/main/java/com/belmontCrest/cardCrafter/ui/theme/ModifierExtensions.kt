@@ -53,7 +53,6 @@ fun Modifier.mainViewModifier(colorScheme : ColorScheme): Modifier {
 
 fun Modifier.backButtonModifier(): Modifier {
     return this
-        .padding(14.dp)
         .size(40.dp)
 }
 
@@ -71,13 +70,7 @@ fun Modifier.addButtonModifier(colorScheme: ColorScheme): Modifier {
 
 fun Modifier.settingsButtonModifier(): Modifier {
     return this
-        .padding(top = 16.dp, start = 16.dp, end = 16.dp)
         .size(40.dp)
-}
-fun Modifier.mainSettingsButtonModifier(): Modifier {
-    return this
-        .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-        .size(24.dp)
 }
 
 fun Modifier.boxViewsModifier(colorScheme: ColorScheme): Modifier {
@@ -96,22 +89,6 @@ fun Modifier.scrollableBoxViewModifier(scrollState: ScrollState, colorScheme: Co
         .background(color = colorScheme.background)
 }
 
-fun Modifier.bottomLineModifier(colorScheme: ColorScheme): Modifier {
-    return this
-        .background(color = colorScheme.surface)
-        .wrapContentWidth()
-        .drawBehind {
-            val strokeWidth = 3.dp.toPx()
-            val y = size.height - strokeWidth / 2
-            drawLine(
-                color = colorScheme.outline,
-                start = Offset(0f, y),
-                end = Offset(size.width, y),
-                strokeWidth = strokeWidth
-            )
-        }
-
-}
 
 fun Modifier.editCardModifier(): Modifier {
     return this

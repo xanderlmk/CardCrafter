@@ -27,6 +27,7 @@ val darkBackground = Color(20,20,25)
 val secondaryDBC = Color(19, 19, 38, 255)
 val darkOnBackground = Color(224, 224, 224)
 val darkEditingBackground = Color(28, 28, 68)
+val darkNavBar = Color(1, 29, 70, 255)
 
 val darkBorder = Color(72, 72, 72)
 val darkButton = Color(18, 52, 150)

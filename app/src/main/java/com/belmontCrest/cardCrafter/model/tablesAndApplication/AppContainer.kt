@@ -1,7 +1,7 @@
 package com.belmontCrest.cardCrafter.model.tablesAndApplication
 
 import android.content.Context
-import com.belmontCrest.cardCrafter.model.FlashCardDatabase
+import com.belmontCrest.cardCrafter.model.database.FlashCardDatabase
 import com.belmontCrest.cardCrafter.model.repositories.CardTypeRepository
 import com.belmontCrest.cardCrafter.model.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.model.repositories.OfflineCardTypeRepository

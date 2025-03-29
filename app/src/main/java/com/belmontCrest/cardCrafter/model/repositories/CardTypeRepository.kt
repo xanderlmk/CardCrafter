@@ -3,6 +3,7 @@ package com.belmontCrest.cardCrafter.model.repositories
 
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.AllCardTypes
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
+import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
@@ -47,9 +48,11 @@ interface CardTypeRepository {
     fun getAllDueCards(
         deckId: Int,
         cardAmount: Int,
-        currentTime: Long = Date().time
-    ): Flow<List<AllCardTypes>>
+        currentTime: Long
+    ): Flow<List<CT>>
+
+    fun getDueAllCardTypes(deckId: Int, cardAmount: Int, currentTime: Long = Date().time):
+            List<CT>
 
     suspend fun getACardType(id: Int): AllCardTypes
-
 }

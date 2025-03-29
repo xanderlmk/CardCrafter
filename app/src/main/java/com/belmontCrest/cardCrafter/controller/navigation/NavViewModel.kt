@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.model.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,10 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
-import java.util.Date
 
 
 /**
@@ -71,28 +66,5 @@ class NavViewModel(
     }
     fun resetCard(){
         cardId.value = 0
-    }
-
-    suspend fun updateCardsLeft(deck: Deck, cardsToAdd: Int) {
-        return withContext(Dispatchers.IO) {
-            /** Only add the cards if the deck's review is due */
-            if (deck.nextReview <= Date()) {
-                /** Make sure the cardsLeft + cardsAdded don't
-                 * exceed the deck's cardAmount
-                 */
-                viewModelScope.launch(Dispatchers.IO) {
-                    withTimeout(TIMEOUT_MILLIS) {
-                        if ((deck.cardsLeft + cardsToAdd) < deck.cardAmount) {
-                            flashCardRepository.updateCardsLeft(
-                                deck.id,
-                                (deck.cardsLeft + cardsToAdd)
-                            )
-                        } else {
-                            flashCardRepository.updateCardsLeft(deck.id, deck.cardAmount)
-                        }
-                    }
-                }
-            }
-        }
     }
 }

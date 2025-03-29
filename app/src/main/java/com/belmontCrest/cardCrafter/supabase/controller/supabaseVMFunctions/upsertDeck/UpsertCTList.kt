@@ -25,13 +25,20 @@ suspend fun upsertCTList(
                 is CT.ThreeField -> ct.card.type
                 is CT.MultiChoice -> ct.card.type
                 is CT.Notation -> ct.card.type
+            },
+            cardIdentifier = when (ct) {
+                is CT.Basic -> ct.card.cardIdentifier
+                is CT.Hint -> ct.card.cardIdentifier
+                is CT.ThreeField -> ct.card.cardIdentifier
+                is CT.MultiChoice -> ct.card.cardIdentifier
+                is CT.Notation -> ct.card.cardIdentifier
             }
         )
     }
     try {
         Log.d("SupabaseViewModel", "Updating cards..")
         val responses = supabase.from("card")
-            .upsert(cardsToInsert) {
+            .upsert(cardsToInsert, onConflict = " cardIdentifier") {
                 select()
             }
             .decodeList<SBCards>()

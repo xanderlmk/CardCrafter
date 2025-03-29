@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -82,6 +81,7 @@ fun AddCardButton(
     }
 
 }
+
 @Composable
 fun ExportDeckButton(
     onClick: () -> Unit,
@@ -110,13 +110,14 @@ fun BackButton(
         modifier = modifier
             .background(
                 color = getUIStyle.buttonColor(),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(24.dp)
             )
+            .padding(6.dp)
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
             modifier = Modifier
-                .size(32.dp),
+                .size(24.dp),
             contentDescription = "Back",
             tint = getUIStyle.iconColor()
         )
@@ -165,8 +166,9 @@ fun SettingsButton(
         modifier = modifier
             .background(
                 color = getUIStyle.buttonColor(),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(24.dp)
             )
+            .padding(6.dp)
     ) {
         Icon(
             imageVector = Icons.Filled.Edit,
@@ -176,54 +178,25 @@ fun SettingsButton(
             tint = getUIStyle.iconColor()
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(onClick = {
-                expanded = false
-                coroutineScope.launch {
-                    fields.mainClicked.value = true
-                    delayNavigate()
-                    onNavigateToEditDeck()
-                }
-            },
+            DropdownMenuItem(
+                onClick = {
+                    expanded = false
+                    coroutineScope.launch {
+                        fields.mainClicked.value = true
+                        delayNavigate()
+                        onNavigateToEditDeck()
+                    }
+                },
                 text = { Text(stringResource(R.string.edit_deck)) })
-            DropdownMenuItem(onClick = {
-                expanded = false
-                fields.mainClicked.value = true
-                onNavigateToEditCards()
+            DropdownMenuItem(
+                onClick = {
+                    expanded = false
+                    fields.mainClicked.value = true
+                    onNavigateToEditCards()
 
-            },
+                },
                 text = { Text(stringResource(R.string.edit_flashcards)) })
         }
-    }
-}
-
-
-@Composable
-fun MainSettingsButton(
-    onNavigateToSettings: () -> Unit,
-    modifier: Modifier = Modifier,
-    getUIStyle: GetUIStyle,
-    fields: Fields
-) {
-    IconButton(
-        onClick = {
-            if (!fields.mainClicked.value) {
-                fields.mainClicked.value = true
-                onNavigateToSettings()
-            }
-        },
-        modifier = modifier
-            .background(
-                color = getUIStyle.buttonColor(),
-                shape = RoundedCornerShape(16.dp)
-            )
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Settings,
-            modifier = Modifier
-                .size(24.dp),
-            contentDescription = "Main Settings",
-            tint = getUIStyle.iconColor()
-        )
     }
 }
 

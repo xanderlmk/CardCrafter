@@ -70,7 +70,8 @@ object AppViewModelProvider {
         }
         initializer {
             EditingCardListViewModel(
-                flashCardApplication().container.cardTypeRepository
+                flashCardApplication().container.cardTypeRepository,
+                this.createSavedStateHandle()
             )
         }
         initializer {

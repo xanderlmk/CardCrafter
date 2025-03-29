@@ -64,7 +64,6 @@ fun AppNavHost(
     fields: Fields,
     supabase: SupabaseClient,
     preferences: PreferencesManager,
-    modifier: Modifier
 ) {
     val cardDeckVM: CardDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val navViewModel: NavViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -119,293 +118,242 @@ fun AppNavHost(
     val coroutineScope = rememberCoroutineScope()
     val deck by navViewModel.deck.collectAsStateWithLifecycle()
     val pickedDeck by supabaseVM.pickedDeck.collectAsStateWithLifecycle()
-    NavHost(
+    CustomNavigationDrawer(
         navController = navController,
-        startDestination = DeckListDestination.route,
-        modifier = modifier
+        fields = fields,
+        getUIStyle = getUIStyle,
+        mainViewModel = mainViewModel,
+        navViewModel = navViewModel,
+        cardDeckVM = cardDeckVM,
+        deck = deck
     ) {
-        composable(DeckListDestination.route) {
-            BackHandler {
-                // Exit the app when back is pressed on the main screen
-                (navController.context as? Activity)?.finish()
-            }
-            mainView.DeckList(
-                mainViewModel,
-                // In DeckList Composable
-                onNavigateToDeck = { id ->
-                    fields.leftDueCardView.value = false
-                    fields.inDeckClicked.value = false
-                    fields.scrollPosition.value = 0
-                    onDeckView = true
-                    navController.navigate(DeckOptionsDestination.createRoute(id))
-                    coroutineScope.launch {
-                        navViewModel.getDeckById(id)
-                    }
-                    coroutineScope.launch {
-                        editingCardListVM.getAllCardsForDeck(id)
-                    }
-                },
-                onNavigateToAddDeck = {
-                    navController.navigate(AddDeckDestination.route)
-                },
-                onNavigateToSettings = {
-                    navController.navigate(SettingsDestination.route)
-                },
-                onNavigateToSBDeckList = {
-                    navController.navigate(SupabaseDestination.route)
-                }
-            )
-        }
-        composable(
-            SupabaseDestination.route,
-            enterTransition = { null },
-            exitTransition = { null }) {
-            BackHandler {
-                fields.mainClicked.value = false
-                mainViewModel.updateCurrentTime()
-                navController.popBackStack(
-                    DeckListDestination.route, inclusive = false
-                )
-            }
-            onlineDatabase.SupabaseView(
-                onNavigate = {
-                    fields.mainClicked.value = false
-                    navController.navigate(DeckListDestination.route)
-                    mainViewModel.updateCurrentTime()
-                },
-                onImportDeck = { uuid ->
-                    navController.navigate(ImportSBDestination.route)
-                    coroutineScope.launch {
-                        supabaseVM.updateUUID(uuid)
-                    }
-                },
-                onExportDeck = {
-                    navController.navigate(ExportSBDestination.route)
-                }
-            )
-        }
-        composable(ImportSBDestination.route) {
-            BackHandler {
-                navController.popBackStack(
-                    SupabaseDestination.route, inclusive = false
-                )
-            }
-            sbDeck?.let {
-                importDeck.GetDeck(
-                    deck = it,
-                    onNavigate = {
-                        navController.navigate(SupabaseDestination.route)
-                    }
-                )
-            }
-        }
-        composable(ExportSBDestination.route) {
-            BackHandler {
-                navController.popBackStack(
-                    SupabaseDestination.route, inclusive = false
-                )
-            }
-            pickedDeck?.let {
-                UploadThisDeck(
-                    dismiss = {
-                        navController.navigate(SupabaseDestination.route)
-                    },
-                    it,
-                    supabaseVM,
-                    getUIStyle
-                )
-            }
-        }
-        composable(
-            SettingsDestination.route,
-            enterTransition = { null },
-            exitTransition = { null }) {
-            BackHandler {
-                fields.mainClicked.value = false
-                navController.popBackStack(
-                    DeckListDestination.route, inclusive = false
-                )
-            }
-            generalSettings.SettingsView(
-                onNavigate = {
-                    fields.mainClicked.value = false
-                    navController.navigate(DeckListDestination.route)
-                }
-            )
-        }
-        composable(
-            AddDeckDestination.route,
-            enterTransition = { null },
-            exitTransition = { null }) {
-            BackHandler {
-                fields.mainClicked.value = false
-                navController.popBackStack(
-                    DeckListDestination.route,
-                    inclusive = false
-                )
-            }
-            addDeckView.AddDeck(
-                onNavigate = {
-                    fields.mainClicked.value = false
-                    navController.navigate(DeckListDestination.route)
-                },
-                reviewAmount = preferences.reviewAmount.intValue.toString(),
-                cardAmount = preferences.cardAmount.intValue.toString()
-            )
-        }
-        navigation(
-            route = DeckOptionsDestination.route,
-            startDestination = DeckViewDestination.route
+        NavHost(
+            navController = navController,
+            startDestination = DeckListDestination.route,
+            modifier = Modifier
         ) {
-            composable(
-                route = DeckViewDestination.route,
-                enterTransition = { null }, exitTransition = { null }
-            ) { backStackEntry ->
-                val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
+            composable(DeckListDestination.route) {
                 BackHandler {
-                    fields.scrollPosition.value = 0
-                    fields.inDeckClicked.value = true
+                    // Exit the app when back is pressed on the main screen
+                    (navController.context as? Activity)?.finish()
+                }
+                mainView.DeckList(
+                    mainViewModel,
+                    // In DeckList Composable
+                    onNavigateToDeck = { id ->
+                        fields.leftDueCardView.value = false
+                        fields.inDeckClicked.value = false
+                        fields.scrollPosition.value = 0
+                        onDeckView = true
+                        navController.navigate(DeckOptionsDestination.createRoute(id))
+                        coroutineScope.launch {
+                            navViewModel.getDeckById(id)
+                        }
+                        coroutineScope.launch {
+                            editingCardListVM.updateId(id)
+                        }
+                    },
+                    onNavigateToAddDeck = {
+                        navController.navigate(AddDeckDestination.route)
+                    },
+                    onNavigateToSBDeckList = {
+                        navController.navigate(SupabaseDestination.route)
+                    }
+                )
+            }
+            composable(
+                SupabaseDestination.route,
+                enterTransition = { null },
+                exitTransition = { null }) {
+                BackHandler {
+                    fields.mainClicked.value = false
+                    mainViewModel.updateCurrentTime()
+                    navController.popBackStack(
+                        DeckListDestination.route, inclusive = false
+                    )
+                }
+                onlineDatabase.SupabaseView(
+                    onNavigate = {
+                        fields.mainClicked.value = false
+                        navController.navigate(DeckListDestination.route)
+                        mainViewModel.updateCurrentTime()
+                    },
+                    onImportDeck = { uuid ->
+                        navController.navigate(ImportSBDestination.route)
+                        coroutineScope.launch {
+                            supabaseVM.updateUUID(uuid)
+                        }
+                    },
+                    onExportDeck = {
+                        navController.navigate(ExportSBDestination.route)
+                    }
+                )
+            }
+            composable(ImportSBDestination.route) {
+                BackHandler {
+                    navController.popBackStack(
+                        SupabaseDestination.route, inclusive = false
+                    )
+                }
+                sbDeck?.let {
+                    importDeck.GetDeck(
+                        deck = it,
+                        onNavigate = {
+                            navController.navigate(SupabaseDestination.route)
+                        }
+                    )
+                }
+            }
+            composable(ExportSBDestination.route) {
+                BackHandler {
+                    navController.popBackStack(
+                        SupabaseDestination.route, inclusive = false
+                    )
+                }
+                pickedDeck?.let {
+                    UploadThisDeck(
+                        dismiss = {
+                            navController.navigate(SupabaseDestination.route)
+                        },
+                        it,
+                        supabaseVM,
+                        getUIStyle
+                    )
+                }
+            }
+            composable(
+                SettingsDestination.route,
+                enterTransition = { null },
+                exitTransition = { null }) {
+                BackHandler {
+                    fields.mainClicked.value = false
+                    navController.popBackStack(
+                        DeckListDestination.route, inclusive = false
+                    )
+                }
+                generalSettings.SettingsView()
+            }
+            composable(
+                AddDeckDestination.route,
+                enterTransition = { null },
+                exitTransition = { null }) {
+                BackHandler {
                     fields.mainClicked.value = false
                     navController.popBackStack(
                         DeckListDestination.route,
                         inclusive = false
                     )
                 }
-                /**
-                 * If the application restarts, onDeckView value will be false
-                 * meaning it'll get the latest value of deck if it changes,
-                 * it'll stop getting the value once you return to the DeckList
-                 * and go back into the DeckOptions, since onDeckView will become
-                 * true. */
-                LaunchedEffect(Unit) {
-                    if (!onDeckView) {
-                        coroutineScope.launch {
-                            navViewModel.getDeckById(deckId ?: 0)
-                            cardDeckVM.updateWhichDeck(deckId ?: 0)
-                        }
-                    }
-                }
-                deck?.let {
-                    deckView.ViewEditDeck(
-                        deck = it,
-                        onNavigate = {
-                            mainViewModel.updateCurrentTime()
-                            navViewModel.resetCard()
-                            fields.scrollPosition.value = 0
-                            fields.inDeckClicked.value = true
-                            fields.mainClicked.value = false
-                            navController.navigate(DeckListDestination.route)
-                        },
-                        goToAddCard = { id ->
-                            fields.inDeckClicked.value = true
-                            fields.mainClicked.value = false
-                            navController.navigate(AddCardDestination.createRoute(id))
-                        },
-                        goToDueCards = { id ->
-                            fields.inDeckClicked.value = true
-                            cardDeckVM.updateWhichDeck(id)
-                            fields.mainClicked.value = false
-                            fields.leftDueCardView.value = false
-                            navController.navigate(ViewDueCardsDestination.createRoute(id))
-                        },
-                        goToEditDeck = { id, name ->
-                            fields.inDeckClicked.value = true
-                            fields.mainClicked.value = false
-                            navController.navigate(
-                                EditDeckDestination.createRoute(
-                                    id,
-                                    name
-                                )
-                            )
-                        },
-                        goToViewCards = { id ->
-                            fields.inDeckClicked.value = true
-                            fields.mainClicked.value = false
-                            navController.navigate(ViewAllCardsDestination.createRoute(id))
-                        },
-                    )
-                }
+                addDeckView.AddDeck(
+                    onNavigate = {
+                        fields.mainClicked.value = false
+                        navController.navigate(DeckListDestination.route)
+                    },
+                    reviewAmount = preferences.reviewAmount.intValue.toString(),
+                    cardAmount = preferences.cardAmount.intValue.toString()
+                )
             }
-            composable(AddCardDestination.route) { backStackEntry ->
-                val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
-                BackHandler {
-                    fields.inDeckClicked.value = false
-                    fields.resetFields()
-                    deck?.let {
-                        coroutineScope.launch {
-                            if (fields.cardsAdded.value > 0) {
-                                navViewModel.updateCardsLeft(it, fields.cardsAdded.value)
-                                fields.cardsAdded.value = 0
-                            }
-                        }
+            navigation(
+                route = DeckOptionsDestination.route,
+                startDestination = DeckViewDestination.route
+            ) {
+                composable(
+                    route = DeckViewDestination.route,
+                    enterTransition = { null }, exitTransition = { null }
+                ) { backStackEntry ->
+                    val deckId =
+                        backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
+                    BackHandler {
+                        fields.scrollPosition.value = 0
+                        fields.inDeckClicked.value = true
+                        fields.mainClicked.value = false
+                        mainViewModel.updateCurrentTime()
+                        cardDeckVM.updateIndex(0)
+                        navController.popBackStack(
+                            DeckListDestination.route,
+                            inclusive = false
+                        )
                     }
-                    navController.popBackStack(
-                        DeckViewDestination.createRoute(deckId ?: 0),
-                        inclusive = false
-                    )
-                }
-
-                deck?.let {
-                    addCardView.AddCard(
-                        deck = it,
-                        onNavigate = {
-                            fields.inDeckClicked.value = false
-                            fields.resetFields()
+                    /**
+                     * If the application restarts, onDeckView value will be false
+                     * meaning it'll get the latest value of deck if it changes,
+                     * it'll stop getting the value once you return to the DeckList
+                     * and go back into the DeckOptions, since onDeckView will become
+                     * true. */
+                    LaunchedEffect(Unit) {
+                        if (!onDeckView) {
                             coroutineScope.launch {
-                                if (fields.cardsAdded.value > 0) {
-                                    navViewModel.updateCardsLeft(
-                                        it,
-                                        fields.cardsAdded.value
-                                    )
-                                    fields.cardsAdded.value = 0
-                                }
-                            }
-                            navController.navigate(
-                                DeckViewDestination.createRoute(
-                                    deckId ?: 0
-                                )
-                            )
-                        }
-                    )
-                }
-            }
-            composable(ViewDueCardsDestination.route) { backStackEntry ->
-                val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
-
-                BackHandler {
-                    fields.inDeckClicked.value = false
-                    navController.popBackStack(
-                        DeckViewDestination.createRoute(deckId ?: 0),
-                        inclusive = false
-                    )
-                    fields.leftDueCardView.value = true
-                    deck?.let {
-                        /** If the list is empty, no cards
-                         *  have been due even before the user joined,
-                         *  or the user finished the deck.
-                         */
-                        if (cardsToUpdate.isNotEmpty()) {
-                            coroutineScope.launch(Dispatchers.IO) {
-                                updateDecksCardList(
-                                    it,
-                                    cardsToUpdate,
-                                    cardDeckVM
-                                )
+                                navViewModel.getDeckById(deckId ?: 0)
+                                cardDeckVM.updateWhichDeck(deckId ?: 0)
                             }
                         }
                     }
-                }
-                deck?.let {
-                    cardDeckView.ViewCard(
-                        deck = it,
-                        onNavigate = {
-                            fields.inDeckClicked.value = false
-                            navController.navigate(
-                                DeckViewDestination.createRoute(
-                                    deckId ?: 0
+                    deck?.let {
+                        deckView.ViewEditDeck(
+                            deck = it,
+                            goToAddCard = { id ->
+                                fields.inDeckClicked.value = true
+                                fields.mainClicked.value = false
+                                navController.navigate(
+                                    AddCardDestination.createRoute(
+                                        id
+                                    )
                                 )
-                            )
-                            fields.leftDueCardView.value = true
+                            },
+                            goToDueCards = { id ->
+                                DeckViewDestination.updateName(it.name)
+                                fields.inDeckClicked.value = true
+                                cardDeckVM.updateWhichDeck(id)
+                                fields.mainClicked.value = false
+                                fields.leftDueCardView.value = false
+                                navController.navigate(
+                                    ViewDueCardsDestination.createRoute(
+                                        id
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+                composable(AddCardDestination.route) { backStackEntry ->
+                    val deckId =
+                        backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
+                    BackHandler {
+                        fields.inDeckClicked.value = false
+                        fields.resetFields()
+                        navController.popBackStack(
+                            DeckViewDestination.createRoute(deckId ?: 0),
+                            inclusive = false
+                        )
+                    }
+
+                    deck?.let {
+                        addCardView.AddCard(
+                            deck = it,
+                            onNavigate = {
+                                fields.inDeckClicked.value = false
+                                fields.resetFields()
+                                navController.navigate(
+                                    DeckViewDestination.createRoute(
+                                        deckId ?: 0
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+                composable(ViewDueCardsDestination.route) { backStackEntry ->
+                    val deckId =
+                        backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
+
+                    BackHandler {
+                        fields.inDeckClicked.value = false
+                        navController.popBackStack(
+                            DeckViewDestination.createRoute(deckId ?: 0),
+                            inclusive = false
+                        )
+                        fields.leftDueCardView.value = true
+                        deck?.let {
                             /** If the list is empty, no cards
                              *  have been due even before the user joined,
                              *  or the user finished the deck.
@@ -420,102 +368,112 @@ fun AppNavHost(
                                 }
                             }
                         }
-                    )
+                    }
+                    deck?.let {
+                        cardDeckView.ViewCard(
+                            deck = it
+                        )
+                    }
                 }
-            }
-            composable(EditDeckDestination.route) { backStackEntry ->
-                val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
-                val currentName = backStackEntry.arguments?.getString("currentName")
+                composable(EditDeckDestination.route) { backStackEntry ->
+                    val deckId =
+                        backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
+                    val currentName =
+                        backStackEntry.arguments?.getString("currentName")
 
-                BackHandler {
-                    fields.inDeckClicked.value = false
-                    navController.popBackStack(
-                        DeckViewDestination.createRoute(deckId ?: 0),
-                        inclusive = false
-                    )
-                }
-                deck?.let {
-                    editDeckView.EditDeck(
-                        currentName = currentName ?: "",
-                        deck = it,
-                        onNavigate = {
-                            fields.inDeckClicked.value = false
-                            navController.navigate(
-                                DeckViewDestination.createRoute(
-                                    deckId ?: 0
+                    BackHandler {
+                        fields.inDeckClicked.value = false
+                        navController.popBackStack(
+                            DeckViewDestination.createRoute(deckId ?: 0),
+                            inclusive = false
+                        )
+                    }
+                    deck?.let {
+                        editDeckView.EditDeck(
+                            currentName = currentName ?: "",
+                            deck = it,
+                            onNavigate = {
+                                fields.inDeckClicked.value = false
+                                navController.navigate(
+                                    DeckViewDestination.createRoute(
+                                        deckId ?: 0
+                                    )
                                 )
-                            )
-                        },
-                        onDelete = {
-                            fields.inDeckClicked.value = false
-                            navController.navigate(DeckListDestination.route)
-                        }
-                    )
-                }
-            }
-            composable(ViewAllCardsDestination.route) { backStackEntry ->
-                val deckId = backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
-                BackHandler {
-                    fields.inDeckClicked.value = false
-                    navController.popBackStack(
-                        DeckViewDestination.createRoute(deckId ?: 0),
-                        inclusive = false
-                    )
-                }
-                deck?.let { thisDeck ->
-                    editCardsList.ViewFlashCards(
-                        deck = thisDeck,
-                        onNavigate = {
-                            fields.inDeckClicked.value = false
-                            navController.navigate(
-                                DeckViewDestination.createRoute(
-                                    deckId ?: 0
-                                )
-                            )
-                        },
-                        goToEditCard = { index, cardId ->
-                            coroutineScope.launch {
-                                navViewModel.getCardById(cardId)
+                            },
+                            onDelete = {
+                                fields.inDeckClicked.value = false
+                                navController.navigate(DeckListDestination.route)
                             }
-                            fields.resetFields()
-                            navController.navigate(
-                                EditingCardDestination.createRoute(thisDeck.id, index)
-                            )
-                        }
-                    )
+                        )
+                    }
                 }
-            }
-            composable(
-                route = EditingCardDestination.route,
-                arguments = listOf(
-                    navArgument("deckId") { type = NavType.IntType },
-                    navArgument("index") { type = NavType.IntType })
-            ) { backStackEntry ->
-                val deckId = backStackEntry.arguments?.getInt("deckId")
-                val index = backStackEntry.arguments?.getInt("index")
+                composable(ViewAllCardsDestination.route) { backStackEntry ->
+                    val deckId =
+                        backStackEntry.arguments?.getString("deckId")!!.toIntOrNull()
+                    BackHandler {
+                        fields.inDeckClicked.value = false
+                        navController.popBackStack(
+                            DeckViewDestination.createRoute(deckId ?: 0),
+                            inclusive = false
+                        )
+                    }
+                    deck?.let { thisDeck ->
+                        editCardsList.ViewFlashCards(
+                            onNavigate = {
+                                fields.inDeckClicked.value = false
+                                navController.navigate(
+                                    DeckViewDestination.createRoute(
+                                        deckId ?: 0
+                                    )
+                                )
+                            },
+                            goToEditCard = { index, cardId ->
+                                coroutineScope.launch {
+                                    navViewModel.getCardById(cardId)
+                                }
+                                fields.resetFields()
+                                navController.navigate(
+                                    EditingCardDestination.createRoute(
+                                        thisDeck.id,
+                                        index
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+                composable(
+                    route = EditingCardDestination.route,
+                    arguments = listOf(
+                        navArgument("deckId") { type = NavType.IntType },
+                        navArgument("index") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val deckId = backStackEntry.arguments?.getInt("deckId")
+                    val index = backStackEntry.arguments?.getInt("index")
 
-                BackHandler {
-                    editCardsList.isEditing.value = false
-                    fields.inDeckClicked.value = false
-                    navController.popBackStack(
-                        ViewAllCardsDestination.createRoute(deckId ?: 0),
-                        inclusive = false
-                    )
-                }
-                selectedCard?.let {
-                    editingCardView.EditFlashCardView(
-                        card = it,
-                        fields = fields,
-                        selectedCard = mutableStateOf(selectedCard),
-                        index = index ?: 0,
-                        onNavigateBack = {
-                            editCardsList.isEditing.value = false
-                            fields.inDeckClicked.value = false
-                            navController.navigate(
-                                ViewAllCardsDestination.createRoute(deckId ?: 0)
-                            )
-                        }
-                    )
+                    BackHandler {
+                        editCardsList.isEditing.value = false
+                        fields.inDeckClicked.value = false
+                        navController.popBackStack(
+                            ViewAllCardsDestination.createRoute(deckId ?: 0),
+                            inclusive = false
+                        )
+                    }
+                    selectedCard?.let {
+                        editingCardView.EditFlashCardView(
+                            card = it,
+                            fields = fields,
+                            selectedCard = mutableStateOf(selectedCard),
+                            index = index ?: 0,
+                            onNavigateBack = {
+                                editCardsList.isEditing.value = false
+                                fields.inDeckClicked.value = false
+                                navController.navigate(
+                                    ViewAllCardsDestination.createRoute(deckId ?: 0)
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

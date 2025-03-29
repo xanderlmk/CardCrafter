@@ -80,7 +80,9 @@ data class Deck(
             childColumns = ["deckId"]
         )
     ],
-    indices = [Index(value = ["deckId"])]
+    indices = [
+        Index(value = ["deckId"]),
+        Index(value = ["deckUUID", "deckCardNumber"], unique = true)]
 )
 data class Card(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
@@ -94,6 +96,8 @@ data class Card(
     val type: String,
     val createdOn: Long = Date().time,
     var partOfList: Boolean = false,
+    val deckCardNumber: Int?,
+    val cardIdentifier: String
 ) : Parcelable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -117,7 +121,9 @@ data class Card(
         parcel.readInt(),
         parcel.readString()!!,
         parcel.readLong(),
-        parcel.readBoolean()
+        parcel.readBoolean(),
+        parcel.readInt(),
+        parcel.readString()!!
     )
 
     companion object : Parceler<Card> {
@@ -135,8 +141,9 @@ data class Card(
             parcel.writeString(type)
             parcel.writeLong(createdOn)
             parcel.writeBoolean(partOfList)
+            parcel.writeInt(deckCardNumber!!)
+            parcel.writeString(cardIdentifier)
         }
-
         @RequiresApi(Build.VERSION_CODES.Q)
         override fun create(parcel: Parcel): Card {
             return Card(parcel)

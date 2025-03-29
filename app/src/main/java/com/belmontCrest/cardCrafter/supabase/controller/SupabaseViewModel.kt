@@ -25,7 +25,6 @@ import com.belmontCrest.cardCrafter.supabase.model.SBDecks
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase
 import com.belmontCrest.cardCrafter.supabase.model.getSBKey
 import com.belmontCrest.cardCrafter.supabase.model.getSBUrl
-import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.annotations.SupabaseInternal
 import io.github.jan.supabase.gotrue.auth
@@ -48,6 +47,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.net.SocketException
 import java.util.Date
@@ -78,17 +78,7 @@ class SupabaseViewModel(
         private const val UNKNOWN_ERROR = 504
     }
 
-    private var thisSupabase: StateFlow<SupabaseClient> = flowOf(
-        createSupabase(
-            getSBUrl(), getSBKey()
-        )
-    ).stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-        initialValue = createSupabase(
-            getSBUrl(), getSBKey()
-        )
-    )
+    private var thisSupabase = MutableStateFlow(createSupabase(getSBUrl(), getSBKey()))
     val supabase = thisSupabase
     private var isClientActive = true
 
@@ -146,19 +136,21 @@ class SupabaseViewModel(
                 } else if (isConnected && !isClientActive) {
                     // Reinitialize the client only if it's not active
                     Log.d("NETWORK", "RECONNECTED!")
-                    thisSupabase = flowOf(
-                        createSupabase(getSBUrl(), getSBKey())
-                    ).stateIn(
-                        scope = viewModelScope,
-                        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                        initialValue = createSupabase(getSBUrl(), getSBKey())
-                    )
+                    thisSupabase.value = createSupabase(getSBUrl(), getSBKey())
                     getDeckList()
                     isClientActive = true
                 }
             }
         }
     }
+
+    override fun onCleared() {
+        runBlocking {
+            supabase.value.close()
+        }
+        super.onCleared()
+    }
+
 
     fun changeDeckId(id: Int) {
         deckId.value = id

@@ -25,6 +25,13 @@ suspend fun insertCTList(
                 is CT.ThreeField -> ct.card.type
                 is CT.MultiChoice -> ct.card.type
                 is CT.Notation -> ct.card.type
+            },
+            cardIdentifier = when (ct) {
+                is CT.Basic -> ct.card.cardIdentifier
+                is CT.Hint -> ct.card.cardIdentifier
+                is CT.ThreeField -> ct.card.cardIdentifier
+                is CT.MultiChoice -> ct.card.cardIdentifier
+                is CT.Notation -> ct.card.cardIdentifier
             }
         )
     }

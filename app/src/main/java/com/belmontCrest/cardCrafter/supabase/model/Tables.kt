@@ -2,6 +2,9 @@
 
 package com.belmontCrest.cardCrafter.supabase.model
 
+import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
+import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
+import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -17,13 +20,14 @@ data class SBDecks(
 data class SBCards(
     val id: Int = -1,
     @SerialName("deckUUID") val deckUUID: String,
-    val type: String
+    val type: String,
+    @SerialName("cardIdentifier") val cardIdentifier : String
 )
 
 
 @Serializable
 data class SBMultiCard(
-    val cardId: Int,
+    val cardId: Int = -1,
     val question: String,
     val choiceA: String,
     val choiceB: String,
@@ -55,3 +59,37 @@ data class CoOwner(
     val user_Id : String,
     val username : String
 )
+
+@Serializable
+data class SBDeckToExport(
+    val deck : SBDecks,
+    val cts : List<SBCT>
+)
+@Serializable
+sealed class SBCT {
+    @Serializable
+    data class Basic(
+        val card: SBCards,
+        val basicCard: BasicCard
+    )
+    @Serializable
+    data class Three(
+        val card: SBCards,
+        val threeCard: ThreeFieldCard,
+    )
+    @Serializable
+    data class Hint(
+        val card: SBCards,
+        val hintCard: HintCard
+    )
+    @Serializable
+    data class Multi(
+        val card: SBCards,
+        val multiCard: SBMultiCard
+    )
+    @Serializable
+    data class Notation(
+        val card: SBCards,
+        val notationCard: SBNotationCard
+    )
+}

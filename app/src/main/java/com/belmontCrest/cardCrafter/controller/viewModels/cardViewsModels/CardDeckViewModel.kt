@@ -1,20 +1,19 @@
 package com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels
 
-import android.database.sqlite.SQLiteConstraintException
-import android.database.sqlite.SQLiteException
+
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.cardHandlers.callError
+import com.belmontCrest.cardCrafter.controller.cardHandlers.fcrUpdateCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.mapACardTypeToCT
-import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
+import com.belmontCrest.cardCrafter.controller.cardHandlers.returnError
+import com.belmontCrest.cardCrafter.controller.cardHandlers.returnSavedCard
 import com.belmontCrest.cardCrafter.model.repositories.CardTypeRepository
 import com.belmontCrest.cardCrafter.model.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.AllCardTypes
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.SavedCard
 import com.belmontCrest.cardCrafter.model.uiModels.CardState
 import com.belmontCrest.cardCrafter.model.uiModels.CardUpdateError
 import com.belmontCrest.cardCrafter.model.uiModels.SealedDueCTs
@@ -34,7 +33,6 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import java.io.IOException
 import java.util.Calendar
 import java.util.Date
 
@@ -47,10 +45,10 @@ class CardDeckViewModel(
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
     }
+
     private val thisErrorState = MutableStateFlow<CardUpdateError?>(null)
     val errorState: StateFlow<CardUpdateError?> = thisErrorState.asStateFlow()
-
-    private val cardState : MutableStateFlow<CardState> =
+    private val cardState: MutableStateFlow<CardState> =
         MutableStateFlow(savedStateHandle["cardState"] ?: CardState.Idle)
     private val cardListToUpdateUiState = MutableStateFlow<List<Card>>(emptyList())
     var cardListToUpdate = cardListToUpdateUiState.asStateFlow()
@@ -63,16 +61,20 @@ class CardDeckViewModel(
      * which should reflect on the state too.
      */
     private val deckId = MutableStateFlow(savedStateHandle["deckId"] ?: 0)
-    private val state: StateFlow<SealedDueCTs> = deckId.flatMapLatest { id ->
+
+    private val state = deckId.flatMapLatest { id ->
         flashCardRepository.getDueDeckDetails(id)
-    }.flatMapLatest { details ->
-        if (details.cardsLeft == 0 || details.nextReview > Date()) {
+    }.flatMapLatest { dueDetails ->
+        if (dueDetails == null) {
             flowOf(SealedDueCTs())
         } else {
-            cardTypeRepository.getAllDueCards(details.id, details.cardsLeft)
+            cardTypeRepository.getAllDueCards(dueDetails.id, dueDetails.cardsLeft, Date().time)
                 .map {
                     transitionTo(CardState.Finished)
-                    updateSealedUiState(it)
+                    SealedDueCTs(
+                        allCTs = it.toMutableList(),
+                        savedCTs = it.toMutableList()
+                    )
                 }
         }
     }.stateIn(
@@ -80,41 +82,35 @@ class CardDeckViewModel(
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = SealedDueCTs()
     )
+
     /** Public state for the user to see */
     var cardListUiState = state
 
-    /** mapping the list of AllCardTypes to a sealed state */
-    private fun updateSealedUiState(
-        allCards: List<AllCardTypes>
-    ): SealedDueCTs {
-        var allCTs = try {
-            mapAllCardTypesToCTs(allCards)
-        } catch (e: IllegalStateException) {
-            thisErrorState.value = CardUpdateError.IllegalStateError(e)
-            thisErrorState.value?.let {
-                    cardUE -> callError(cardUE)
-            }
-            return SealedDueCTs()
-        }
-        return SealedDueCTs(
-            allCTs = allCTs.toMutableList(),
-            savedCTs = allCTs.toMutableList(),
-        ).also {
-            clearErrorState()
-        }
-    }
+    val stateSize = state.map {
+        it.allCTs.size
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = 0
+    )
+    private val thisIndex = MutableStateFlow(savedStateHandle["index"] ?: 0)
+    val stateIndex = thisIndex.asStateFlow()
+
     /** This will change almost constantly. */
     fun updateWhichDeck(id: Int) {
-        deckId.update {
-            id
-        }
+        deckId.value = id
         savedStateHandle["deckId"] = id
     }
+
+    fun updateIndex(index: Int) {
+        thisIndex.update { index }
+        savedStateHandle["index"] = index
+    }
+
     /** As the user progresses through the deck's card,
      * more cards will be added to the cardListToUpdateUiState,
      * where it ill check if that card is already in the list and
-     * replace accordingly
-     */
+     * replace accordingly */
     fun addCardToTheUpdateCardsList(card: Card) {
         cardListToUpdateUiState.update { cards ->
             val mutableCards = cards.toMutableList()
@@ -129,20 +125,22 @@ class CardDeckViewModel(
     suspend fun getRedoCardType(cardId: Int, index: Int) {
         return withContext(Dispatchers.IO) {
             try {
-                val ct = mapACardTypeToCT(cardTypeRepository.getACardType(cardId))
                 viewModelScope.launch(Dispatchers.IO) {
+                    /** Forcefully creating a mutable list to override the current card. */
+                    val ct = mapACardTypeToCT(cardTypeRepository.getACardType(cardId))
                     state.value.allCTs[index] = ct
                     state.value.savedCTs[index] = ct
                     clearErrorState()
                 }
             } catch (e: IllegalStateException) {
                 thisErrorState.value = CardUpdateError.IllegalStateError(e)
-                thisErrorState.value?.let {
-                        cardUE -> callError(cardUE)
+                thisErrorState.value?.let { cardUE ->
+                    callError(cardUE)
                 }
             }
         }
     }
+
     suspend fun getRedoCard(cardId: Int): Card {
         return withContext(Dispatchers.IO) {
             flashCardRepository.getCardById(cardId)
@@ -150,27 +148,18 @@ class CardDeckViewModel(
             addCardToUpdate(it)
         }
     }
+
     /** Adding/Replacing the savedCard in the DB*/
     fun addCardToUpdate(card: Card) {
-        val savedCard = SavedCard(
-            id = card.id,
-            reviewsLeft = card.reviewsLeft,
-            nextReview = card.nextReview,
-            prevSuccess = card.prevSuccess,
-            passes = card.passes,
-            totalPasses = card.totalPasses,
-            partOfList = card.partOfList
-        )
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                flashCardRepository.insertSavedCard(savedCard)
+                flashCardRepository.insertSavedCard(returnSavedCard(card))
             }
         }
     }
 
     /** Getting a backup list so if the user has traversed the
-     * whole deck and the list is empty, they can still manage to go back
-     */
+     * whole deck and the list is empty, they can still manage to go back */
     private suspend fun getBackupCards(deck: Deck) {
         return withContext(Dispatchers.IO) {
             if (deck.nextReview <= Date()) {
@@ -187,18 +176,20 @@ class CardDeckViewModel(
                     clearErrorState()
                 } catch (e: TimeoutCancellationException) {
                     thisErrorState.value = CardUpdateError.TimeoutError(e)
-                    thisErrorState.value?.let {
-                            cardUE -> callError(cardUE)
+                    thisErrorState.value?.let { cardUE ->
+                        callError(cardUE)
                     }
                 }
             }
         }
     }
+
     /** CardState functions */
     fun transitionTo(newState: CardState) {
         cardState.value = newState
         savedStateHandle["cardState"] = newState
     }
+
     fun getState(): CardState = cardState.value
 
     private fun clearErrorState() {
@@ -206,106 +197,87 @@ class CardDeckViewModel(
     }
 
     /** Updating the nextReview for the deck which will only be
-     * to the next day (++1 day).
-     */
+     * to the next day (++1 day). */
     private fun updateNextReview(deck: Deck) {
         return with(Dispatchers.IO) {
             viewModelScope.launch(Dispatchers.IO) {
                 val time = Calendar.getInstance()
                 time.add(Calendar.DAY_OF_YEAR, 1)
                 deck.nextReview = time.time
-                Log.d("${deck.name}.nextReview", "${deck.nextReview}")
                 flashCardRepository.updateNextReview(
                     deck.nextReview, deck.id
                 )
             }
         }
     }
+
     suspend fun updateCards(
         deck: Deck, cardList: List<Card>
     ): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.Main) {
             try {
-                val jobs = cardList.map { card ->
-                    if (card.nextReview > Date()) {
-                        val newCard = Card(
-                            id = card.id,
-                            deckId = card.deckId,
-                            deckUUID = card.deckUUID,
-                            reviewsLeft = card.reviewsLeft,
-                            nextReview = card.nextReview,
-                            passes = card.passes,
-                            prevSuccess = card.prevSuccess,
-                            totalPasses = card.totalPasses,
-                            type = card.type,
-                            createdOn = card.createdOn,
-                            partOfList = false,
-                        )
-                        deck.cardsLeft -= 1
-                        viewModelScope.launch {
-                            flashCardRepository.updateCard(newCard)
-                        }
-                    } else {
-                        viewModelScope.launch {
-                            flashCardRepository.updateCard(card)
-                        }
-                    }
+                val initVal = deck.cardsLeft
+                if (cardList == state.value.allCTs) {
+                    transitionTo(CardState.Finished)
+                    updateWhichDeck(deck.id)
+                    clearErrorState()
+                    return@withContext true
                 }
-                jobs.joinAll().also {
-                    viewModelScope.launch(Dispatchers.IO) {
-                        flashCardRepository.updateCardsLeft(deck.id, deck.cardsLeft)
-                        flashCardRepository.deleteSavedCards()
-                    }
+                try {
+                    cardList.map { card ->
+                        viewModelScope.launch(Dispatchers.Default) {
+                            if (card.nextReview > Date()) {
+                                deck.cardsLeft -= 1
+                                fcrUpdateCard(flashCardRepository, card)
+                            } else {
+                                flashCardRepository.updateCard(card)
+                            }
+                        }
+                    }.joinAll()
+                } catch (e: Exception) {
+                    Log.d("CardDeckVM", "$e")
                 }
+                viewModelScope.launch(Dispatchers.IO) {
+                    if (initVal == deck.cardsLeft) {
+                        transitionTo(CardState.Finished)
+                        clearErrorState()
+                        return@launch
+                    }
+                    flashCardRepository.updateCardsLeft(deck.id, deck.cardsLeft)
+                    /** Making sure the deck does not have any due cards left
+                     *  and it's still due for review */
+                    if (deck.cardsLeft <= 0 && deck.nextReview <= Date()) {
+                        updateNextReview(deck)
+                    }
+                }.join()
+                transitionTo(CardState.Finished)
                 clearErrorState()
                 true
             } catch (e: Exception) {
-                val error = when (e) {
-                    is IOException -> CardUpdateError.NetworkError(e)
-                    is SQLiteException -> CardUpdateError.DatabaseError(e)
-                    is TimeoutCancellationException -> CardUpdateError.TimeoutError(e)
-                    else -> CardUpdateError.UnknownError(e)
-                }
-                thisErrorState.value = error
-                thisErrorState.value?.let {
-                    cardUE -> callError(cardUE)
+                thisErrorState.value = returnError(e)
+                thisErrorState.value?.let { cardUE ->
+                    callError(cardUE)
                 }
                 false
             }
         }.also {
-            viewModelScope.launch {
-                cardListToUpdateUiState.update {
-                    emptyList()
-                }
+            cardListToUpdateUiState.update {
+                emptyList()
             }
-            /** Making sure the deck does not have any due cards left
-             *  and it's still due for review */
-            if (deck.cardsLeft <= 0 && deck.nextReview <= Date()){
-                viewModelScope.launch(Dispatchers.IO){
-                    updateNextReview(deck)
-                }
-            }
-            transitionTo(CardState.Finished)
+
         }
     }
 
-    suspend fun getBackupDueCards(id : Int) : Boolean {
+    suspend fun getBackupDueCards(id: Int): Boolean {
         return withContext(Dispatchers.IO) {
             try {
                 getBackupCards(flashCardRepository.getDeck(id))
                 clearErrorState()
                 false
             } catch (e: Exception) {
-                val error = when (e) {
-                    is IOException -> CardUpdateError.NetworkError(e)
-                    is SQLiteConstraintException -> CardUpdateError.ConstraintError(e)
-                    is SQLiteException -> CardUpdateError.DatabaseError(e)
-                    is TimeoutCancellationException -> CardUpdateError.TimeoutError(e)
-                    else -> CardUpdateError.UnknownError(e)
-                }
-                thisErrorState.value = error
-                thisErrorState.value?.let {
-                        cardUE -> callError(cardUE)
+                thisErrorState.value = returnError(e)
+                thisErrorState.value?.let { cardUE ->
+                    callError(cardUE)
                 }
                 true
             } finally {
@@ -313,4 +285,23 @@ class CardDeckViewModel(
             }
         }
     }
+
+    /** CardDeckView UI Variables */
+    private val privateClicked: MutableStateFlow<Boolean?> =
+        MutableStateFlow(savedStateHandle["clickedChoice"])
+    val redoClicked = privateClicked.map {
+        it == true
+    }.stateIn(
+        scope = viewModelScope,
+        initialValue = false,
+        started = SharingStarted.Eagerly
+    )
+
+    fun updateRedoClicked(clicked: Boolean) {
+        privateClicked.update {
+            clicked
+        }
+        savedStateHandle["clickedChoice"] = clicked
+    }
+
 }

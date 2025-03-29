@@ -27,6 +27,7 @@ suspend fun tryExportDeck(
                 }
             }
             .decodeSingleOrNull<SBDeckUUID>()
+
         if (response?.deckUUID == deck.uuid) {
             Log.d("SupabaseVM", "Deck already Exists!")
             return@withContext DECK_EXISTS

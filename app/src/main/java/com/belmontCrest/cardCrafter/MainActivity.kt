@@ -4,23 +4,17 @@ package com.belmontCrest.cardCrafter
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.coroutineScope
 import androidx.navigation.compose.rememberNavController
 import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
 import com.belmontCrest.cardCrafter.controller.navigation.AppNavHost
@@ -30,13 +24,9 @@ import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
-import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.annotations.SupabaseInternal
-import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.realtime.realtime
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import java.net.SocketException
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(SupabaseInternal::class)
@@ -50,7 +40,6 @@ class MainActivity : ComponentActivity() {
     private val supabaseVM: SupabaseViewModel by viewModels {
         AppViewModelProvider.Factory
     }
-    private lateinit var supabase: SupabaseClient
     private lateinit var preferences: PreferencesManager
     private lateinit var fields: Fields
 
@@ -103,94 +92,17 @@ class MainActivity : ComponentActivity() {
                 darkTheme = preferences.darkTheme.value,
                 dynamicColor = preferences.customScheme.value
             ) {
-                /*val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-                ModalNavigationDrawer(
-                    drawerState = drawerState,
-                    drawerContent = {
-                        ModalDrawerSheet(
-                            modifier = Modifier
-                                .fillMaxWidth(0.4f)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        fields.mainClicked.value = false
-                                        navController.navigate(DeckListDestination.route)
-                                    }
-                                    .padding(top = 15.dp, bottom = 6.dp, start = 6.dp, end = 6.dp)
-                            )
-                            {
-                                Text(
-                                    "Home"
-                                )
-                                Icon(
-                                    imageVector = Icons.Filled.Home,
-                                    modifier = Modifier
-                                        .size(24.dp),
-                                    contentDescription = "Home",
-                                    tint = getUIStyle.iconColor()
-                                )
-                            }
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        navController.navigate(SettingsDestination.route)
-                                    }
-                                    .padding(6.dp)
-                            )
-                            {
-                                Text(
-                                    "Settings"
-                                )
-                                Icon(
-                                    imageVector = Icons.Filled.Settings,
-                                    modifier = Modifier
-                                        .size(24.dp),
-                                    contentDescription = "Main Settings",
-                                    tint = getUIStyle.iconColor()
-                                )
-                            }
-                        }
-                    },
-                ) {*/
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    /* topBar = {
-                         TopAppBar(
-                             colors = TopAppBarDefaults.topAppBarColors(
-                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                 titleContentColor = MaterialTheme.colorScheme.primary,
-                             ),
-                             title = {},
-                             navigationIcon = {
-                                 IconButton(
-                                     onClick = {
-                                         coroutineScope.launch {
-                                             drawerState.open()
-                                         }
-                                     }) {
-                                     Icon(
-                                         imageVector = Icons.Filled.Menu,
-                                         contentDescription = "Localized description"
-                                     )
-                                 }
-                             }
-                         )
-                     }*/
-                ) { innerPadding ->
-                    AppNavHost(
-                        navController = navController,
-                        mainViewModel = mainViewModel,
-                        editingCardListVM = editingCardListViewModel,
-                        preferences = preferences,
-                        fields = fields,
-                        supabase = supabase.value,
-                        supabaseVM = supabaseVM,
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+
+                AppNavHost(
+                    navController = navController,
+                    mainViewModel = mainViewModel,
+                    editingCardListVM = editingCardListViewModel,
+                    preferences = preferences,
+                    fields = fields,
+                    supabase = supabase.value,
+                    supabaseVM = supabaseVM
+                )
+
 
             }
         }
@@ -198,27 +110,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        lifecycle.coroutineScope.launch {
-            if (::supabase.isInitialized) {
-                try {
-                    if (supabase.realtime.status.value != Realtime.Status.CONNECTED) {
-                        supabase.realtime.connect()
-                    }
-
-                } catch (e: SocketException) {
-                    Log.d("Socket Issue", "SocketException: $e")
-                }
-            }
-        }
     }
 
     override fun onStop() {
         super.onStop()
         if (::preferences.isInitialized) {
             preferences.savePreferences()
-        }
-        if (::supabase.isInitialized) {
-            supabase.realtime.disconnect()
         }
     }
 

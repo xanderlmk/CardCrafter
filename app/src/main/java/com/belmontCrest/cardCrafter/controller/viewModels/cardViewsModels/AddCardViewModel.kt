@@ -17,6 +17,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import java.util.Date
 
 class AddCardViewModel(
@@ -26,21 +28,13 @@ class AddCardViewModel(
 ) : ViewModel() {
     private val privateErrorMessage: MutableStateFlow<String> = MutableStateFlow("")
     val errorMessage = privateErrorMessage.asStateFlow()
+    companion object {
+        private const val TIMEOUT_MILLIS = 4_000L
+    }
     fun addBasicCard(deck: Deck, question: String, answer: String) {
         if (question.isNotBlank() && answer.isNotBlank()) {
-            viewModelScope.launch {
-                val cardId = flashCardRepository.insertCard(
-                    Card(
-                        deckId = deck.id,
-                        nextReview = Date(),
-                        passes = 0,
-                        prevSuccess = false,
-                        totalPasses = 0,
-                        type = "basic",
-                        deckUUID = deck.uuid,
-                        reviewsLeft = deck.reviewAmount
-                    )
-                )
+            viewModelScope.launch(Dispatchers.IO) {
+                val cardId = createCard("basic", deck)
                 cardTypeRepository.insertBasicCard(
                     BasicCard(
                         cardId = cardId.toInt(),
@@ -59,19 +53,8 @@ class AddCardViewModel(
         if (question.isNotBlank() && answer.isNotBlank()
             && hint.isNotBlank()
         ) {
-            viewModelScope.launch {
-                val cardId = flashCardRepository.insertCard(
-                    Card(
-                        deckId = deck.id,
-                        nextReview = Date(),
-                        passes = 0,
-                        prevSuccess = false,
-                        totalPasses = 0,
-                        type = "hint",
-                        deckUUID = deck.uuid,
-                        reviewsLeft = deck.reviewAmount
-                    )
-                )
+            viewModelScope.launch(Dispatchers.IO) {
+                val cardId = createCard("hint", deck)
                 cardTypeRepository.insertHintCard(
                     HintCard(
                         cardId = cardId.toInt(),
@@ -91,19 +74,8 @@ class AddCardViewModel(
         if (question.isNotBlank() && answer.isNotBlank()
             && middle.isNotBlank()
         ) {
-            viewModelScope.launch {
-                val cardId = flashCardRepository.insertCard(
-                    Card(
-                        deckId = deck.id,
-                        nextReview = Date(),
-                        passes = 0,
-                        prevSuccess = false,
-                        totalPasses = 0,
-                        type = "three",
-                        deckUUID = deck.uuid,
-                        reviewsLeft = deck.reviewAmount
-                    )
-                )
+            viewModelScope.launch(Dispatchers.IO) {
+                val cardId = createCard("three", deck)
                 cardTypeRepository.insertThreeCard(
                     ThreeFieldCard(
                         cardId = cardId.toInt(),
@@ -128,19 +100,8 @@ class AddCardViewModel(
         if (question.isNotBlank() && choiceA.isNotBlank() &&
             choiceB.isNotBlank() && correct in 'a'..'d'
         ) {
-            viewModelScope.launch {
-                val cardId = flashCardRepository.insertCard(
-                    Card(
-                        deckId = deck.id,
-                        nextReview = Date(),
-                        passes = 0,
-                        prevSuccess = false,
-                        totalPasses = 0,
-                        type = "multi",
-                        deckUUID = deck.uuid,
-                        reviewsLeft = deck.reviewAmount
-                    )
-                )
+            viewModelScope.launch(Dispatchers.IO) {
+                val cardId = createCard("multi", deck)
                 cardTypeRepository.insertMultiChoiceCard(
                     MultiChoiceCard(
                         cardId = cardId.toInt(),
@@ -165,18 +126,7 @@ class AddCardViewModel(
         if (question.isNotBlank() &&
             steps.all { it.isNotBlank() } && answer.isNotBlank()) {
             viewModelScope.launch(Dispatchers.IO) {
-                val cardId = flashCardRepository.insertCard(
-                    Card(
-                        deckId = deck.id,
-                        nextReview = Date(),
-                        passes = 0,
-                        prevSuccess = false,
-                        totalPasses = 0,
-                        type = "notation",
-                        deckUUID = deck.uuid,
-                        reviewsLeft = deck.reviewAmount
-                    )
-                )
+                val cardId = createCard("notation", deck)
                 scienceSpecificRepository.insertNotationCard(
                     NotationCard(
                         cardId = cardId.toInt(),
@@ -189,6 +139,51 @@ class AddCardViewModel(
         }
     }
 
+
+    suspend fun createCard(type: String, deck: Deck) : Long {
+        val currentMax = flashCardRepository.getMaxDCNumber(deck.uuid) ?: 0
+        val newDeckCardNumber = currentMax + 1
+        return flashCardRepository.insertCard(
+            Card(
+                deckId = deck.id,
+                nextReview = Date(),
+                passes = 0,
+                prevSuccess = false,
+                totalPasses = 0,
+                type = type,
+                deckUUID = deck.uuid,
+                deckCardNumber = newDeckCardNumber,
+                cardIdentifier = "${deck.uuid}-$newDeckCardNumber",
+                reviewsLeft = deck.reviewAmount
+            )
+        ).also {
+            updateCardsLeft(deck)
+        }
+    }
+
+
+    suspend fun updateCardsLeft(deck: Deck, cardsToAdd: Int = 1) {
+        return withContext(Dispatchers.IO) {
+            /** Only add the cards if the deck's review is due */
+            if (deck.nextReview <= Date()) {
+                /** Make sure the cardsLeft + cardsAdded don't
+                 * exceed the deck's cardAmount
+                 */
+                viewModelScope.launch(Dispatchers.IO) {
+                    withTimeout(TIMEOUT_MILLIS) {
+                        if ((deck.cardsLeft + cardsToAdd) < deck.cardAmount) {
+                            flashCardRepository.updateCardsLeft(
+                                deck.id,
+                                (deck.cardsLeft + cardsToAdd)
+                            )
+                        } else {
+                            flashCardRepository.updateCardsLeft(deck.id, deck.cardAmount)
+                        }
+                    }
+                }
+            }
+        }
+    }
     fun setErrorMessage(message: String) {
         privateErrorMessage.value = message
     }

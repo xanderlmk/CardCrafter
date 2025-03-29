@@ -1,5 +1,7 @@
 package com.belmontCrest.cardCrafter.views.deckViews
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -7,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,27 +36,21 @@ import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.DeckViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.views.miscFunctions.AddCardButton
-import com.belmontCrest.cardCrafter.views.miscFunctions.BackButton
-import com.belmontCrest.cardCrafter.views.miscFunctions.SettingsButton
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.addButtonModifier
-import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.ui.theme.settingsButtonModifier
 
 
 class DeckView(
     private var fields: Fields,
     private var getUIStyle: GetUIStyle,
 ) {
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     fun ViewEditDeck(
         deck: Deck,
-        onNavigate: () -> Unit,
         goToAddCard: (Int) -> Unit,
         goToDueCards: (Int) -> Unit,
-        goToEditDeck: (Int, String) -> Unit,
-        goToViewCards: (Int) -> Unit
     ) {
         val deckVM: DeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
         var pressed = rememberSaveable { mutableStateOf(false) }
@@ -62,96 +59,63 @@ class DeckView(
                 .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
             ResetDeckDueDate(pressed, deckVM, deck.id, deck.cardAmount)
-            BackButton(
-                onBackClick = { onNavigate() },
-                modifier = Modifier
-                    .backButtonModifier(),
-                getUIStyle = getUIStyle
-            )
-            SettingsButton(
-                onNavigateToEditDeck = {
-                    if (!fields.inDeckClicked.value) {
-                        fields.inDeckClicked.value = true
-                        goToEditDeck(deck.id, deck.name)
-                    }
-                },
-                onNavigateToEditCards = {
-                    if (!fields.inDeckClicked.value) {
-                        fields.inDeckClicked.value = true
-                        goToViewCards(deck.id)
-                    }
-                },
-                modifier = Modifier
-                    .settingsButtonModifier()
-                    .align(Alignment.TopEnd),
-                getUIStyle = getUIStyle,
-                fields = fields
-            )
             Column(
+                modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                Text(
+                    text = deck.name,
+                    lineHeight = 42.sp,
+                    fontSize = 38.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = getUIStyle.titleColor(),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                )
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp),
-                    horizontalArrangement = Arrangement.Center
+                        .weight(1f)
+                        .fillMaxSize()
+                        .padding(start = 20.dp, end = 20.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.Top
                 ) {
-                    Text(
-                        text = deck.name,
-                        lineHeight = 42.sp,
-                        fontSize = 38.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = getUIStyle.titleColor(),
-                        textAlign = TextAlign.Center,
+                    Box(
+                        contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .padding(top = 50.dp)
-                    )
-                }
-                Column(
-                    modifier = Modifier
-                        .weight(2f)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 48.dp, start = 20.dp, end = 20.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .fillMaxWidth(0.55f)
-                                .fillMaxHeight(.125f)
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onTap = {
-                                            if (!fields.inDeckClicked.value) {
-                                                fields.inDeckClicked.value = true
-                                                goToDueCards(deck.id)
-                                            }
-                                        },
-                                        onLongPress = {
-                                            pressed.value = true
+                            .fillMaxWidth(0.55f)
+                            .fillMaxHeight(.15f)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onTap = {
+                                        if (!fields.inDeckClicked.value) {
+                                            fields.inDeckClicked.value = true
+                                            goToDueCards(deck.id)
                                         }
-                                    )
-                                }
-                                .background(
-                                    color = getUIStyle.secondaryButtonColor(),
-                                    shape = RoundedCornerShape(24.dp)
-                                ),
-                        ) {
-                            Text(
-                                text = stringResource(R.string.start_deck),
-                                color = getUIStyle.buttonTextColor(),
-                                modifier = Modifier
-                                    .align(Alignment.Center),
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 0.5.sp
-                            )
-                        }
+                                    },
+                                    onLongPress = {
+                                        pressed.value = true
+                                    }
+                                )
+                            }
+                            .background(
+                                color = getUIStyle.secondaryButtonColor(),
+                                shape = RoundedCornerShape(24.dp)
+                            ),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.start_deck),
+                            color = getUIStyle.buttonTextColor(),
+                            modifier = Modifier
+                                .align(Alignment.Center),
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.5.sp
+                        )
                     }
                 }
                 Column(
