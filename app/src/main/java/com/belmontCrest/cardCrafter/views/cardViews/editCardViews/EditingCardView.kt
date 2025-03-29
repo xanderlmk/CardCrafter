@@ -1,10 +1,11 @@
 package com.belmontCrest.cardCrafter.views.cardViews.editCardViews
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -47,6 +48,7 @@ class EditingCardView(
     private var editingCardListVM: EditingCardListViewModel,
     private var getUIStyle: GetUIStyle
 ) {
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     fun EditFlashCardView(
         card: Card,
@@ -57,6 +59,7 @@ class EditingCardView(
     ) {
         val editCardVM: EditCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val fillOutfields = stringResource(R.string.fill_out_all_fields).toString()
+        val errorMessage by editCardVM.errorMessage.collectAsStateWithLifecycle()
         val coroutineScope = rememberCoroutineScope()
         val cardTypeChanged = rememberSaveable { mutableStateOf(false) }
         val expanded = rememberSaveable { mutableStateOf(false) }
@@ -107,20 +110,10 @@ class EditingCardView(
                         changed = cardTypeChanged.value,
                         getUIStyle = getUIStyle
                     )
-                    if (sealedAllCTs.errorMessage.isNotEmpty()) {
-                        Text(
-                            text = sealedAllCTs.errorMessage,
-                            color = Color.Red,
-                            modifier = Modifier.fillMaxWidth(),
-                            fontSize = 16.sp,
-                            textAlign = TextAlign.Center
-                        )
-                    } else {
-                        Spacer(modifier = Modifier.padding(12.dp))
-                    }
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Button(
@@ -144,9 +137,10 @@ class EditingCardView(
                                             sealedAllCTs.allCTs[index]
                                         )
                                         if (success) {
+                                            editCardVM.clearErrorMessage()
                                             onNavigateBack()
                                         } else {
-                                            editingCardListVM.setErrorMessage(fillOutfields)
+                                            editCardVM.setErrorMessage(fillOutfields)
                                         }
                                     } else {
                                         val success = updateCardType(
@@ -155,9 +149,10 @@ class EditingCardView(
                                             newType.value
                                         )
                                         if (success) {
+                                            editCardVM.clearErrorMessage()
                                             onNavigateBack()
                                         } else {
-                                            editingCardListVM.setErrorMessage(fillOutfields)
+                                            editCardVM.setErrorMessage(fillOutfields)
                                         }
                                     }
                                 }
@@ -171,6 +166,15 @@ class EditingCardView(
                         ) {
                             Text(stringResource(R.string.save))
                         }
+                    }
+                    if (errorMessage.isNotEmpty()) {
+                        Text(
+                            text = errorMessage,
+                            color = Color.Red,
+                            modifier = Modifier.fillMaxWidth(),
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }

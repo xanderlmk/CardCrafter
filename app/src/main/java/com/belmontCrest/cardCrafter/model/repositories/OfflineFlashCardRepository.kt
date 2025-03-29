@@ -110,6 +110,8 @@ class OfflineFlashCardRepository(
         }
     override suspend fun insertCard(card: Card) = cardDao.insertCard(card)
 
+    override suspend fun getMaxDCNumber(deckUUID: String) = cardDao.getMaxDCNumber(deckUUID)
+
     override suspend fun updateCard(card: Card) = cardDao.updateCard(card)
 
     override suspend fun deleteCard(card: Card) = cardDao.deleteCard(card)

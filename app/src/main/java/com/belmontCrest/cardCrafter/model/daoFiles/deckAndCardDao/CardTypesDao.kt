@@ -13,11 +13,21 @@ interface CardTypesDao {
     @Query(
         """SELECT * FROM cards WHERE deckId = :deckId 
         AND nextReview <= :currentTime 
-        ORDER BY partOfList DESC, nextReview ASC
+        ORDER BY nextReview ASC, partOfList DESC, reviewsLeft DESC
         LIMIT :cardAmount"""
     )
-    fun getDueAllCardTypes(deckId: Int, cardAmount: Int, currentTime: Long = Date().time):
+    fun getDueAllCardTypesFlow(deckId: Int, cardAmount: Int, currentTime: Long):
             Flow<List<AllCardTypes>>
+
+    @Transaction
+    @Query(
+        """SELECT * FROM cards WHERE deckId = :deckId 
+        AND nextReview <= :currentTime AND reviewsLeft >= 1
+        ORDER BY nextReview ASC, partOfList DESC, reviewsLeft DESC
+        LIMIT :cardAmount"""
+    )
+    fun getDueAllCardTypes(deckId: Int, cardAmount: Int, currentTime: Long):
+            List<AllCardTypes>
 
     @Transaction
     @Query(
@@ -25,6 +35,8 @@ interface CardTypesDao {
         ORDER BY cards.id"""
     )
     fun getAllCardTypes(deckId: Int): Flow<List<AllCardTypes>>
+
+
 
     @Transaction
     @Query("""SELECT * FROM cards where id = :id""")

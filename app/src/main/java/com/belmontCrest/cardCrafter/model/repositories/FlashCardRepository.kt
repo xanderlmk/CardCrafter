@@ -49,6 +49,8 @@ interface FlashCardRepository {
 
     suspend fun insertCard(card: Card) : Long
 
+    suspend fun getMaxDCNumber(deckUUID: String): Int?
+
     suspend fun updateCard(card: Card)
 
     suspend fun deleteCard(card: Card)
@@ -85,5 +87,5 @@ interface FlashCardRepository {
 
     fun updateCardsLeft(deckId: Int, cardsLeft : Int)
 
-    fun getDueDeckDetails(id: Int): Flow<DueDeckDetails>
+    fun getDueDeckDetails(id: Int): Flow<DueDeckDetails?>
 }

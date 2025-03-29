@@ -15,6 +15,9 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class EditCardViewModel(
@@ -24,6 +27,9 @@ class EditCardViewModel(
 ) : ViewModel() {
 
     private val listStringConverter = ListStringConverter()
+    private val privateErrMessage = MutableStateFlow("")
+    val errorMessage = privateErrMessage.asStateFlow()
+
     fun deleteCard(card: Card) {
         viewModelScope.launch {
             flashCardRepository.deleteCard(card)
@@ -157,6 +163,12 @@ class EditCardViewModel(
                 }
             }
         }.join()
+    }
+    fun setErrorMessage(message : String){
+            privateErrMessage.update { message }
+    }
+    fun clearErrorMessage() {
+        privateErrMessage.update { "" }
     }
 }
 

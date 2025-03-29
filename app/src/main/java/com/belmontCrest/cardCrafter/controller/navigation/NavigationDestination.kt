@@ -46,6 +46,10 @@ object DeckViewDestination : NavigationDestination {
         fun createRoute(deckId: Int): String {
                 return "DeckView/$deckId"
         }
+        var name = ""
+        fun updateName(deckName: String){
+                name = deckName
+        }
 }
 @Serializable
 object AddCardDestination : NavigationDestination{

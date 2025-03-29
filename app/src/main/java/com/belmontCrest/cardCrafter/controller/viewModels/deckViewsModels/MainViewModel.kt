@@ -39,9 +39,11 @@ class MainViewModel(
     /** Updating this value whenever a user adds a cards and goes back to the
      * DeckOptionsDestination route */
     private val currentTime = MutableStateFlow(Date().time)
+
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
+
     private val uiState: StateFlow<DeckUiState> =
         flashCardRepository.getAllDecksStream().map { DeckUiState(it) }
             .stateIn(
@@ -53,14 +55,15 @@ class MainViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     private val thisCardCountUiState: StateFlow<CardListUiCount> = currentTime
         .flatMapLatest {
-        flashCardRepository.getCardCount(it)
+            flashCardRepository.getCardCount(it)
         }.map {
-            CardListUiCount(it) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = CardListUiCount()
-            )
+            CardListUiCount(it)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+            initialValue = CardListUiCount()
+        )
 
     val deckUiState: StateFlow<DeckUiState> = uiState
     val cardCountUiState: StateFlow<CardListUiCount> = thisCardCountUiState
@@ -73,7 +76,8 @@ class MainViewModel(
         appStarted.value = true
         savedStateHandle["appStarted"] = true
     }
-    fun updateCurrentTime(){
+
+    fun updateCurrentTime() {
         currentTime.update {
             Date().time
         }

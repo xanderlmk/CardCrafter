@@ -39,11 +39,14 @@ suspend fun downloadCards(
                             eq("cardId", card.id)
                         }
                     }.decodeSingle<BasicCard>()
-
+                val currentMax = flashCardRepository.getMaxDCNumber(deckUUID) ?: 0
+                val newDeckCardNumber = currentMax + 1
                 val cardId = flashCardRepository.insertCard(
                     Card(
                         deckId = deckId,
                         deckUUID = deckUUID,
+                        deckCardNumber = newDeckCardNumber,
+                        cardIdentifier = "$deckUUID-$newDeckCardNumber",
                         nextReview = Date(),
                         reviewsLeft = preferences.reviewAmount.intValue,
                         passes = 0,
@@ -75,11 +78,14 @@ suspend fun downloadCards(
                             eq("cardId", card.id)
                         }
                     }.decodeSingle<ThreeFieldCard>()
-
+                val currentMax = flashCardRepository.getMaxDCNumber(deckUUID) ?: 0
+                val newDeckCardNumber = currentMax + 1
                 val cardId = flashCardRepository.insertCard(
                     Card(
                         deckId = deckId.toInt(),
                         deckUUID = deckUUID,
+                        deckCardNumber = newDeckCardNumber,
+                        cardIdentifier = "$deckUUID-$newDeckCardNumber",
                         nextReview = Date(),
                         reviewsLeft = preferences.reviewAmount.intValue,
                         passes = 0,
@@ -111,11 +117,14 @@ suspend fun downloadCards(
                             eq("cardId", card.id)
                         }
                     }.decodeSingle<HintCard>()
-
+                val currentMax = flashCardRepository.getMaxDCNumber(deckUUID) ?: 0
+                val newDeckCardNumber = currentMax + 1
                 val cardId = flashCardRepository.insertCard(
                     Card(
                         deckId = deckId,
                         deckUUID = deckUUID,
+                        deckCardNumber = newDeckCardNumber,
+                        cardIdentifier = "$deckUUID-$newDeckCardNumber",
                         nextReview = Date(),
                         reviewsLeft = preferences.reviewAmount.intValue,
                         passes = 0,
@@ -149,11 +158,14 @@ suspend fun downloadCards(
                             eq("cardId", card.id)
                         }
                     }.decodeSingle<SBMultiCard>()
-
+                val currentMax = flashCardRepository.getMaxDCNumber(deckUUID) ?: 0
+                val newDeckCardNumber = currentMax + 1
                 val cardId = flashCardRepository.insertCard(
                     Card(
                         deckId = deckId,
                         deckUUID = deckUUID,
+                        deckCardNumber = newDeckCardNumber,
+                        cardIdentifier = "$deckUUID-$newDeckCardNumber",
                         nextReview = Date(),
                         reviewsLeft = preferences.reviewAmount.intValue,
                         passes = 0,
@@ -198,11 +210,14 @@ suspend fun downloadCards(
                             eq("cardId", card.id)
                         }
                     }.decodeSingle<SBNotationCard>()
-
+                val currentMax = flashCardRepository.getMaxDCNumber(deckUUID) ?: 0
+                val newDeckCardNumber = currentMax + 1
                 val cardId = flashCardRepository.insertCard(
                     Card(
                         deckId = deckId,
                         deckUUID = deckUUID,
+                        deckCardNumber = newDeckCardNumber,
+                        cardIdentifier = "$deckUUID-$newDeckCardNumber",
                         nextReview = Date(),
                         reviewsLeft = preferences.reviewAmount.intValue,
                         passes = 0,

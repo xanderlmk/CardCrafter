@@ -1,42 +1,52 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
-import com.belmontCrest.cardCrafter.model.uiModels.CardListUiState
 import com.belmontCrest.cardCrafter.model.repositories.CardTypeRepository
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.AllCardTypes
 import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class EditingCardListViewModel(
-    private val cardTypeRepository: CardTypeRepository
+    private val cardTypeRepository: CardTypeRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val sealedUiState = MutableStateFlow(SealedAllCTs())
-    var sealedAllCTs = sealedUiState.asStateFlow()
-
-    suspend fun getAllCardsForDeck(
-        deckId: Int,
-    ) {
-        return withContext(Dispatchers.IO) {
-            viewModelScope.launch {
-                cardTypeRepository.getAllCardTypes(deckId).map { allCards ->
-                    CardListUiState(allCards = allCards)
-                }.collect { state ->
-                    sealedUiState.update {
-                        updateSealedUiState(state.allCards)
-                    }
-                }
-                clearErrorMessage()
+    companion object {
+        private const val TIMEOUT_MILLIS = 4_000L
+    }
+    private val deckId = MutableStateFlow(savedStateHandle["deckId"] ?: 0)
+    private val sealedUiState = deckId.flatMapLatest { id ->
+        if (id == 0) {
+            flowOf(SealedAllCTs())
+        } else {
+            cardTypeRepository.getAllCardTypes(id).map {
+                updateSealedUiState(it)
             }
         }
+    }.stateIn(
+        scope = viewModelScope,
+        initialValue = SealedAllCTs(),
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS)
+    )
+    var sealedAllCTs = sealedUiState
+
+    fun updateId(
+        id: Int,
+    ) {
+        savedStateHandle["deckId"] = id
+        deckId.update { id }
     }
 
     private fun updateSealedUiState(
@@ -54,14 +64,6 @@ class EditingCardListViewModel(
         return SealedAllCTs(
             allCTs = allCTs.toMutableList()
         )
-    }
-
-    fun setErrorMessage(message: String) {
-        sealedUiState.value = sealedUiState.value.copy(errorMessage = message)
-    }
-
-    private fun clearErrorMessage() {
-       sealedUiState.value = sealedUiState.value.copy(errorMessage = "")
     }
 }
 

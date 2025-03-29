@@ -17,17 +17,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -51,15 +48,15 @@ fun AgainText(getUIStyle: GetUIStyle) {
 @Composable
 fun HardText(
     updatedDueCards : SealedDueCTs,
-    index: MutableIntState, hard: Int,
+    index: Int, hard: Int,
     getUIStyle: GetUIStyle
 ) {
     Text(
         text =
-        if (returnReviewsLeft(updatedDueCards.allCTs[index.intValue]) == 1) {
+        if (returnReviewsLeft(updatedDueCards.allCTs[index]) == 1) {
             "$hard " + stringResource(R.string.days)
         } else {
-            "${returnReviewsLeft(updatedDueCards.allCTs[index.intValue])} " + "reviews left"
+            "${returnReviewsLeft(updatedDueCards.allCTs[index])} " + "reviews left"
         },
         color = getUIStyle.titleColor(),
         fontSize = 12.sp,
@@ -70,16 +67,16 @@ fun HardText(
 @Composable
 fun GoodText(
     updatedDueCards: SealedDueCTs,
-    index: MutableIntState, good: Int,
+    index: Int, good: Int,
     getUIStyle: GetUIStyle
 ) {
     Text(
         text =
-        if (returnReviewsLeft(updatedDueCards.allCTs[index.intValue]) == 1) {
+        if (returnReviewsLeft(updatedDueCards.allCTs[index]) == 1) {
             "$good " + stringResource(R.string.days)
         } else {
             "${
-                returnReviewsLeft(updatedDueCards.allCTs[index.intValue]) - 1
+                returnReviewsLeft(updatedDueCards.allCTs[index]) - 1
             } " + "reviews left"
         },
         color = getUIStyle.titleColor(),
@@ -109,36 +106,6 @@ fun NoDueCards(getUIStyle: GetUIStyle) {
                 style = MaterialTheme.typography.titleLarge
             )
         }
-    }
-}
-
-@Composable
-fun ShowBackButtonAndDeckName(
-    onNavigate: () -> Unit,
-    deck: Deck,
-    modifier: Modifier,
-    getUIStyle: GetUIStyle
-) {
-    Row {
-        BackButton(
-            onBackClick = {
-                onNavigate()
-            },
-            modifier = modifier
-                .fillMaxSize(),
-            getUIStyle = getUIStyle
-        )
-        Text(
-            text = stringResource(R.string.deck) + ": ${deck.name}",
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
-            lineHeight = 35.sp,
-            modifier = Modifier
-                .padding(top = 16.dp, start = 8.dp, end = 8.dp)
-                .fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            color = getUIStyle.buttonTextColor()
-        )
     }
 }
 
@@ -275,7 +242,6 @@ fun getSavableFields(fields: Fields): Fields {
         inDeckClicked = fields.inDeckClicked,
         mainClicked = fields.mainClicked,
         leftDueCardView = fields.leftDueCardView,
-        cardsAdded = fields.cardsAdded
     )
 }
 

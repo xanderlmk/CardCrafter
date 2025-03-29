@@ -1,5 +1,7 @@
 package com.belmontCrest.cardCrafter.views.cardViews.addCardViews
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,6 +48,7 @@ class AddCardView(
     private var fields: Fields,
     private var getUIStyle: GetUIStyle
 ) {
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     fun AddCard(deck: Deck, onNavigate: () -> Unit) {
         var expanded by rememberSaveable { mutableStateOf(false) }

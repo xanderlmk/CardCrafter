@@ -33,9 +33,7 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.model.SBDecks
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.views.miscFunctions.BackButton
 import com.belmontCrest.cardCrafter.views.miscFunctions.ExportDeckButton
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.auth
@@ -68,22 +66,12 @@ class OnlineDatabase(
                 LocalDecks(
                     pressed, localDeckList, getUIStyle,
                     supabaseVM, onExportDeck)
-                BackButton(
-                    onBackClick = {
-                        onNavigate()
-                    },
-                    modifier = Modifier
-                        .backButtonModifier()
-                        .align(Alignment.TopStart),
-                    getUIStyle = getUIStyle
-                )
                 LazyColumn(
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 8.dp
                     ),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(top = 45.dp)
                 ) {
                     items(deckList.list) { deck ->
                         DeckView(deck, onImportDeck)

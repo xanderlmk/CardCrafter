@@ -3,7 +3,6 @@ package com.belmontCrest.cardCrafter.views.cardViews.addCardViews
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -129,38 +128,6 @@ fun AddThreeCard(
             )
         }
 
-        if (errorMessage.isNotEmpty()) {
-            Text(
-                text = errorMessage,
-                color = Color.Red,
-                modifier = Modifier.padding(4.dp),
-                fontSize = 16.sp
-            )
-        } else {
-            Spacer(modifier = Modifier.padding(16.dp))
-        }
-        if (successMessage.isNotEmpty()) {
-            Text(
-                text = successMessage,
-                color = getUIStyle.titleColor(),
-                modifier = Modifier.padding(4.dp),
-                fontSize = 16.sp
-            )
-        } else {
-            Spacer(modifier = Modifier.padding(16.dp))
-        }
-        LaunchedEffect(successMessage) {
-            delay(1500)
-            successMessage = ""
-            coroutineScope.launch {
-                scrollState.animateScrollTo(0)
-            }
-        }
-        LaunchedEffect(errorMessage) {
-            delay(1500)
-            vm.clearErrorMessage()
-        }
-
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -175,15 +142,16 @@ fun AddThreeCard(
                         vm.setErrorMessage(fillOutFields)
                         successMessage = ""
                     } else {
-                        vm.addThreeCard(
-                            deck, fields.question.value,
-                            fields.middleField.value, fields.answer.value
-                        )
-                        fields.question.value = ""
-                        fields.middleField.value = ""
-                        fields.answer.value = ""
-                        successMessage = cardAdded
-                        fields.cardsAdded.value += 1
+                        coroutineScope.launch {
+                            vm.addThreeCard(
+                                deck, fields.question.value,
+                                fields.middleField.value, fields.answer.value
+                            )
+                            fields.question.value = ""
+                            fields.middleField.value = ""
+                            fields.answer.value = ""
+                            successMessage = cardAdded
+                        }
                     }
                 },
                 modifier = Modifier.padding(top = 4.dp),
@@ -194,6 +162,33 @@ fun AddThreeCard(
             ) {
                 Text(stringResource(R.string.submit))
             }
+        }
+        if (errorMessage.isNotEmpty()) {
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                modifier = Modifier.padding(4.dp),
+                fontSize = 16.sp
+            )
+        }
+        if (successMessage.isNotEmpty()) {
+            Text(
+                text = successMessage,
+                color = getUIStyle.titleColor(),
+                modifier = Modifier.padding(4.dp),
+                fontSize = 16.sp
+            )
+        }
+        LaunchedEffect(successMessage) {
+            delay(1500)
+            successMessage = ""
+            coroutineScope.launch {
+                scrollState.animateScrollTo(0)
+            }
+        }
+        LaunchedEffect(errorMessage) {
+            delay(1500)
+            vm.clearErrorMessage()
         }
     }
 }

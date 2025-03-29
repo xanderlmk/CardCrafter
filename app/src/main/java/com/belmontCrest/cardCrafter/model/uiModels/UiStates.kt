@@ -2,7 +2,6 @@ package com.belmontCrest.cardCrafter.model.uiModels
 
 
 import android.os.Parcelable
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.AllCardTypes
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.SavedCard
@@ -16,14 +15,8 @@ data class DeckUiState(
 data class CardListUiCount(
     val cardListCount: List<Int> = listOf()
 )
-/** EditingListViewModel States */
-data class CardListUiState(
-    var allCards: List<AllCardTypes> = emptyList(),
-    var errorMessage: String = ""
-)
 data class SealedAllCTs(
-    var allCTs: MutableList<CT> = mutableListOf(),
-    var errorMessage: String = ""
+    var allCTs: MutableList<CT> = mutableListOf()
 )
  /** DueCards States */
 data class DueDeckDetails(
@@ -31,10 +24,11 @@ data class DueDeckDetails(
     var cardsLeft: Int = 0,
     val nextReview : Date = Date()
 )
+@Parcelize
 data class SealedDueCTs(
     var allCTs: MutableList<CT> = mutableListOf(),
-    var savedCTs: MutableList<CT> = mutableListOf(),
-)
+    var savedCTs: MutableList<CT> = mutableListOf()
+) : Parcelable
 data class SavedCardUiState(
     var savedCards: List<SavedCard> = emptyList()
 )

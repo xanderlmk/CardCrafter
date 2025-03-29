@@ -14,8 +14,9 @@ import java.util.Date
 
 
 data class DeckId(
-    val id : Int
+    val id: Int
 )
+
 @Dao
 interface DeckDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
@@ -28,7 +29,7 @@ interface DeckDao {
     suspend fun deleteDeck(deck: Deck)
 
     @Delete(entity = Deck::class)
-    suspend fun deleteDeckById(vararg id : DeckId)
+    suspend fun deleteDeckById(vararg id: DeckId)
 
     @Query("SELECT * from decks WHERE id = :id")
     fun getDeckFlow(id: Int): Flow<Deck>
@@ -121,17 +122,21 @@ interface DeckDao {
     @Query("SELECT COUNT(*) FROM decks WHERE LOWER(name) = LOWER(:deckName)")
     fun checkIfDeckExists(deckName: String): Int
 
-    @Query("""
+    @Query(
+        """
         SELECT COUNT(*) 
         FROM decks WHERE LOWER(name) = LOWER(:deckName) 
         OR uuid = :deckUUID
-        """)
+        """
+    )
     fun checkIfDeckExists(deckName: String, deckUUID: String): Int
 
-    @Query("""
+    @Query(
+        """
         SELECT COUNT(*) 
         FROM decks WHERE uuid = :deckUUID
-    """)
+    """
+    )
     fun checkIfDeckUUIDExists(deckUUID: String): Int
 
     @Query(
@@ -193,6 +198,12 @@ interface DeckDao {
         UPDATE decks 
         SET cardsLeft = :cardsLeft
         WHERE id = :deckId
+        AND NOT EXISTS (
+            SELECT 1 
+            FROM cards c
+            WHERE c.deckId = :deckId
+            AND c.partOfList = 1                    -- Making sure there's no cards in a list.
+        )
     """
     )
     fun updateCardsLeft(deckId: Int, cardsLeft: Int)
@@ -232,5 +243,5 @@ interface DeckDao {
         FROM decks WHERE id = :id
         """
     )
-    fun getDueDeckDetails(id: Int): Flow<DueDeckDetails>
+    fun getDueDeckDetails(id: Int): Flow<DueDeckDetails?>
 }

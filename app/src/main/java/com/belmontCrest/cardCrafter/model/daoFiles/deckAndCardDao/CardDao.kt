@@ -18,6 +18,9 @@ interface CardDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertCard(card: Card): Long
 
+    @Query("SELECT MAX(deckCardNumber) FROM cards WHERE deckUUID = :deckUUID")
+    fun getMaxDCNumber(deckUUID: String): Int?
+
     @Update
     suspend fun updateCard(card: Card)
 

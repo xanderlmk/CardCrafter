@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.BuildConfig
 import com.belmontCrest.cardCrafter.supabase.model.GoogleClientResponse
 import com.belmontCrest.cardCrafter.supabase.model.RetrofitClient
+import com.belmontCrest.cardCrafter.supabase.model.SBDeckToExport
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -18,9 +19,11 @@ import retrofit2.Response
 class APIViewModel : ViewModel() {
     private var googleClientId = MutableStateFlow("")
     val clientId = googleClientId.asStateFlow()
+
     init {
         returnGoogleClientId()
     }
+
     private fun returnGoogleClientId() {
         viewModelScope.launch {
             val api = RetrofitClient.instance
@@ -45,5 +48,9 @@ class APIViewModel : ViewModel() {
                     }
                 })
         }
+    }
+
+    fun uploadDeck(deckContent: SBDeckToExport){
+
     }
 }

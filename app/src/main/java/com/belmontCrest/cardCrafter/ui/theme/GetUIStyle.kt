@@ -1,6 +1,5 @@
 package com.belmontCrest.cardCrafter.ui.theme
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.ColorScheme
 
@@ -57,7 +56,7 @@ class GetUIStyle(
             }
         } else {
             if (isCustomTheme) {
-                blendColors(cS.colorScheme.onTertiary,choiceColor , 0.25f)
+                blendColors(cS.colorScheme.onTertiary, choiceColor, 0.25f)
             } else {
                 choiceColor
             }
@@ -102,6 +101,18 @@ class GetUIStyle(
 
     fun background(): Color {
         return cS.colorScheme.background
+    }
+
+    fun navBarColor(): Color {
+        return if (isDarkTheme) {
+            if (!isCustomTheme) {
+                darkNavBar
+            } else {
+                cS.colorScheme.primaryContainer
+            }
+        } else {
+            cS.colorScheme.primaryContainer
+        }
     }
 
     fun blendColors(base: Color, overlay: Color, overlayAlpha: Float): Color {

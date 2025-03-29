@@ -98,7 +98,9 @@ fun EditTextFieldNonDone(
             onDone = {
                 focusManager.clearFocus()
             }
-        )
+        ),
+        textStyle = TextStyle.Default
+
     )
 }
 
@@ -116,7 +118,6 @@ fun LatexKeyboard(
             )
         )
     }
-
     LaunchedEffect(value) {
         if (value.isEmpty()) {
             textFieldValue = textFieldValue.copy(text = value)

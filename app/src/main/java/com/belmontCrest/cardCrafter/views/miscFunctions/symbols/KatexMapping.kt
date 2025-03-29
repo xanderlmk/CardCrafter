@@ -10,7 +10,8 @@ fun katexMapper(
     return if (
         newText.startsWith("$$", (newValue.selection.start - 2)) &&
         !newText.startsWith("$$$$", (newValue.selection.start - 4)) &&
-        !isThereEvenDD(newText, newText.length)
+        !isThereEvenDD(newText, newText.length) &&
+        !isInsideInline(newText, newText.length, textFieldValue.selection)
     ) {
         val replacement = "$$$$"
         val startIndex = newValue.selection.start - 2
@@ -34,8 +35,8 @@ fun katexMapper(
     } else if (
         newText.startsWith("frac", (newValue.selection.start - 4)) &&
         !newText.startsWith("\\\\frac", (newValue.selection.start - 4)) &&
-        isInsideDoubleDollars(newText, newText.length, textFieldValue.selection)
-    ) {
+        isInside(newText, newText.length, textFieldValue.selection)
+        ) {
         val replacement = "\\\\frac"
         val startIndex = newValue.selection.start - 4
         // Replace frac with \\frac
@@ -56,8 +57,8 @@ fun katexMapper(
         )
     } else if (
         newText.startsWith("..", (newValue.selection.start - 2)) &&
-        isInsideDoubleDollars(newText, newText.length, textFieldValue.selection)
-    ) {
+        isInside(newText, newText.length, textFieldValue.selection)
+        ) {
         val replacement = "{}"
         val startIndex = newValue.selection.start - 2
         val replaced = buildString {
@@ -73,10 +74,11 @@ fun katexMapper(
             ),
             replaced
         )
-    } else if(
+    } else if (
         newText.startsWith("alpha", (newValue.selection.start - 5)) &&
         !newText.startsWith("\\\\alpha", (newValue.selection.start - 7)) &&
-        isInsideDoubleDollars(newText, newText.length, textFieldValue.selection)) {
+        isInside(newText, newText.length, textFieldValue.selection)
+    ) {
         val replacement = "\\\\alpha"
         val startIndex = newValue.selection.start - 5
         val replaced = buildString {
@@ -85,6 +87,23 @@ fun katexMapper(
             append(newText.substring(newValue.selection.start))
         }
         val insertionPoint = startIndex + replacement.length
+        return Pair(
+            TextFieldValue(
+                text = replaced,
+                selection = TextRange(insertionPoint)
+            ),
+            replaced
+        )
+    } else if (newText.startsWith("INLINE", (newValue.selection.start - 6)) &&
+        !isInsideDoubleDollars(newText, newText.length, textFieldValue.selection)) {
+        val replacement = "\\\\(\\\\)"
+        val startIndex = newValue.selection.start - 6
+        val replaced = buildString {
+            append(newText.substring(0, startIndex))
+            append(replacement)
+            append(newText.substring(newValue.selection.start))
+        }
+        val insertionPoint = startIndex + replacement.length - 3
         return Pair(
             TextFieldValue(
                 text = replaced,
@@ -138,6 +157,55 @@ fun isInsideDoubleDollars(text: String, position: Int, textRange: TextRange): Bo
 
     }
     return found
+}
+
+/** Our inline content \\( detect here. \\) */
+fun isInsideInline(text: String, position: Int, textRange: TextRange): Boolean {
+    var count = 0
+    var searchStart = 0
+    var cursor = textRange.start
+    var found = false
+    var state = "\\\\("
+    var delimiter = text.indexOf(state, searchStart)
+    if (delimiter == -1) {
+        return false
+    }
+    count += 1
+    // Now go to that index + 3.
+    searchStart = delimiter + 3
+    while (true) {
+        state =
+            if (state == "\\\\(") {
+                "\\\\)"
+            } else {
+                "\\\\("
+            }
+        // Find the next occurrence of `the one to be found`
+        val nextIndex = text.indexOf(state, searchStart)
+
+        // If none found or it's beyond the cursor position, stop
+        if (nextIndex == -1 || delimiter >= position) break
+
+        // We found one occurrence an occurrence before `position`
+        count++
+        // if the cursor is in between \\( \\) (count will be even )
+        // break and return true!
+        if ((count % 2 == 0) && (cursor in delimiter..nextIndex)) {
+            found = true
+            break
+        }
+        // set the delimiter to this index.
+        delimiter = nextIndex
+        // Move past this occurrence
+        searchStart = nextIndex + 3
+    }
+    return found
+}
+
+
+fun isInside(text: String, position: Int, textRange: TextRange): Boolean {
+    return isInsideInline(text, position, textRange) ||
+            isInsideDoubleDollars(text, position, textRange)
 }
 
 /**

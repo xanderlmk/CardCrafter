@@ -25,7 +25,7 @@ class GeneralSettings(
     private var preferences: PreferencesManager
 ) {
     @Composable
-    fun SettingsView(onNavigate: () -> Unit) {
+    fun SettingsView() {
         var themeClicked by remember { mutableStateOf(false) }
         var deckOptionsClicked by remember { mutableStateOf(false) }
 
@@ -59,13 +59,6 @@ class GeneralSettings(
             modifier = Modifier
                 .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
-            BackButton(
-                onBackClick = {
-                    themeClicked = true
-                    onNavigate() },
-                modifier = Modifier.backButtonModifier(),
-                getUIStyle = getUIStyle
-            )
             InvalidXXAmount(invalid, getUIStyle, errorMessage.value)
             Column {
                 SystemThemeButton(
