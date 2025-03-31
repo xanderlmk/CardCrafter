@@ -71,25 +71,25 @@ sealed class SBCT {
     data class Basic(
         val card: SBCards,
         val basicCard: BasicCard
-    )
+    ) : SBCT()
     @Serializable
     data class Three(
         val card: SBCards,
         val threeCard: ThreeFieldCard,
-    )
+    ): SBCT()
     @Serializable
     data class Hint(
         val card: SBCards,
         val hintCard: HintCard
-    )
+    ): SBCT()
     @Serializable
     data class Multi(
         val card: SBCards,
         val multiCard: SBMultiCard
-    )
+    ): SBCT()
     @Serializable
     data class Notation(
         val card: SBCards,
         val notationCard: SBNotationCard
-    )
+    ): SBCT()
 }

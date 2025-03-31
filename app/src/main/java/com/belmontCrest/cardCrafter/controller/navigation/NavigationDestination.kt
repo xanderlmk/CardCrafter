@@ -30,26 +30,12 @@ object ExportSBDestination : NavigationDestination {
         override val route = "ExportDeck"
 }
 @Serializable
-object DeckOptionsDestination : NavigationDestination {
-        override val route = "DeckOptions/{deckId}"
-        fun createRoute(deckId: Int): String {
-                return "DeckOptions/$deckId"
-        }
-}
-@Serializable
 object AddDeckDestination : NavigationDestination {
         override val route = "AddDeck"
 }
 @Serializable
 object DeckViewDestination : NavigationDestination {
-        override val route = "DeckView/{deckId}"
-        fun createRoute(deckId: Int): String {
-                return "DeckView/$deckId"
-        }
-        var name = ""
-        fun updateName(deckName: String){
-                name = deckName
-        }
+        override val route = "DeckView"
 }
 @Serializable
 object AddCardDestination : NavigationDestination{
@@ -60,29 +46,38 @@ object AddCardDestination : NavigationDestination{
 }
 @Serializable
 object ViewDueCardsDestination : NavigationDestination{
-        override val route = "ViewCard/{deckId}"
-        fun createRoute(deckId: Int): String {
-                return "ViewCard/$deckId"
-        }
+        override val route = "ViewCard"
 }
 @Serializable
 object EditDeckDestination : NavigationDestination {
-        override val route = "EditDeck/{deckId}/{currentName}"
-        fun createRoute(deckId: Int, name: String): String{
-                return "EditDeck/${deckId}/${name}"
+        override val route = "EditDeck/{currentName}"
+        fun createRoute(name: String): String{
+                return "EditDeck/${name}"
         }
 }
 @Serializable
 object ViewAllCardsDestination : NavigationDestination{
-        override val route = "ViewFlashCards/{deckId}"
-        fun createRoute(deckId: Int): String {
-                return "ViewFlashCards/$deckId"
-        }
+        override val route = "ViewFlashCards"
 }
 @Serializable
 object EditingCardDestination : NavigationDestination {
-        override val route = "EditingCard/{deckId}/{index}"
-        fun createRoute(deckId: Int, index : Int) : String {
-                return "EditingCard/${deckId}/${index}"
+        override val route = "EditingCard/{index}"
+        fun createRoute(index : Int) : String {
+                return "EditingCard/${index}"
         }
+}
+
+/** Navigator destinations */
+@Serializable
+object SBNavDestination : NavigationDestination {
+        override val route =  "sbNav"
+}
+@Serializable
+object DeckNavDestination : NavigationDestination {
+        override val route = "deckNav"
+}
+
+@Serializable
+object MainNavDestination : NavigationDestination {
+        override val route = "mainNav"
 }

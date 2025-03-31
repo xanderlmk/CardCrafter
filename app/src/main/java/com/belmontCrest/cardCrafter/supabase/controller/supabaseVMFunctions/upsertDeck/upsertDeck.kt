@@ -3,11 +3,11 @@ package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.ups
 import android.util.Log
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
-import com.belmontCrest.cardCrafter.supabase.model.CARD_UNABLE_TO_UPLOAD
-import com.belmontCrest.cardCrafter.supabase.model.DECK_UNABLE_TO_UPLOAD
-import com.belmontCrest.cardCrafter.supabase.model.NOT_DECK_OWNER
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CARD_UNABLE_TO_UPLOAD
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_UNABLE_TO_UPLOAD
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOT_DECK_OWNER
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.SBDeckOwner
-import com.belmontCrest.cardCrafter.supabase.model.SUCCESS
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns

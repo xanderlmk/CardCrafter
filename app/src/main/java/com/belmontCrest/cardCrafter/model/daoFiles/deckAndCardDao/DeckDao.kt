@@ -40,6 +40,9 @@ interface DeckDao {
     @Query("SELECT * from decks ORDER BY name ASC")
     fun getAllDecks(): Flow<List<Deck>>
 
+    @Query("SELECT name from decks where id = :id")
+    fun getDeckName(id: Int) : Flow<String>
+
     @Query(
         """
     WITH RankedCards AS (

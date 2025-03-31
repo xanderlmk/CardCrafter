@@ -35,21 +35,18 @@ import com.belmontCrest.cardCrafter.supabase.model.SBDecks
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.views.miscFunctions.ExportDeckButton
-import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.auth
 
 class OnlineDatabase(
-    private val supabase: SupabaseClient,
     private val getUIStyle: GetUIStyle,
     private val supabaseVM: SupabaseViewModel,
-    private val localDeckList: List<Deck>
-) {
+    private val localDeckList: List<Deck>) {
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Composable
     fun SupabaseView(
-        onNavigate: () -> Unit,
         onImportDeck: (String) -> Unit,
         onExportDeck: () -> Unit) {
+        val supabase by supabaseVM.supabase.collectAsStateWithLifecycle()
         val deckList by supabaseVM.deckList.collectAsStateWithLifecycle()
         var pressed = rememberSaveable { mutableStateOf(false) }
         LaunchedEffect(supabase.auth.currentUserOrNull()) {

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,11 +44,15 @@ import com.belmontCrest.cardCrafter.supabase.model.SBDecks
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.launch
 import com.belmontCrest.cardCrafter.R
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_STRING
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UUID_CONFLICT
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.views.miscFunctions.EditTextField
 
 
-private const val EMPTY_STRING = -100
+
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class ImportDeck(
@@ -96,7 +101,7 @@ class ImportDeck(
                                 if (success.intValue == 0) {
                                     onNavigate()
                                 } else {
-                                    if (success.intValue == 100) {
+                                    if (success.intValue == DECK_EXISTS) {
                                         conflict.value = true
                                     }
                                     enabled = true
@@ -184,7 +189,8 @@ class ImportDeck(
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .fillMaxSize(.90f)
+                        .fillMaxWidth(.925f)
+                        .fillMaxHeight(.90f)
                         .border(
                             width = 4.dp,
                             shape = RoundedCornerShape(18.dp),
@@ -194,6 +200,9 @@ class ImportDeck(
                                 Color.Black
                             }
                         )
+                        .background(
+                            color = getUIStyle.dialogColor(),
+                            shape = RoundedCornerShape(18.dp))
                         .padding(10.dp)
                 ) {
                     Text(
@@ -275,7 +284,7 @@ class ImportDeck(
                                     result = supabaseVM.createNewDeck(
                                         deck, preferences, newName
                                     )
-                                    if (result == 0) {
+                                    if (result == SUCCESS) {
                                         Toast.makeText(
                                             context, "Success!", Toast.LENGTH_SHORT
                                         ).show()
@@ -293,7 +302,7 @@ class ImportDeck(
                         ) {
                             Text(stringResource(R.string.submit))
                         }
-                        if (result == 101) {
+                        if (result == UUID_CONFLICT) {
                             Text(
                                 text = """
                         |Deck signature already exists,
@@ -303,7 +312,7 @@ class ImportDeck(
                                 fontSize = 11.sp,
                                 textAlign = TextAlign.Center
                             )
-                        } else if (result == 100) {
+                        } else if (result == DECK_EXISTS) {
                             Text(
                                 text = """
                         |Name already exists!

@@ -35,6 +35,8 @@ interface FlashCardRepository {
 
     fun getDeck(id: Int): Deck
 
+    fun getDeckName(id: Int) : Flow<String>
+
     fun getCardCount(currentTime: Long): Flow<List<Int>>
 
     fun resetCardLefts()
