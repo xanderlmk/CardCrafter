@@ -3,10 +3,9 @@ package com.belmontCrest.cardCrafter.supabase.controller
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.belmontCrest.cardCrafter.BuildConfig
 import com.belmontCrest.cardCrafter.supabase.model.GoogleClientResponse
 import com.belmontCrest.cardCrafter.supabase.model.RetrofitClient
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckToExport
+import com.belmontCrest.cardCrafter.supabase.model.getSBKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -27,7 +26,7 @@ class APIViewModel : ViewModel() {
     private fun returnGoogleClientId() {
         viewModelScope.launch {
             val api = RetrofitClient.instance
-            api.getGoogleClientId("Bearer ${BuildConfig.SUPABASE_KEY}")
+            api.getGoogleClientId("Bearer ${getSBKey()}")
                 .enqueue(object : Callback<GoogleClientResponse> {
                     override fun onResponse(
                         call: Call<GoogleClientResponse>,
@@ -48,9 +47,5 @@ class APIViewModel : ViewModel() {
                     }
                 })
         }
-    }
-
-    fun uploadDeck(deckContent: SBDeckToExport){
-
     }
 }

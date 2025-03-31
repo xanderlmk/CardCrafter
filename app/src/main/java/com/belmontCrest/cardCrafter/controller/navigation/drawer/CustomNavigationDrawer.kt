@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.controller.navigation
+package com.belmontCrest.cardCrafter.controller.navigation.drawer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,8 +36,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.belmontCrest.cardCrafter.controller.cardHandlers.updateDecksCardList
+import com.belmontCrest.cardCrafter.controller.navigation.DeckListDestination
+import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.controller.navigation.SettingsDestination
+import com.belmontCrest.cardCrafter.controller.navigation.ViewAllCardsDestination
+import com.belmontCrest.cardCrafter.controller.navigation.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
@@ -64,18 +68,19 @@ fun CustomNavigationDrawer(
     val coroutineScope = rememberCoroutineScope()
 
     // Observe the current back stack entry as state.
-    val navBackStackEntry = navController.currentBackStackEntryAsState()
     val cardsToUpdate by cardDeckVM.cardListToUpdate.collectAsStateWithLifecycle()
     // Extract the current route.
-    val currentRoute = navBackStackEntry.value?.destination?.route
+    val currentRoute = navViewModel.route.collectAsStateWithLifecycle().value
     val stateSize = cardDeckVM.stateSize.collectAsStateWithLifecycle().value
     val stateIndex = cardDeckVM.stateIndex.collectAsStateWithLifecycle().value
+
+    val name by navViewModel.name.collectAsStateWithLifecycle()
 
     // Determine the title based on the current route.
     val titleText = when (currentRoute) {
         DeckListDestination.route -> "Decks"
         SettingsDestination.route -> "Settings"
-        ViewAllCardsDestination.route -> DeckViewDestination.name
+        ViewAllCardsDestination.route -> name
         ViewDueCardsDestination.route -> if (stateSize == 0) {
             ""
         } else {
@@ -120,6 +125,7 @@ fun CustomNavigationDrawer(
                                 coroutineScope, mainViewModel,
                                 navViewModel, cardDeckVM, fields
                             )
+                            navViewModel.updateRoute(DeckListDestination.route)
                             navController.navigate(DeckListDestination.route)
                         }
                         .padding(top = 15.dp, bottom = 6.dp, start = 15.dp, end = 15.dp)
@@ -165,6 +171,7 @@ fun CustomNavigationDrawer(
                                 }
                             }
                             cardDeckVM.updateIndex(0)
+                            navViewModel.updateRoute(SettingsDestination.route)
                             navController.navigate(SettingsDestination.route)
                         }
                         .padding(vertical = 6.dp, horizontal = 15.dp)
@@ -225,9 +232,9 @@ fun CustomNavigationDrawer(
                     actions = {
                         deck?.let {
                             ActionIconButton(
-                                currentRoute ?: "", navController,
+                                currentRoute, navController,
                                 getUIStyle, cardDeckVM,
-                                it, fields,
+                                it, fields, navViewModel
                             )
                         }
                     }

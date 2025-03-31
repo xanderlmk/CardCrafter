@@ -115,6 +115,14 @@ class GetUIStyle(
         }
     }
 
+    fun dialogColor() : Color {
+        return if(isDarkTheme){
+            dialogDarkBackground
+        } else {
+            dialogLightBackground
+        }
+    }
+
     fun blendColors(base: Color, overlay: Color, overlayAlpha: Float): Color {
         // overlayAlpha in [0..1]
         val r = overlay.red * overlayAlpha + base.red * (1 - overlayAlpha)

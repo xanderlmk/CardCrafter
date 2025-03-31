@@ -82,13 +82,3 @@ val MIGRATION_20_21 = object : Migration(20, 21) {
     }
 
 }
-/**
- * Expected:
- * TableInfo{name='cards', columns={
- * indices=[Index{name='index_cards_deckId', unique=false, columns=[deckId], orders=[ASC]'},
- *      Index{name='index_cards_deckUUID_deckCardNumber', unique=true, columns=[deckUUID, deckCardNumber], orders=[ASC, ASC]'}]}
- * Found:
- * TableInfo{name='cards', columns={
- * indices=[Index{name='index_cards_deckUUID_deckCardNumber', unique=true, columns=[deckUUID, deckCardNumber], orders=[ASC, ASC]'}]} (Ask Gemini)
- *
- */

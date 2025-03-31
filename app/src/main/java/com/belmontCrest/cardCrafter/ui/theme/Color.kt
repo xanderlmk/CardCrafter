@@ -3,6 +3,7 @@ package com.belmontCrest.cardCrafter.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // Light theme
+val dialogLightBackground = Color(136, 182, 224, 240)
 val backgroundColor = Color(212, 241, 244)
 val secondaryBC = Color(197, 243, 246, 255)
 val onBackgroundColor = Color(50, 50, 200)
@@ -23,6 +24,7 @@ val correctChoice = Color (90, 180, 90)
 val onCorrectChoice = Color(10, 100, 10)
 
 // Dark theme
+val dialogDarkBackground = Color(0, 0, 44, 240)
 val darkBackground = Color(20,20,25)
 val secondaryDBC = Color(19, 19, 38, 255)
 val darkOnBackground = Color(224, 224, 224)

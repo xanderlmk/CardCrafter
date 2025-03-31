@@ -4,6 +4,7 @@ package com.belmontCrest.cardCrafter
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,10 +15,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.coroutineScope
 import androidx.navigation.compose.rememberNavController
 import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
-import com.belmontCrest.cardCrafter.controller.navigation.AppNavHost
+import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.controller.navigation.navHosts.AppNavHost
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
@@ -25,8 +27,11 @@ import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
 import io.github.jan.supabase.annotations.SupabaseInternal
+import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.realtime.realtime
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import java.net.SocketException
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(SupabaseInternal::class)
@@ -40,6 +45,11 @@ class MainActivity : ComponentActivity() {
     private val supabaseVM: SupabaseViewModel by viewModels {
         AppViewModelProvider.Factory
     }
+
+    private val navViewModel : NavViewModel by viewModels{
+        AppViewModelProvider.Factory
+    }
+
     private lateinit var preferences: PreferencesManager
     private lateinit var fields: Fields
 
@@ -50,7 +60,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            val supabase = supabaseVM.supabase.collectAsStateWithLifecycle()
             preferences = rememberUpdatedState(
                 PreferencesManager(
                     applicationContext
@@ -76,8 +85,7 @@ class MainActivity : ComponentActivity() {
             fields = rememberSaveable { Fields() }
 
             LaunchedEffect(Unit) {
-                supabase.value.useHTTPS
-                supabase.value.realtime.connect()
+                supabaseVM.connectSupabase()
             }
             val isSystemDark = isSystemInDarkTheme()
 
@@ -92,24 +100,30 @@ class MainActivity : ComponentActivity() {
                 darkTheme = preferences.darkTheme.value,
                 dynamicColor = preferences.customScheme.value
             ) {
-
                 AppNavHost(
                     navController = navController,
                     mainViewModel = mainViewModel,
                     editingCardListVM = editingCardListViewModel,
                     preferences = preferences,
                     fields = fields,
-                    supabase = supabase.value,
-                    supabaseVM = supabaseVM
+                    supabaseVM = supabaseVM,
+                    navViewModel = navViewModel
                 )
-
-
             }
         }
     }
 
     override fun onStart() {
         super.onStart()
+        lifecycle.coroutineScope.launch {
+            try {
+                if (supabaseVM.supabase.value.realtime.status.value != Realtime.Status.CONNECTED) {
+                    supabaseVM.supabase.value.realtime.connect()
+                }
+            } catch (e: SocketException) {
+                Log.d("Socket Issue", "SocketException: $e")
+            }
+        }
     }
 
     override fun onStop() {
@@ -117,6 +131,7 @@ class MainActivity : ComponentActivity() {
         if (::preferences.isInitialized) {
             preferences.savePreferences()
         }
+        supabaseVM.supabase.value.realtime.disconnect()
     }
 
     override fun onPause() {
@@ -124,6 +139,7 @@ class MainActivity : ComponentActivity() {
         if (::preferences.isInitialized) {
             preferences.savePreferences()
         }
+
     }
 }
 
