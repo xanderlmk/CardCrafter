@@ -36,6 +36,9 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.mainViewModifier
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOT_DECK_OWNER
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import kotlinx.coroutines.launch
 
 
@@ -130,14 +133,28 @@ fun FailedUpload(
                             supabaseVM.updateExportedDeck(
                                 deck, description
                             ).let {
-                                if (it == 0){
+                                if (it == SUCCESS){
                                     Toast.makeText(
                                         context,
                                         "Success!", Toast.LENGTH_SHORT
                                     ).show()
                                     onSuccess()
                                     dismiss.value = false
+                                } else if (it == NOT_DECK_OWNER){
+                                    Toast.makeText(
+                                        context,
+                                        "You are not the owner of this deck.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    dismiss.value = false
                                 } else {
+                                    Toast.makeText(
+                                        context,
+                                        """Unable to upload this deck.
+                                            | Try again later.
+                                        """.trimMargin(),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                     dismiss.value = false
                                 }
                             }
@@ -158,7 +175,7 @@ fun FailedUpload(
                         text = message,
                         color = getUIStyle.titleColor()
                     )
-                    if (code == 6) {
+                    if (code == DECK_EXISTS) {
                         Text(
                             text = "If you are the owner, you can update this deck.",
                             color = getUIStyle.titleColor()

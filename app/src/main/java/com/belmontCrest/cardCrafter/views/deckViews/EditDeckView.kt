@@ -1,5 +1,7 @@
 package com.belmontCrest.cardCrafter.views.deckViews
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,6 +61,7 @@ class EditDeckView(
     private var fields: Fields,
     private var getUIStyle: GetUIStyle
 ) {
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     fun EditDeck(
         currentName: String, deck: Deck,

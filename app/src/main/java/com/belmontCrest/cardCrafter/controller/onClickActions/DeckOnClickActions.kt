@@ -77,16 +77,14 @@ fun updateReviewAmount(
             errorMessage.value = errorMessages[0]
             return@launch
         }
-        if (newRA >= 10) {
+        if (newRA >= 41) {
             errorMessage.value = errorMessages[1]
             return@launch
         }
-
         if (newRA == deck.reviewAmount) {
             errorMessage.value = errorMessages[2]
             return@launch
         }
-
         isSubmitting.value = true
         try {
             val result =

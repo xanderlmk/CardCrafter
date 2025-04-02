@@ -16,6 +16,7 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.deleteTextColor
 import kotlinx.coroutines.CoroutineScope
 import com.belmontCrest.cardCrafter.R
+import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
 import kotlinx.coroutines.launch
 
 fun saveCard(
@@ -196,7 +197,7 @@ suspend fun updateCardType(
 
 @Composable
 fun DeleteCard(
-    editCardVM: EditCardViewModel,
+    navViewModel: NavViewModel,
     coroutineScope: CoroutineScope,
     card: Card,
     fields: Fields,
@@ -220,7 +221,7 @@ fun DeleteCard(
                         pressed.value = false
                         fields.mainClicked.value = false
                         coroutineScope.launch {
-                            editCardVM.deleteCard(card)
+                            navViewModel.deleteCard(card)
                             onDelete()
                         }
                     },

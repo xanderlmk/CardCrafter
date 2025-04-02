@@ -22,7 +22,10 @@ class Fields(
     val mainClicked : MutableState<Boolean> = mutableStateOf(false),
     val inDeckClicked : MutableState<Boolean> = mutableStateOf(false),
     val leftDueCardView : MutableState<Boolean> = mutableStateOf(false),
-    var stringList : MutableList<MutableState<String>> = mutableListOf()
+    var stringList : MutableList<MutableState<String>> = mutableListOf(),
+    var newType : MutableState<String> = mutableStateOf(""),
+    var isEditing : MutableState<Boolean> = mutableStateOf(false)
+
 ) : Parcelable {
     fun resetFields() {
         question.value = ""
@@ -32,6 +35,21 @@ class Fields(
             it.value = ""
         }
         correct.value = '?'
+    }
+    fun navigateToDeck() {
+        leftDueCardView.value = false
+        inDeckClicked.value = false
+        scrollPosition.value = 0
+    }
+    fun navigateToDueCards() {
+        inDeckClicked.value = true
+        mainClicked.value = false
+        leftDueCardView.value = false
+    }
+    fun navigateToCardList() {
+        newType = mutableStateOf("")
+        isEditing.value = false
+        inDeckClicked.value = false
     }
     constructor(parcel: Parcel) : this(
         question = mutableStateOf(parcel.readString()!!),
@@ -49,7 +67,9 @@ class Fields(
         stringList = mutableListOf<MutableState<String>>().apply {
             parcel.readStringList(this.map { it.value }.toMutableList())
             addAll(this)
-        }
+        },
+        newType = mutableStateOf(parcel.readString()!!),
+        isEditing = mutableStateOf(parcel.readByte() != 0.toByte())
     )
 
     companion object : Parceler<Fields> {
@@ -64,6 +84,8 @@ class Fields(
             parcel.writeByte(if (inDeckClicked.value) 1 else 0)
             parcel.writeByte(if (leftDueCardView.value) 1 else 0)
             parcel.writeStringList(stringList.map { it.value })
+            parcel.writeString(newType.value)
+            parcel.writeByte(if (isEditing.value) 1 else 0)
         }
         override fun create(parcel: Parcel): Fields {
             return Fields(parcel)

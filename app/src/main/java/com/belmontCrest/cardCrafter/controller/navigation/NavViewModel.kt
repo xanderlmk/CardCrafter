@@ -1,21 +1,26 @@
 package com.belmontCrest.cardCrafter.controller.navigation
 
-import androidx.compose.runtime.mutableStateOf
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.belmontCrest.cardCrafter.model.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
+import com.belmontCrest.cardCrafter.model.uiModels.StringVar
+import com.belmontCrest.cardCrafter.model.uiModels.SelectedCard
+import com.belmontCrest.cardCrafter.model.uiModels.WhichDeck
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 
 /**
@@ -30,16 +35,21 @@ class NavViewModel(
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
     }
-
     private val deckId = MutableStateFlow(savedStateHandle["id"] ?: 0)
     private val cardId = MutableStateFlow(savedStateHandle["cardId"] ?: 0)
 
-    val name = deckId.flatMapLatest {
-        flashCardRepository.getDeckName(it)
+    val deckName = deckId.flatMapLatest { id ->
+        if (id == 0) {
+            flowOf(StringVar())
+        } else {
+            flashCardRepository.getDeckName(id).map {
+                StringVar(it ?: "")
+            }
+        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-        initialValue = ""
+        initialValue = StringVar()
     )
 
     val deckNav: MutableStateFlow<NavHostController?> = MutableStateFlow(null)
@@ -48,49 +58,83 @@ class NavViewModel(
             navHostController
         }
     }
-    val route = MutableStateFlow(savedStateHandle["route"]?: MainNavDestination.route)
-    fun updateRoute(newRoute : String) {
-        route.update {
-            newRoute
+    private val thisRoute = MutableStateFlow(
+        StringVar(savedStateHandle["route"] ?: MainNavDestination.route)
+    )
+    val route = thisRoute.asStateFlow()
+
+    fun updateRoute(newRoute: String) {
+        savedStateHandle["route"] = newRoute
+        thisRoute.update {
+            StringVar(newRoute)
         }
     }
-
-    private val thisDeck: StateFlow<Deck?> = deckId
+    private val thisDeck: StateFlow<WhichDeck> = deckId
         .flatMapLatest { id ->
-            flashCardRepository.getDeckStream(id)
-        }
-        .stateIn(
+            if (id == 0) {
+                flowOf(WhichDeck())
+            } else {
+                flashCardRepository.getDeckStream(id).map {
+                    WhichDeck(it)
+                }
+            }
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = null
+            initialValue = WhichDeck()
         )
-    val deck = thisDeck
+    val wd = thisDeck
 
-    private val thisCard: StateFlow<Card?> = cardId
-        .flatMapLatest {
-            if (it == 0) {
-                flowOf(null)
-            } else {
-                flashCardRepository.getCardStream(it)
+    private val thisType = MutableStateFlow(savedStateHandle["type"] ?: "basic")
+    val type = thisType.asStateFlow()
+    fun updateType(newType : String) {
+        savedStateHandle["type"] = newType
+        thisType.update {
+            newType
+        }
+    }
+    private val thisCard = cardId.flatMapLatest { id ->
+        if (id == 0) {
+            flowOf(SelectedCard(null))
+        } else {
+            flashCardRepository.getCardStream(id).map {
+                Log.d("CARD STATUS", "$it")
+                SelectedCard(it)
             }
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = null
-        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue =
+            if (cardId.value == 0) {
+                SelectedCard(null)
+            } else {
+                SelectedCard(flashCardRepository.getCardById(cardId.value))
+            }
+    )
+
     val card = thisCard
     fun getDeckById(id: Int) {
-        deckId.value = id
         savedStateHandle["id"] = id
-    }
+        deckId.update {
+            id
+        }
 
+    }
+    fun deleteCard(card: Card) {
+        viewModelScope.launch {
+            flashCardRepository.deleteCard(card)
+        }
+    }
     fun getCardById(id: Int) {
-        cardId.value = id
-        savedStateHandle["cardId"] = id
+        savedStateHandle["cardId"] = 0
+        cardId.update {
+            id
+        }
     }
 
     fun resetCard() {
-        cardId.value = 0
+        savedStateHandle["cardId"] = 0
+        cardId.update { 0 }
     }
 }

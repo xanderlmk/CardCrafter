@@ -31,6 +31,7 @@ import com.belmontCrest.cardCrafter.controller.navigation.DeckNavDestination
 import com.belmontCrest.cardCrafter.controller.navigation.MainNavDestination
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.controller.navigation.SettingsDestination
+import com.belmontCrest.cardCrafter.controller.navigation.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
@@ -71,16 +72,16 @@ fun AppNavHost(
     val addDeckView = AddDeckView(getUIStyle)
     val generalSettings = GeneralSettings(getUIStyle, preferences)
     val coroutineScope = rememberCoroutineScope()
-    val deck by navViewModel.deck.collectAsStateWithLifecycle()
+    val wd by navViewModel.wd.collectAsStateWithLifecycle()
+
     CustomNavigationDrawer(
         navController = navController,
         fields = fields,
         getUIStyle = getUIStyle,
-        mainViewModel = mainViewModel,
         navViewModel = navViewModel,
         cardDeckVM = cardDeckVM,
-        deck = deck
-    ) {
+        deck = wd.deck,
+        ) {
         NavHost(
             navController = navController,
             startDestination = DeckListDestination.route,
@@ -96,9 +97,7 @@ fun AppNavHost(
                     mainViewModel,
                     // In DeckList Composable
                     onNavigateToDeck = { id ->
-                        fields.leftDueCardView.value = false
-                        fields.inDeckClicked.value = false
-                        fields.scrollPosition.value = 0
+                        fields.navigateToDeck()
                         onDeckView = true
                         navViewModel.updateRoute(DeckNavDestination.route)
                         navController.navigate(DeckNavDestination.route)
@@ -114,15 +113,29 @@ fun AppNavHost(
                         navController.navigate(AddDeckDestination.route)
                     },
                     onNavigateToSBDeckList = {
+                        supabaseVM.updateStatus()
                         navViewModel.updateRoute(SBNavDestination.route)
                         navController.navigate(SBNavDestination.route)
+                    },
+                    goToDueCards = { id ->
+                        coroutineScope.launch {
+                            navViewModel.getDeckById(id)
+                        }
+                        coroutineScope.launch {
+                            editingCardListVM.updateId(id)
+                        }
+                        fields.navigateToDueCards()
+                        cardDeckVM.updateWhichDeck(id)
+                        navViewModel.updateRoute(ViewDueCardsDestination.route)
+                        navController.navigate(DeckNavDestination.route)
                     }
                 )
             }
+            /** Our Supabase Nav Controller to call*/
             composable(SBNavDestination.route) {
                 SupabaseNav(
                     fields, mainViewModel, supabaseVM, getUIStyle,
-                    preferences, navController,
+                    preferences, navController, navViewModel
                 )
             }
             composable(
@@ -160,10 +173,12 @@ fun AppNavHost(
                     cardAmount = preferences.cardAmount.intValue.toString()
                 )
             }
+            /** Our Deck Nav Controller to call*/
             composable(DeckNavDestination.route) {
                 DeckNavHost(
-                    navController, cardDeckVM, fields, mainViewModel,
-                    onDeckView, navViewModel, getUIStyle, editingCardListVM)
+                    navController, cardDeckVM, fields, onDeckView,
+                    navViewModel, getUIStyle, editingCardListVM,
+                )
             }
         }
     }

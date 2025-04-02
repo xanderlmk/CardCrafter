@@ -52,7 +52,8 @@ class MainView(
         viewModel: MainViewModel,
         onNavigateToDeck: (Int) -> Unit,
         onNavigateToAddDeck: () -> Unit,
-        onNavigateToSBDeckList: () -> Unit
+        onNavigateToSBDeckList: () -> Unit,
+        goToDueCards: (Int) -> Unit,
     ) {
         val deckUiState by viewModel.deckUiState.collectAsStateWithLifecycle()
         val cardCount by viewModel.cardCountUiState.collectAsStateWithLifecycle()
@@ -68,115 +69,116 @@ class MainView(
             if (deckIndex in deckUiState.deckList.indices) {
                 ShowNextReview(pressed, deckUiState.deckList[deckIndex])
             }
-            Column(
+
+            Box(
                 modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxWidth()
+                    .padding(16.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(2f)
-                        .padding(16.dp)
-                ) {
-                    LazyColumn {
-                        items(deckUiState.deckList.size) { index ->
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp)
-                                    .pointerInput(Unit) {
-                                        detectTapGestures(
-                                            onTap = {
-                                                if (!fields.mainClicked.value) {
-                                                    fields.mainClicked.value = true
-                                                    onNavigateToDeck(deckUiState.deckList[index].id)
-                                                }
-                                            },
-                                            onLongPress = {
-                                                deckIndex = index
-                                                pressed.value = true
+                LazyColumn {
+                    items(deckUiState.deckList.size) { index ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onTap = {
+                                            if (!fields.mainClicked.value) {
+                                                fields.mainClicked.value = true
+                                                onNavigateToDeck(deckUiState.deckList[index].id)
                                             }
-                                        )
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .mainViewModifier(getUIStyle.getColorScheme())
-                                        .align(Alignment.TopStart)
-                                ) {
-                                    Text(
-                                        text = deckUiState.deckList[index].name + " ",
-                                        textAlign = TextAlign.Start,
-                                        fontSize = 20.sp,
-                                        lineHeight = 22.sp,
-                                        color = getUIStyle.titleColor(),
-                                        style = MaterialTheme.typography.titleLarge,
-                                        modifier = Modifier.fillMaxWidth(.85f),
-                                        softWrap = true
+                                        },
+                                        onLongPress = {
+                                            deckIndex = index
+                                            pressed.value = true
+                                        },
+                                        onDoubleTap = {
+                                            if (!fields.mainClicked.value) {
+                                                fields.mainClicked.value = true
+                                                goToDueCards(deckUiState.deckList[index].id)
+                                            }
+                                        }
                                     )
-                                    Text(
-                                        text =
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .mainViewModifier(getUIStyle.getColorScheme())
+                                    .align(Alignment.TopStart)
+                            ) {
+                                Text(
+                                    text = deckUiState.deckList[index].name + " ",
+                                    textAlign = TextAlign.Start,
+                                    fontSize = 20.sp,
+                                    lineHeight = 22.sp,
+                                    color = getUIStyle.titleColor(),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.fillMaxWidth(.85f),
+                                    softWrap = true
+                                )
+                                Text(
+                                    text =
                                         if (index in 0..cardCount.cardListCount.lastIndex) {
                                             cardCount.cardListCount[index].toString()
                                         } else {
                                             "0"
                                         },
-                                        textAlign = TextAlign.End,
-                                        fontSize = 14.sp,
-                                        color = getUIStyle.titleColor(),
-                                        style = MaterialTheme.typography.titleLarge,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        softWrap = false
-                                    )
-                                }
-
+                                    textAlign = TextAlign.End,
+                                    fontSize = 14.sp,
+                                    color = getUIStyle.titleColor(),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    softWrap = false
+                                )
                             }
+
                         }
                     }
                 }
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
+            }
+            SmallAddButton(
+                onClick = {
+                    expanded = true
+                },
+                getUIStyle = getUIStyle,
+                modifier = Modifier.align(Alignment.BottomEnd)
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Bottom
+            ) {
+                val bottomLeftModifier = Modifier
+                    .padding(bottom = 12.dp)
+                    .align(Alignment.End)
+                Box(
+                    modifier = bottomLeftModifier,
                 ) {
-                    val bottomLeftModifier = Modifier
-                        .padding(bottom = 12.dp)
-                        .align(Alignment.End)
-
-                    Box(
-                        modifier = bottomLeftModifier,
+                    DropdownMenu(
+                        expanded = expanded, onDismissRequest = { expanded = false },
                     ) {
-                        SmallAddButton(
+                        DropdownMenuItem(
                             onClick = {
-                                expanded = true
+                                if (!fields.mainClicked.value) {
+                                    fields.mainClicked.value = true
+                                    onNavigateToAddDeck()
+                                    expanded = false
+                                }
                             },
-                            getUIStyle = getUIStyle
+                            text = { Text(stringResource(R.string.add_deck)) })
+                        DropdownMenuItem(
+                            onClick = {
+                                if (!fields.mainClicked.value) {
+                                    fields.mainClicked.value = true
+                                    onNavigateToSBDeckList()
+                                    expanded = false
+                                }
+                            },
+                            text = { Text("Online Decks") }
+
                         )
-
-                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                            DropdownMenuItem(
-                                onClick = {
-                                    if (!fields.mainClicked.value) {
-                                        fields.mainClicked.value = true
-                                        onNavigateToAddDeck()
-                                        expanded = false
-                                    }
-                                },
-                                text = { Text(stringResource(R.string.add_deck)) })
-                            DropdownMenuItem(
-                                onClick = {
-                                    if (!fields.mainClicked.value) {
-                                        fields.mainClicked.value = true
-                                        onNavigateToSBDeckList()
-                                        expanded = false
-                                    }
-                                },
-                                text = { Text("Online Decks") }
-
-                            )
-                        }
                     }
                 }
             }

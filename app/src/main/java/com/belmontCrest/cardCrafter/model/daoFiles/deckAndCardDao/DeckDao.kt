@@ -41,7 +41,7 @@ interface DeckDao {
     fun getAllDecks(): Flow<List<Deck>>
 
     @Query("SELECT name from decks where id = :id")
-    fun getDeckName(id: Int) : Flow<String>
+    fun getDeckName(id: Int) : Flow<String?>
 
     @Query(
         """
@@ -242,7 +242,7 @@ interface DeckDao {
 
     @Query(
         """
-        SELECT id, cardsLeft, nextReview
+        SELECT id, cardsLeft, cardAmount, reviewAmount, nextReview
         FROM decks WHERE id = :id
         """
     )

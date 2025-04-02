@@ -94,8 +94,9 @@ fun GoogleSignInButton(
         /** Hashed nonce to be passed to Google sign-in */
         val hashedNonce = digest.fold("") { str, it -> str + "%02x".format(it) }
         val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false)
+            .setFilterByAuthorizedAccounts(true)
             .setServerClientId(googleClientId)
+            .setAutoSelectEnabled(true)
             .setNonce(hashedNonce) // Provide the nonce if you have one
             .build()
 

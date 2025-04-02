@@ -1,5 +1,6 @@
 package com.belmontCrest.cardCrafter.views.deckViews
 
+import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -28,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -54,6 +56,13 @@ class DeckView(
     ) {
         val deckVM: DeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
         var pressed = rememberSaveable { mutableStateOf(false) }
+        val isLandscape =
+            LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val widthHeight = if (isLandscape) {
+            Pair(0.25f, 0.45f)
+        } else {
+            Pair(0.55f, 0.15f)
+        }
         Box(
             modifier = Modifier
                 .boxViewsModifier(getUIStyle.getColorScheme())
@@ -87,8 +96,8 @@ class DeckView(
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .fillMaxWidth(0.55f)
-                            .fillMaxHeight(.15f)
+                            .fillMaxWidth(widthHeight.first)
+                            .fillMaxHeight(widthHeight.second)
                             .pointerInput(Unit) {
                                 detectTapGestures(
                                     onTap = {
@@ -104,7 +113,7 @@ class DeckView(
                             }
                             .background(
                                 color = getUIStyle.secondaryButtonColor(),
-                                shape = RoundedCornerShape(24.dp)
+                                shape = RoundedCornerShape(28.dp)
                             ),
                     ) {
                         Text(

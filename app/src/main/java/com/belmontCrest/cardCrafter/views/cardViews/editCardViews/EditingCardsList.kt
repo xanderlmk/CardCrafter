@@ -36,12 +36,10 @@ class EditCardsList(
     private var listState: LazyListState,
     private var getUIStyle: GetUIStyle
 ) {
-    var isEditing = mutableStateOf(false)
-
     @SuppressLint("CoroutineCreationDuringComposition")
     @Composable
     fun ViewFlashCards(
-        onNavigate: () -> Unit, goToEditCard: (Int, Int) -> Unit
+        goToEditCard: (Int, Int) -> Unit
     ) {
         val sealedCardsList by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
         val middleCard = rememberSaveable { mutableIntStateOf(0) }
@@ -69,7 +67,7 @@ class EditCardsList(
                         onClick = {
                             if (!clicked) {
                                 fields.scrollPosition.value = index
-                                isEditing.value = true
+                                fields.isEditing.value = true
                                 clicked = true
                                 goToEditCard(index, returnCardId(sealedCardsList.allCTs[index]))
                             }

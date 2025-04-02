@@ -52,7 +52,7 @@ object ViewDueCardsDestination : NavigationDestination{
 object EditDeckDestination : NavigationDestination {
         override val route = "EditDeck/{currentName}"
         fun createRoute(name: String): String{
-                return "EditDeck/${name}"
+                return "EditDeck/$name"
         }
 }
 @Serializable
@@ -63,7 +63,7 @@ object ViewAllCardsDestination : NavigationDestination{
 object EditingCardDestination : NavigationDestination {
         override val route = "EditingCard/{index}"
         fun createRoute(index : Int) : String {
-                return "EditingCard/${index}"
+                return "EditingCard/$index"
         }
 }
 

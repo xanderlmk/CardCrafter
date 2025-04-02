@@ -16,8 +16,11 @@ import androidx.navigation.compose.rememberNavController
 import com.belmontCrest.cardCrafter.controller.navigation.SBNavDestination
 import com.belmontCrest.cardCrafter.controller.navigation.ExportSBDestination
 import com.belmontCrest.cardCrafter.controller.navigation.ImportSBDestination
+import com.belmontCrest.cardCrafter.controller.navigation.MainNavDestination
+import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.controller.navigation.SupabaseDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
+import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
@@ -35,6 +38,7 @@ fun SupabaseNav(
     fields: Fields, mainViewModel: MainViewModel,
     supabaseVM: SupabaseViewModel, getUIStyle: GetUIStyle,
     preferences: PreferencesManager, navController: NavHostController,
+    navViewModel: NavViewModel
 ) {
     val sbNavController = rememberNavController()
     /** Our Supabase Client and Views. */
@@ -59,10 +63,12 @@ fun SupabaseNav(
         composable(
             SupabaseDestination.route,
             enterTransition = { null },
-            exitTransition = { null }) {
+            exitTransition = { null },
+            popEnterTransition = { null }) {
             BackHandler {
+                navViewModel.updateRoute(MainNavDestination.route)
                 BackNavHandler.returnToDeckListFromSB(
-                    navController, mainViewModel.updateCurrentTime(), fields
+                    navController, updateCurrentTime(), fields
                 )
             }
             onlineDatabase.SupabaseView(
