@@ -15,7 +15,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,7 +40,6 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.editCardModifier
-import com.belmontCrest.cardCrafter.views.miscFunctions.CardOptionsButton
 import kotlinx.coroutines.launch
 
 class EditingCardView(
@@ -53,17 +51,15 @@ class EditingCardView(
     fun EditFlashCardView(
         card: Card,
         fields: Fields,
-        selectedCard: MutableState<Card?>,
         index: Int,
         onNavigateBack: () -> Unit
     ) {
         val editCardVM: EditCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
+        fields.newType =  rememberSaveable { mutableStateOf(card.type) }
         val fillOutfields = stringResource(R.string.fill_out_all_fields).toString()
         val errorMessage by editCardVM.errorMessage.collectAsStateWithLifecycle()
         val coroutineScope = rememberCoroutineScope()
         val cardTypeChanged = rememberSaveable { mutableStateOf(false) }
-        val expanded = rememberSaveable { mutableStateOf(false) }
-        val newType = rememberSaveable { mutableStateOf(selectedCard.value?.type?: "") }
         val sealedAllCTs by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
 
         Box(
@@ -82,11 +78,6 @@ class EditingCardView(
                     contentAlignment = Alignment.TopCenter,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    CardOptionsButton(
-                        editCardVM, getUIStyle, card, fields, newType,
-                        expanded, Modifier
-                            .align(Alignment.TopEnd), onNavigateBack
-                    )
                     Text(
                         text = stringResource(R.string.edit_flashcard),
                         fontSize = 25.sp,
@@ -96,86 +87,83 @@ class EditingCardView(
                         modifier = Modifier.editCardModifier()
                     )
                 }
-                if (selectedCard.value != null) {
-                    val cardTypeHandler = returnCardTypeHandler(
-                        newType.value, selectedCard.value?.type ?: ""
-                    )
-                    if (newType.value != selectedCard.value?.type){
-                        cardTypeChanged.value = true
-                    }
-                    cardTypeHandler?.HandleCardEdit(
-                        ct = sealedAllCTs.allCTs[index],
-                        cardId = card.id,
-                        fields = fields,
-                        changed = cardTypeChanged.value,
-                        getUIStyle = getUIStyle
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                val cardTypeHandler = returnCardTypeHandler(
+                    fields.newType.value, card.type
+                )
+                if (fields.newType.value != card.type) {
+                    cardTypeChanged.value = true
+                }
+                cardTypeHandler?.HandleCardEdit(
+                    ct = sealedAllCTs.allCTs[index],
+                    fields = fields,
+                    changed = cardTypeChanged.value,
+                    getUIStyle = getUIStyle
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            onNavigateBack()
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = getUIStyle.secondaryButtonColor(),
+                            contentColor = getUIStyle.buttonTextColor()
+                        )
                     ) {
-                        Button(
-                            onClick = {
-                                onNavigateBack()
-                            },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = getUIStyle.secondaryButtonColor(),
-                                contentColor = getUIStyle.buttonTextColor()
-                            )
-                        ) {
-                            Text(stringResource(R.string.cancel))
-                        }
-                        Button(
-                            onClick = {
-                                coroutineScope.launch {
-                                    if (newType.value == selectedCard.value?.type) {
-                                        val success = saveCard(
-                                            fields, editCardVM,
-                                            sealedAllCTs.allCTs[index]
-                                        )
-                                        if (success) {
-                                            editCardVM.clearErrorMessage()
-                                            onNavigateBack()
-                                        } else {
-                                            editCardVM.setErrorMessage(fillOutfields)
-                                        }
+                        Text(stringResource(R.string.cancel))
+                    }
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                if (fields.newType.value == card.type) {
+                                    val success = saveCard(
+                                        fields, editCardVM,
+                                        sealedAllCTs.allCTs[index]
+                                    )
+                                    if (success) {
+                                        editCardVM.clearErrorMessage()
+                                        onNavigateBack()
                                     } else {
-                                        val success = updateCardType(
-                                            fields, editCardVM,
-                                            sealedAllCTs.allCTs[index],
-                                            newType.value
-                                        )
-                                        if (success) {
-                                            editCardVM.clearErrorMessage()
-                                            onNavigateBack()
-                                        } else {
-                                            editCardVM.setErrorMessage(fillOutfields)
-                                        }
+                                        editCardVM.setErrorMessage(fillOutfields)
+                                    }
+                                } else {
+                                    val success = updateCardType(
+                                        fields, editCardVM,
+                                        sealedAllCTs.allCTs[index],
+                                        fields.newType.value
+                                    )
+                                    if (success) {
+                                        editCardVM.clearErrorMessage()
+                                        onNavigateBack()
+                                    } else {
+                                        editCardVM.setErrorMessage(fillOutfields)
                                     }
                                 }
-                            },
-                            modifier = Modifier
-                                .weight(1f),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = getUIStyle.secondaryButtonColor(),
-                                contentColor = getUIStyle.buttonTextColor()
-                            )
-                        ) {
-                            Text(stringResource(R.string.save))
-                        }
-                    }
-                    if (errorMessage.isNotEmpty()) {
-                        Text(
-                            text = errorMessage,
-                            color = Color.Red,
-                            modifier = Modifier.fillMaxWidth(),
-                            fontSize = 16.sp,
-                            textAlign = TextAlign.Center
+                            }
+                        },
+                        modifier = Modifier
+                            .weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = getUIStyle.secondaryButtonColor(),
+                            contentColor = getUIStyle.buttonTextColor()
                         )
+                    ) {
+                        Text(stringResource(R.string.save))
                     }
+                }
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = Color.Red,
+                        modifier = Modifier.fillMaxWidth(),
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }

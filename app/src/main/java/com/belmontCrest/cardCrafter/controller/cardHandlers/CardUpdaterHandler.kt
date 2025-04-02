@@ -1,7 +1,6 @@
 package com.belmontCrest.cardCrafter.controller.cardHandlers
 
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
-import com.belmontCrest.cardCrafter.model.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.SavedCard
@@ -63,6 +62,7 @@ fun timeCalculator(
         )
     // Calculate days to add
     val daysToAdd = (passes * multiplier).toInt()
+    println("days to add: $daysToAdd")
     // Add days to the current date
     calendar.add(Calendar.DAY_OF_YEAR, daysToAdd)
 
@@ -101,30 +101,9 @@ fun handleCardUpdate(
 
 suspend fun updateDecksCardList(
     deck: Deck,
-    cardList: List<Card>,
     cardDeckViewModel: CardDeckViewModel,
 ): Boolean {
-    return cardDeckViewModel.updateCards(deck, cardList)
-}
-
-suspend fun fcrUpdateCard(flashCardRepository: FlashCardRepository, card: Card) {
-    flashCardRepository.updateCard(
-        Card(
-            id = card.id,
-            deckId = card.deckId,
-            deckUUID = card.deckUUID,
-            reviewsLeft = card.reviewsLeft,
-            nextReview = card.nextReview,
-            passes = card.passes,
-            prevSuccess = card.prevSuccess,
-            totalPasses = card.totalPasses,
-            type = card.type,
-            deckCardNumber = card.deckCardNumber,
-            cardIdentifier = card.cardIdentifier,
-            createdOn = card.createdOn,
-            partOfList = false,
-        )
-    )
+    return cardDeckViewModel.updateCards(deck)
 }
 
 fun returnSavedCard(card: Card) : SavedCard {

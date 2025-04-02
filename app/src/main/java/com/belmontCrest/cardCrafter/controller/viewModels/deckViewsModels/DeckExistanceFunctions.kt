@@ -4,12 +4,24 @@ import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import com.belmontCrest.cardCrafter.model.repositories.FlashCardRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
+import java.util.Date
 
 
 private const val SQLITE_CONSTRAINT_EXCEPTION = 20
 
-suspend fun checkIfDeckExists(name: String, uuid: String, fCR : FlashCardRepository): Int {
+
+val time = MutableStateFlow(Date().time)
+
+fun updateCurrentTime() {
+    time.update {
+        Date().time
+    }
+}
+
+suspend fun checkIfDeckExists(name: String, uuid: String, fCR: FlashCardRepository): Int {
     return withContext(Dispatchers.IO) {
         try {
             fCR.checkIfDeckExists(name, uuid)
@@ -23,7 +35,7 @@ suspend fun checkIfDeckExists(name: String, uuid: String, fCR : FlashCardReposit
     }
 }
 
-suspend fun checkIfDeckExists(name: String, fCR : FlashCardRepository): Int {
+suspend fun checkIfDeckExists(name: String, fCR: FlashCardRepository): Int {
     return withContext(Dispatchers.IO) {
         try {
             fCR.checkIfDeckExists(name)
@@ -37,7 +49,7 @@ suspend fun checkIfDeckExists(name: String, fCR : FlashCardRepository): Int {
     }
 }
 
-suspend fun checkIfDeckUUIDExists(uuid: String, fCR : FlashCardRepository): Int {
+suspend fun checkIfDeckUUIDExists(uuid: String, fCR: FlashCardRepository): Int {
     return withContext(Dispatchers.IO) {
         try {
             fCR.checkIfDeckUUIDExists(uuid)

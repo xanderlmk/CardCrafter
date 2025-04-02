@@ -7,7 +7,6 @@ import com.belmontCrest.cardCrafter.model.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.model.repositories.ScienceSpecificRepository
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.NotationCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.ListStringConverter
@@ -29,12 +28,6 @@ class EditCardViewModel(
     private val listStringConverter = ListStringConverter()
     private val privateErrMessage = MutableStateFlow("")
     val errorMessage = privateErrMessage.asStateFlow()
-
-    fun deleteCard(card: Card) {
-        viewModelScope.launch {
-            flashCardRepository.deleteCard(card)
-        }
-    }
     fun updateBasicCard(cardId: Int, question: String, answer: String) {
         viewModelScope.launch {
             cardTypeRepository.updateBasicCard(cardId, question, answer)

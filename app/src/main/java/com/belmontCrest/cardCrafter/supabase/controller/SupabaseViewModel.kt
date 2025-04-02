@@ -17,7 +17,7 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
 import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.downloadCards
-import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.insertDeck.tryExportDeck
+import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.exportDeck.tryExportDeck
 import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.upsertDeck.tryUpsertDeck
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues
 import com.belmontCrest.cardCrafter.supabase.model.SBCards
@@ -72,7 +72,9 @@ class SupabaseViewModel(
     }
 
     private var thisSupabase = MutableStateFlow(createSupabase(getSBUrl(), getSBKey()))
-    val supabase = thisSupabase
+    val supabase = thisSupabase.asStateFlow()
+    private val thisUser = MutableStateFlow(thisSupabase.value.auth.currentUserOrNull())
+    val currentUser = thisUser.asStateFlow()
     private var isClientActive = true
 
     private val privateList = MutableStateFlow(SBDeckList())
@@ -140,6 +142,7 @@ class SupabaseViewModel(
                 }
             }
         }
+
     }
 
     fun changeDeckId(id: Int) {
@@ -167,6 +170,13 @@ class SupabaseViewModel(
         uuid.value = thisUUID
     }
 
+    fun updateStatus() {
+        thisUser.update {
+            thisSupabase.value.auth.currentUserOrNull()
+        }
+
+    }
+
     suspend fun signUpWithGoogle(
         googleIdToken: String,
         rawNonce: String
@@ -175,6 +185,9 @@ class SupabaseViewModel(
             idToken = googleIdToken
             provider = Google
             nonce = rawNonce
+        }
+        thisUser.update {
+            thisSupabase.value.auth.currentUserOrNull()
         }
     }
 
@@ -297,12 +310,13 @@ class SupabaseViewModel(
             return@withContext ReturnValues.SUCCESS
         }
     }
+
     suspend fun exportDeck(
         deck: Deck,
         description: String,
     ): Int {
         return withContext(Dispatchers.IO) {
-            tryExportDeck(thisSupabase.value,deck,description,sealedUiState.value.allCTs)
+            tryExportDeck(thisSupabase.value, deck, description, sealedUiState.value.allCTs)
         }
     }
 
@@ -312,20 +326,8 @@ class SupabaseViewModel(
         description: String
     ): Int {
         return withContext(Dispatchers.IO) {
-            val user = thisSupabase.value.auth.currentUserOrNull()
-            if (user == null) {
-                Log.d("SupabaseViewModel", "User is null!")
-                return@withContext ReturnValues.NULL_USER
-            }
             /** if successful, return 0 */
-            val success = tryUpsertDeck(
-                supabase = thisSupabase.value,
-                deck = deck,
-                description = description,
-                userId = user.id,
-                cts = sealedUiState.value.allCTs
-            )
-            return@withContext success
+            tryUpsertDeck(thisSupabase.value, deck, description, sealedUiState.value.allCTs)
         }
     }
 

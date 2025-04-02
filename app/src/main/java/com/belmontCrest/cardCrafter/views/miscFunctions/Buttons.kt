@@ -3,7 +3,7 @@ package com.belmontCrest.cardCrafter.views.miscFunctions
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -29,31 +29,34 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteCard
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.launch
 import com.belmontCrest.cardCrafter.R
+import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
 
 @Composable
 fun SmallAddButton(
     onClick: () -> Unit,
     iconSize: Int = 45,
-    getUIStyle: GetUIStyle
+    getUIStyle: GetUIStyle,
+    modifier: Modifier
 ) {
     FloatingActionButton(
         onClick = {
             onClick()
         },
-        modifier = Modifier
+        modifier = modifier
             .padding(16.dp),
         containerColor = getUIStyle.buttonColor()
 
@@ -203,10 +206,9 @@ fun SettingsButton(
 
 @Composable
 fun CardOptionsButton(
-    editCardVM: EditCardViewModel,
+    navVM : NavViewModel,
     getUIStyle: GetUIStyle, card: Card,
     fields: Fields,
-    type: MutableState<String>,
     expanded: MutableState<Boolean>,
     modifier: Modifier,
     onDelete: () -> Unit,
@@ -223,7 +225,6 @@ fun CardOptionsButton(
             modifier = Modifier
                 .size(54.dp)
                 .align(Alignment.TopEnd)
-                .offset(y = (-8).dp)
         ) {
             Icon(
                 Icons.Default.MoreVert,
@@ -233,19 +234,19 @@ fun CardOptionsButton(
         }
         DropdownMenu(expanded = expanded.value, onDismissRequest = { expanded.value = false }) {
             DropdownMenuItem(
-                onClick = { type.value = "basic" },
+                onClick = { fields.newType.value = "basic" },
                 text = { Text(stringResource(R.string.basic_card)) })
             DropdownMenuItem(
-                onClick = { type.value = "three" },
+                onClick = { fields.newType.value = "three" },
                 text = { Text(stringResource(R.string.three_field_card)) })
             DropdownMenuItem(
-                onClick = { type.value = "hint" },
+                onClick = { fields.newType.value = "hint" },
                 text = { Text(stringResource(R.string.hint_card)) })
             DropdownMenuItem(
-                onClick = { type.value = "multi" },
+                onClick = { fields.newType.value = "multi" },
                 text = { Text(stringResource(R.string.multi_choice_card)) })
             DropdownMenuItem(
-                onClick = { type.value = "notation" },
+                onClick = { fields.newType.value = "notation" },
                 text = { Text("Notation") }
             )
             HorizontalDivider()
@@ -266,9 +267,50 @@ fun CardOptionsButton(
             )
         }
         DeleteCard(
-            editCardVM, coroutineScope,
+            navVM, coroutineScope,
             card, fields, showDialog,
             onDelete, getUIStyle
         )
+    }
+}
+
+@Composable
+fun CardTypesButton(getUIStyle: GetUIStyle,navViewModel: NavViewModel) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.TopEnd)
+    ) {
+        IconButton(
+            onClick = { expanded = true },
+            modifier = Modifier
+                .padding(4.dp)
+                .size(54.dp)
+        ) {
+            Icon(
+                Icons.Default.MoreVert,
+                contentDescription = "Card Type",
+                tint = getUIStyle.titleColor()
+            )
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(
+                onClick = { navViewModel.updateType("basic") },
+                text = { Text(stringResource(R.string.basic_card)) })
+            DropdownMenuItem(
+                onClick = { navViewModel.updateType("three") },
+                text = { Text(stringResource(R.string.three_field_card)) })
+            DropdownMenuItem(
+                onClick = { navViewModel.updateType("hint") },
+                text = { Text(stringResource(R.string.hint_card)) })
+            DropdownMenuItem(
+                onClick = { navViewModel.updateType("multi") },
+                text = { Text(stringResource(R.string.multi_choice_card)) })
+            DropdownMenuItem(
+                onClick = { navViewModel.updateType("notation") },
+                text = { Text("Notation")}
+            )
+        }
     }
 }

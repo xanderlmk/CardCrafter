@@ -67,7 +67,6 @@ class CardDeckView(
         deck: Deck
     ) {
         val sealedCL by cardDeckVM.cardListUiState.collectAsStateWithLifecycle()
-        val cardsToUpdate by cardDeckVM.cardListToUpdate.collectAsStateWithLifecycle()
 
         val backupList by cardDeckVM.backupCardList.collectAsState()
         val errorState by cardDeckVM.errorState.collectAsState()
@@ -129,8 +128,11 @@ class CardDeckView(
                 if (sealedCL.allCTs.isEmpty() || dueCTs.value.isEmpty() ||
                     deck.nextReview > Date()
                 ) {
-                    dueCTs.value.clear()
-                    NoDueCards(getUIStyle)
+                    if (cardDeckVM.getState() == CardState.Loading){
+
+                    } else {
+                        NoDueCards(getUIStyle)
+                    }
 
                 } else {
                     if (index.intValue < dueCTs.value.size) {
@@ -225,11 +227,6 @@ class CardDeckView(
                                                     ) {
                                                         delay(36)
                                                     }
-                                                    cardDeckVM.addCardToTheUpdateCardsList(
-                                                        returnCard(
-                                                            sealedCL.savedCTs[index.intValue]
-                                                        )
-                                                    )
                                                     scrollState.animateScrollTo(0)
                                                     clicked = false
                                                 }
@@ -271,11 +268,6 @@ class CardDeckView(
                                                     ) {
                                                         delay(36)
                                                     }
-                                                    cardDeckVM.addCardToTheUpdateCardsList(
-                                                        returnCard(
-                                                            sealedCL.savedCTs[index.intValue]
-                                                        )
-                                                    )
                                                     index.intValue =
                                                         ((index.intValue + 1))
                                                     cardDeckVM.updateIndex(index.intValue)
@@ -321,11 +313,6 @@ class CardDeckView(
                                                     ) {
                                                         delay(36)
                                                     }
-                                                    cardDeckVM.addCardToTheUpdateCardsList(
-                                                        returnCard(
-                                                            sealedCL.savedCTs[index.intValue]
-                                                        )
-                                                    )
                                                     index.intValue =
                                                         ((index.intValue + 1))
                                                     cardDeckVM.updateIndex(index.intValue)
@@ -352,16 +339,13 @@ class CardDeckView(
                                     cardDeckVM.transitionTo(CardState.Loading)
                                     updateDecksCardList(
                                         deck,
-                                        cardsToUpdate,
                                         cardDeckVM
                                     )
                                     while (cardDeckVM.getState() == CardState.Loading) {
                                         delay(50)
                                     }
                                     cardDeckVM.updateWhichDeck(0)
-                                    if ((sealedCL.allCTs.isEmpty()) &&
-                                        deck.nextReview >= Date()
-                                    ) {
+                                    if ((sealedCL.allCTs.isEmpty()) && deck.nextReview >= Date()) {
                                         dueCTs.value.clear()
                                     }
                                     if (!errorState?.message.isNullOrEmpty()) {

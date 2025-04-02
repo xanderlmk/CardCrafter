@@ -118,7 +118,7 @@ class OfflineFlashCardRepository(
 
     override suspend fun deleteCard(card: Card) = cardDao.deleteCard(card)
 
-    override fun getCardStream(cardId: Int) = cardDao.getCard(cardId)
+    override fun getCardStream(cardId: Int) = cardDao.getCardStream(cardId)
 
     @OptIn(FlowPreview::class)
     override fun getDeckWithCards(deckId: Int):
@@ -129,7 +129,7 @@ class OfflineFlashCardRepository(
 
     override suspend fun deleteAllCards(deckId: Int) = cardDao.deleteAllCards(deckId)
 
-    override suspend fun getCardById(cardId: Int) = cardDao.getCardById(cardId)
+    override fun getCardById(cardId: Int) = cardDao.getCardById(cardId)
 
     override suspend fun getBackupDueCards(deckId: Int, cardAmount: Int): List<Card> =
         cardDao.getBackupDueCards(deckId, cardAmount)

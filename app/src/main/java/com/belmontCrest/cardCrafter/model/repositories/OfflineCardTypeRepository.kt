@@ -103,5 +103,5 @@ class OfflineCardTypeRepository(
     }
 
 
-    override suspend fun getACardType(id: Int) = cardTypesDao.getACardType(id)
+    override fun getACardType(id: Int) = cardTypesDao.getACardType(id)
 }

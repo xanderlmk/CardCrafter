@@ -129,8 +129,7 @@ suspend fun redoACard(ct : CT, cardDeckVM : CardDeckViewModel, index : Int,
          * (the redo card) hence we call this getRedoCard.
          */
         is CT.Basic -> {
-            ct.card = cardDeckVM.getRedoCard(ct.card.id)
-            cardDeckVM.getRedoCardType(
+            ct.card = cardDeckVM.getRedoCardType(
                 ct.card.id,
                 index
             ).also {
@@ -138,8 +137,7 @@ suspend fun redoACard(ct : CT, cardDeckVM : CardDeckViewModel, index : Int,
             }
         }
         is CT.Hint -> {
-            ct.card = cardDeckVM.getRedoCard(ct.card.id)
-            cardDeckVM.getRedoCardType(
+            ct.card = cardDeckVM.getRedoCardType(
                 ct.card.id,
                 index
             ).also {
@@ -147,8 +145,7 @@ suspend fun redoACard(ct : CT, cardDeckVM : CardDeckViewModel, index : Int,
             }
         }
         is CT.ThreeField -> {
-            ct.card = cardDeckVM.getRedoCard(ct.card.id)
-            cardDeckVM.getRedoCardType(
+            ct.card = cardDeckVM.getRedoCardType(
                 ct.card.id,
                 index
             ).also {
@@ -156,8 +153,7 @@ suspend fun redoACard(ct : CT, cardDeckVM : CardDeckViewModel, index : Int,
             }
         }
         is CT.MultiChoice->{
-            ct.card = cardDeckVM.getRedoCard(ct.card.id)
-            cardDeckVM.getRedoCardType(
+            ct.card = cardDeckVM.getRedoCardType(
                 ct.card.id,
                 index
             ).also {
@@ -165,8 +161,7 @@ suspend fun redoACard(ct : CT, cardDeckVM : CardDeckViewModel, index : Int,
             }
         }
         is CT.Notation -> {
-            ct.card = cardDeckVM.getRedoCard(ct.card.id)
-            cardDeckVM.getRedoCardType(
+            ct.card = cardDeckVM.getRedoCardType(
                 ct.card.id,
                 index
             ).also {

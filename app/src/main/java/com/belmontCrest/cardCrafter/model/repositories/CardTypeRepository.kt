@@ -54,5 +54,5 @@ interface CardTypeRepository {
     fun getDueAllCardTypes(deckId: Int, cardAmount: Int, currentTime: Long = Date().time):
             List<CT>
 
-    suspend fun getACardType(id: Int): AllCardTypes
+    fun getACardType(id: Int): AllCardTypes
 }

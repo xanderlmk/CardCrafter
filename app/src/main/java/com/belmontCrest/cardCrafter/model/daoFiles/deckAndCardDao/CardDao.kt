@@ -32,7 +32,7 @@ interface CardDao {
     fun getDeckWithCards(deckId: Int): Flow<DeckWithCards>
 
     @Query("SELECT * FROM cards WHERE id = :cardId")
-    fun getCard(cardId: Int) : Flow<Card>
+    fun getCardStream(cardId: Int) : Flow<Card>
 
     @Query("SELECT * FROM cards WHERE deckId = :deckId AND nextReview <= :currentTime")
     fun getDueCards(deckId: Int, currentTime: Long = Date().time): Flow<List<Card>>
@@ -60,7 +60,7 @@ interface CardDao {
     suspend fun becomePartOfList(id: Int)
 
     @Query("SELECT * FROM cards WHERE id = :cardId")
-    suspend fun getCardById(cardId: Int): Card
+    fun getCardById(cardId: Int): Card
 
     @Query(
         """

@@ -10,7 +10,7 @@ import com.belmontCrest.cardCrafter.supabase.model.SBDecks
 import com.belmontCrest.cardCrafter.supabase.model.SBMultiCard
 import com.belmontCrest.cardCrafter.supabase.model.SBNotationCard
 
-fun returnDeckToExport(
+fun ctsToSbCts(
     deck: Deck, cts: List<CT>,
     description: String, userId: String
 ): SBDeckToExport {

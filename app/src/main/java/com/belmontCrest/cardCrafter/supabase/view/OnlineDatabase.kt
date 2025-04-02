@@ -35,24 +35,25 @@ import com.belmontCrest.cardCrafter.supabase.model.SBDecks
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.views.miscFunctions.ExportDeckButton
-import io.github.jan.supabase.gotrue.auth
 
 class OnlineDatabase(
     private val getUIStyle: GetUIStyle,
     private val supabaseVM: SupabaseViewModel,
-    private val localDeckList: List<Deck>) {
+    private val localDeckList: List<Deck>
+) {
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Composable
     fun SupabaseView(
         onImportDeck: (String) -> Unit,
-        onExportDeck: () -> Unit) {
-        val supabase by supabaseVM.supabase.collectAsStateWithLifecycle()
+        onExportDeck: () -> Unit
+    ) {
+        val currentUser by supabaseVM.currentUser.collectAsStateWithLifecycle()
         val deckList by supabaseVM.deckList.collectAsStateWithLifecycle()
         var pressed = rememberSaveable { mutableStateOf(false) }
-        LaunchedEffect(supabase.auth.currentUserOrNull()) {
+        LaunchedEffect(currentUser) {
             supabaseVM.getDeckList()
         }
-        if (supabase.auth.currentUserOrNull() == null) {
+        if (currentUser == null) {
             SignUp(supabaseVM, getUIStyle)
         } else {
             Box(
@@ -62,7 +63,8 @@ class OnlineDatabase(
             ) {
                 LocalDecks(
                     pressed, localDeckList, getUIStyle,
-                    supabaseVM, onExportDeck)
+                    supabaseVM, onExportDeck
+                )
                 LazyColumn(
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
@@ -96,7 +98,7 @@ class OnlineDatabase(
                 )
                 .padding(4.dp)
                 .clickable {
-                        onImportDeck(deck.deckUUID)
+                    onImportDeck(deck.deckUUID)
                 }
         ) {
             Column(
@@ -137,5 +139,4 @@ class OnlineDatabase(
             }
         }
     }
-
 }

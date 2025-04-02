@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">flashcards</string>
+    <string name="app_name" translatable="false">CardCrafter</string>
     <string name="add_card">Add Card</string>
     <string name="deck_list">Decks</string>
     <string name="add_deck">Add Deck</string>

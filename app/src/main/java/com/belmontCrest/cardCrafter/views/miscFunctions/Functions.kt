@@ -89,7 +89,7 @@ fun GoodText(
 fun NoDueCards(getUIStyle: GetUIStyle) {
     var delay by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        delay(200)
+        delay(500)
         delay = true
     }
     if (delay) {
@@ -242,6 +242,7 @@ fun getSavableFields(fields: Fields): Fields {
         inDeckClicked = fields.inDeckClicked,
         mainClicked = fields.mainClicked,
         leftDueCardView = fields.leftDueCardView,
+        newType = fields.newType
     )
 }
 

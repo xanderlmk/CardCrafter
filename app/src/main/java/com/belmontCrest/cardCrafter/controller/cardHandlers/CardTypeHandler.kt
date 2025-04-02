@@ -21,7 +21,6 @@ import com.belmontCrest.cardCrafter.views.miscFunctions.details.createThreeOrHin
 interface CardTypeHandler {
     @Composable
     fun HandleCardEdit(
-        cardId: Int,
         fields: Fields,
         ct : CT,
         changed : Boolean,
@@ -32,7 +31,6 @@ interface CardTypeHandler {
 class BasicCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        cardId: Int,
         fields: Fields,
         ct : CT,
         changed : Boolean,
@@ -67,7 +65,6 @@ class BasicCardTypeHandler : CardTypeHandler {
 class ThreeCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        cardId: Int,
         fields: Fields,
         ct : CT,
         changed : Boolean,
@@ -109,7 +106,6 @@ class ThreeCardTypeHandler : CardTypeHandler {
 class HintCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        cardId: Int,
         fields: Fields,
         ct : CT,
         changed : Boolean,
@@ -149,7 +145,6 @@ class HintCardTypeHandler : CardTypeHandler {
 class ChoiceCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        cardId: Int,
         fields: Fields,
         ct : CT,
         changed : Boolean,
@@ -191,7 +186,6 @@ class ChoiceCardTypeHandler : CardTypeHandler {
 class NotationCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        cardId: Int,
         fields: Fields,
         ct: CT,
         changed : Boolean,
@@ -246,7 +240,6 @@ fun returnCardTypeHandler(newType : String, currentType : String) : CardTypeHand
                 NotationCardTypeHandler()
             }
             else -> {
-                println("NULL")
                 null
             }
         }
@@ -268,7 +261,6 @@ fun returnCardTypeHandler(newType : String, currentType : String) : CardTypeHand
                 NotationCardTypeHandler()
             }
             else -> {
-                println("NULL")
                 null
             }
         }

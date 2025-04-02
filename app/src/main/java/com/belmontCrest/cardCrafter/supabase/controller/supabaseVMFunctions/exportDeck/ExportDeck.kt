@@ -1,9 +1,9 @@
-package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.insertDeck
+package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.exportDeck
 
 import android.util.Log
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
-import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.returnDeckToExport
+import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.ctsToSbCts
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_CARD_LIST
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_USER
@@ -47,7 +47,7 @@ suspend fun tryExportDeck(
         return EMPTY_CARD_LIST
     }
 
-    val deckToExport = returnDeckToExport(
+    val deckToExport = ctsToSbCts(
         deck, cts, description, user.id
     )
     try {
@@ -63,6 +63,5 @@ suspend fun tryExportDeck(
     } catch (e: Exception) {
         Log.d("NEW export", "$e")
     }
-
     return UNKNOWN_ERROR
 }

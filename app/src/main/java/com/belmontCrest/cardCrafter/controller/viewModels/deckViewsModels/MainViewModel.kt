@@ -20,8 +20,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -38,7 +38,7 @@ class MainViewModel(
 ) : ViewModel() {
     /** Updating this value whenever a user adds a cards and goes back to the
      * DeckOptionsDestination route */
-    private val currentTime = MutableStateFlow(Date().time)
+    private val currentTime = time.asStateFlow()
 
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
@@ -75,12 +75,6 @@ class MainViewModel(
     private fun updateActivity() {
         appStarted.value = true
         savedStateHandle["appStarted"] = true
-    }
-
-    fun updateCurrentTime() {
-        currentTime.update {
-            Date().time
-        }
     }
 
     suspend fun performDatabaseUpdate() {

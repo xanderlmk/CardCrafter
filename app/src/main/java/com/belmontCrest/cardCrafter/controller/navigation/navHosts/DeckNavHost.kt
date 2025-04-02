@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -29,7 +28,7 @@ import com.belmontCrest.cardCrafter.controller.navigation.ViewAllCardsDestinatio
 import com.belmontCrest.cardCrafter.controller.navigation.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
+import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.views.cardViews.addCardViews.AddCardView
@@ -44,19 +43,17 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun DeckNavHost(
-    navController: NavHostController,
-    cardDeckVM: CardDeckViewModel,
-    fields: Fields, mainViewModel: MainViewModel,
-    onDeckView: Boolean, navViewModel: NavViewModel,
+    navController: NavHostController, cardDeckVM: CardDeckViewModel,
+    fields: Fields, onDeckView: Boolean, navViewModel: NavViewModel,
     getUIStyle: GetUIStyle, editingCardListVM: EditingCardListViewModel
 ) {
     val deckNavController = rememberNavController()
     val listState = rememberLazyListState()
-
+    val route by navViewModel.route.collectAsStateWithLifecycle()
     val deckView = DeckView(
         fields, getUIStyle,
     )
-    val addCardView = AddCardView(fields, getUIStyle)
+    val addCardView = AddCardView(fields, getUIStyle, navViewModel)
     val cardDeckView = CardDeckView(
         cardDeckVM, getUIStyle, fields
     )
@@ -73,15 +70,21 @@ fun DeckNavHost(
     LaunchedEffect(Unit) {
         navViewModel.updateDeckNav(deckNavController)
     }
-
     val coroutineScope = rememberCoroutineScope()
 
-    val deck by navViewModel.deck.collectAsStateWithLifecycle()
-    val selectedCard by navViewModel.card.collectAsStateWithLifecycle()
-    val cardsToUpdate by cardDeckVM.cardListToUpdate.collectAsStateWithLifecycle()
+    /** Determining whether to start on the DeckView or DueCards */
+    val startDestination = if (route.name == ViewDueCardsDestination.route) {
+        ViewDueCardsDestination.route
+    } else {
+        DeckViewDestination.route
+    }
+
+    val wd by navViewModel.wd.collectAsStateWithLifecycle()
+    val sc by navViewModel.card.collectAsStateWithLifecycle()
+
     NavHost(
         navController = deckNavController,
-        startDestination = DeckViewDestination.route,
+        startDestination = startDestination,
         route = DeckNavDestination.route,
     ) {
         composable(
@@ -91,7 +94,7 @@ fun DeckNavHost(
             BackHandler {
                 navViewModel.updateRoute(DeckListDestination.route)
                 BackNavHandler.returnToDeckListFromDeck(
-                    navController, mainViewModel.updateCurrentTime(),
+                    navController, updateCurrentTime(),
                     cardDeckVM.updateIndex(0), fields
                 )
             }
@@ -102,7 +105,7 @@ fun DeckNavHost(
              * and go back into the DeckOptions, since onDeckView will become
              * true. */
 
-            deck.let {
+            wd.deck.let {
                 LaunchedEffect(Unit) {
                     if (!onDeckView) {
                         coroutineScope.launch {
@@ -112,20 +115,18 @@ fun DeckNavHost(
                     }
                 }
             }
-            deck?.let {
+            wd.deck?.let {
                 deckView.ViewEditDeck(
                     deck = it,
                     goToAddCard = { id ->
                         fields.inDeckClicked.value = true
                         fields.mainClicked.value = false
-                        navViewModel.updateRoute(AddCardDestination.createRoute(id))
+                        navViewModel.updateRoute(AddCardDestination.route)
                         deckNavController.navigate(AddCardDestination.createRoute(id))
                     },
                     goToDueCards = { id ->
-                        fields.inDeckClicked.value = true
+                        fields.navigateToDueCards()
                         cardDeckVM.updateWhichDeck(id)
-                        fields.mainClicked.value = false
-                        fields.leftDueCardView.value = false
                         navViewModel.updateRoute(ViewDueCardsDestination.route)
                         deckNavController.navigate(ViewDueCardsDestination.route)
                     }
@@ -143,46 +144,44 @@ fun DeckNavHost(
                 )
             }
 
-            deck?.let {
+            wd.deck?.let {
                 addCardView.AddCard(
-                    deck = it,
-                    onNavigate = {
-                        fields.inDeckClicked.value = false
-                        fields.resetFields()
-                        navViewModel.updateRoute(DeckViewDestination.route)
-                        deckNavController.navigate(
-                            DeckViewDestination.route
-                        )
-                    }
+                    deck = it
                 )
             }
         }
         composable(ViewDueCardsDestination.route) {
             BackHandler {
-                fields.inDeckClicked.value = false
-                navViewModel.updateRoute(DeckViewDestination.route)
-                deckNavController.popBackStack(
-                    DeckViewDestination.route,
-                    inclusive = false
-                )
+                if (route.name == ViewDueCardsDestination.route) {
+                    navViewModel.updateRoute(DeckListDestination.route)
+                    BackNavHandler.returnToDeckListFromDeck(
+                        navController, updateCurrentTime(),
+                        cardDeckVM.updateIndex(0), fields
+                    )
+                } else {
+                    fields.inDeckClicked.value = false
+                    navViewModel.updateRoute(DeckViewDestination.route)
+                    deckNavController.popBackStack(
+                        DeckViewDestination.route,
+                        inclusive = false
+                    )
+                }
                 fields.leftDueCardView.value = true
-                deck?.let {
+                wd.deck?.let {
                     /** If the list is empty, no cards
                      *  have been due even before the user joined,
                      *  or the user finished the deck.
                      */
-                    if (cardsToUpdate.isNotEmpty()) {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            updateDecksCardList(
-                                it,
-                                cardsToUpdate,
-                                cardDeckVM
-                            )
-                        }
+                    coroutineScope.launch(Dispatchers.IO) {
+                        updateDecksCardList(
+                            it,
+                            cardDeckVM
+                        )
                     }
+
                 }
             }
-            deck?.let {
+            wd.deck?.let {
                 cardDeckView.ViewCard(
                     deck = it
                 )
@@ -191,20 +190,22 @@ fun DeckNavHost(
         composable(EditDeckDestination.route) { backStackEntry ->
             val currentName =
                 backStackEntry.arguments?.getString("currentName")
-
             BackHandler {
                 fields.inDeckClicked.value = false
                 navViewModel.updateRoute(DeckViewDestination.route)
+                cardDeckVM.updateWhichDeck(0)
+                updateCurrentTime()
                 deckNavController.popBackStack(
                     DeckViewDestination.route,
                     inclusive = false
                 )
             }
-            deck?.let {
+            wd.deck?.let {
                 editDeckView.EditDeck(
                     currentName = currentName ?: "",
                     deck = it,
                     onNavigate = {
+                        cardDeckVM.updateWhichDeck(0)
                         fields.inDeckClicked.value = false
                         navViewModel.updateRoute(DeckViewDestination.route)
                         deckNavController.navigate(
@@ -228,20 +229,15 @@ fun DeckNavHost(
                     inclusive = false
                 )
             }
-            deck?.let { thisDeck ->
+            wd.deck?.let { thisDeck ->
                 editCardsList.ViewFlashCards(
-                    onNavigate = {
-                        fields.inDeckClicked.value = false
-                        navViewModel.updateRoute(DeckViewDestination.route)
-                        deckNavController.navigate(DeckViewDestination.route)
-                    },
                     goToEditCard = { index, cardId ->
+                        fields.resetFields()
                         coroutineScope.launch {
                             navViewModel.getCardById(cardId)
                         }
-                        fields.resetFields()
                         navViewModel.updateRoute(
-                            EditingCardDestination.createRoute(index)
+                            EditingCardDestination.route
                         )
                         deckNavController.navigate(
                             EditingCardDestination.createRoute(index)
@@ -256,27 +252,23 @@ fun DeckNavHost(
                 navArgument("index") { type = NavType.IntType })
         ) { backStackEntry ->
             val index = backStackEntry.arguments?.getInt("index")
-
             BackHandler {
-                editCardsList.isEditing.value = false
-                fields.inDeckClicked.value = false
-
+                fields.navigateToCardList()
+                navViewModel.resetCard()
                 navViewModel.updateRoute(ViewAllCardsDestination.route)
                 deckNavController.popBackStack(
                     ViewAllCardsDestination.route,
                     inclusive = false
                 )
             }
-            selectedCard?.let {
+            sc.card?.let {
                 editingCardView.EditFlashCardView(
                     card = it,
                     fields = fields,
-                    selectedCard = mutableStateOf(selectedCard),
                     index = index ?: 0,
                     onNavigateBack = {
-                        editCardsList.isEditing.value = false
-                        fields.inDeckClicked.value = false
-
+                        fields.navigateToCardList()
+                        navViewModel.resetCard()
                         navViewModel.updateRoute(ViewAllCardsDestination.route)
                         deckNavController.navigate(ViewAllCardsDestination.route)
                     }

@@ -1,5 +1,7 @@
 package com.belmontCrest.cardCrafter.controller.navigation.drawer
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,12 +40,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.belmontCrest.cardCrafter.controller.cardHandlers.updateDecksCardList
 import com.belmontCrest.cardCrafter.controller.navigation.DeckListDestination
+import com.belmontCrest.cardCrafter.controller.navigation.MainNavDestination
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.controller.navigation.SBNavDestination
 import com.belmontCrest.cardCrafter.controller.navigation.SettingsDestination
 import com.belmontCrest.cardCrafter.controller.navigation.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.controller.navigation.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
+import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -51,6 +55,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(InternalComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CustomNavigationDrawer(
@@ -58,7 +63,6 @@ fun CustomNavigationDrawer(
     navController: NavHostController,
     fields: Fields,
     getUIStyle: GetUIStyle,
-    mainViewModel: MainViewModel,
     navViewModel: NavViewModel,
     deck: Deck?,
     cardDeckVM: CardDeckViewModel,
@@ -67,27 +71,26 @@ fun CustomNavigationDrawer(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
-    // Observe the current back stack entry as state.
-    val cardsToUpdate by cardDeckVM.cardListToUpdate.collectAsStateWithLifecycle()
     // Extract the current route.
-    val currentRoute = navViewModel.route.collectAsStateWithLifecycle().value
+    val cr = navViewModel.route.collectAsStateWithLifecycle().value
     val stateSize = cardDeckVM.stateSize.collectAsStateWithLifecycle().value
     val stateIndex = cardDeckVM.stateIndex.collectAsStateWithLifecycle().value
 
-    val name by navViewModel.name.collectAsStateWithLifecycle()
+    val deckName by navViewModel.deckName.collectAsStateWithLifecycle()
 
     // Determine the title based on the current route.
-    val titleText = when (currentRoute) {
+    val titleText = when (cr.name) {
+        MainNavDestination.route -> "Decks"
         DeckListDestination.route -> "Decks"
         SettingsDestination.route -> "Settings"
-        ViewAllCardsDestination.route -> name
+        ViewAllCardsDestination.route -> deckName.name
         ViewDueCardsDestination.route -> if (stateSize == 0) {
             ""
         } else {
             "Card ${stateIndex + 1} out of $stateSize"
         }
-
-        else -> "App"
+        SBNavDestination.route -> "Online Decks"
+        else -> "CardCrafter"
     }
 
     ModalNavigationDrawer(
@@ -103,27 +106,25 @@ fun CustomNavigationDrawer(
                         .fillMaxWidth()
                         .clickable {
                             fields.mainClicked.value = false
-                            if (currentRoute == ViewDueCardsDestination.route) {
+                            if (cr.name == ViewDueCardsDestination.route) {
                                 deck?.let {
                                     /** If the list is empty, no cards
                                      *  have been due even before the user joined,
                                      *  or the user finished the deck.
                                      */
                                     println("updating cards!")
-                                    if (cardsToUpdate.isNotEmpty()) {
-                                        coroutineScope.launch(Dispatchers.IO) {
-                                            updateDecksCardList(
-                                                it,
-                                                cardsToUpdate,
-                                                cardDeckVM
-                                            )
-                                        }
+                                    coroutineScope.launch(Dispatchers.IO) {
+                                        updateDecksCardList(
+                                            it,
+                                            cardDeckVM
+                                        )
                                     }
+
                                 }
                             }
                             launchHome(
-                                coroutineScope, mainViewModel,
-                                navViewModel, cardDeckVM, fields
+                                coroutineScope, navViewModel,
+                                cardDeckVM, fields
                             )
                             navViewModel.updateRoute(DeckListDestination.route)
                             navController.navigate(DeckListDestination.route)
@@ -152,21 +153,18 @@ fun CustomNavigationDrawer(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            if (currentRoute == ViewDueCardsDestination.route) {
+                            if (cr.name == ViewDueCardsDestination.route) {
                                 deck?.let {
                                     /** If the list is empty, no cards
                                      *  have been due even before the user joined,
                                      *  or the user finished the deck.
                                      */
                                     println("updating cards!")
-                                    if (cardsToUpdate.isNotEmpty()) {
-                                        coroutineScope.launch(Dispatchers.IO) {
-                                            updateDecksCardList(
-                                                it,
-                                                cardsToUpdate,
-                                                cardDeckVM
-                                            )
-                                        }
+                                    coroutineScope.launch(Dispatchers.IO) {
+                                        updateDecksCardList(
+                                            it,
+                                            cardDeckVM
+                                        )
                                     }
                                 }
                             }
@@ -232,9 +230,8 @@ fun CustomNavigationDrawer(
                     actions = {
                         deck?.let {
                             ActionIconButton(
-                                currentRoute, navController,
-                                getUIStyle, cardDeckVM,
-                                it, fields, navViewModel
+                                getUIStyle, cardDeckVM, it,
+                                fields, navViewModel
                             )
                         }
                     }
@@ -251,13 +248,12 @@ fun CustomNavigationDrawer(
 
 fun launchHome(
     coroutineScope: CoroutineScope,
-    mainViewModel: MainViewModel,
     navViewModel: NavViewModel,
     cardDeckVM: CardDeckViewModel,
     fields: Fields
 ) {
     coroutineScope.launch {
-        mainViewModel.updateCurrentTime()
+        updateCurrentTime()
         navViewModel.resetCard()
         cardDeckVM.updateIndex(0)
         fields.scrollPosition.value = 0

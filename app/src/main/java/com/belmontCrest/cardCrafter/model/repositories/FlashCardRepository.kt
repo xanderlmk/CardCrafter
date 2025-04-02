@@ -35,7 +35,7 @@ interface FlashCardRepository {
 
     fun getDeck(id: Int): Deck
 
-    fun getDeckName(id: Int) : Flow<String>
+    fun getDeckName(id: Int) : Flow<String?>
 
     fun getCardCount(currentTime: Long): Flow<List<Int>>
 
@@ -68,7 +68,7 @@ interface FlashCardRepository {
 
     suspend fun deleteAllCards(deckId: Int)
 
-    suspend fun getCardById(cardId : Int) : Card
+    fun getCardById(cardId : Int) : Card
 
     suspend fun getBackupDueCards(deckId: Int, cardAmount : Int) : List<Card>
 
