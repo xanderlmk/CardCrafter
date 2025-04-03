@@ -49,9 +49,15 @@ class OnlineDatabase(
     ) {
         val currentUser by supabaseVM.currentUser.collectAsStateWithLifecycle()
         val deckList by supabaseVM.deckList.collectAsStateWithLifecycle()
+        val owner by supabaseVM.owner.collectAsStateWithLifecycle()
         var pressed = rememberSaveable { mutableStateOf(false) }
         LaunchedEffect(currentUser) {
             supabaseVM.getDeckList()
+        }
+        LaunchedEffect(Unit) {
+            if (currentUser == null) {
+                supabaseVM.updateStatus()
+            }
         }
         if (currentUser == null) {
             SignUp(supabaseVM, getUIStyle)
@@ -61,10 +67,16 @@ class OnlineDatabase(
                     .boxViewsModifier(getUIStyle.getColorScheme()),
                 contentAlignment = Alignment.TopCenter
             ) {
-                LocalDecks(
-                    pressed, localDeckList, getUIStyle,
-                    supabaseVM, onExportDeck
-                )
+                if(owner != null) {
+                    LocalDecks(
+                        pressed, localDeckList, getUIStyle,
+                        supabaseVM, onExportDeck
+                    )
+                } else {
+                    CreateAccount(
+                        supabaseVM, pressed, getUIStyle
+                    )
+                }
                 LazyColumn(
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,

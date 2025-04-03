@@ -16,7 +16,7 @@ class Fields(
     var question : MutableState<String> = mutableStateOf(""),
     var middleField : MutableState<String> = mutableStateOf(""),
     var answer : MutableState<String> = mutableStateOf(""),
-    var choices: MutableList<MutableState<String>> = MutableList(4) { mutableStateOf("") },
+    var choices: List<MutableState<String>> = List(4) { mutableStateOf("") },
     var correct: MutableState<Char> = mutableStateOf('?'),
     var scrollPosition : MutableState<Int> = mutableIntStateOf(0),
     val mainClicked : MutableState<Boolean> = mutableStateOf(false),
@@ -55,9 +55,8 @@ class Fields(
         question = mutableStateOf(parcel.readString()!!),
         middleField = mutableStateOf(parcel.readString()!!),
         answer = mutableStateOf(parcel.readString()!!),
-        choices = mutableListOf<MutableState<String>>().apply {
-            parcel.readStringList(this.map { it.value }.toMutableList())
-            addAll(this)
+        choices = listOf<MutableState<String>>().apply {
+            parcel.readStringList(this.map { it.value })
         },
         correct = mutableStateOf(parcel.readString()!![0]),
         scrollPosition = mutableIntStateOf(parcel.readInt()),

@@ -18,7 +18,6 @@ import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.AddDec
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.DeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.EditDeckViewModel
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.FlashCardApplication
-import com.belmontCrest.cardCrafter.supabase.controller.APIViewModel
 
 
 /**
@@ -88,9 +87,6 @@ object AppViewModelProvider {
                 flashCardApplication().container.scienceSpecificRepository,
                 flashCardApplication()
             )
-        }
-        initializer {
-            APIViewModel()
         }
     }
 }

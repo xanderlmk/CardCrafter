@@ -5,8 +5,7 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.ctsToSbCts
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues
-import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CARD_UNABLE_TO_UPLOAD
-import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_UNABLE_TO_UPLOAD
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CC_LESS_THAN_20
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_CARD_LIST
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOT_DECK_OWNER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
@@ -18,8 +17,6 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.rpc
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
@@ -47,6 +44,8 @@ suspend fun tryUpsertDeck(
 
     if (cts.isEmpty()) {
         return EMPTY_CARD_LIST
+    } else if(cts.size < 20){
+        return CC_LESS_THAN_20
     }
 
     val deckToUpsert = ctsToSbCts(deck, cts, description, user.id)
@@ -63,6 +62,8 @@ suspend fun tryUpsertDeck(
             return SUCCESS
         } else if (successResponse.data == "NOT OWNER") {
             return NOT_DECK_OWNER
+        }  else if (successResponse.data == "Card Count less than 20.") {
+            return CC_LESS_THAN_20
         }
     } catch (e: Exception) {
         Log.d("NEW export", "$e")

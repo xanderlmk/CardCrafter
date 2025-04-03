@@ -113,7 +113,13 @@ fun AppNavHost(
                         navController.navigate(AddDeckDestination.route)
                     },
                     onNavigateToSBDeckList = {
-                        supabaseVM.updateStatus()
+                        coroutineScope.launch {
+                            supabaseVM.updateStatus()
+                            supabaseVM.getOwner()
+                        }
+                        coroutineScope.launch {
+                            supabaseVM.getGoogleId()
+                        }
                         navViewModel.updateRoute(SBNavDestination.route)
                         navController.navigate(SBNavDestination.route)
                     },

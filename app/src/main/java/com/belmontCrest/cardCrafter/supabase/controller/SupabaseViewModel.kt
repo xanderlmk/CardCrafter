@@ -19,7 +19,13 @@ import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
 import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.downloadCards
 import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.exportDeck.tryExportDeck
 import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.upsertDeck.tryUpsertDeck
+import com.belmontCrest.cardCrafter.supabase.model.GoogleClientResponse
+import com.belmontCrest.cardCrafter.supabase.model.Owner
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_CARD_LIST
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_OWNER
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UUID_CONFLICT
 import com.belmontCrest.cardCrafter.supabase.model.SBCards
 import com.belmontCrest.cardCrafter.supabase.model.SBDeckList
 import com.belmontCrest.cardCrafter.supabase.model.SBDecks
@@ -35,6 +41,12 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.realtime.realtime
 import io.github.jan.supabase.realtime.selectAsFlow
+import io.ktor.client.call.body
+import io.ktor.client.request.header
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -71,9 +83,12 @@ class SupabaseViewModel(
         private const val TIMEOUT_MILLIS = 4_000L
     }
 
-    private var thisSupabase = MutableStateFlow(createSupabase(getSBUrl(), getSBKey()))
-    val supabase = thisSupabase.asStateFlow()
-    private val thisUser = MutableStateFlow(thisSupabase.value.auth.currentUserOrNull())
+    private var googleClientId = MutableStateFlow("")
+    val clientId = googleClientId.asStateFlow()
+
+    private var _supabase = MutableStateFlow(createSupabase(getSBUrl(), getSBKey()))
+    val supabase = _supabase.asStateFlow()
+    private val thisUser = MutableStateFlow(_supabase.value.auth.currentUserOrNull())
     val currentUser = thisUser.asStateFlow()
     private var isClientActive = true
 
@@ -117,9 +132,12 @@ class SupabaseViewModel(
     )
     var sealedAllCTs = sealedUiState
 
+    private val _owner: MutableStateFlow<Owner?> = MutableStateFlow(null)
+    val owner = _owner.asStateFlow()
+
     suspend fun connectSupabase() {
-        thisSupabase.value.useHTTPS
-        thisSupabase.value.realtime.connect()
+        _supabase.value.useHTTPS
+        _supabase.value.realtime.connect()
     }
 
     init {
@@ -127,7 +145,7 @@ class SupabaseViewModel(
             application.networkConnectivityFlow().collectLatest { isConnected ->
                 if (!isConnected && isClientActive) {
                     Log.d("NETWORK", "NETWORK HAS BEEN DISCONNECTED")
-                    thisSupabase.value.close()
+                    _supabase.value.close()
                     delay(2000)
                     privateList.update {
                         SBDeckList()
@@ -136,13 +154,13 @@ class SupabaseViewModel(
                 } else if (isConnected && !isClientActive) {
                     // Reinitialize the client only if it's not active
                     Log.d("NETWORK", "RECONNECTED!")
-                    thisSupabase.value = createSupabase(getSBUrl(), getSBKey())
+                    _supabase.value = createSupabase(getSBUrl(), getSBKey())
                     getDeckList()
+                    getOwner()
                     isClientActive = true
                 }
             }
         }
-
     }
 
     fun changeDeckId(id: Int) {
@@ -172,29 +190,29 @@ class SupabaseViewModel(
 
     fun updateStatus() {
         thisUser.update {
-            thisSupabase.value.auth.currentUserOrNull()
+            _supabase.value.auth.currentUserOrNull()
         }
-
     }
 
     suspend fun signUpWithGoogle(
         googleIdToken: String,
         rawNonce: String
     ) {
-        thisSupabase.value.auth.signInWith(IDToken) {
+        _supabase.value.auth.signInWith(IDToken) {
             idToken = googleIdToken
             provider = Google
             nonce = rawNonce
         }
         thisUser.update {
-            thisSupabase.value.auth.currentUserOrNull()
+            _supabase.value.auth.currentUserOrNull()
         }
+        getOwner()
     }
 
     fun getDeckList() {
         try {
             viewModelScope.launch {
-                thisSupabase.value.from("deck")
+                _supabase.value.from("deck")
                     .selectAsFlow(SBDecks::deckUUID).collect { list ->
                         privateList.update {
                             it.copy(
@@ -218,7 +236,6 @@ class SupabaseViewModel(
                 }
             }
         }
-
     }
 
     private suspend fun checkDeckNameAndUUID(name: String, uuid: String): Int {
@@ -237,6 +254,44 @@ class SupabaseViewModel(
         return withContext(Dispatchers.IO) {
             checkIfDeckUUIDExists(uuid, flashCardRepository)
         }
+    }
+
+    fun getOwner() {
+        val user = _supabase.value.auth.currentUserOrNull()
+        if (user == null) {
+            return
+        }
+        viewModelScope.launch {
+            _owner.update {
+                _supabase.value.from("owner")
+                    .select(Columns.ALL) {
+                        filter {
+                            eq("user_id", user.id)
+                        }
+                    }.decodeSingleOrNull<Owner>()
+            }
+        }
+    }
+
+    suspend fun createOwner(username: String, fName: String, lName: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val user = _supabase.value.auth.currentUserOrNull()
+            if (user == null) {
+                return@withContext false
+            }
+            try {
+                _supabase.value.from("owner")
+                    .insert(
+                        Owner(user.id, username, fName, lName)
+                    )
+                getOwner()
+                return@withContext true
+            } catch (e: Exception) {
+                Log.d("SupabaseViewModel", "$e")
+                return@withContext false
+            }
+        }
+
     }
 
     suspend fun importDeck(
@@ -263,7 +318,7 @@ class SupabaseViewModel(
                     )
                 )
 
-                val cardList = thisSupabase.value.from("card")
+                val cardList = _supabase.value.from("card")
                     .select(columns = Columns.ALL) {
                         filter {
                             eq("deckUUID", sbDecks.deckUUID)
@@ -277,7 +332,7 @@ class SupabaseViewModel(
                     val total = cardList.size
                     cardList.mapIndexed { index, card ->
                         val success = downloadCards(
-                            card, thisSupabase.value, sbDecks.deckUUID, flashCardRepository,
+                            card, _supabase.value, sbDecks.deckUUID, flashCardRepository,
                             cardTypeRepository, deckId.toInt(), sSRepository, preferences
                         )
                         if (success != 0) {
@@ -287,7 +342,7 @@ class SupabaseViewModel(
                     }
                 } else {
                     Log.d("SupabaseViewModel", "List is empty!!")
-                    return@withContext ReturnValues.EMPTY_CARD_LIST
+                    return@withContext EMPTY_CARD_LIST
                 }
             } catch (e: Exception) {
                 when (e) {
@@ -307,7 +362,7 @@ class SupabaseViewModel(
                     }
                 }
             }
-            return@withContext ReturnValues.SUCCESS
+            return@withContext SUCCESS
         }
     }
 
@@ -316,7 +371,11 @@ class SupabaseViewModel(
         description: String,
     ): Int {
         return withContext(Dispatchers.IO) {
-            tryExportDeck(thisSupabase.value, deck, description, sealedUiState.value.allCTs)
+            if (_owner.value == null) {
+                return@withContext NULL_OWNER
+            }
+            /** if successful, return 0 */
+            tryExportDeck(_supabase.value, deck, description, sealedUiState.value.allCTs)
         }
     }
 
@@ -326,8 +385,33 @@ class SupabaseViewModel(
         description: String
     ): Int {
         return withContext(Dispatchers.IO) {
+            if (_owner.value == null) {
+                return@withContext NULL_OWNER
+            }
             /** if successful, return 0 */
-            tryUpsertDeck(thisSupabase.value, deck, description, sealedUiState.value.allCTs)
+            tryUpsertDeck(_supabase.value, deck, description, sealedUiState.value.allCTs)
+        }
+    }
+
+    fun getGoogleId() {
+        viewModelScope.launch {
+            try {
+                val response: HttpResponse =
+                    _supabase.value.httpClient.post("${getSBUrl()}/$POST_FUNCTION_STRING") {
+                        header(HttpHeaders.Authorization, "Bearer ${getSBKey()}")
+                        header(HttpHeaders.ContentType, ContentType.Application.Json)
+                    }
+                if (response.status == HttpStatusCode.OK) {
+                    val googleResponse = response.body<GoogleClientResponse>()
+                    googleClientId.update {
+                        googleResponse.google_id
+                    }
+                } else {
+                    Log.e("Error", "Unexpected response: ${response.status}")
+                }
+            } catch (e: Exception) {
+                Log.e("Error", "Network call failed", e)
+            }
         }
     }
 
@@ -347,7 +431,7 @@ class SupabaseViewModel(
             /** If there's an existing uuid, we won't allow the user to
              * create a new deck */
             if (existingUUID > 0) {
-                return@withContext ReturnValues.UUID_CONFLICT
+                return@withContext UUID_CONFLICT
             }
             val deckId = flashCardRepository.insertDeck(
                 Deck(
@@ -359,7 +443,7 @@ class SupabaseViewModel(
                     cardAmount = preferences.cardAmount.intValue
                 )
             )
-            val cardList = thisSupabase.value.from("card")
+            val cardList = _supabase.value.from("card")
                 .select(columns = Columns.ALL) {
                     filter {
                         eq("deckUUID", sbDecks.deckUUID)
@@ -369,7 +453,7 @@ class SupabaseViewModel(
             if (cardList.isNotEmpty()) {
                 cardList.map {
                     val success = downloadCards(
-                        it, thisSupabase.value, uuid, flashCardRepository,
+                        it, _supabase.value, uuid, flashCardRepository,
                         cardTypeRepository, deckId.toInt(), sSRepository, preferences
                     )
                     if (success != 0) {
@@ -378,13 +462,13 @@ class SupabaseViewModel(
                 }
             } else {
                 Log.d("SupabaseViewModel", "List is empty!!")
-                return@withContext ReturnValues.EMPTY_CARD_LIST
+                return@withContext EMPTY_CARD_LIST
             }
-            return@withContext ReturnValues.SUCCESS
+            return@withContext SUCCESS
         }
     }
 }
 
 
-
+private const val POST_FUNCTION_STRING = "functions/v1/getKeys"
 

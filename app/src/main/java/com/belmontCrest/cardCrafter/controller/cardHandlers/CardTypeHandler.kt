@@ -158,14 +158,14 @@ class ChoiceCardTypeHandler : CardTypeHandler {
                     )
                 }
                 fields.question = rememberSaveable { mutableStateOf(cardDetails.question.value) }
-                fields.choices[0] = rememberSaveable {
-                    mutableStateOf(cardDetails.choices[0].value) }
-                fields.choices[1] = rememberSaveable {
-                    mutableStateOf(cardDetails.choices[1].value) }
-                fields.choices[2] = rememberSaveable {
-                    mutableStateOf(cardDetails.choices[2].value) }
-                fields.choices[3] = rememberSaveable {
-                    mutableStateOf(cardDetails.choices[3].value) }
+                fields.choices[0].value = rememberSaveable {
+                    cardDetails.choices[0].value }
+                fields.choices[1].value = rememberSaveable {
+                   cardDetails.choices[1].value }
+                fields.choices[2].value = rememberSaveable {
+                    cardDetails.choices[2].value }
+                fields.choices[3].value = rememberSaveable {
+                    cardDetails.choices[3].value }
                 fields.correct = rememberSaveable { mutableStateOf(cardDetails.correct.value) }
             }
             EditChoiceCard(fields, getUIStyle)

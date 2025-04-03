@@ -4,6 +4,7 @@ import android.util.Log
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.ctsToSbCts
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CC_LESS_THAN_20
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_CARD_LIST
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_USER
@@ -45,6 +46,8 @@ suspend fun tryExportDeck(
 
     if (cts.isEmpty()) {
         return EMPTY_CARD_LIST
+    } else if(cts.size < 20){
+        return CC_LESS_THAN_20
     }
 
     val deckToExport = ctsToSbCts(
@@ -59,6 +62,8 @@ suspend fun tryExportDeck(
         )
         if (successResponse.data == "true") {
             return SUCCESS
+        } else if (successResponse.data == "Card Count less than 20.") {
+            return CC_LESS_THAN_20
         }
     } catch (e: Exception) {
         Log.d("NEW export", "$e")
