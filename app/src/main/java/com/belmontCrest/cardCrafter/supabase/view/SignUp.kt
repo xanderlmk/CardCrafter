@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
 import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
-import com.belmontCrest.cardCrafter.supabase.controller.APIViewModel
+//import com.belmontCrest.cardCrafter.supabase.controller.APIViewModel
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -45,8 +45,8 @@ fun SignUp(
     supabaseVM: SupabaseViewModel,
     getUIStyle: GetUIStyle
 ) {
-    val apiVM : APIViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    val clientId by apiVM.clientId.collectAsStateWithLifecycle()
+    //val apiVM : APIViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val clientId by supabaseVM.clientId.collectAsStateWithLifecycle()
     Box(
         contentAlignment = Alignment.TopCenter,
         modifier = Modifier

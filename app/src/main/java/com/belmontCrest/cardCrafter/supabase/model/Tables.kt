@@ -55,9 +55,11 @@ data class SBDeckUUID(val deckUUID: String)
 data class SBDeckOwner(val user_id: String)
 
 @Serializable
-data class CoOwner(
-    val user_Id : String,
-    val username : String
+data class Owner(
+    val user_id : String,
+    val username : String,
+    val f_name : String,
+    val l_name : String
 )
 
 @Serializable

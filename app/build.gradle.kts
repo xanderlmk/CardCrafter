@@ -1,7 +1,6 @@
 @file:Suppress("PropertyName")
 
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
-import com.android.build.gradle.internal.dsl.NdkOptions.DebugSymbolLevel.FULL
 import com.android.build.gradle.internal.dsl.NdkOptions.DebugSymbolLevel.SYMBOL_TABLE
 
 plugins {
@@ -23,8 +22,8 @@ android {
         applicationId = "com.belmontCrest.cardCrafter"
         minSdk = 25
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 6
+        versionName = "1.0.3"
 
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -44,7 +43,7 @@ android {
     }
 
     buildTypes {
-        release {
+        getByName("release") {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -52,7 +51,31 @@ android {
             )
             ndk.debugSymbolLevel = SYMBOL_TABLE.name
         }
+
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+            isDebuggable = true
+            ndk.debugSymbolLevel = SYMBOL_TABLE.name
+        }
     }
+    flavorDimensions += "version"
+    productFlavors {
+        create("demo") {
+            // Assigns this product flavor to the "version" flavor dimension.
+            // If you are using only one dimension, this property is optional,
+            // and the plugin automatically assigns all the module's flavors to
+            // that dimension.
+            dimension = "version"
+            applicationIdSuffix = ".demo"
+            versionNameSuffix = "-demo"
+        }
+        create("full") {
+            dimension = "version"
+            applicationIdSuffix = ".full"
+            versionNameSuffix = "-full"
+        }
+    }
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -94,7 +117,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     // to use https.
-    implementation (libs.retrofit)
     implementation (libs.converter.gson)
 
     // Views/Fragments Integration

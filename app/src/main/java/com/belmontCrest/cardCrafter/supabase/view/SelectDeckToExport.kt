@@ -36,6 +36,7 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.mainViewModifier
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CC_LESS_THAN_20
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOT_DECK_OWNER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
@@ -133,17 +134,24 @@ fun FailedUpload(
                             supabaseVM.updateExportedDeck(
                                 deck, description
                             ).let {
-                                if (it == SUCCESS){
+                                if (it == SUCCESS) {
                                     Toast.makeText(
                                         context,
                                         "Success!", Toast.LENGTH_SHORT
                                     ).show()
                                     onSuccess()
                                     dismiss.value = false
-                                } else if (it == NOT_DECK_OWNER){
+                                } else if (it == NOT_DECK_OWNER) {
                                     Toast.makeText(
                                         context,
                                         "You are not the owner of this deck.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    dismiss.value = false
+                                } else if (it == CC_LESS_THAN_20) {
+                                    Toast.makeText(
+                                        context,
+                                        "Card Count is less than 20.",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                     dismiss.value = false

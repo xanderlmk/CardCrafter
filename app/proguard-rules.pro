@@ -23,3 +23,14 @@
 -keep class androidx.credentials.playservices.** {
   *;
 }
+
+# Keep OkHttp classes  (commonly needed with Retrofit)
+-keep class okhttp3.** { *; }
+-dontwarn okhttp3.**
+
+# Keep annotations (used by Retrofit and converters)
+-keepattributes Signature, *Annotation*
+
+# For JSON conversion, also add:
+-keep class com.google.gson.** { *; }
+-dontwarn com.google.gson.**
