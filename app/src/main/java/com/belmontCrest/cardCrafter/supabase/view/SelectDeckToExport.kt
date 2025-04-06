@@ -1,7 +1,6 @@
 package com.belmontCrest.cardCrafter.supabase.view
 
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,6 +39,7 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CC_LESS_THAN_20
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOT_DECK_OWNER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
+import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 import kotlinx.coroutines.launch
 
 
@@ -121,13 +121,17 @@ fun FailedUpload(
                 Button(
                     onClick = {
                         dismiss.value = false
-                    }, enabled = enabled
+                    }, enabled = enabled,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = getUIStyle.secondaryButtonColor(),
+                        contentColor = getUIStyle.buttonTextColor()
+                    )
                 ) {
                     Text("Return")
                 }
             },
             confirmButton = {
-                Button(
+                SubmitButton(
                     onClick = {
                         coroutineScope.launch {
                             enabled = false
@@ -135,44 +139,37 @@ fun FailedUpload(
                                 deck, description
                             ).let {
                                 if (it == SUCCESS) {
-                                    Toast.makeText(
-                                        context,
-                                        "Success!", Toast.LENGTH_SHORT
-                                    ).show()
-                                    onSuccess()
-                                    dismiss.value = false
+                                    showToastMessage(
+                                        context, "Success!",
+                                        onNavigate = {
+                                            onSuccess()
+                                        }, dismiss
+                                    )
                                 } else if (it == NOT_DECK_OWNER) {
-                                    Toast.makeText(
+                                    showToastMessage(
                                         context,
                                         "You are not the owner of this deck.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    dismiss.value = false
+                                        dismiss = dismiss
+                                    )
                                 } else if (it == CC_LESS_THAN_20) {
-                                    Toast.makeText(
+                                    showToastMessage(
                                         context,
-                                        "Card Count is less than 20.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    dismiss.value = false
+                                        "Card count is less than 20.",
+                                        dismiss = dismiss
+                                    )
                                 } else {
-                                    Toast.makeText(
+                                    showToastMessage(
                                         context,
-                                        """Unable to upload this deck.
-                                            | Try again later.
-                                        """.trimMargin(),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    dismiss.value = false
+                                        "Unable to upload this deck.\n" +
+                                                "Try again later.",
+                                        dismiss = dismiss
+                                    )
                                 }
                             }
 
                         }
-                    },
-                    enabled = enabled
-                ) {
-                    Text("Update")
-                }
+                    }, enabled, getUIStyle, "Update"
+                )
             },
             title = {
                 Text("Failed!")

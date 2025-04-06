@@ -2,12 +2,14 @@ package com.belmontCrest.cardCrafter.model.tablesAndApplication
 
 import android.content.Context
 import com.belmontCrest.cardCrafter.model.database.FlashCardDatabase
-import com.belmontCrest.cardCrafter.model.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.model.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.model.repositories.OfflineCardTypeRepository
-import com.belmontCrest.cardCrafter.model.repositories.OfflineFlashCardRepository
-import com.belmontCrest.cardCrafter.model.repositories.OfflineScienceRepository
-import com.belmontCrest.cardCrafter.model.repositories.ScienceSpecificRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.OfflineCardTypeRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.OfflineFlashCardRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.OfflineScienceRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.ScienceSpecificRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.OfflineSupabaseRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SupabaseRepository
 import kotlinx.coroutines.CoroutineScope
 
 /** Creating our App Container which will get the repositories,
@@ -17,6 +19,7 @@ interface AppContainer {
     val flashCardRepository: FlashCardRepository
     val cardTypeRepository : CardTypeRepository
     val scienceSpecificRepository : ScienceSpecificRepository
+    val supabaseRepository : SupabaseRepository
 }
 class AppDataContainer(private val context: Context, scope: CoroutineScope) : AppContainer {
     override val flashCardRepository: FlashCardRepository by lazy {
@@ -38,6 +41,11 @@ class AppDataContainer(private val context: Context, scope: CoroutineScope) : Ap
     override val scienceSpecificRepository: ScienceSpecificRepository by lazy {
         OfflineScienceRepository(
             FlashCardDatabase.Companion.getDatabase(context, scope).notationCardDao()
+        )
+    }
+    override val supabaseRepository : SupabaseRepository by lazy {
+        OfflineSupabaseRepository(
+            FlashCardDatabase.Companion.getDatabase(context, scope).supabaseDao()
         )
     }
 }

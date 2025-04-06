@@ -1,4 +1,5 @@
-package com.belmontCrest.cardCrafter.model.repositories
+package com.belmontCrest.cardCrafter.model.databaseInterface.repositories
+
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.DeckWithCards
@@ -56,8 +57,6 @@ interface FlashCardRepository {
     suspend fun updateCard(card: Card)
 
     suspend fun deleteCard(card: Card)
-
-    suspend fun updateCardType(cardId: Int, type: String)
 
     fun getCardStream(cardId: Int) : Flow<Card>
 

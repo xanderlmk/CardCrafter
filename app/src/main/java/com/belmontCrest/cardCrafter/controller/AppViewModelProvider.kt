@@ -75,7 +75,6 @@ object AppViewModelProvider {
         }
         initializer {
             EditCardViewModel(
-                flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.cardTypeRepository,
                 flashCardApplication().container.scienceSpecificRepository
             )
@@ -84,7 +83,7 @@ object AppViewModelProvider {
             SupabaseViewModel(
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.cardTypeRepository,
-                flashCardApplication().container.scienceSpecificRepository,
+                flashCardApplication().container.supabaseRepository,
                 flashCardApplication()
             )
         }

@@ -3,7 +3,10 @@
 package com.belmontCrest.cardCrafter.supabase.model
 
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
+import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
+import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
+import com.belmontCrest.cardCrafter.model.tablesAndApplication.NotationCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -94,4 +97,27 @@ sealed class SBCT {
         val card: SBCards,
         val notationCard: SBNotationCard
     ): SBCT()
+}
+
+sealed class SealedCT {
+    data class Basic(
+        val card: SBCards,
+        val basicCard: BasicCard
+    ) : SealedCT()
+    data class Three(
+        val card: SBCards,
+        val threeCard: ThreeFieldCard,
+    ): SealedCT()
+    data class Hint(
+        val card: SBCards,
+        val hintCard: HintCard
+    ): SealedCT()
+    data class Multi(
+        val card: SBCards,
+        val multiCard: MultiChoiceCard
+    ): SealedCT()
+    data class Notation(
+        val card: SBCards,
+        val notationCard: NotationCard
+    ): SealedCT()
 }

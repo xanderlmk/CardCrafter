@@ -50,6 +50,7 @@ fun DeckNavHost(
     val deckNavController = rememberNavController()
     val listState = rememberLazyListState()
     val route by navViewModel.route.collectAsStateWithLifecycle()
+    val startingRoute by navViewModel.startingRoute.collectAsStateWithLifecycle()
     val deckView = DeckView(
         fields, getUIStyle,
     )
@@ -152,7 +153,7 @@ fun DeckNavHost(
         }
         composable(ViewDueCardsDestination.route) {
             BackHandler {
-                if (route.name == ViewDueCardsDestination.route) {
+                if (startingRoute.name == ViewDueCardsDestination.route) {
                     navViewModel.updateRoute(DeckListDestination.route)
                     BackNavHandler.returnToDeckListFromDeck(
                         navController, updateCurrentTime(),

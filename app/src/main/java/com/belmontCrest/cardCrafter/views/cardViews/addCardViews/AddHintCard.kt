@@ -29,7 +29,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.AddCar
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.views.miscFunctions.EditTextFieldNonDone
+import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
 import com.belmontCrest.cardCrafter.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

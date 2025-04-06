@@ -21,7 +21,10 @@ import java.util.UUID
 @Parcelize
 @Entity(
     tableName = "decks",
-    indices = [Index(value = ["name"], unique = true)]
+    indices = [
+        Index(value = ["name"], unique = true),
+        Index(value = ["uuid"], unique = true)
+    ]
 )
 data class Deck(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
@@ -109,7 +112,6 @@ data class Card(
         return id
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readInt(),
@@ -121,7 +123,7 @@ data class Card(
         parcel.readInt(),
         parcel.readString()!!,
         parcel.readLong(),
-        parcel.readBoolean(),
+        parcel.readByte() != 0.toByte(),
         parcel.readInt(),
         parcel.readString()!!
     )
@@ -140,7 +142,7 @@ data class Card(
             parcel.writeInt(totalPasses)
             parcel.writeString(type)
             parcel.writeLong(createdOn)
-            parcel.writeBoolean(partOfList)
+            parcel.writeByte(if (partOfList) 1 else 0)
             parcel.writeInt(deckCardNumber!!)
             parcel.writeString(cardIdentifier)
         }

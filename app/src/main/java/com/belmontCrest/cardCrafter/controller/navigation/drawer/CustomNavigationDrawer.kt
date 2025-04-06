@@ -44,11 +44,11 @@ import com.belmontCrest.cardCrafter.controller.navigation.MainNavDestination
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.controller.navigation.SBNavDestination
 import com.belmontCrest.cardCrafter.controller.navigation.SettingsDestination
+import com.belmontCrest.cardCrafter.controller.navigation.SupabaseDestination
 import com.belmontCrest.cardCrafter.controller.navigation.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.controller.navigation.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.CoroutineScope
@@ -64,7 +64,6 @@ fun CustomNavigationDrawer(
     fields: Fields,
     getUIStyle: GetUIStyle,
     navViewModel: NavViewModel,
-    deck: Deck?,
     cardDeckVM: CardDeckViewModel,
     content: @Composable () -> Unit,
 ) {
@@ -75,6 +74,8 @@ fun CustomNavigationDrawer(
     val cr = navViewModel.route.collectAsStateWithLifecycle().value
     val stateSize = cardDeckVM.stateSize.collectAsStateWithLifecycle().value
     val stateIndex = cardDeckVM.stateIndex.collectAsStateWithLifecycle().value
+    val wd by navViewModel.wd.collectAsStateWithLifecycle()
+
 
     val deckName by navViewModel.deckName.collectAsStateWithLifecycle()
 
@@ -89,7 +90,9 @@ fun CustomNavigationDrawer(
         } else {
             "Card ${stateIndex + 1} out of $stateSize"
         }
+
         SBNavDestination.route -> "Online Decks"
+        SupabaseDestination.route -> "Online Decks"
         else -> "CardCrafter"
     }
 
@@ -107,7 +110,7 @@ fun CustomNavigationDrawer(
                         .clickable {
                             fields.mainClicked.value = false
                             if (cr.name == ViewDueCardsDestination.route) {
-                                deck?.let {
+                                wd.deck?.let {
                                     /** If the list is empty, no cards
                                      *  have been due even before the user joined,
                                      *  or the user finished the deck.
@@ -154,7 +157,7 @@ fun CustomNavigationDrawer(
                         .fillMaxWidth()
                         .clickable {
                             if (cr.name == ViewDueCardsDestination.route) {
-                                deck?.let {
+                                wd.deck?.let {
                                     /** If the list is empty, no cards
                                      *  have been due even before the user joined,
                                      *  or the user finished the deck.
@@ -228,12 +231,10 @@ fun CustomNavigationDrawer(
                         }
                     },
                     actions = {
-                        deck?.let {
-                            ActionIconButton(
-                                getUIStyle, cardDeckVM, it,
-                                fields, navViewModel
-                            )
-                        }
+                        ActionIconButton(
+                            getUIStyle, cardDeckVM,
+                            fields, navViewModel
+                        )
                     }
                 )
             }

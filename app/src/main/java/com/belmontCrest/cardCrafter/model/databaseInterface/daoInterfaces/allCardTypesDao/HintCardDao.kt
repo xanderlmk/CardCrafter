@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao
+package com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -10,7 +10,7 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
 @Dao
 interface HintCardDao {
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.Companion.ABORT)
     suspend fun insertHintCard(hintCard: HintCard) : Long
 
     @Delete

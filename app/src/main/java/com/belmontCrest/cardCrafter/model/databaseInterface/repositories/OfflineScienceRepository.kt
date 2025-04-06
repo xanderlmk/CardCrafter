@@ -1,6 +1,6 @@
-package com.belmontCrest.cardCrafter.model.repositories
+package com.belmontCrest.cardCrafter.model.databaseInterface.repositories
 
-import com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao.NotationCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao.NotationCardDao
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.NotationCard
 
 class OfflineScienceRepository(

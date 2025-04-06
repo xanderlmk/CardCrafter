@@ -1,19 +1,15 @@
 package com.belmontCrest.cardCrafter.supabase.view
 
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -32,7 +28,9 @@ import androidx.compose.ui.window.Dialog
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.views.miscFunctions.EditTextField
+import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
+import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
+import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -128,27 +126,18 @@ fun CreateAccount(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Button(
+                    CancelButton(
                         onClick = {
-                            if (enabled) {
-                                dismiss.value = false
-                            }
-                        },
-                        enabled = enabled
-                    ) {
-                        Text("Cancel")
-                    }
-                    Button(
+                            dismiss.value = false
+                        }, enabled, getUIStyle
+                    )
+                    SubmitButton(
                         onClick = {
                             if (inputUsername.isBlank() || inputFName.isBlank() ||
                                 inputLName.isBlank()
                             ) {
-                                Toast.makeText(
-                                    context,
-                                    fillOutfields,
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                return@Button
+                                showToastMessage(context, fillOutfields)
+                                return@SubmitButton
                             } else {
                                 coroutineScope.launch {
                                     enabled = false
@@ -161,20 +150,13 @@ fun CreateAccount(
                                         dismiss.value = false
                                         enabled = true
                                     } else {
-                                        Toast.makeText(
-                                            context,
-                                            "Failed!",
-                                            Toast.LENGTH_LONG
-                                        ).show()
+                                        showToastMessage(context,"Failed!")
                                         enabled = true
                                     }
                                 }
                             }
-                        },
-                        enabled = enabled
-                    ) {
-                        Text("Enter")
-                    }
+                        }, enabled, getUIStyle, "Enter"
+                    )
                 }
             }
         }

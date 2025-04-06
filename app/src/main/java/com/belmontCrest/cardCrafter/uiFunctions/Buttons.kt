@@ -1,20 +1,22 @@
-package com.belmontCrest.cardCrafter.views.miscFunctions
+package com.belmontCrest.cardCrafter.uiFunctions
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -36,7 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
@@ -44,6 +45,7 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.launch
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.views.miscFunctions.delayNavigate
 
 @Composable
 fun SmallAddButton(
@@ -206,7 +208,7 @@ fun SettingsButton(
 
 @Composable
 fun CardOptionsButton(
-    navVM : NavViewModel,
+    navVM: NavViewModel,
     getUIStyle: GetUIStyle, card: Card,
     fields: Fields,
     expanded: MutableState<Boolean>,
@@ -217,7 +219,6 @@ fun CardOptionsButton(
     val showDialog = remember { mutableStateOf(false) }
     Box(
         modifier = modifier
-            .fillMaxSize()
             .wrapContentSize(Alignment.TopEnd)
     ) {
         IconButton(
@@ -275,11 +276,10 @@ fun CardOptionsButton(
 }
 
 @Composable
-fun CardTypesButton(getUIStyle: GetUIStyle,navViewModel: NavViewModel) {
+fun CardTypesButton(getUIStyle: GetUIStyle, navViewModel: NavViewModel) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     Box(
         Modifier
-            .fillMaxWidth()
             .wrapContentSize(Alignment.TopEnd)
     ) {
         IconButton(
@@ -297,19 +297,100 @@ fun CardTypesButton(getUIStyle: GetUIStyle,navViewModel: NavViewModel) {
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(
                 onClick = { navViewModel.updateType("basic") },
-                text = { Text(stringResource(R.string.basic_card)) })
+                text = { Text(stringResource(R.string.basic_card)) }
+            )
             DropdownMenuItem(
                 onClick = { navViewModel.updateType("three") },
-                text = { Text(stringResource(R.string.three_field_card)) })
+                text = { Text(stringResource(R.string.three_field_card)) }
+            )
             DropdownMenuItem(
                 onClick = { navViewModel.updateType("hint") },
-                text = { Text(stringResource(R.string.hint_card)) })
+                text = { Text(stringResource(R.string.hint_card)) }
+            )
             DropdownMenuItem(
                 onClick = { navViewModel.updateType("multi") },
-                text = { Text(stringResource(R.string.multi_choice_card)) })
+                text = { Text(stringResource(R.string.multi_choice_card)) }
+            )
             DropdownMenuItem(
                 onClick = { navViewModel.updateType("notation") },
-                text = { Text("Notation")}
+                text = { Text("Notation") }
+            )
+        }
+    }
+}
+
+@Composable
+fun CancelButton(
+    onClick: () -> Unit, enabled: Boolean, getUIStyle: GetUIStyle
+) {
+    Button(
+        onClick = {
+            onClick()
+        },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = getUIStyle.secondaryButtonColor(),
+            contentColor = getUIStyle.buttonTextColor()
+        ),
+        enabled = enabled
+    ) { Text(stringResource(R.string.cancel)) }
+}
+
+@Composable
+fun SubmitButton(
+    onClick: () -> Unit, enabled: Boolean,
+    getUIStyle: GetUIStyle, string: String
+) {
+    Button(
+        onClick = {
+            onClick()
+        },
+        enabled = enabled,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = getUIStyle.secondaryButtonColor(),
+            contentColor = getUIStyle.buttonTextColor()
+        )
+    ) {
+        Text(string)
+    }
+}
+
+@Composable
+fun EditProfileButton(getUIStyle: GetUIStyle) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    Box(
+        Modifier
+            .wrapContentSize(Alignment.TopEnd)
+    ) {
+        IconButton(
+            onClick = { expanded = true },
+            modifier = Modifier
+                .padding(4.dp)
+                .size(54.dp)
+        ) {
+            Icon(
+                Icons.Default.AccountCircle,
+                contentDescription = "Profile",
+                tint = getUIStyle.titleColor()
+            )
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Person,
+                        contentDescription = "Profile Settings",
+                        tint = getUIStyle.titleColor()
+                    )
+                },
+                onClick = { },
+                text = { Text("My profile") }
+            )
+            HorizontalDivider()
+            DropdownMenuItem(
+                onClick = {
+
+                },
+                text = { Text("Exported decks")}
             )
         }
     }

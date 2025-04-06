@@ -1,7 +1,6 @@
 package com.belmontCrest.cardCrafter.supabase.view
 
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,10 +10,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,9 +31,12 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CC_LESS_THAN_20
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.views.miscFunctions.EditTextFieldNonDone
+import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
+import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
+import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -49,17 +49,11 @@ fun UploadThisDeck(
     var enabled by rememberSaveable { mutableStateOf(true) }
     var description by rememberSaveable { mutableStateOf("") }
     var failed = remember { mutableStateOf(false) }
-    var success by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
     var code by remember { mutableIntStateOf(-1) }
     val coroutineScope = rememberCoroutineScope()
     val cts by supabaseVM.sealedAllCTs.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    LaunchedEffect(success) {
-        if (success) {
-            dismiss()
-        }
-    }
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -103,58 +97,54 @@ fun UploadThisDeck(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Button(
+                CancelButton(
                     onClick = {
-                        if (enabled) {
-                            dismiss()
-                        }
-                    }) {
-                    Text("Cancel")
-                }
-                Button(
+                        dismiss()
+                    }, enabled, getUIStyle
+                )
+                SubmitButton(
                     onClick = {
                         if (description.length < 20) {
-                            Toast.makeText(
-                                context,
-                                "Description must be longer!", Toast.LENGTH_SHORT
-                            ).show()
+                            showToastMessage(context, "Description must be longer!")
                         } else if (cts.allCTs.isEmpty()) {
-                            Toast.makeText(
-                                context,
-                                """
-                                    CardList is empty, please wait for it
-                                    to load or add at least 20 cards.
-                                """.trimIndent(), Toast.LENGTH_SHORT
-                            ).show()
+                            showToastMessage(
+                                context, "Card list is empty, please wait for it " +
+                                        "to load or add at least 20 cards."
+                            )
+                        } else if (cts.allCTs.size < 20) {
+                            showToastMessage(context, "Card list must have at least 20 cards.")
                         } else {
                             coroutineScope.launch {
                                 enabled = false
                                 supabaseVM.exportDeck(
                                     deck, description
                                 ).let {
+                                    if (it == SUCCESS) {
+                                        showToastMessage(
+                                            context, "Success!",
+                                            onNavigate = { dismiss() })
+                                    }
                                     if (it == DECK_EXISTS) {
                                         enabled = true
                                         failed.value = true
                                         code = it
                                         message = "Deck already exists!"
-                                    }  else if (it == CC_LESS_THAN_20){
+                                    } else if (it == CC_LESS_THAN_20) {
                                         enabled = true
                                         failed.value = true
                                         code = it
                                         message = "Card count less than 20."
-                                    }else {
-                                        success = true
-                                        Toast.makeText(
-                                            context,
-                                            "Success!", Toast.LENGTH_SHORT
-                                        ).show()
+                                    } else {
+                                        code = it
+                                        message = "Something went wrong."
+                                        enabled = true
+                                        failed.value = true
                                     }
                                 }
                             }
                         }
-                    },
-                    enabled = enabled
-                ) { Text("Export") }
+                    }, enabled, getUIStyle, "Export"
+                )
             }
         }
     }

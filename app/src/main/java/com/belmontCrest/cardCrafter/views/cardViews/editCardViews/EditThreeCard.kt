@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
-import com.belmontCrest.cardCrafter.views.miscFunctions.EditTextFieldNonDone
+import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
 
 @Composable
 fun EditThreeCard(

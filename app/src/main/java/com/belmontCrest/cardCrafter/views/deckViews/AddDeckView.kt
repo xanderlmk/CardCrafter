@@ -1,6 +1,8 @@
 package com.belmontCrest.cardCrafter.views.deckViews
 
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,17 +34,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.AddDeckViewModel
-import com.belmontCrest.cardCrafter.views.miscFunctions.BackButton
-import com.belmontCrest.cardCrafter.views.miscFunctions.EditTextField
+import com.belmontCrest.cardCrafter.uiFunctions.BackButton
+import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
-import com.belmontCrest.cardCrafter.views.miscFunctions.EditIntField
+import com.belmontCrest.cardCrafter.uiFunctions.EditIntField
 
 
 class AddDeckView(
     private var getUIStyle: GetUIStyle,
 ) {
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     fun AddDeck(onNavigate: () -> Unit, reviewAmount : String,
                 cardAmount : String) {

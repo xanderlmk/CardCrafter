@@ -1,12 +1,12 @@
-package com.belmontCrest.cardCrafter.model.repositories
+package com.belmontCrest.cardCrafter.model.databaseInterface.repositories
 
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao.CardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao.DeckDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao.DeckId
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao.SavedCardDao
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.DeckWithCards
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
-import com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao.CardDao
-import com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao.DeckDao
-import com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao.DeckId
-import com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao.SavedCardDao
+import com.belmontCrest.cardCrafter.model.tablesAndApplication.DeckWithCards
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.SavedCard
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -41,9 +41,6 @@ class OfflineFlashCardRepository(
         }
 
     override fun getAllDecksStream(): Flow<List<Deck>> = deckDao.getAllDecks()
-
-    override suspend fun updateCardType(cardId: Int, type: String) =
-        cardDao.updateCard(cardId, type)
 
     override fun getDeckStream(id: Int) = deckDao.getDeckFlow(id)
 
@@ -110,6 +107,7 @@ class OfflineFlashCardRepository(
         } catch (e: Exception) {
             throw (e)
         }
+
     override suspend fun insertCard(card: Card) = cardDao.insertCard(card)
 
     override suspend fun getMaxDCNumber(deckUUID: String) = cardDao.getMaxDCNumber(deckUUID)
@@ -146,6 +144,7 @@ class OfflineFlashCardRepository(
         cardId, reviewsLeft, nextReview,
         passes, prevSuccess, totalPasses, partOfList
     )
+
     override fun deleteSavedCards() = savedCardDao.deleteSavedCards()
     override fun insertSavedCard(savedCard: SavedCard) = savedCardDao.insertSavedCard(savedCard)
     override fun getAllSavedCards() = savedCardDao.getAllSavedCards()

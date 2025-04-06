@@ -1,17 +1,18 @@
-package com.belmontCrest.cardCrafter.model.repositories
+package com.belmontCrest.cardCrafter.model.databaseInterface.repositories
 
 import android.util.Log
 import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
-import com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao.BasicCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao.BasicCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao.HintCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao.MultiChoiceCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao.ThreeCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao.CardTypesDao
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
-import com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao.CardTypesDao
-import com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao.HintCardDao
-import com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao.MultiChoiceCardDao
-import com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao.ThreeCardDao
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
+import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
+import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import kotlinx.coroutines.flow.map
 
 class OfflineCardTypeRepository(
@@ -104,4 +105,9 @@ class OfflineCardTypeRepository(
 
 
     override fun getACardType(id: Int) = cardTypesDao.getACardType(id)
+
+    override suspend fun updateCT(
+        cardId: Int, type: String, fields: Fields,
+        deleteCT: CT
+    ) = cardTypesDao.updateCT(cardId, type, fields, deleteCT)
 }

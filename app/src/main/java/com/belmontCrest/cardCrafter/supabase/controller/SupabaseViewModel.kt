@@ -9,22 +9,25 @@ import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkIfDeckExists
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkIfDeckUUIDExists
-import com.belmontCrest.cardCrafter.model.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.model.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.model.repositories.ScienceSpecificRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.AllCardTypes
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
-import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.downloadCards
 import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.exportDeck.tryExportDeck
+import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.sbctToSealedCts
 import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.upsertDeck.tryUpsertDeck
 import com.belmontCrest.cardCrafter.supabase.model.GoogleClientResponse
 import com.belmontCrest.cardCrafter.supabase.model.Owner
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CANCELLED
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_CARD_LIST
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NETWORK_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_OWNER
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.REPLACED_DECK
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UNKNOWN_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UUID_CONFLICT
 import com.belmontCrest.cardCrafter.supabase.model.SBCards
 import com.belmontCrest.cardCrafter.supabase.model.SBDeckList
@@ -32,6 +35,7 @@ import com.belmontCrest.cardCrafter.supabase.model.SBDecks
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase
 import com.belmontCrest.cardCrafter.supabase.model.getSBKey
 import com.belmontCrest.cardCrafter.supabase.model.getSBUrl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SupabaseRepository
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.annotations.SupabaseInternal
 import io.github.jan.supabase.gotrue.auth
@@ -63,7 +67,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.SocketException
-import java.util.Date
 import java.util.concurrent.CancellationException
 
 
@@ -76,7 +79,7 @@ import java.util.concurrent.CancellationException
 class SupabaseViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val cardTypeRepository: CardTypeRepository,
-    private val sSRepository: ScienceSpecificRepository,
+    private val supabaseRepository: SupabaseRepository,
     application: Application
 ) : AndroidViewModel(application) {
     companion object {
@@ -163,6 +166,47 @@ class SupabaseViewModel(
         }
     }
 
+    /** Google Oauth */
+    fun getGoogleId() {
+        viewModelScope.launch {
+            try {
+                val response: HttpResponse =
+                    _supabase.value.httpClient.post("${getSBUrl()}/$POST_FUNCTION_STRING") {
+                        header(HttpHeaders.Authorization, "Bearer ${getSBKey()}")
+                        header(HttpHeaders.ContentType, ContentType.Application.Json)
+                    }
+                if (response.status == HttpStatusCode.OK) {
+                    val googleResponse = response.body<GoogleClientResponse>()
+                    googleClientId.update {
+                        googleResponse.google_id
+                    }
+                } else {
+                    Log.e("Error", "Unexpected response: ${response.status}")
+                }
+            } catch (e: Exception) {
+                Log.e("Error", "Network call failed", e)
+            }
+        }
+    }
+
+    suspend fun signUpWithGoogle(
+        googleIdToken: String,
+        rawNonce: String
+    ) {
+        _supabase.value.auth.signInWith(IDToken) {
+            idToken = googleIdToken
+            provider = Google
+            nonce = rawNonce
+        }
+        thisUser.update {
+            _supabase.value.auth.currentUserOrNull()
+        }
+        getOwner()
+    }
+
+    /** End of Google Oauth */
+
+
     fun changeDeckId(id: Int) {
         deckId.value = id
     }
@@ -192,21 +236,6 @@ class SupabaseViewModel(
         thisUser.update {
             _supabase.value.auth.currentUserOrNull()
         }
-    }
-
-    suspend fun signUpWithGoogle(
-        googleIdToken: String,
-        rawNonce: String
-    ) {
-        _supabase.value.auth.signInWith(IDToken) {
-            idToken = googleIdToken
-            provider = Google
-            nonce = rawNonce
-        }
-        thisUser.update {
-            _supabase.value.auth.currentUserOrNull()
-        }
-        getOwner()
     }
 
     fun getDeckList() {
@@ -294,78 +323,6 @@ class SupabaseViewModel(
 
     }
 
-    suspend fun importDeck(
-        sbDecks: SBDecks,
-        preferences: PreferencesManager,
-        onProgress: (Float) -> Unit,
-        onError: (String) -> Unit
-    ): Int {
-        return withContext(Dispatchers.IO) {
-            try {
-                val exists = checkDeckNameAndUUID(sbDecks.name, sbDecks.deckUUID)
-                if (exists > 0) {
-                    /** deck already exists; return 100. */
-                    return@withContext ReturnValues.DECK_EXISTS
-                }
-                val deckId = flashCardRepository.insertDeck(
-                    Deck(
-                        name = sbDecks.name,
-                        uuid = sbDecks.deckUUID,
-                        nextReview = Date(),
-                        lastUpdated = Date(),
-                        reviewAmount = preferences.reviewAmount.intValue,
-                        cardAmount = preferences.cardAmount.intValue
-                    )
-                )
-
-                val cardList = _supabase.value.from("card")
-                    .select(columns = Columns.ALL) {
-                        filter {
-                            eq("deckUUID", sbDecks.deckUUID)
-                        }
-                    }
-                    .decodeList<SBCards>()
-
-                Log.d("SupabaseViewModel", "$cardList")
-
-                if (cardList.isNotEmpty()) {
-                    val total = cardList.size
-                    cardList.mapIndexed { index, card ->
-                        val success = downloadCards(
-                            card, _supabase.value, sbDecks.deckUUID, flashCardRepository,
-                            cardTypeRepository, deckId.toInt(), sSRepository, preferences
-                        )
-                        if (success != 0) {
-                            return@withContext success
-                        }
-                        onProgress((index + 1).toFloat() / total)
-                    }
-                } else {
-                    Log.d("SupabaseViewModel", "List is empty!!")
-                    return@withContext EMPTY_CARD_LIST
-                }
-            } catch (e: Exception) {
-                when (e) {
-                    is SocketException -> {
-                        onError("Network Error Occurred.")
-                        return@withContext ReturnValues.NETWORK_ERROR
-                    }
-
-                    is CancellationException -> {
-                        onError("Import was canceled.")
-                        return@withContext ReturnValues.CANCELLED
-                    }
-
-                    else -> {
-                        onError("Something went wrong.")
-                        return@withContext ReturnValues.UNKNOWN_ERROR
-                    }
-                }
-            }
-            return@withContext SUCCESS
-        }
-    }
-
     suspend fun exportDeck(
         deck: Deck,
         description: String,
@@ -378,7 +335,6 @@ class SupabaseViewModel(
             tryExportDeck(_supabase.value, deck, description, sealedUiState.value.allCTs)
         }
     }
-
 
     suspend fun updateExportedDeck(
         deck: Deck,
@@ -393,78 +349,228 @@ class SupabaseViewModel(
         }
     }
 
-    fun getGoogleId() {
-        viewModelScope.launch {
+    /** Local Imports from online decks */
+    suspend fun importDeck(
+        sbDecks: SBDecks,
+        preferences: PreferencesManager,
+        onProgress: (Float) -> Unit,
+        onError: (String) -> Unit
+    ): Int {
+        return withContext(Dispatchers.IO) {
             try {
-                val response: HttpResponse =
-                    _supabase.value.httpClient.post("${getSBUrl()}/$POST_FUNCTION_STRING") {
-                        header(HttpHeaders.Authorization, "Bearer ${getSBKey()}")
-                        header(HttpHeaders.ContentType, ContentType.Application.Json)
-                    }
-                if (response.status == HttpStatusCode.OK) {
-                    val googleResponse = response.body<GoogleClientResponse>()
-                    googleClientId.update {
-                        googleResponse.google_id
-                    }
-                } else {
-                    Log.e("Error", "Unexpected response: ${response.status}")
+                val exists = checkDeckNameAndUUID(sbDecks.name, sbDecks.deckUUID)
+                if (exists > 0) {
+                    /** deck already exists; return 100. */
+                    return@withContext ReturnValues.DECK_EXISTS
                 }
+
+                val cardList = _supabase.value.from("card")
+                    .select(columns = Columns.ALL) {
+                        filter {
+                            eq("deckUUID", sbDecks.deckUUID)
+                        }
+                    }
+                    .decodeList<SBCards>()
+
+                if (cardList.isEmpty()) {
+                    return@withContext EMPTY_CARD_LIST
+                }
+
+                /** First we get the online cards, then we download them/
+                 *  Hence we need to multiply the total by 2
+                 */
+                val total = cardList.size * 2
+                val ctList = sbctToSealedCts(
+                    cardList, _supabase.value, onProgress = {
+                        onProgress(it)
+                    }, total
+                )
+                supabaseRepository.insertDeckList(
+                    sbDecks, ctList,
+                    preferences.reviewAmount.intValue,
+                    preferences.cardAmount.intValue,
+                    onProgress = {
+                        onProgress(it)
+                    }, total
+                )
             } catch (e: Exception) {
-                Log.e("Error", "Network call failed", e)
+                when (e) {
+                    is SocketException -> {
+                        onError("Network Error Occurred.")
+                        return@withContext NETWORK_ERROR
+                    }
+
+                    is CancellationException -> {
+                        onError("Import was canceled.")
+                        return@withContext CANCELLED
+                    }
+
+                    else -> {
+                        onError("Something went wrong.")
+                        return@withContext UNKNOWN_ERROR
+                    }
+                }
             }
+            return@withContext SUCCESS
         }
     }
 
     suspend fun createNewDeck(
         sbDecks: SBDecks,
-        preferences: PreferencesManager, name: String
+        preferences: PreferencesManager,
+        name: String, onProgress: (Float) -> Unit,
+        onError: (String) -> Unit
     ): Int {
         return withContext(Dispatchers.IO) {
-            val exists = checkDeckName(name)
-            if (exists > 0) {
-                /** deck name already exists; return 6. */
-                return@withContext ReturnValues.DECK_EXISTS
-            }
-            var uuid = sbDecks.deckUUID
-            val existingUUID = checkDeckUUID(sbDecks.deckUUID)
+            try {
+                val exists = checkDeckName(name)
+                if (exists > 0) {
+                    /** deck name already exists; return 6. */
+                    return@withContext ReturnValues.DECK_EXISTS
+                }
+                val existingUUID = checkDeckUUID(sbDecks.deckUUID)
+                /** If there's an existing uuid, we won't allow the user to
+                 * create a new deck */
+                if (existingUUID > 0) {
+                    return@withContext UUID_CONFLICT
+                }
 
-            /** If there's an existing uuid, we won't allow the user to
-             * create a new deck */
-            if (existingUUID > 0) {
-                return@withContext UUID_CONFLICT
-            }
-            val deckId = flashCardRepository.insertDeck(
-                Deck(
-                    name = name,
-                    uuid = uuid,
-                    nextReview = Date(),
-                    lastUpdated = Date(),
-                    reviewAmount = preferences.reviewAmount.intValue,
-                    cardAmount = preferences.cardAmount.intValue
+                val cardList = _supabase.value.from("card")
+                    .select(columns = Columns.ALL) {
+                        filter {
+                            eq("deckUUID", sbDecks.deckUUID)
+                        }
+                    }
+                    .decodeList<SBCards>()
+
+                if (cardList.isEmpty()) {
+                    return@withContext EMPTY_CARD_LIST
+                }
+
+                /** First we get the online cards, then we download them/
+                 *  Hence we need to multiply the total by 2
+                 */
+                val total = cardList.size * 2
+                val ctList = sbctToSealedCts(
+                    cardList, _supabase.value, onProgress = {
+                        onProgress(it)
+                    }, total
                 )
-            )
-            val cardList = _supabase.value.from("card")
-                .select(columns = Columns.ALL) {
-                    filter {
-                        eq("deckUUID", sbDecks.deckUUID)
+                supabaseRepository.insertDeckList(
+                    sbDecks, ctList, name,
+                    preferences.reviewAmount.intValue,
+                    preferences.cardAmount.intValue,
+                    onProgress = {
+                        onProgress(it)
+                    }, total
+                )
+            } catch (e: Exception) {
+                when (e) {
+                    is SocketException -> {
+                        onError("Network Error Occurred.")
+                        return@withContext NETWORK_ERROR
+                    }
+
+                    is CancellationException -> {
+                        onError("Import was canceled.")
+                        return@withContext CANCELLED
+                    }
+
+                    else -> {
+                        onError("Something went wrong.")
+                        return@withContext UNKNOWN_ERROR
                     }
                 }
-                .decodeList<SBCards>()
-            if (cardList.isNotEmpty()) {
-                cardList.map {
-                    val success = downloadCards(
-                        it, _supabase.value, uuid, flashCardRepository,
-                        cardTypeRepository, deckId.toInt(), sSRepository, preferences
-                    )
-                    if (success != 0) {
-                        return@withContext success
-                    }
-                }
-            } else {
-                Log.d("SupabaseViewModel", "List is empty!!")
-                return@withContext EMPTY_CARD_LIST
             }
             return@withContext SUCCESS
+        }
+    }
+
+    suspend fun replaceDeck(
+        sbDecks: SBDecks,
+        preferences: PreferencesManager,
+        onProgress: (Float) -> Unit,
+        onError: (String) -> Unit
+    ): Pair<Int, String> {
+        return withContext(Dispatchers.IO) {
+            var name = sbDecks.name
+            try {
+                val deckSignature = supabaseRepository.validateDeckSignature(sbDecks.deckUUID)
+                /** Check the name of the 2 decks */
+                if (deckSignature != null) {
+                    Log.d("SupabaseVM", "Deck Signature is not null.")
+                    if (deckSignature.name != sbDecks.name) {
+                        /** If the names are not equal, check if you can just
+                         *  input the name of the sbDeck and replace the name
+                         *  of the local deck. */
+                        val checkDeck = supabaseRepository.validateDeckName(sbDecks.name)
+                        /** If there exists a deck with a name equal to the sbDeck,
+                         *  but the uuid is NOT the same, use the name of the
+                         *  deckSignature */
+                        if(checkDeck != null) {
+                            if (checkDeck.uuid != sbDecks.deckUUID) {
+                                name = deckSignature.name
+                            }
+                        }
+                    }
+                }
+
+                val cardList = _supabase.value.from("card")
+                    .select(columns = Columns.ALL) {
+                        filter {
+                            eq("deckUUID", sbDecks.deckUUID)
+                        }
+                    }
+                    .decodeList<SBCards>()
+
+                if (cardList.isEmpty()) {
+                    return@withContext Pair(EMPTY_CARD_LIST, "")
+                }
+
+                /** First we get the online cards, then we download them/
+                 *  Hence we need to multiply the total by 2
+                 */
+                val total = cardList.size * 2
+                val ctList = sbctToSealedCts(
+                    cardList, _supabase.value, onProgress = {
+                        onProgress(it)
+                    }, total
+                )
+                supabaseRepository.replaceDeckList(
+                    sbDecks, ctList,
+                    preferences.reviewAmount.intValue,
+                    preferences.cardAmount.intValue, name,
+                    onProgress = {
+                        onProgress(it)
+                    }, total
+                )
+
+            } catch (e: Exception) {
+                when (e) {
+                    is SocketException -> {
+                        onError("Network Error Occurred.")
+                        Log.e("Replace Deck SupabaseVM", "Network Error Occurred.")
+                        return@withContext Pair(NETWORK_ERROR, "")
+                    }
+
+                    is CancellationException -> {
+                        onError("Import was canceled.")
+                        Log.e("Replace Deck SupabaseVM", "Import was canceled.")
+                        return@withContext Pair(CANCELLED, "")
+                    }
+
+                    else -> {
+                        onError("Something went wrong.")
+                        Log.e("Replace Deck SupabaseVM", "Something went wrong: $e")
+                        return@withContext Pair(UNKNOWN_ERROR, "")
+                    }
+                }
+            }
+            if (name == sbDecks.name) {
+                return@withContext Pair(SUCCESS, sbDecks.name)
+            } else {
+                return@withContext Pair(REPLACED_DECK, name)
+            }
         }
     }
 }

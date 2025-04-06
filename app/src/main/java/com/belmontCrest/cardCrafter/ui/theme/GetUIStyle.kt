@@ -123,6 +123,14 @@ class GetUIStyle(
         }
     }
 
+    fun importingDeckColor() : Color {
+        return if (isDarkTheme) {
+            Color.DarkGray
+        } else {
+            Color.Gray
+        }
+    }
+
     fun blendColors(base: Color, overlay: Color, overlayAlpha: Float): Color {
         // overlayAlpha in [0..1]
         val r = overlay.red * overlayAlpha + base.red * (1 - overlayAlpha)

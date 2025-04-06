@@ -3,7 +3,6 @@ package com.belmontCrest.cardCrafter.supabase.view
 import android.credentials.GetCredentialException
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,11 +10,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,7 +26,6 @@ import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -35,9 +35,8 @@ import io.github.jan.supabase.exceptions.RestException
 import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
-import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
-//import com.belmontCrest.cardCrafter.supabase.controller.APIViewModel
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
+import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
@@ -66,7 +65,7 @@ fun SignUp(
                 textAlign = TextAlign.Center,
                 fontSize = 22.sp
             )
-            GoogleSignInButton(supabaseVM, clientId)
+            GoogleSignInButton(supabaseVM, clientId, getUIStyle)
         }
     }
 }
@@ -75,11 +74,14 @@ fun SignUp(
 @Composable
 fun GoogleSignInButton(
     supabaseVM: SupabaseViewModel,
-    googleClientId : String
+    googleClientId: String,
+    getUIStyle: GetUIStyle
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    var enabled by rememberSaveable { mutableStateOf(true) }
     val onClick: () -> Unit = {
+        enabled = false
         val credentialManager = CredentialManager.create(context)
         // Generate a nonce and hash it with sha-256
         // Providing a nonce is optional but recommended
@@ -117,22 +119,29 @@ fun GoogleSignInButton(
                     googleIdToken = googleIdToken,
                     rawNonce = rawNonce
                 )
-                Toast.makeText(context, "You are Signed in", Toast.LENGTH_SHORT).show()
+                enabled = true
+                showToastMessage(context, "You are Signed in")
             } catch (e: GetCredentialException) {
+                showToastMessage(context, "$e")
                 Log.d("GOOGLE SIGN IN", "$e")
+                enabled = true
             } catch (e: GoogleIdTokenParsingException) {
+                showToastMessage(context, "$e")
                 Log.d("GOOGLE SIGN IN", "$e")
+                enabled = true
             } catch (e: RestException) {
+                showToastMessage(context, "$e")
                 Log.d("GOOGLE SIGN IN", "$e")
+                enabled = true
             } catch (e: Exception) {
+                showToastMessage(context, "$e")
                 Log.d("GOOGLE SIGN IN", "$e")
+                enabled = true
             }
         }
     }
-
-    Button(
-        onClick = {onClick()},
-    ) {
-        Text("Sign in with Google")
-    }
+    SubmitButton(
+        onClick = { onClick() }, enabled,
+        getUIStyle, "Sign in with Google"
+    )
 }

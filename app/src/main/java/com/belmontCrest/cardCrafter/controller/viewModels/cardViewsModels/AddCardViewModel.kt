@@ -3,9 +3,9 @@ package com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.belmontCrest.cardCrafter.model.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.model.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.model.repositories.ScienceSpecificRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.ScienceSpecificRepository
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck

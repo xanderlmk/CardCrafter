@@ -1,9 +1,9 @@
 package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions
 
 import android.util.Log
-import com.belmontCrest.cardCrafter.model.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.model.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.model.repositories.ScienceSpecificRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.ScienceSpecificRepository
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
