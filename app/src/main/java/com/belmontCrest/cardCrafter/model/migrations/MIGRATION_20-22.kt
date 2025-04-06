@@ -5,10 +5,10 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 val MIGRATION_20_21 = object : Migration(20, 21) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.beginTransaction()
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.beginTransaction()
         try {
-            database.execSQL(
+            db.execSQL(
                 """
     CREATE TABLE cards_temp (
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -27,7 +27,7 @@ val MIGRATION_20_21 = object : Migration(20, 21) {
         FOREIGN KEY(deckId) REFERENCES decks(id)
     );"""
             )
-            database.execSQL(
+            db.execSQL(
                 """
                 INSERT INTO cards_temp (
                 id, deckId, deckUUID, reviewsLeft, nextReview, passes, prevSuccess,
@@ -49,36 +49,55 @@ val MIGRATION_20_21 = object : Migration(20, 21) {
                     FROM cards;
             """.trimIndent()
             )
-            database.execSQL(
+            db.execSQL(
                 """
             DROP TABLE cards;
             """
             )
-            database.execSQL(
+            db.execSQL(
                 """
             ALTER TABLE cards_temp RENAME TO cards;
 """
             )
-            database.execSQL(
+            db.execSQL(
                 """
             CREATE UNIQUE INDEX IF NOT EXISTS index_cards_deckUUID_deckCardNumber
             ON cards (deckUUID, deckCardNumber);
             """.trimIndent()
             )
 
-            database.execSQL("""
+            db.execSQL("""
                 CREATE INDEX IF NOT EXISTS index_cards_deckId 
                 ON cards (deckId);
             """.trimIndent())
 
-            database.setTransactionSuccessful()
+            db.setTransactionSuccessful()
         } catch (e: Exception) {
             // Log the error for debugging
-            Log.e("Migration", "Migration 19 to 20 failed", e)
-            throw RuntimeException("Migration 19 to 20 failed: ${e.message}")
+            Log.e("Migration", "Migration 20 to 21 failed", e)
+            throw RuntimeException("Migration 20 to 21 failed: ${e.message}")
         } finally {
-            database.endTransaction()
+            db.endTransaction()
         }
     }
 
+}
+
+val MIGRATION_21_22 = object : Migration(21,22) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.beginTransaction()
+        try {
+            db.execSQL("""
+                CREATE UNIQUE INDEX IF NOT EXISTS index_decks_uuid
+                ON decks(uuid)
+            """.trimIndent())
+            db.setTransactionSuccessful()
+        } catch (e: Exception) {
+            // Log the error for debugging
+            Log.e("Migration", "Migration 21 to 22 failed", e)
+            throw RuntimeException("Migration 21 to 22 failed: ${e.message}")
+        } finally {
+            db.endTransaction()
+        }
+    }
 }

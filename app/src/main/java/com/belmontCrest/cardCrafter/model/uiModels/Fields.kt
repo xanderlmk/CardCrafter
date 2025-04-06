@@ -55,9 +55,7 @@ class Fields(
         question = mutableStateOf(parcel.readString()!!),
         middleField = mutableStateOf(parcel.readString()!!),
         answer = mutableStateOf(parcel.readString()!!),
-        choices = listOf<MutableState<String>>().apply {
-            parcel.readStringList(this.map { it.value })
-        },
+        choices = List(4) { mutableStateOf(parcel.readString() ?: "") },
         correct = mutableStateOf(parcel.readString()!![0]),
         scrollPosition = mutableIntStateOf(parcel.readInt()),
         mainClicked = mutableStateOf(parcel.readByte() != 0.toByte()),

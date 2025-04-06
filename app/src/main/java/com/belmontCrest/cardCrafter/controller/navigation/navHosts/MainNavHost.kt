@@ -20,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
 import com.belmontCrest.cardCrafter.controller.navigation.AddDeckDestination
@@ -28,6 +27,7 @@ import com.belmontCrest.cardCrafter.controller.navigation.SBNavDestination
 import com.belmontCrest.cardCrafter.controller.navigation.drawer.CustomNavigationDrawer
 import com.belmontCrest.cardCrafter.controller.navigation.DeckListDestination
 import com.belmontCrest.cardCrafter.controller.navigation.DeckNavDestination
+import com.belmontCrest.cardCrafter.controller.navigation.DeckViewDestination
 import com.belmontCrest.cardCrafter.controller.navigation.MainNavDestination
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.controller.navigation.SettingsDestination
@@ -72,16 +72,13 @@ fun AppNavHost(
     val addDeckView = AddDeckView(getUIStyle)
     val generalSettings = GeneralSettings(getUIStyle, preferences)
     val coroutineScope = rememberCoroutineScope()
-    val wd by navViewModel.wd.collectAsStateWithLifecycle()
-
     CustomNavigationDrawer(
         navController = navController,
         fields = fields,
         getUIStyle = getUIStyle,
         navViewModel = navViewModel,
         cardDeckVM = cardDeckVM,
-        deck = wd.deck,
-        ) {
+    ) {
         NavHost(
             navController = navController,
             startDestination = DeckListDestination.route,
@@ -97,16 +94,17 @@ fun AppNavHost(
                     mainViewModel,
                     // In DeckList Composable
                     onNavigateToDeck = { id ->
-                        fields.navigateToDeck()
-                        onDeckView = true
-                        navViewModel.updateRoute(DeckNavDestination.route)
-                        navController.navigate(DeckNavDestination.route)
                         coroutineScope.launch {
                             navViewModel.getDeckById(id)
                         }
                         coroutineScope.launch {
                             editingCardListVM.updateId(id)
                         }
+                        fields.navigateToDeck()
+                        onDeckView = true
+                        navViewModel.updateStartingRoute(DeckViewDestination.route)
+                        navViewModel.updateRoute(DeckNavDestination.route)
+                        navController.navigate(DeckNavDestination.route)
                     },
                     onNavigateToAddDeck = {
                         navViewModel.updateRoute(AddDeckDestination.route)
@@ -132,6 +130,7 @@ fun AppNavHost(
                         }
                         fields.navigateToDueCards()
                         cardDeckVM.updateWhichDeck(id)
+                        navViewModel.updateStartingRoute(ViewDueCardsDestination.route)
                         navViewModel.updateRoute(ViewDueCardsDestination.route)
                         navController.navigate(DeckNavDestination.route)
                     }

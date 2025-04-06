@@ -9,8 +9,8 @@ import com.belmontCrest.cardCrafter.controller.cardHandlers.mapACardTypeToCT
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnError
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnSavedCard
-import com.belmontCrest.cardCrafter.model.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.model.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.uiModels.CardState

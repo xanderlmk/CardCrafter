@@ -1,10 +1,10 @@
 package com.belmontCrest.cardCrafter.model.database
 
-import com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao.BasicCardDao
-import com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao.MultiChoiceCardDao
-import com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao.ThreeCardDao
-import com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao.CardDao
-import com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao.DeckDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao.BasicCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao.MultiChoiceCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao.ThreeCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao.CardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao.DeckDao
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck

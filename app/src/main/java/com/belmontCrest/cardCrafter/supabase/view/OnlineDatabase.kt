@@ -34,7 +34,7 @@ import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.model.SBDecks
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.views.miscFunctions.ExportDeckButton
+import com.belmontCrest.cardCrafter.uiFunctions.ExportDeckButton
 
 class OnlineDatabase(
     private val getUIStyle: GetUIStyle,
@@ -58,6 +58,9 @@ class OnlineDatabase(
             if (currentUser == null) {
                 supabaseVM.updateStatus()
             }
+            if (deckList.list.isEmpty()) {
+                supabaseVM.getDeckList()
+            }
         }
         if (currentUser == null) {
             SignUp(supabaseVM, getUIStyle)
@@ -67,7 +70,7 @@ class OnlineDatabase(
                     .boxViewsModifier(getUIStyle.getColorScheme()),
                 contentAlignment = Alignment.TopCenter
             ) {
-                if(owner != null) {
+                if (owner != null) {
                     LocalDecks(
                         pressed, localDeckList, getUIStyle,
                         supabaseVM, onExportDeck

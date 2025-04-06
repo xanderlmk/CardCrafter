@@ -14,9 +14,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
-import com.belmontCrest.cardCrafter.views.miscFunctions.BackButton
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import kotlinx.coroutines.delay
 

@@ -40,6 +40,7 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.editCardModifier
+import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
 import kotlinx.coroutines.launch
 
 class EditingCardView(
@@ -105,18 +106,11 @@ class EditingCardView(
                         .padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Button(
+                    CancelButton(
                         onClick = {
                             onNavigateBack()
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = getUIStyle.secondaryButtonColor(),
-                            contentColor = getUIStyle.buttonTextColor()
-                        )
-                    ) {
-                        Text(stringResource(R.string.cancel))
-                    }
+                        }, true, getUIStyle
+                    )
                     Button(
                         onClick = {
                             coroutineScope.launch {

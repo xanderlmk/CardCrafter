@@ -1,5 +1,4 @@
-package com.belmontCrest.cardCrafter.model.repositories
-
+package com.belmontCrest.cardCrafter.model.databaseInterface.repositories
 
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.AllCardTypes
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
@@ -7,6 +6,7 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
+import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
@@ -55,4 +55,9 @@ interface CardTypeRepository {
             List<CT>
 
     fun getACardType(id: Int): AllCardTypes
+
+    suspend fun updateCT(
+        cardId: Int, type: String, fields: Fields,
+        deleteCT: CT
+    )
 }

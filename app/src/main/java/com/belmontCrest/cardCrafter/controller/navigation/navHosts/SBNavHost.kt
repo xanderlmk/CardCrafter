@@ -24,7 +24,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.update
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.view.ImportDeck
+import com.belmontCrest.cardCrafter.supabase.view.importDeck.ImportDeck
 import com.belmontCrest.cardCrafter.supabase.view.OnlineDatabase
 import com.belmontCrest.cardCrafter.supabase.view.UploadThisDeck
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -73,18 +73,21 @@ fun SupabaseNav(
             }
             onlineDatabase.SupabaseView(
                 onImportDeck = { uuid ->
+                    navViewModel.updateRoute(SupabaseDestination.route)
                     sbNavController.navigate(ImportSBDestination.route)
                     coroutineScope.launch {
                         supabaseVM.updateUUID(uuid)
                     }
                 },
                 onExportDeck = {
+                    navViewModel.updateRoute(SupabaseDestination.route)
                     sbNavController.navigate(ExportSBDestination.route)
                 }
             )
         }
         composable(ImportSBDestination.route) {
             BackHandler {
+                navViewModel.updateRoute(SupabaseDestination.route)
                 sbNavController.popBackStack(
                     SupabaseDestination.route, inclusive = false
                 )
@@ -93,6 +96,7 @@ fun SupabaseNav(
                 importDeck.GetDeck(
                     deck = it,
                     onNavigate = {
+                        navViewModel.updateRoute(SupabaseDestination.route)
                         sbNavController.navigate(SupabaseDestination.route)
                     }
                 )

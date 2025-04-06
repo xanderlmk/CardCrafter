@@ -8,8 +8,8 @@ import androidx.compose.ui.res.stringResource
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.views.miscFunctions.EditTextField
-import com.belmontCrest.cardCrafter.views.miscFunctions.EditTextFieldNonDone
+import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
+import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
 import com.belmontCrest.cardCrafter.views.miscFunctions.PickAnswerChar
 
 @Composable

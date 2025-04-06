@@ -5,7 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import com.belmontCrest.cardCrafter.model.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.uiModels.StringVar
 import com.belmontCrest.cardCrafter.model.uiModels.SelectedCard
@@ -58,17 +58,29 @@ class NavViewModel(
             navHostController
         }
     }
-    private val thisRoute = MutableStateFlow(
+    private val _route = MutableStateFlow(
         StringVar(savedStateHandle["route"] ?: MainNavDestination.route)
     )
-    val route = thisRoute.asStateFlow()
+    val route = _route.asStateFlow()
 
     fun updateRoute(newRoute: String) {
         savedStateHandle["route"] = newRoute
-        thisRoute.update {
+        _route.update {
             StringVar(newRoute)
         }
     }
+    private val _startingRoute = MutableStateFlow(
+        StringVar(savedStateHandle["startRoute"] ?: DeckViewDestination.route)
+    )
+
+    val startingRoute = _startingRoute.asStateFlow()
+    fun updateStartingRoute(newRoute: String) {
+        savedStateHandle["startRoute"] = newRoute
+        _startingRoute.update {
+            StringVar(newRoute)
+        }
+    }
+
     private val thisDeck: StateFlow<WhichDeck> = deckId
         .flatMapLatest { id ->
             if (id == 0) {

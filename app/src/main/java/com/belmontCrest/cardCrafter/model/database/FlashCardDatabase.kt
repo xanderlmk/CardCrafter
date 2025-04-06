@@ -6,15 +6,16 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao.BasicCardDao
-import com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao.HintCardDao
-import com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao.MultiChoiceCardDao
-import com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao.NotationCardDao
-import com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao.ThreeCardDao
-import com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao.CardDao
-import com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao.CardTypesDao
-import com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao.DeckDao
-import com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao.SavedCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao.BasicCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao.HintCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao.MultiChoiceCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao.NotationCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao.ThreeCardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao.CardDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao.CardTypesDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao.DeckDao
+import com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao.SavedCardDao
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.SupabaseDao
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_10_11
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_11_12
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_12_13
@@ -26,6 +27,7 @@ import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_17_18
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_18_19
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_19_20
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_20_21
+import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_21_22
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_3_5
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_5_6
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_6_7
@@ -43,8 +45,6 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.SavedCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.TimeConverter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 /** The database instance. */
 @Database(
@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
         MultiChoiceCard::class,
         NotationCard::class,
         SavedCard::class],
-    version = 21, exportSchema = false
+    version = 22, exportSchema = false
 )
 @TypeConverters(
     TimeConverter::class,
@@ -73,6 +73,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
     abstract fun multiChoiceCardDao(): MultiChoiceCardDao
     abstract fun notationCardDao() : NotationCardDao
     abstract fun savedCardDao(): SavedCardDao
+    abstract fun supabaseDao() : SupabaseDao
 
     companion object {
         @Volatile
@@ -100,7 +101,8 @@ abstract class FlashCardDatabase : RoomDatabase() {
                             MIGRATION_17_18,
                             MIGRATION_18_19,
                             MIGRATION_19_20,
-                            MIGRATION_20_21
+                            MIGRATION_20_21,
+                            MIGRATION_21_22
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(FlashCardDatabaseCallback(scope))
@@ -120,7 +122,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
                 // Populate the database in a coroutine
-                Instance?.let { database ->
+                /**Instance?.let { database ->
                     scope.launch(Dispatchers.IO) {
                         populateDatabase(
                             database.deckDao(), database.cardDao(),
@@ -128,7 +130,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                             database.threeCardDao()
                         )
                     }
-                }
+                }*/
             }
         }
     }

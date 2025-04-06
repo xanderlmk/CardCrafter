@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.model.daoFiles.allCardTypesDao
+package com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.allCardTypesDao
 
 
 import androidx.room.Dao

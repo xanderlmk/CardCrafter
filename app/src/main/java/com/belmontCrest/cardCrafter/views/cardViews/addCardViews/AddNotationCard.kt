@@ -34,7 +34,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.AddCar
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.views.miscFunctions.LatexKeyboard
+import com.belmontCrest.cardCrafter.uiFunctions.LatexKeyboard
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

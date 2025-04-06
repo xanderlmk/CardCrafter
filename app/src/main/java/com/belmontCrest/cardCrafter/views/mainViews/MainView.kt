@@ -39,7 +39,7 @@ import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.mainViewModifier
-import com.belmontCrest.cardCrafter.views.miscFunctions.SmallAddButton
+import com.belmontCrest.cardCrafter.uiFunctions.SmallAddButton
 import java.text.SimpleDateFormat
 import java.util.Locale
 

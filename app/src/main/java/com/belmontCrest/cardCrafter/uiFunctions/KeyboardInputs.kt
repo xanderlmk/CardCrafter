@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.views.miscFunctions
+package com.belmontCrest.cardCrafter.uiFunctions
 
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -159,7 +159,9 @@ fun LatexKeyboard(
         },
         singleLine = false,
         label = { Text(labelStr, color = textColor) },
-        modifier = modifier
+        modifier = modifier,
+        textStyle = TextStyle.Default
+
     )
 }
 

@@ -4,9 +4,9 @@ package com.belmontCrest.cardCrafter.supabase.model
 /**
  * Our return codes for Supabase Controller functions.
  */
-
 object ReturnValues {
     const val EMPTY_STRING = -100
+    const val REPLACED_DECK = -1
     const val SUCCESS = 0
     const val NULL_USER = 1
     const val NULL_OWNER = 2

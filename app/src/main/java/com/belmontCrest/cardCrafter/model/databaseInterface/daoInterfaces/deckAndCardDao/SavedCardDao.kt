@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao
+package com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -13,7 +13,7 @@ interface SavedCardDao {
     @Query("SELECT * from savedCards")
     fun getAllSavedCards(): Flow<List<SavedCard>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     fun insertSavedCard(savedCard: SavedCard)
 
     @Query(

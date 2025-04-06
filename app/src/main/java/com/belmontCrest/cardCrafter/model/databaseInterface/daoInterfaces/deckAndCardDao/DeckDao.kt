@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao
+package com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao
 
 import androidx.room.Dao
 import androidx.room.Delete

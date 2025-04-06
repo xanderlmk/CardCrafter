@@ -2,7 +2,6 @@ package com.belmontCrest.cardCrafter.controller.navigation.drawer
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,20 +17,22 @@ import com.belmontCrest.cardCrafter.controller.navigation.DeckViewDestination
 import com.belmontCrest.cardCrafter.controller.navigation.EditDeckDestination
 import com.belmontCrest.cardCrafter.controller.navigation.EditingCardDestination
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.controller.navigation.SBNavDestination
+import com.belmontCrest.cardCrafter.controller.navigation.SupabaseDestination
 import com.belmontCrest.cardCrafter.controller.navigation.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.controller.navigation.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.redoButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.settingsButtonModifier
-import com.belmontCrest.cardCrafter.views.miscFunctions.BackButton
-import com.belmontCrest.cardCrafter.views.miscFunctions.CardOptionsButton
-import com.belmontCrest.cardCrafter.views.miscFunctions.CardTypesButton
-import com.belmontCrest.cardCrafter.views.miscFunctions.RedoCardButton
-import com.belmontCrest.cardCrafter.views.miscFunctions.SettingsButton
+import com.belmontCrest.cardCrafter.uiFunctions.BackButton
+import com.belmontCrest.cardCrafter.uiFunctions.CardOptionsButton
+import com.belmontCrest.cardCrafter.uiFunctions.CardTypesButton
+import com.belmontCrest.cardCrafter.uiFunctions.EditProfileButton
+import com.belmontCrest.cardCrafter.uiFunctions.RedoCardButton
+import com.belmontCrest.cardCrafter.uiFunctions.SettingsButton
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -39,12 +40,12 @@ import kotlinx.coroutines.launch
 fun ActionIconButton(
     getUIStyle: GetUIStyle,
     cardDeckVM: CardDeckViewModel,
-    deck: Deck,
     fields: Fields,
     navViewModel: NavViewModel
 ) {
     val deckNavController by navViewModel.deckNav.collectAsStateWithLifecycle()
     val sc by navViewModel.card.collectAsStateWithLifecycle()
+    val wd by navViewModel.wd.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     val onNavigateBack : () -> Unit = {
         fields.isEditing.value = false
@@ -58,64 +59,75 @@ fun ActionIconButton(
     val cr = navViewModel.route.collectAsStateWithLifecycle().value
 
     when (cr.name) {
+        SupabaseDestination.route -> {
+            EditProfileButton(getUIStyle)
+        }
+        SBNavDestination.route -> {
+            EditProfileButton(getUIStyle)
+        }
         DeckNavDestination.route -> {
-            SettingsButton(
-                onNavigateToEditDeck = {
-                    if (!fields.inDeckClicked.value) {
-                        fields.inDeckClicked.value = true
-                        fields.mainClicked.value = false
-                        navViewModel.updateRoute(
-                            EditDeckDestination.createRoute(deck.name)
-                        )
-                        deckNavController?.navigate(
-                            EditDeckDestination.createRoute(deck.name)
-                        )
-                    }
-                },
-                onNavigateToEditCards = {
-                    if (!fields.inDeckClicked.value) {
-                        fields.inDeckClicked.value = true
-                        fields.mainClicked.value = false
-                        navViewModel.updateRoute(ViewAllCardsDestination.route)
-                        deckNavController?.navigate(ViewAllCardsDestination.route)
-                    }
-                },
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .settingsButtonModifier(),
-                getUIStyle = getUIStyle,
-                fields = fields
-            )
+            wd.deck?.let {
+                SettingsButton(
+                    onNavigateToEditDeck = {
+                        if (!fields.inDeckClicked.value) {
+                            fields.inDeckClicked.value = true
+                            fields.mainClicked.value = false
+                            navViewModel.updateRoute(
+                                EditDeckDestination.createRoute(it.name)
+                            )
+                            deckNavController?.navigate(
+                                EditDeckDestination.createRoute(it.name)
+                            )
+                        }
+                    },
+                    onNavigateToEditCards = {
+                        if (!fields.inDeckClicked.value) {
+                            fields.inDeckClicked.value = true
+                            fields.mainClicked.value = false
+                            navViewModel.updateRoute(ViewAllCardsDestination.route)
+                            deckNavController?.navigate(ViewAllCardsDestination.route)
+                        }
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp)
+                        .settingsButtonModifier(),
+                    getUIStyle = getUIStyle,
+                    fields = fields
+                )
+            }
         }
 
         DeckViewDestination.route -> {
-            SettingsButton(
-                onNavigateToEditDeck = {
-                    if (!fields.inDeckClicked.value) {
-                        fields.inDeckClicked.value = true
-                        fields.mainClicked.value = false
-                        navViewModel.updateRoute(
-                            EditDeckDestination.createRoute(deck.name)
-                        )
-                        deckNavController?.navigate(
-                            EditDeckDestination.createRoute(deck.name)
-                        )
-                    }
-                },
-                onNavigateToEditCards = {
-                    if (!fields.inDeckClicked.value) {
-                        fields.inDeckClicked.value = true
-                        fields.mainClicked.value = false
-                        navViewModel.updateRoute(ViewAllCardsDestination.route)
-                        deckNavController?.navigate(ViewAllCardsDestination.route)
-                    }
-                },
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .settingsButtonModifier(),
-                getUIStyle = getUIStyle,
-                fields = fields
-            )
+            wd.deck?.let {
+
+                SettingsButton(
+                    onNavigateToEditDeck = {
+                        if (!fields.inDeckClicked.value) {
+                            fields.inDeckClicked.value = true
+                            fields.mainClicked.value = false
+                            navViewModel.updateRoute(
+                                EditDeckDestination.createRoute(it.name)
+                            )
+                            deckNavController?.navigate(
+                                EditDeckDestination.createRoute(it.name)
+                            )
+                        }
+                    },
+                    onNavigateToEditCards = {
+                        if (!fields.inDeckClicked.value) {
+                            fields.inDeckClicked.value = true
+                            fields.mainClicked.value = false
+                            navViewModel.updateRoute(ViewAllCardsDestination.route)
+                            deckNavController?.navigate(ViewAllCardsDestination.route)
+                        }
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp)
+                        .settingsButtonModifier(),
+                    getUIStyle = getUIStyle,
+                    fields = fields
+                )
+            }
         }
 
         ViewAllCardsDestination.route -> {
@@ -129,7 +141,6 @@ fun ActionIconButton(
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
                     .backButtonModifier()
-
             )
         }
 

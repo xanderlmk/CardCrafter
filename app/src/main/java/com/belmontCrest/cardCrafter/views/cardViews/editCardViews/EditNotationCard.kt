@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.views.miscFunctions.LatexKeyboard
+import com.belmontCrest.cardCrafter.uiFunctions.LatexKeyboard
 
 @Composable
 fun EditNotationCard(

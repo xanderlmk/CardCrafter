@@ -42,13 +42,13 @@ import com.belmontCrest.cardCrafter.controller.onClickActions.updateReviewAmount
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.EditDeckViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
-import com.belmontCrest.cardCrafter.views.miscFunctions.BackButton
-import com.belmontCrest.cardCrafter.views.miscFunctions.EditDoubleField
-import com.belmontCrest.cardCrafter.views.miscFunctions.EditTextField
+import com.belmontCrest.cardCrafter.uiFunctions.BackButton
+import com.belmontCrest.cardCrafter.uiFunctions.EditDoubleField
+import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
-import com.belmontCrest.cardCrafter.views.miscFunctions.EditIntField
+import com.belmontCrest.cardCrafter.uiFunctions.EditIntField
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.createDeckDetails
 import com.belmontCrest.cardCrafter.views.miscFunctions.returnCardAmountError
 import com.belmontCrest.cardCrafter.views.miscFunctions.returnDeckError
@@ -192,7 +192,6 @@ class EditDeckView(
                         ) {
                             Text(stringResource(R.string.cancel))
                         }
-
                         Button(
                             onClick = {
                                 updateDeckName(

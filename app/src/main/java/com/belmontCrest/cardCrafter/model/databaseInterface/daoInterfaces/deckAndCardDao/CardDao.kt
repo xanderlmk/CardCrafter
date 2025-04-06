@@ -1,21 +1,20 @@
-package com.belmontCrest.cardCrafter.model.daoFiles.deckAndCardDao
+package com.belmontCrest.cardCrafter.model.databaseInterface.daoInterfaces.deckAndCardDao
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.Delete
-import androidx.room.Update
+import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.DeckWithCards
+import androidx.room.Update
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
+import com.belmontCrest.cardCrafter.model.tablesAndApplication.DeckWithCards
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
-
 @Dao
 interface CardDao {
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.Companion.ABORT)
     suspend fun insertCard(card: Card): Long
 
     @Query("SELECT MAX(deckCardNumber) FROM cards WHERE deckUUID = :deckUUID")
@@ -52,9 +51,6 @@ interface CardDao {
 
     @Query("DELETE FROM cards WHERE deckId = :deckId")
     suspend fun deleteAllCards(deckId: Int)
-
-    @Query("Update cards set type = :type where id = :cardId")
-    suspend fun updateCard(cardId: Int, type: String)
 
     @Query("UPDATE cards SET partOfList = 1 where id = :id")
     suspend fun becomePartOfList(id: Int)
