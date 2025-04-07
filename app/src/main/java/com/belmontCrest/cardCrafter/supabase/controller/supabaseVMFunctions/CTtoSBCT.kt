@@ -4,19 +4,19 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.ListStringConverter
 import com.belmontCrest.cardCrafter.supabase.model.SBCT
-import com.belmontCrest.cardCrafter.supabase.model.SBCards
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckToExport
-import com.belmontCrest.cardCrafter.supabase.model.SBDecks
-import com.belmontCrest.cardCrafter.supabase.model.SBMultiCard
-import com.belmontCrest.cardCrafter.supabase.model.SBNotationCard
+import com.belmontCrest.cardCrafter.supabase.model.SBCardDto
+import com.belmontCrest.cardCrafter.supabase.model.SBDeckToExportDto
+import com.belmontCrest.cardCrafter.supabase.model.SBDeckDto
+import com.belmontCrest.cardCrafter.supabase.model.SBMultiCardDto
+import com.belmontCrest.cardCrafter.supabase.model.SBNotationCardDto
 
 fun ctsToSbCts(
     deck: Deck, cts: List<CT>,
     description: String, userId: String
-): SBDeckToExport {
+): SBDeckToExportDto {
     val stringConverter = ListStringConverter()
-    return SBDeckToExport(
-        deck = SBDecks(
+    return SBDeckToExportDto(
+        deck = SBDeckDto(
             deckUUID = deck.uuid,
             user_id = userId,
             name = deck.name,
@@ -26,7 +26,7 @@ fun ctsToSbCts(
             when (ct) {
                 is CT.Basic -> {
                     SBCT.Basic(
-                        card = SBCards(
+                        card = SBCardDto(
                             deckUUID = ct.card.deckUUID,
                             type = ct.card.type,
                             cardIdentifier = ct.card.cardIdentifier
@@ -37,7 +37,7 @@ fun ctsToSbCts(
 
                 is CT.ThreeField -> {
                     SBCT.Three(
-                        card = SBCards(
+                        card = SBCardDto(
                             deckUUID = ct.card.deckUUID,
                             type = ct.card.type,
                             cardIdentifier = ct.card.cardIdentifier
@@ -48,7 +48,7 @@ fun ctsToSbCts(
 
                 is CT.Hint -> {
                     SBCT.Hint(
-                        card = SBCards(
+                        card = SBCardDto(
                             deckUUID = ct.card.deckUUID,
                             type = ct.card.type,
                             cardIdentifier = ct.card.cardIdentifier
@@ -59,12 +59,12 @@ fun ctsToSbCts(
 
                 is CT.MultiChoice -> {
                     SBCT.Multi(
-                        card = SBCards(
+                        card = SBCardDto(
                             deckUUID = ct.card.deckUUID,
                             type = ct.card.type,
                             cardIdentifier = ct.card.cardIdentifier
                         ),
-                        multiCard = SBMultiCard(
+                        multiCard = SBMultiCardDto(
                             question = ct.multiChoiceCard.question,
                             choiceA = ct.multiChoiceCard.choiceA,
                             choiceB = ct.multiChoiceCard.choiceB,
@@ -77,12 +77,12 @@ fun ctsToSbCts(
 
                 is CT.Notation -> {
                     SBCT.Notation(
-                        card = SBCards(
+                        card = SBCardDto(
                             deckUUID = ct.card.deckUUID,
                             type = ct.card.type,
                             cardIdentifier = ct.card.cardIdentifier
                         ),
-                        notationCard = SBNotationCard(
+                        notationCard = SBNotationCardDto(
                             question = ct.notationCard.question,
                             steps = stringConverter.listToString(ct.notationCard.steps),
                             answer = ct.notationCard.answer

@@ -5,6 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.DeckViewDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.uiModels.StringVar
@@ -52,12 +54,21 @@ class NavViewModel(
         initialValue = StringVar()
     )
 
-    val deckNav: MutableStateFlow<NavHostController?> = MutableStateFlow(null)
+    private val _deckNav: MutableStateFlow<NavHostController?> = MutableStateFlow(null)
+    val deckNav = _deckNav.asStateFlow()
     fun updateDeckNav(navHostController: NavHostController) {
-        deckNav.update {
+        _deckNav.update {
             navHostController
         }
     }
+    private val _sbNav: MutableStateFlow<NavHostController?> = MutableStateFlow(null)
+    val sbNav = _sbNav.asStateFlow()
+    fun updateSBNav(navHostController: NavHostController){
+        _sbNav.update {
+            navHostController
+        }
+    }
+
     private val _route = MutableStateFlow(
         StringVar(savedStateHandle["route"] ?: MainNavDestination.route)
     )

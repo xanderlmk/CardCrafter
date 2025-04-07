@@ -1,7 +1,7 @@
 package com.belmontCrest.cardCrafter.controller.navigation.navHosts
 
 import androidx.navigation.NavHostController
-import com.belmontCrest.cardCrafter.controller.navigation.MainNavDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 
 object BackNavHandler {

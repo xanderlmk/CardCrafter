@@ -13,33 +13,38 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.NotationCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
-import com.belmontCrest.cardCrafter.supabase.model.SBCards
-import com.belmontCrest.cardCrafter.supabase.model.SBDecks
+import com.belmontCrest.cardCrafter.supabase.model.SBCardDto
+import com.belmontCrest.cardCrafter.supabase.model.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.SealedCT
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+
 import java.util.Date
 
 data class DeckUUID(
     val uuid: String
 )
+
 data class DeckSignature(
-    val name : String,
-    val uuid : String
+    val name: String,
+    val uuid: String
 )
+
 @Dao
 interface SupabaseDao {
-    @Query("""
+    @Query(
+        """
         SELECT name, uuid 
         FROM decks WHERE uuid = :deckUUID
-    """)
-    fun validateDeckSignature(deckUUID: String) : DeckSignature?
+    """
+    )
+    fun validateDeckSignature(deckUUID: String): DeckSignature?
 
-    @Query("""
+    @Query(
+        """
         SELECT name, uuid
         FROM decks WHERE name = :name
-    """)
-    fun validateDeckName(name: String) : DeckSignature?
+    """
+    )
+    fun validateDeckName(name: String): DeckSignature?
 
     @Insert
     fun insertDeck(deck: Deck): Long
@@ -77,19 +82,19 @@ interface SupabaseDao {
 
     @Transaction
     suspend fun replaceDeckList(
-        sbDecks: SBDecks, cardList: List<SealedCT>,
+        sbDeckDto: SBDeckDto, cardList: List<SealedCT>,
         reviewAmount: Int, cardAmount: Int, name: String,
         onProgress: (Float) -> Unit, total: Int
     ) {
-        val cardsToDelete = getCards(sbDecks.deckUUID)
+        val cardsToDelete = getCards(sbDeckDto.deckUUID)
 
         deleteCards(cardsToDelete)
-        deleteDeck(DeckUUID(sbDecks.deckUUID))
+        deleteDeck(DeckUUID(sbDeckDto.deckUUID))
 
         val deckId = insertDeck(
             Deck(
                 name = name,
-                uuid = sbDecks.deckUUID,
+                uuid = sbDeckDto.deckUUID,
                 nextReview = Date(),
                 lastUpdated = Date(),
                 reviewAmount = reviewAmount,
@@ -98,55 +103,25 @@ interface SupabaseDao {
         )
         cardList.forEachIndexed { index, ct ->
             insertTransactionCT(
-                ct, deckId, sbDecks, reviewAmount
+                ct, deckId, sbDeckDto, reviewAmount
             )
             /** This is at 50% hence we add the total (total/2)
              *  with the index + 1, which is all divided by the total */
-            withContext(Dispatchers.Main) {
-                onProgress(((total / 2) + (index + 1).toFloat()) / total)
-            }
+            onProgress(((total / 2) + (index + 1).toFloat()) / total)
         }
 
     }
 
     @Transaction
     suspend fun insertDeckList(
-        sbDecks: SBDecks, cardList: List<SealedCT>,
-        reviewAmount: Int, cardAmount: Int,
-        onProgress: (Float) -> Unit, total: Int
-    ) {
-        val deckId = insertDeck(
-            Deck(
-                name = sbDecks.name,
-                uuid = sbDecks.deckUUID,
-                nextReview = Date(),
-                lastUpdated = Date(),
-                reviewAmount = reviewAmount,
-                cardAmount = cardAmount
-            )
-        )
-        cardList.forEachIndexed { index, ct ->
-            insertTransactionCT(
-                ct, deckId, sbDecks, reviewAmount
-            )
-            /** This is at 50% hence we add the total (total/2)
-             *  with the index + 1, which is all divided by the total */
-            withContext(Dispatchers.Main) {
-                onProgress(((total / 2) + (index + 1).toFloat()) / total)
-            }
-        }
-    }
-
-    @Transaction
-    suspend fun insertDeckList(
-        sbDecks: SBDecks, cardList: List<SealedCT>,
+        sbDeckDto: SBDeckDto, cardList: List<SealedCT>,
         name: String, reviewAmount: Int, cardAmount: Int,
         onProgress: (Float) -> Unit, total: Int
     ) {
         val deckId = insertDeck(
             Deck(
                 name = name,
-                uuid = sbDecks.deckUUID,
+                uuid = sbDeckDto.deckUUID,
                 nextReview = Date(),
                 lastUpdated = Date(),
                 reviewAmount = reviewAmount,
@@ -155,18 +130,16 @@ interface SupabaseDao {
         )
         cardList.forEachIndexed { index, ct ->
             insertTransactionCT(
-                ct, deckId, sbDecks, reviewAmount
+                ct, deckId, sbDeckDto, reviewAmount
             )
             /** This is at 50% hence we add the total (total/2)
              *  with the index + 1, which is all divided by the total */
-            withContext(Dispatchers.Main) {
-                onProgress(((total / 2) + (index + 1).toFloat()) / total)
-            }
+            onProgress(((total / 2) + (index + 1).toFloat()) / total)
         }
     }
 
     private fun insertTransactionCT(
-        ct: SealedCT, deckId: Long, sbDecks: SBDecks,
+        ct: SealedCT, deckId: Long, sbDeckDto: SBDeckDto,
         reviewAmount: Int
     ) {
         val cardIdentifier = returnCard(ct).cardIdentifier
@@ -176,9 +149,9 @@ interface SupabaseDao {
                 val cardId = insertCard(
                     Card(
                         deckId = deckId.toInt(),
-                        deckUUID = sbDecks.deckUUID,
+                        deckUUID = sbDeckDto.deckUUID,
                         deckCardNumber = deckCardNumber,
-                        cardIdentifier = "${sbDecks.deckUUID}-$deckCardNumber",
+                        cardIdentifier = "${sbDeckDto.deckUUID}-$deckCardNumber",
                         nextReview = Date(),
                         reviewsLeft = reviewAmount,
                         passes = 0,
@@ -201,9 +174,9 @@ interface SupabaseDao {
                 val cardId = insertCard(
                     Card(
                         deckId = deckId.toInt(),
-                        deckUUID = sbDecks.deckUUID,
+                        deckUUID = sbDeckDto.deckUUID,
                         deckCardNumber = deckCardNumber,
-                        cardIdentifier = "${sbDecks.deckUUID}-$deckCardNumber",
+                        cardIdentifier = "${sbDeckDto.deckUUID}-$deckCardNumber",
                         nextReview = Date(),
                         reviewsLeft = reviewAmount,
                         passes = 0,
@@ -226,9 +199,9 @@ interface SupabaseDao {
                 val cardId = insertCard(
                     Card(
                         deckId = deckId.toInt(),
-                        deckUUID = sbDecks.deckUUID,
+                        deckUUID = sbDeckDto.deckUUID,
                         deckCardNumber = deckCardNumber,
-                        cardIdentifier = "${sbDecks.deckUUID}-$deckCardNumber",
+                        cardIdentifier = "${sbDeckDto.deckUUID}-$deckCardNumber",
                         nextReview = Date(),
                         reviewsLeft = reviewAmount,
                         passes = 0,
@@ -251,9 +224,9 @@ interface SupabaseDao {
                 val cardId = insertCard(
                     Card(
                         deckId = deckId.toInt(),
-                        deckUUID = sbDecks.deckUUID,
+                        deckUUID = sbDeckDto.deckUUID,
                         deckCardNumber = deckCardNumber,
-                        cardIdentifier = "${sbDecks.deckUUID}-$deckCardNumber",
+                        cardIdentifier = "${sbDeckDto.deckUUID}-$deckCardNumber",
                         nextReview = Date(),
                         reviewsLeft = reviewAmount,
                         passes = 0,
@@ -279,9 +252,9 @@ interface SupabaseDao {
                 val cardId = insertCard(
                     Card(
                         deckId = deckId.toInt(),
-                        deckUUID = sbDecks.deckUUID,
+                        deckUUID = sbDeckDto.deckUUID,
                         deckCardNumber = deckCardNumber,
-                        cardIdentifier = "${sbDecks.deckUUID}-$deckCardNumber",
+                        cardIdentifier = "${sbDeckDto.deckUUID}-$deckCardNumber",
                         nextReview = Date(),
                         reviewsLeft = reviewAmount,
                         passes = 0,
@@ -303,7 +276,7 @@ interface SupabaseDao {
     }
 }
 
-private fun returnCard(ct: SealedCT): SBCards {
+private fun returnCard(ct: SealedCT): SBCardDto {
     return when (ct) {
         is SealedCT.Basic -> ct.card
 

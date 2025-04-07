@@ -8,7 +8,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
@@ -18,6 +18,8 @@ import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.AddDec
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.DeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.EditDeckViewModel
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.FlashCardApplication
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserProfileViewModel
 
 
 /**
@@ -83,8 +85,23 @@ object AppViewModelProvider {
             SupabaseViewModel(
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.cardTypeRepository,
-                flashCardApplication().container.supabaseRepository,
+                flashCardApplication().container.supabase,
+                flashCardApplication().container.sbTablesRepository,
+                flashCardApplication().container.authRepository,
                 flashCardApplication()
+            )
+        }
+        initializer {
+            ImportDeckViewModel(
+                flashCardApplication().container.flashCardRepository,
+                flashCardApplication().container.supabaseToRoomRepository,
+                flashCardApplication().container.sbTablesRepository,
+                flashCardApplication().container.supabase
+            )
+        }
+        initializer {
+            UserProfileViewModel(
+                flashCardApplication().container.authRepository
             )
         }
     }

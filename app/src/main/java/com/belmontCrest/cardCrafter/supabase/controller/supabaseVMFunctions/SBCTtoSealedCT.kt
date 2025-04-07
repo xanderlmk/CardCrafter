@@ -6,9 +6,9 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.ListStringConvert
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.NotationCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
-import com.belmontCrest.cardCrafter.supabase.model.SBCards
-import com.belmontCrest.cardCrafter.supabase.model.SBMultiCard
-import com.belmontCrest.cardCrafter.supabase.model.SBNotationCard
+import com.belmontCrest.cardCrafter.supabase.model.SBCardDto
+import com.belmontCrest.cardCrafter.supabase.model.SBMultiCardDto
+import com.belmontCrest.cardCrafter.supabase.model.SBNotationCardDto
 import com.belmontCrest.cardCrafter.supabase.model.SealedCT
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -16,7 +16,7 @@ import io.github.jan.supabase.postgrest.query.Columns
 
 
 suspend fun sbctToSealedCts(
-    sbCards: List<SBCards>, supabase: SupabaseClient,
+    sbCards: List<SBCardDto>, supabase: SupabaseClient,
     onProgress : (Float) -> Unit, total : Int
 ): List<SealedCT> {
     val list : List<SealedCT> = sbCards.mapIndexed {index,  card ->
@@ -69,7 +69,7 @@ suspend fun sbctToSealedCts(
                         filter {
                             eq("cardId", card.id)
                         }
-                    }.decodeSingle<SBMultiCard>()
+                    }.decodeSingle<SBMultiCardDto>()
                 onProgress((index + 1).toFloat() / total)
                 SealedCT.Multi(
                     card,
@@ -99,7 +99,7 @@ suspend fun sbctToSealedCts(
                         filter {
                             eq("cardId", card.id)
                         }
-                    }.decodeSingle<SBNotationCard>()
+                    }.decodeSingle<SBNotationCardDto>()
                 onProgress((index + 1).toFloat() / total)
                 SealedCT.Notation(
                     card,

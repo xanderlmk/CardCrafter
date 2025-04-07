@@ -1,8 +1,12 @@
 [versions]
+accompanistSwiperefresh = "0.24.13-rc"
 agp = "8.9.1" # to run on koala -> 8.6.1
 converterGson = "2.9.0"
 credentials = "1.5.0"
 googleid = "1.1.1"
+#hiltAndroid = "2.51.1"
+#hiltCompiler = "2.51.1"
+#hiltNavigationCompose = "1.0.0"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -50,6 +54,7 @@ bcrypt = "0.9.0"
 
 [libraries]
 # Google
+accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanistSwiperefresh" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
 bcrypt = { module = "at.favre.lib:bcrypt", version.ref = "bcrypt" }
@@ -57,6 +62,11 @@ converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 
 gotrue-kt = { module = "io.github.jan-tennert.supabase:gotrue-kt" }
+# Hilt things
+#androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+#hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
+#hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltCompiler" }
+#--
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serializationJson" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleViewModelCompose" }
 # Navigation Implementation

@@ -10,7 +10,7 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_CARD_LIST
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOT_DECK_OWNER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UNKNOWN_ERROR
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckOwner
+import com.belmontCrest.cardCrafter.supabase.model.SBDeckOwnerDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
@@ -30,13 +30,12 @@ suspend fun tryUpsertDeck(
         Log.d("SupabaseViewModel", "User is null!")
         return ReturnValues.NULL_USER
     }
-    Log.d("SupabaseViewModel", "Updating Deck..")
     val response = supabase.from("deck")
-        .select(columns = Columns.type<SBDeckOwner>()) {
+        .select(columns = Columns.type<SBDeckOwnerDto>()) {
             filter {
                 eq("deckUUID", deck.uuid)
             }
-        }.decodeSingleOrNull<SBDeckOwner>()
+        }.decodeSingleOrNull<SBDeckOwnerDto>()
     if (response?.user_id != user.id) {
         Log.d("SupabaseVM", "Not the Deck Owner")
         return NOT_DECK_OWNER

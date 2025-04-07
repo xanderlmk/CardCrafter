@@ -11,16 +11,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.belmontCrest.cardCrafter.controller.navigation.AddCardDestination
-import com.belmontCrest.cardCrafter.controller.navigation.DeckNavDestination
-import com.belmontCrest.cardCrafter.controller.navigation.DeckViewDestination
-import com.belmontCrest.cardCrafter.controller.navigation.EditDeckDestination
-import com.belmontCrest.cardCrafter.controller.navigation.EditingCardDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.AddCardDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.DeckNavDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.DeckViewDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.EditDeckDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.EditingCardDestination
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
-import com.belmontCrest.cardCrafter.controller.navigation.SBNavDestination
-import com.belmontCrest.cardCrafter.controller.navigation.SupabaseDestination
-import com.belmontCrest.cardCrafter.controller.navigation.ViewAllCardsDestination
-import com.belmontCrest.cardCrafter.controller.navigation.ViewDueCardsDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.SBNavDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.ViewAllCardsDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.ViewDueCardsDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -44,6 +44,7 @@ fun ActionIconButton(
     navViewModel: NavViewModel
 ) {
     val deckNavController by navViewModel.deckNav.collectAsStateWithLifecycle()
+    val sbNavController by navViewModel.sbNav.collectAsStateWithLifecycle()
     val sc by navViewModel.card.collectAsStateWithLifecycle()
     val wd by navViewModel.wd.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
@@ -60,10 +61,10 @@ fun ActionIconButton(
 
     when (cr.name) {
         SupabaseDestination.route -> {
-            EditProfileButton(getUIStyle)
+            EditProfileButton(getUIStyle, navViewModel)
         }
         SBNavDestination.route -> {
-            EditProfileButton(getUIStyle)
+            EditProfileButton(getUIStyle, navViewModel)
         }
         DeckNavDestination.route -> {
             wd.deck?.let {
@@ -99,7 +100,6 @@ fun ActionIconButton(
 
         DeckViewDestination.route -> {
             wd.deck?.let {
-
                 SettingsButton(
                     onNavigateToEditDeck = {
                         if (!fields.inDeckClicked.value) {

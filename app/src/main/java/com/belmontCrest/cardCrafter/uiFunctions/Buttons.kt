@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
@@ -45,6 +46,7 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.launch
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.views.miscFunctions.delayNavigate
 
 @Composable
@@ -355,7 +357,8 @@ fun SubmitButton(
 }
 
 @Composable
-fun EditProfileButton(getUIStyle: GetUIStyle) {
+fun EditProfileButton(getUIStyle: GetUIStyle, navViewModel: NavViewModel) {
+    val sbNavController by navViewModel.sbNav.collectAsStateWithLifecycle()
     var expanded by rememberSaveable { mutableStateOf(false) }
     Box(
         Modifier
@@ -382,7 +385,10 @@ fun EditProfileButton(getUIStyle: GetUIStyle) {
                         tint = getUIStyle.titleColor()
                     )
                 },
-                onClick = { },
+                onClick = {
+                    navViewModel.updateRoute(UserProfileDestination.route)
+                    sbNavController?.navigate(UserProfileDestination.route)
+                },
                 text = { Text("My profile") }
             )
             HorizontalDivider()
@@ -390,7 +396,7 @@ fun EditProfileButton(getUIStyle: GetUIStyle) {
                 onClick = {
 
                 },
-                text = { Text("Exported decks")}
+                text = { Text("Exported decks") }
             )
         }
     }

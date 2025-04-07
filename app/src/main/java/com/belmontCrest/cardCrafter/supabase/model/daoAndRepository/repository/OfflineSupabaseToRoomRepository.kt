@@ -1,25 +1,15 @@
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository
 
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.SupabaseDao
-import com.belmontCrest.cardCrafter.supabase.model.SBDecks
+import com.belmontCrest.cardCrafter.supabase.model.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.SealedCT
 
-class OfflineSupabaseRepository(
+class OfflineSupabaseToRoomRepository(
     private val supabaseDao: SupabaseDao
-) : SupabaseRepository {
-    override suspend fun insertDeckList(
-        deck: SBDecks, cardList: List<SealedCT>,
-        reviewAmount: Int, cardAmount: Int,
-        onProgress: (Float) -> Unit, total: Int
-    ) = supabaseDao.insertDeckList(
-        deck, cardList, reviewAmount, cardAmount,
-        onProgress = {
-            onProgress(it)
-        }, total
-    )
+) : SupabaseToRoomRepository {
 
     override suspend fun insertDeckList(
-        deck: SBDecks, cardList: List<SealedCT>,
+        deck: SBDeckDto, cardList: List<SealedCT>,
         name: String, reviewAmount: Int, cardAmount: Int,
         onProgress: (Float) -> Unit, total: Int
     ) = supabaseDao.insertDeckList(
@@ -30,7 +20,7 @@ class OfflineSupabaseRepository(
     )
 
     override suspend fun replaceDeckList(
-        deck: SBDecks, cardList: List<SealedCT>,
+        deck: SBDeckDto, cardList: List<SealedCT>,
         reviewAmount: Int, cardAmount: Int, name: String,
         onProgress: (Float) -> Unit, total: Int
     ) = supabaseDao.replaceDeckList(

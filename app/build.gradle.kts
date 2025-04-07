@@ -32,16 +32,40 @@ android {
         }
         buildConfigField(
             "String",
-            "SUPABASE_URL", "\"" + "${gradleLocalProperties(rootDir, providers)
-                .getProperty("SUPABASE_URL", "")}" + "\""
+            "SUPABASE_URL", "\"" + "${
+                gradleLocalProperties(rootDir, providers)
+                    .getProperty("SUPABASE_URL", "")
+            }" + "\""
         )
         buildConfigField(
             "String",
-            "SUPABASE_KEY", "\"" + "${gradleLocalProperties(rootDir, providers)
-                .getProperty("SUPABASE_KEY", "")}" + "\""
+            "SUPABASE_KEY", "\"" + "${
+                gradleLocalProperties(rootDir, providers)
+                    .getProperty("SUPABASE_KEY", "")
+            }" + "\""
+        )
+        buildConfigField(
+            "String",
+            "SB_DECK_TN", "\"" + "${
+                gradleLocalProperties(rootDir, providers)
+                    .getProperty("SB_DECK_TN", "")
+            }" + "\""
+        )
+        buildConfigField(
+            "String",
+            "SB_CARD_TN", "\"" + "${
+                gradleLocalProperties(rootDir, providers)
+                    .getProperty("SB_CARD_TN", "")
+            }" + "\""
+        )
+        buildConfigField(
+            "String",
+            "SB_OWNER_TN", "\"" + "${
+                gradleLocalProperties(rootDir, providers)
+                    .getProperty("SB_OWNER_TN", "")
+            }" + "\""
         )
     }
-
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
@@ -112,12 +136,20 @@ android {
 
 dependencies {
 
-    implementation (libs.slf4j.nop)
+    /** Possibly to use in the future.
+    implementation (libs.hilt.android)
+    annotationProcessor (libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+     */
+
+    implementation (libs.accompanist.swiperefresh)
+
+    implementation(libs.slf4j.nop)
     // Jetpack Compose Integration
     implementation(libs.androidx.navigation.compose)
 
     // to use https.
-    implementation (libs.converter.gson)
+    implementation(libs.converter.gson)
 
     // Views/Fragments Integration
     implementation(libs.androidx.navigation.fragment)

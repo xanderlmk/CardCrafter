@@ -10,7 +10,7 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_CARD_LIST
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_USER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UNKNOWN_ERROR
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckUUID
+import com.belmontCrest.cardCrafter.supabase.model.SBDeckUUIDDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
@@ -32,12 +32,12 @@ suspend fun tryExportDeck(
     }
 
     val response = supabase.from("deck")
-        .select(columns = Columns.type<SBDeckUUID>()) {
+        .select(columns = Columns.type<SBDeckUUIDDto>()) {
             filter {
                 eq("deckUUID", deck.uuid)
             }
         }
-        .decodeSingleOrNull<SBDeckUUID>()
+        .decodeSingleOrNull<SBDeckUUIDDto>()
 
     if (response?.deckUUID == deck.uuid) {
         Log.d("SupabaseVM", "Deck already Exists!")
