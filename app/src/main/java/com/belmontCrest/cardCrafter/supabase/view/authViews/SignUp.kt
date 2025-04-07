@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.view
+package com.belmontCrest.cardCrafter.supabase.view.authViews
 
 import android.credentials.GetCredentialException
 import android.os.Build
@@ -26,7 +26,8 @@ import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -44,7 +45,6 @@ fun SignUp(
     supabaseVM: SupabaseViewModel,
     getUIStyle: GetUIStyle
 ) {
-    //val apiVM : APIViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val clientId by supabaseVM.clientId.collectAsStateWithLifecycle()
     Box(
         contentAlignment = Alignment.TopCenter,

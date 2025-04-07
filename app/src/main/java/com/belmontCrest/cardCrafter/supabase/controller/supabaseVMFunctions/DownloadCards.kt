@@ -12,9 +12,9 @@ import com.belmontCrest.cardCrafter.model.tablesAndApplication.ListStringConvert
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
-import com.belmontCrest.cardCrafter.supabase.model.SBCards
-import com.belmontCrest.cardCrafter.supabase.model.SBMultiCard
-import com.belmontCrest.cardCrafter.supabase.model.SBNotationCard
+import com.belmontCrest.cardCrafter.supabase.model.SBCardDto
+import com.belmontCrest.cardCrafter.supabase.model.SBMultiCardDto
+import com.belmontCrest.cardCrafter.supabase.model.SBNotationCardDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
@@ -25,7 +25,7 @@ private const val ERROR_INSERT_CARD_FAILED = 75
 private const val ERROR_TYPE_NOT_EXIST = 25
 
 suspend fun downloadCards(
-    card: SBCards, supabase: SupabaseClient, deckUUID: String,
+    card: SBCardDto, supabase: SupabaseClient, deckUUID: String,
     flashCardRepository: FlashCardRepository,
     cardTypeRepository: CardTypeRepository, deckId: Int,
     sSRepository: ScienceSpecificRepository, preferences: PreferencesManager
@@ -157,7 +157,7 @@ suspend fun downloadCards(
                         filter {
                             eq("cardId", card.id)
                         }
-                    }.decodeSingle<SBMultiCard>()
+                    }.decodeSingle<SBMultiCardDto>()
                 val currentMax = flashCardRepository.getMaxDCNumber(deckUUID) ?: 0
                 val newDeckCardNumber = currentMax + 1
                 val cardId = flashCardRepository.insertCard(
@@ -209,7 +209,7 @@ suspend fun downloadCards(
                         filter {
                             eq("cardId", card.id)
                         }
-                    }.decodeSingle<SBNotationCard>()
+                    }.decodeSingle<SBNotationCardDto>()
                 val currentMax = flashCardRepository.getMaxDCNumber(deckUUID) ?: 0
                 val newDeckCardNumber = currentMax + 1
                 val cardId = flashCardRepository.insertCard(

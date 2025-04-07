@@ -24,11 +24,11 @@
   *;
 }
 
-# Keep OkHttp classes  (commonly needed with Retrofit)
+# Keep OkHttp classes
 -keep class okhttp3.** { *; }
 -dontwarn okhttp3.**
 
-# Keep annotations (used by Retrofit and converters)
+# Keep annotations
 -keepattributes Signature, *Annotation*
 
 # For JSON conversion, also add:

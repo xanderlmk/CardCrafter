@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -13,17 +14,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.belmontCrest.cardCrafter.controller.navigation.SBNavDestination
-import com.belmontCrest.cardCrafter.controller.navigation.ExportSBDestination
-import com.belmontCrest.cardCrafter.controller.navigation.ImportSBDestination
-import com.belmontCrest.cardCrafter.controller.navigation.MainNavDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.SBNavDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
-import com.belmontCrest.cardCrafter.controller.navigation.SupabaseDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.ExportSBDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.ImportSBDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.SupabaseDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
-import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.view.MyProfile
 import com.belmontCrest.cardCrafter.supabase.view.importDeck.ImportDeck
 import com.belmontCrest.cardCrafter.supabase.view.OnlineDatabase
 import com.belmontCrest.cardCrafter.supabase.view.UploadThisDeck
@@ -41,6 +44,10 @@ fun SupabaseNav(
     navViewModel: NavViewModel
 ) {
     val sbNavController = rememberNavController()
+
+    LaunchedEffect(Unit) {
+        navViewModel.updateSBNav(sbNavController)
+    }
     /** Our Supabase Client and Views. */
     val onlineDatabase = OnlineDatabase(
         getUIStyle,
@@ -49,7 +56,7 @@ fun SupabaseNav(
     )
     val importDeck = ImportDeck(
         getUIStyle,
-        supabaseVM, preferences
+        preferences
     )
     val sbDeck by supabaseVM.deck.collectAsStateWithLifecycle()
     val pickedDeck by supabaseVM.pickedDeck.collectAsStateWithLifecycle()
@@ -82,7 +89,7 @@ fun SupabaseNav(
                 onExportDeck = {
                     navViewModel.updateRoute(SupabaseDestination.route)
                     sbNavController.navigate(ExportSBDestination.route)
-                }
+                },
             )
         }
         composable(ImportSBDestination.route) {
@@ -118,6 +125,15 @@ fun SupabaseNav(
                     getUIStyle
                 )
             }
+        }
+        composable(UserProfileDestination.route) {
+            BackHandler {
+                navViewModel.updateRoute(SupabaseDestination.route)
+                sbNavController.popBackStack(
+                    SupabaseDestination.route, inclusive = false
+                )
+            }
+            MyProfile(getUIStyle)
         }
     }
 }

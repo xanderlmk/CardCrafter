@@ -36,14 +36,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
+import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
-import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_STRING
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.REPLACED_DECK
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
-import com.belmontCrest.cardCrafter.supabase.model.SBDecks
+import com.belmontCrest.cardCrafter.supabase.model.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
@@ -56,11 +58,11 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.Q)
 class ImportDeck(
     private val getUIStyle: GetUIStyle,
-    private val supabaseVM: SupabaseViewModel,
     private val preferences: PreferencesManager
 ) {
     @Composable
-    fun GetDeck(deck: SBDecks, onNavigate: () -> Unit) {
+    fun GetDeck(deck: SBDeckDto, onNavigate: () -> Unit) {
+        val importDeckVM: ImportDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val coroutineScope = rememberCoroutineScope()
         val success = rememberSaveable { mutableIntStateOf(-1) }
         var enabled by rememberSaveable { mutableStateOf(true) }
@@ -78,7 +80,7 @@ class ImportDeck(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxSize()
             ) {
-                ConflictDeck(conflict, deck, onNavigate)
+                ConflictDeck(conflict, deck, importDeckVM, onNavigate)
                 Text(
                     text = "Import ${deck.name} ?",
                     textAlign = TextAlign.Center,
@@ -98,8 +100,8 @@ class ImportDeck(
                         onClick = {
                             coroutineScope.launch {
                                 enabled = false
-                                success.intValue = supabaseVM.importDeck(
-                                    sbDecks = deck,
+                                success.intValue = importDeckVM.importDeck(
+                                    sbDeckDto = deck,
                                     preferences = preferences,
                                     onProgress = {
                                         progress = it
@@ -134,7 +136,8 @@ class ImportDeck(
     @Composable
     fun ConflictDeck(
         dismiss: MutableState<Boolean>,
-        deck: SBDecks,
+        deck: SBDeckDto,
+        importDeckVM: ImportDeckViewModel,
         onNavigate: () -> Unit
     ) {
         val context = LocalContext.current
@@ -193,7 +196,7 @@ class ImportDeck(
                             onClick = {
                                 coroutineScope.launch {
                                     enabled = false
-                                    val thisResult = supabaseVM.replaceDeck(
+                                    val thisResult = importDeckVM.replaceDeck(
                                         deck, preferences,
                                         onProgress = {
                                             progress = it
@@ -258,7 +261,7 @@ class ImportDeck(
                                         return@launch
                                     }
                                     enabled = false
-                                    result = supabaseVM.createNewDeck(
+                                    result = importDeckVM.createNewDeck(
                                         deck, preferences, newName,
                                         onProgress = {
                                             progress = it

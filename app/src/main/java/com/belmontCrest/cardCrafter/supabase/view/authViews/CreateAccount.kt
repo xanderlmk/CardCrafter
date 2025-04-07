@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.view
+package com.belmontCrest.cardCrafter.supabase.view.authViews
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -26,7 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
@@ -150,7 +151,7 @@ fun CreateAccount(
                                         dismiss.value = false
                                         enabled = true
                                     } else {
-                                        showToastMessage(context,"Failed!")
+                                        showToastMessage(context, "Failed!")
                                         enabled = true
                                     }
                                 }

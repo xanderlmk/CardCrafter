@@ -4,7 +4,6 @@ package com.belmontCrest.cardCrafter
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -24,14 +23,11 @@ import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.Editin
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
-import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
 import io.github.jan.supabase.annotations.SupabaseInternal
-import io.github.jan.supabase.realtime.Realtime
-import io.github.jan.supabase.realtime.realtime
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import java.net.SocketException
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(SupabaseInternal::class)
@@ -65,6 +61,7 @@ class MainActivity : ComponentActivity() {
                     applicationContext
                 )
             ).value
+
             /**
              * Making sure that if it's their first time,
              * there is no database update,
@@ -116,13 +113,7 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         lifecycle.coroutineScope.launch {
-            try {
-                if (supabaseVM.supabase.value.realtime.status.value != Realtime.Status.CONNECTED) {
-                    supabaseVM.supabase.value.realtime.connect()
-                }
-            } catch (e: SocketException) {
-                Log.d("Socket Issue", "SocketException: $e")
-            }
+            supabaseVM.connectSupabase()
         }
     }
 
@@ -131,7 +122,7 @@ class MainActivity : ComponentActivity() {
         if (::preferences.isInitialized) {
             preferences.savePreferences()
         }
-        supabaseVM.supabase.value.realtime.disconnect()
+        supabaseVM.disconnectSupabaseRT()
     }
 
     override fun onPause() {

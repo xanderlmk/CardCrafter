@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -30,11 +31,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
-import com.belmontCrest.cardCrafter.supabase.controller.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.model.SBDecks
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.model.SBDeckDto
+import com.belmontCrest.cardCrafter.supabase.view.authViews.CreateAccount
+import com.belmontCrest.cardCrafter.supabase.view.authViews.SignUp
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.ExportDeckButton
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 class OnlineDatabase(
     private val getUIStyle: GetUIStyle,
@@ -45,21 +50,21 @@ class OnlineDatabase(
     @Composable
     fun SupabaseView(
         onImportDeck: (String) -> Unit,
-        onExportDeck: () -> Unit
+        onExportDeck: () -> Unit,
     ) {
         val currentUser by supabaseVM.currentUser.collectAsStateWithLifecycle()
         val deckList by supabaseVM.deckList.collectAsStateWithLifecycle()
         val owner by supabaseVM.owner.collectAsStateWithLifecycle()
         var pressed = rememberSaveable { mutableStateOf(false) }
-        LaunchedEffect(currentUser) {
-            supabaseVM.getDeckList()
-        }
-        LaunchedEffect(Unit) {
-            if (currentUser == null) {
-                supabaseVM.updateStatus()
-            }
-            if (deckList.list.isEmpty()) {
+
+        var refreshing by rememberSaveable { mutableStateOf(false) }
+        LaunchedEffect(refreshing) {
+            if (refreshing) {
+                if (currentUser == null) {
+                    supabaseVM.updateStatus()
+                }
                 supabaseVM.getDeckList()
+                refreshing = false
             }
         }
         if (currentUser == null) {
@@ -80,15 +85,20 @@ class OnlineDatabase(
                         supabaseVM, pressed, getUIStyle
                     )
                 }
-                LazyColumn(
-                    contentPadding = PaddingValues(
-                        horizontal = 4.dp,
-                        vertical = 8.dp
-                    ),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                SwipeRefresh(
+                    state = rememberSwipeRefreshState(isRefreshing = refreshing),
+                    onRefresh = { refreshing = true },
                 ) {
-                    items(deckList.list) { deck ->
-                        DeckView(deck, onImportDeck)
+                    LazyColumn(
+                        contentPadding = PaddingValues(
+                            horizontal = 4.dp,
+                            vertical = 8.dp
+                        ),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        items(deckList.list) { deck ->
+                            DeckView(deck, onImportDeck)
+                        }
                     }
                 }
                 ExportDeckButton(
@@ -98,9 +108,8 @@ class OnlineDatabase(
             }
         }
     }
-
     @Composable
-    fun DeckView(deck: SBDecks, onImportDeck: (String) -> Unit) {
+    fun DeckView(deck: SBDeckDto, onImportDeck: (String) -> Unit) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier

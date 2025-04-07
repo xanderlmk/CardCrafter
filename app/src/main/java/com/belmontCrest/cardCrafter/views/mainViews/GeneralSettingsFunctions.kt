@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -55,47 +54,61 @@ fun SystemThemeButton(
     Box(
         Modifier
             .fillMaxWidth()
-            .wrapContentSize(Alignment.TopEnd)
-    ) {
-        Button(
-            onClick = {
-                if (!clicked) {
-                    expanded = true
+            .padding(12.dp)
+
+            .border(
+                width = 2.dp,
+                shape = RoundedCornerShape(12.dp),
+                color = if (getUIStyle.getIsDarkTheme() == true) {
+                    Color.Gray
+                } else {
+                    Color.Black
                 }
-            },
-            modifier = Modifier.padding(top = 4.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = getUIStyle.secondaryButtonColor(),
-                contentColor = getUIStyle.buttonTextColor()
             )
-        ) {
-            Text(stringResource(R.string.system_theme))
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                DropdownMenuItem(
-                    onClick = {
-                        customScheme()
-                    },
-                    text = { Text(stringResource(R.string.custom_theme)) },
-                    leadingIcon = {
-                        Icon(
-                            painter = customToggled,
-                            contentDescription = "Toggle Custom Theme",
-                            tint = getUIStyle.isThemeOn()
-                        )
-                    })
-                DropdownMenuItem(onClick = {
+            .clickable {
+                if (!clicked) {
+                    expanded = !expanded
+                }
+            }
+            .wrapContentSize(Alignment.TopCenter)
+    ) {
+        Text(
+            text = stringResource(R.string.system_theme),
+            fontSize = 20.sp,
+            lineHeight = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = getUIStyle.titleColor(),
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(vertical = 4.dp)
+        )
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(
+                onClick = {
+                    customScheme()
+                },
+                text = { Text(stringResource(R.string.custom_theme)) },
+                leadingIcon = {
+                    Icon(
+                        painter = customToggled,
+                        contentDescription = "Toggle Custom Theme",
+                        tint = getUIStyle.isThemeOn()
+                    )
+                })
+            DropdownMenuItem(
+                onClick = {
                     darkTheme()
                 },
-                    text = { Text(stringResource(R.string.dark_theme)) },
-                    leadingIcon = {
-                        Icon(
-                            painter = darkToggled,
-                            contentDescription = "Toggle Dynamic Theme",
-                            tint = getUIStyle.isThemeOn()
-                        )
-                    })
-            }
+                text = { Text(stringResource(R.string.dark_theme)) },
+                leadingIcon = {
+                    Icon(
+                        painter = darkToggled,
+                        contentDescription = "Toggle Dynamic Theme",
+                        tint = getUIStyle.isThemeOn()
+                    )
+                })
         }
+
     }
 }
 
@@ -117,7 +130,17 @@ fun DefaultDeckOptions(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .padding(12.dp)
+            .border(
+                width = 2.dp,
+                shape = RoundedCornerShape(12.dp),
+                color = if (getUIStyle.getIsDarkTheme() == true) {
+                    Color.Gray
+                } else {
+                    Color.Black
+                }
+            )
     ) {
         Text(
             text = "Default Deck Options",
@@ -127,23 +150,13 @@ fun DefaultDeckOptions(
             color = getUIStyle.titleColor(),
             textAlign = TextAlign.Center,
             modifier = Modifier
-                .padding(vertical = 10.dp)
-                .border(
-                    width = 2.dp,
-                    shape = RoundedCornerShape(12.dp),
-                    color = if (getUIStyle.getIsDarkTheme() == true) {
-                        Color.Gray
-                    } else {
-                        Color.Black
-                    }
-                )
+                .padding(vertical = 4.dp)
+                .fillMaxWidth()
                 .clickable {
                     if (!clicked) {
                         expanded = !expanded
                     }
                 }
-                .padding(10.dp)
-
         )
         if (expanded) {
             Column(
@@ -188,15 +201,16 @@ fun DefaultDeckOptions(
                     ) {
                         Text(
                             text = stringResource(R.string.save),
-                            color = if (!reviewSuccess){
+                            color = if (!reviewSuccess) {
                                 getUIStyle.titleColor()
                             } else {
-                                if (getUIStyle.getIsDarkTheme()){
+                                if (getUIStyle.getIsDarkTheme()) {
                                     Color.Green
                                 } else {
                                     Color(32, 133, 36, 255)
                                 }
-                            })
+                            }
+                        )
                     }
                 }
             }
@@ -242,7 +256,7 @@ fun DefaultDeckOptions(
                     ) {
                         Text(
                             text = stringResource(R.string.save),
-                            color = if (!cardSuccess){
+                            color = if (!cardSuccess) {
                                 getUIStyle.titleColor()
                             } else {
                                 Color.Green
@@ -259,8 +273,8 @@ fun DefaultDeckOptions(
 fun InvalidXXAmount(
     pressed: MutableState<Boolean>,
     getUIStyle: GetUIStyle,
-    error : String
-    ){
+    error: String
+) {
     if (pressed.value) {
         AlertDialog(
             onDismissRequest = { pressed.value = false },
