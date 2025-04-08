@@ -1,5 +1,7 @@
 package com.belmontCrest.cardCrafter.uiFunctions
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -40,13 +42,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
+import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.launch
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.UserProfileDestination
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.views.miscFunctions.delayNavigate
 
 @Composable
@@ -356,10 +359,16 @@ fun SubmitButton(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-fun EditProfileButton(getUIStyle: GetUIStyle, navViewModel: NavViewModel) {
+fun EditProfileButton(
+    getUIStyle: GetUIStyle,
+    navViewModel: NavViewModel,
+    supabaseVM: SupabaseViewModel
+) {
     val sbNavController by navViewModel.sbNav.collectAsStateWithLifecycle()
     var expanded by rememberSaveable { mutableStateOf(false) }
+    val owner by supabaseVM.owner.collectAsStateWithLifecycle()
     Box(
         Modifier
             .wrapContentSize(Alignment.TopEnd)
@@ -391,13 +400,15 @@ fun EditProfileButton(getUIStyle: GetUIStyle, navViewModel: NavViewModel) {
                 },
                 text = { Text("My profile") }
             )
-            HorizontalDivider()
-            DropdownMenuItem(
-                onClick = {
+            owner?.let {
+                HorizontalDivider()
+                DropdownMenuItem(
+                    onClick = {
 
-                },
-                text = { Text("Exported decks") }
-            )
+                    },
+                    text = { Text("Exported decks") }
+                )
+            }
         }
     }
 }

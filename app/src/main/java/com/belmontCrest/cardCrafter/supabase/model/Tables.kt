@@ -2,11 +2,11 @@
 
 package com.belmontCrest.cardCrafter.supabase.model
 
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.NotationCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import io.github.jan.supabase.gotrue.user.UserInfo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -7,8 +7,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.DeckViewDestination
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.MainNavDestination
-import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.SupabaseDestination
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.model.uiModels.StringVar
 import com.belmontCrest.cardCrafter.model.uiModels.SelectedCard
 import com.belmontCrest.cardCrafter.model.uiModels.WhichDeck
@@ -37,6 +38,7 @@ class NavViewModel(
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
     }
+
     private val deckId = MutableStateFlow(savedStateHandle["id"] ?: 0)
     private val cardId = MutableStateFlow(savedStateHandle["cardId"] ?: 0)
 
@@ -61,9 +63,10 @@ class NavViewModel(
             navHostController
         }
     }
+
     private val _sbNav: MutableStateFlow<NavHostController?> = MutableStateFlow(null)
     val sbNav = _sbNav.asStateFlow()
-    fun updateSBNav(navHostController: NavHostController){
+    fun updateSBNav(navHostController: NavHostController) {
         _sbNav.update {
             navHostController
         }
@@ -80,14 +83,27 @@ class NavViewModel(
             StringVar(newRoute)
         }
     }
-    private val _startingRoute = MutableStateFlow(
-        StringVar(savedStateHandle["startRoute"] ?: DeckViewDestination.route)
+
+    private val _startingDeckRoute = MutableStateFlow(
+        StringVar(savedStateHandle["startDeckRoute"] ?: DeckViewDestination.route)
     )
 
-    val startingRoute = _startingRoute.asStateFlow()
-    fun updateStartingRoute(newRoute: String) {
-        savedStateHandle["startRoute"] = newRoute
-        _startingRoute.update {
+    val startingDeckRoute = _startingDeckRoute.asStateFlow()
+    fun updateStartingDeckRoute(newRoute: String) {
+        savedStateHandle["startDeckRoute"] = newRoute
+        _startingDeckRoute.update {
+            StringVar(newRoute)
+        }
+    }
+
+    private val _startingSBRoute = MutableStateFlow(
+        StringVar(savedStateHandle["startSBRoute"] ?: SupabaseDestination.route)
+    )
+    val startingSBRoute = _startingSBRoute.asStateFlow()
+
+    fun updateStartingSBRoute(newRoute: String) {
+        savedStateHandle["startSBRoute"] = newRoute
+        _startingSBRoute.update {
             StringVar(newRoute)
         }
     }
@@ -110,12 +126,13 @@ class NavViewModel(
 
     private val thisType = MutableStateFlow(savedStateHandle["type"] ?: "basic")
     val type = thisType.asStateFlow()
-    fun updateType(newType : String) {
+    fun updateType(newType: String) {
         savedStateHandle["type"] = newType
         thisType.update {
             newType
         }
     }
+
     private val thisCard = cardId.flatMapLatest { id ->
         if (id == 0) {
             flowOf(SelectedCard(null))
@@ -144,11 +161,13 @@ class NavViewModel(
         }
 
     }
+
     fun deleteCard(card: Card) {
         viewModelScope.launch {
             flashCardRepository.deleteCard(card)
         }
     }
+
     fun getCardById(id: Int) {
         savedStateHandle["cardId"] = 0
         cardId.update {

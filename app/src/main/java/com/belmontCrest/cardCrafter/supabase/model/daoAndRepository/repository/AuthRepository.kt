@@ -3,6 +3,7 @@ package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository
 import android.util.Log
 import com.belmontCrest.cardCrafter.BuildConfig
 import com.belmontCrest.cardCrafter.supabase.model.GoogleClientResponse
+import com.belmontCrest.cardCrafter.supabase.model.GoogleCredentials
 import com.belmontCrest.cardCrafter.supabase.model.OwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.UserProfile
 import com.belmontCrest.cardCrafter.supabase.model.getSBKey
@@ -25,15 +26,17 @@ import kotlinx.coroutines.withContext
 interface AuthRepository {
     suspend fun createOwner(username: String, fName: String, lName: String): Boolean
 
-    suspend fun getOwner() : OwnerDto?
+    suspend fun getOwner(): OwnerDto?
 
-    suspend fun getGoogleCredentials() : String
+    suspend fun getGoogleCredentials(): GoogleCredentials
 
     suspend fun signInWithGoogle(
         googleIdToken: String, rawNonce: String
     ): Boolean
 
-    suspend fun getUserProfile() : UserProfile?
+    suspend fun getUserProfile(): UserProfile?
+
+    suspend fun signOut(): Boolean
 }
 
 class AuthRepositoryImpl(
@@ -46,7 +49,7 @@ class AuthRepositoryImpl(
                 return@withContext false
             }
             try {
-                supabase.from("owner")
+                supabase.from(sbOwnerTN)
                     .insert(
                         OwnerDto(user.id, username, fName, lName)
                     )
@@ -58,7 +61,7 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun getOwner() : OwnerDto? {
+    override suspend fun getOwner(): OwnerDto? {
         return withContext(Dispatchers.IO) {
             val user = supabase.auth.currentUserOrNull()
             if (user == null) {
@@ -74,7 +77,7 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun getGoogleCredentials(): String {
+    override suspend fun getGoogleCredentials(): GoogleCredentials {
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse =
@@ -84,14 +87,14 @@ class AuthRepositoryImpl(
                     }
                 if (response.status == HttpStatusCode.OK) {
                     val googleResponse = response.body<GoogleClientResponse>()
-                        googleResponse.google_id
+                    GoogleCredentials.Success(googleResponse.google_id)
                 } else {
                     Log.e("Error", "Unexpected response: ${response.status}")
-                    ""
+                    GoogleCredentials.Failure("Unexpected response")
                 }
             } catch (e: Exception) {
                 Log.e("Error", "Network call failed", e)
-                ""
+                GoogleCredentials.Failure("Network Error")
             }
         }
     }
@@ -128,9 +131,21 @@ class AuthRepositoryImpl(
                         }
                     }.decodeSingleOrNull<OwnerDto>()
                 UserProfile(user, owner)
-            } catch (e : Exception) {
+            } catch (e: Exception) {
                 Log.e("AuthRepo", "Something went wrong: $e")
                 null
+            }
+        }
+    }
+
+    override suspend fun signOut(): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                supabase.auth.signOut()
+                true
+            } catch (e: Exception) {
+                Log.e("SupabaseVM", "Couldn't sign out: $e")
+                false
             }
         }
     }

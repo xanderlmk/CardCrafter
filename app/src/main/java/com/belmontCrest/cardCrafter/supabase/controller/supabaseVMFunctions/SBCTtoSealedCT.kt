@@ -1,11 +1,11 @@
 package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions
 
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.ListStringConverter
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.NotationCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
+import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import com.belmontCrest.cardCrafter.supabase.model.SBCardDto
 import com.belmontCrest.cardCrafter.supabase.model.SBMultiCardDto
 import com.belmontCrest.cardCrafter.supabase.model.SBNotationCardDto

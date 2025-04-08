@@ -36,7 +36,7 @@ import com.belmontCrest.cardCrafter.controller.onClickActions.updateCardType
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
+import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.editCardModifier

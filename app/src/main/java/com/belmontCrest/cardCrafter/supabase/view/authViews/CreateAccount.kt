@@ -5,7 +5,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,12 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
+import com.belmontCrest.cardCrafter.supabase.view.EnterAccountDetails
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
-import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
-import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
-import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
@@ -44,11 +39,8 @@ fun CreateAccount(
     var inputUsername by rememberSaveable { mutableStateOf("") }
     var inputFName by rememberSaveable { mutableStateOf("") }
     var inputLName by rememberSaveable { mutableStateOf("") }
-    val fillOutfields = stringResource(R.string.fill_out_all_fields).toString()
-    val context = LocalContext.current
     var enabled by rememberSaveable { mutableStateOf(true) }
 
-    val coroutineScope = rememberCoroutineScope()
     if (dismiss.value) {
         Dialog(
             onDismissRequest = {
@@ -76,89 +68,16 @@ fun CreateAccount(
                         .fillMaxWidth()
                         .padding(8.dp)
                 )
-                Text(
-                    text = "Enter a username",
-                    color = getUIStyle.titleColor(),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp))
-                EditTextField(
-                    value = inputUsername,
-                    onValueChanged = {
-                        inputUsername = it
-                    },
-                    labelStr = "Username",
-                    Modifier.padding(horizontal = 8.dp)
+                EnterAccountDetails(
+                    inputUsername = inputUsername, inputFName = inputFName,
+                    inputLName = inputLName, getUIStyle = getUIStyle,
+                    onExpanded = { dismiss.value = it },
+                    onUsername = { inputUsername = it },
+                    onFName = { inputFName = it },
+                    onLName = { inputLName = it },
+                    supabaseVM = supabaseVM,
+                    onEnabled = { enabled = it }
                 )
-                Text(
-                    text = "Enter your first name",
-                    color = getUIStyle.titleColor(),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                )
-                EditTextField(
-                    value = inputFName,
-                    onValueChanged = {
-                        inputFName = it
-                    },
-                    labelStr = "First name",
-                    Modifier.padding(horizontal = 8.dp)
-                )
-                Text(
-                    text = "Enter a username",
-                    color = getUIStyle.titleColor(),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                )
-                EditTextField(
-                    value = inputLName,
-                    onValueChanged = {
-                        inputLName = it
-                    },
-                    labelStr = "Last name",
-                    Modifier.padding(horizontal = 8.dp)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    CancelButton(
-                        onClick = {
-                            dismiss.value = false
-                        }, enabled, getUIStyle
-                    )
-                    SubmitButton(
-                        onClick = {
-                            if (inputUsername.isBlank() || inputFName.isBlank() ||
-                                inputLName.isBlank()
-                            ) {
-                                showToastMessage(context, fillOutfields)
-                                return@SubmitButton
-                            } else {
-                                coroutineScope.launch {
-                                    enabled = false
-                                    val result = supabaseVM.createOwner(
-                                        username = inputUsername,
-                                        fName = inputFName,
-                                        lName = inputLName
-                                    )
-                                    if (result) {
-                                        dismiss.value = false
-                                        enabled = true
-                                    } else {
-                                        showToastMessage(context, "Failed!")
-                                        enabled = true
-                                    }
-                                }
-                            }
-                        }, enabled, getUIStyle, "Enter"
-                    )
-                }
             }
         }
     }

@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -30,7 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.model.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.view.authViews.CreateAccount
@@ -60,11 +61,18 @@ class OnlineDatabase(
         var refreshing by rememberSaveable { mutableStateOf(false) }
         LaunchedEffect(refreshing) {
             if (refreshing) {
-                if (currentUser == null) {
-                    supabaseVM.updateStatus()
-                }
                 supabaseVM.getDeckList()
                 refreshing = false
+            }
+        }
+        LaunchedEffect(deckList) {
+            if (deckList.list.isEmpty()) {
+                supabaseVM.getDeckList()
+            }
+        }
+        key(currentUser) {
+            if (currentUser == null) {
+                supabaseVM.updateStatus()
             }
         }
         if (currentUser == null) {
@@ -108,6 +116,7 @@ class OnlineDatabase(
             }
         }
     }
+
     @Composable
     fun DeckView(deck: SBDeckDto, onImportDeck: (String) -> Unit) {
         Box(

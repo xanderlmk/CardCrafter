@@ -1,8 +1,8 @@
 package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions
 
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.ListStringConverter
+import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
 import com.belmontCrest.cardCrafter.supabase.model.SBCT
 import com.belmontCrest.cardCrafter.supabase.model.SBCardDto
 import com.belmontCrest.cardCrafter.supabase.model.SBDeckToExportDto

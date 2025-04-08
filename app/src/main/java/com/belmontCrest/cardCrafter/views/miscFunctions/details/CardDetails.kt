@@ -2,8 +2,8 @@ package com.belmontCrest.cardCrafter.views.miscFunctions.details
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 
 data class CardDetails(
     val question: MutableState<String> = mutableStateOf(""),

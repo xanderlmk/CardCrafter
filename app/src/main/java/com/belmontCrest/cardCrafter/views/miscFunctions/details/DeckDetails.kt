@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 
 /**
  * Setting EditDeckView Params

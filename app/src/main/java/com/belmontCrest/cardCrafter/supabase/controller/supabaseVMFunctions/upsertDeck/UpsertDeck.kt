@@ -1,8 +1,8 @@
 package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.upsertDeck
 
 import android.util.Log
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
+import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.ctsToSbCts
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CC_LESS_THAN_20

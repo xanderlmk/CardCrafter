@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkIfDeckExists
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkIfDeckUUIDExists
-import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.sbctToSealedCts
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CANCELLED

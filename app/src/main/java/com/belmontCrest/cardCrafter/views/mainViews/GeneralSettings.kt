@@ -59,7 +59,7 @@ class GeneralSettings(
         ) {
             InvalidXXAmount(invalid, getUIStyle, errorMessage.value)
             Column {
-                SystemThemeButton(
+                SystemThemeOptions(
                     customScheme = {
                         preferences.customScheme.value =
                             !preferences.customScheme.value // Toggle custom theme
@@ -106,6 +106,7 @@ class GeneralSettings(
                     clicked = deckOptionsClicked,
                     getUIStyle = getUIStyle
                 )
+
             }
         }
     }

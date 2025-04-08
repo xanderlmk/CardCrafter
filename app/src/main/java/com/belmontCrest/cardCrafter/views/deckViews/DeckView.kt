@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf

@@ -2,20 +2,12 @@ package com.belmontCrest.cardCrafter.controller.navigation.drawer
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.belmontCrest.cardCrafter.controller.cardHandlers.updateDecksCardList
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.DeckListDestination
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
@@ -50,9 +41,9 @@ import com.belmontCrest.cardCrafter.controller.navigation.destinations.SupabaseD
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -65,16 +56,24 @@ fun CustomNavigationDrawer(
     getUIStyle: GetUIStyle,
     navViewModel: NavViewModel,
     cardDeckVM: CardDeckViewModel,
+    supabaseVM: SupabaseViewModel,
     content: @Composable () -> Unit,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
+
+    val modalContent = ModalContent(
+        navController = navController, fields = fields,
+        getUIStyle = getUIStyle, navViewModel = navViewModel,
+        cardDeckVM = cardDeckVM, supabaseVM = supabaseVM,
+        cr = navViewModel.route.collectAsStateWithLifecycle().value,
+        wd = navViewModel.wd.collectAsStateWithLifecycle().value
+    )
     // Extract the current route.
     val cr = navViewModel.route.collectAsStateWithLifecycle().value
     val stateSize = cardDeckVM.stateSize.collectAsStateWithLifecycle().value
     val stateIndex = cardDeckVM.stateIndex.collectAsStateWithLifecycle().value
-    val wd by navViewModel.wd.collectAsStateWithLifecycle()
 
 
     val deckName by navViewModel.deckName.collectAsStateWithLifecycle()
@@ -103,97 +102,9 @@ fun CustomNavigationDrawer(
                 modifier = Modifier
                     .fillMaxWidth(0.50f)
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            fields.mainClicked.value = false
-                            if (cr.name == ViewDueCardsDestination.route) {
-                                wd.deck?.let {
-                                    /** If the list is empty, no cards
-                                     *  have been due even before the user joined,
-                                     *  or the user finished the deck.
-                                     */
-                                    println("updating cards!")
-                                    coroutineScope.launch(Dispatchers.IO) {
-                                        updateDecksCardList(
-                                            it,
-                                            cardDeckVM
-                                        )
-                                    }
-
-                                }
-                            }
-                            launchHome(
-                                coroutineScope, navViewModel,
-                                cardDeckVM, fields
-                            )
-                            navViewModel.updateRoute(DeckListDestination.route)
-                            navController.navigate(DeckListDestination.route)
-                        }
-                        .padding(top = 15.dp, bottom = 6.dp, start = 15.dp, end = 15.dp)
-                )
-                {
-                    Text(
-                        text = "Home"
-                    )
-                    Icon(
-                        imageVector = Icons.Filled.Home,
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .size(28.dp)
-                            .background(
-                                color = getUIStyle.buttonColor(),
-                                shape = RoundedCornerShape(12.dp)
-                            ),
-                        contentDescription = "Home",
-                        tint = getUIStyle.iconColor()
-                    )
-                }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            if (cr.name == ViewDueCardsDestination.route) {
-                                wd.deck?.let {
-                                    /** If the list is empty, no cards
-                                     *  have been due even before the user joined,
-                                     *  or the user finished the deck.
-                                     */
-                                    println("updating cards!")
-                                    coroutineScope.launch(Dispatchers.IO) {
-                                        updateDecksCardList(
-                                            it,
-                                            cardDeckVM
-                                        )
-                                    }
-                                }
-                            }
-                            cardDeckVM.updateIndex(0)
-                            navViewModel.updateRoute(SettingsDestination.route)
-                            navController.navigate(SettingsDestination.route)
-                        }
-                        .padding(vertical = 6.dp, horizontal = 15.dp)
-                )
-                {
-                    Text(
-                        "Settings"
-                    )
-                    Icon(
-                        imageVector = Icons.Filled.Settings,
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .size(28.dp)
-                            .background(
-                                color = getUIStyle.buttonColor(),
-                                shape = RoundedCornerShape(12.dp)
-                            ),
-                        contentDescription = "Main Settings",
-                        tint = getUIStyle.iconColor()
-                    )
-                }
+                modalContent.Home(coroutineScope)
+                modalContent.Settings(coroutineScope)
+                modalContent.UserProfile(coroutineScope)
             }
         },
     ) {
@@ -233,7 +144,7 @@ fun CustomNavigationDrawer(
                     actions = {
                         ActionIconButton(
                             getUIStyle, cardDeckVM,
-                            fields, navViewModel
+                            fields, navViewModel, supabaseVM
                         )
                     }
                 )
