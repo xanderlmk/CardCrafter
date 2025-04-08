@@ -9,8 +9,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.res.stringResource
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnCard
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
+import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.deleteTextColor

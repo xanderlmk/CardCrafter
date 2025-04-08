@@ -5,7 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
+import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditBasicCard
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditHintCard

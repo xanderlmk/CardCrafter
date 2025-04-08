@@ -22,9 +22,8 @@ android {
         applicationId = "com.belmontCrest.cardCrafter"
         minSdk = 25
         targetSdk = 35
-        versionCode = 6
-        versionName = "1.0.3"
-
+        versionCode = 9
+        versionName = "1.0.303"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -66,6 +65,8 @@ android {
             }" + "\""
         )
     }
+
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
@@ -84,18 +85,18 @@ android {
     }
     flavorDimensions += "version"
     productFlavors {
-        create("demo") {
-            // Assigns this product flavor to the "version" flavor dimension.
-            // If you are using only one dimension, this property is optional,
-            // and the plugin automatically assigns all the module's flavors to
-            // that dimension.
+        create("normal") {
             dimension = "version"
+            versionNameSuffix = "-normal"
+        }
+        create("demo") {
             applicationIdSuffix = ".demo"
+            dimension = "version"
             versionNameSuffix = "-demo"
         }
         create("full") {
-            dimension = "version"
             applicationIdSuffix = ".full"
+            dimension = "version"
             versionNameSuffix = "-full"
         }
     }
@@ -142,7 +143,7 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
      */
 
-    implementation (libs.accompanist.swiperefresh)
+    implementation(libs.accompanist.swiperefresh)
 
     implementation(libs.slf4j.nop)
     // Jetpack Compose Integration

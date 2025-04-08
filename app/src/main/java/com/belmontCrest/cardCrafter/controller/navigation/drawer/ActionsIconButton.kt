@@ -23,6 +23,7 @@ import com.belmontCrest.cardCrafter.controller.navigation.destinations.ViewDueCa
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.redoButtonModifier
@@ -41,14 +42,15 @@ fun ActionIconButton(
     getUIStyle: GetUIStyle,
     cardDeckVM: CardDeckViewModel,
     fields: Fields,
-    navViewModel: NavViewModel
+    navViewModel: NavViewModel,
+    supabaseVM: SupabaseViewModel
 ) {
     val deckNavController by navViewModel.deckNav.collectAsStateWithLifecycle()
-    val sbNavController by navViewModel.sbNav.collectAsStateWithLifecycle()
     val sc by navViewModel.card.collectAsStateWithLifecycle()
     val wd by navViewModel.wd.collectAsStateWithLifecycle()
+    val user by supabaseVM.currentUser.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
-    val onNavigateBack : () -> Unit = {
+    val onNavigateBack: () -> Unit = {
         fields.isEditing.value = false
         fields.inDeckClicked.value = false
         coroutineScope.launch {
@@ -59,13 +61,20 @@ fun ActionIconButton(
     }
     val cr = navViewModel.route.collectAsStateWithLifecycle().value
 
+
     when (cr.name) {
         SupabaseDestination.route -> {
-            EditProfileButton(getUIStyle, navViewModel)
+            if (user != null) {
+                EditProfileButton(getUIStyle, navViewModel, supabaseVM)
+            }
         }
+
         SBNavDestination.route -> {
-            EditProfileButton(getUIStyle, navViewModel)
+            if (user != null) {
+                EditProfileButton(getUIStyle, navViewModel, supabaseVM)
+            }
         }
+
         DeckNavDestination.route -> {
             wd.deck?.let {
                 SettingsButton(
@@ -147,6 +156,7 @@ fun ActionIconButton(
         AddCardDestination.route -> {
             CardTypesButton(getUIStyle, navViewModel)
         }
+
         ViewDueCardsDestination.route -> {
             RedoCardButton(
                 onRedoClick = {

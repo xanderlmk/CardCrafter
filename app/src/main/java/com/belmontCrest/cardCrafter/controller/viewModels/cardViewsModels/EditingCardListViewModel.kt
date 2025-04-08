@@ -7,8 +7,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
-import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.AllCardTypes
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.localDatabase.tables.AllCardTypes
 import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow

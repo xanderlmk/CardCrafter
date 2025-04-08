@@ -2,10 +2,10 @@ package com.belmontCrest.cardCrafter.model.uiModels
 
 
 import android.os.Parcelable
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.SavedCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.localDatabase.tables.Card
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import java.util.Date

@@ -24,14 +24,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.NotationCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.views.miscFunctions.symbols.KaTeXWebView
 
 @Composable

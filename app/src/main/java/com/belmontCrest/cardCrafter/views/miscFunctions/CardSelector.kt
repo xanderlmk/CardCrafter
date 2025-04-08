@@ -5,12 +5,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.NotationCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
 
 @Composable

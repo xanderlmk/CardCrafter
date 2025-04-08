@@ -26,7 +26,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.update
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.view.MyProfile
+import com.belmontCrest.cardCrafter.supabase.view.profile.MyProfile
 import com.belmontCrest.cardCrafter.supabase.view.importDeck.ImportDeck
 import com.belmontCrest.cardCrafter.supabase.view.OnlineDatabase
 import com.belmontCrest.cardCrafter.supabase.view.UploadThisDeck
@@ -61,9 +61,16 @@ fun SupabaseNav(
     val sbDeck by supabaseVM.deck.collectAsStateWithLifecycle()
     val pickedDeck by supabaseVM.pickedDeck.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
+
+    val startingNavRoute by navViewModel.startingSBRoute.collectAsStateWithLifecycle()
+    val startDestination = if (startingNavRoute.name == SupabaseDestination.route) {
+        SupabaseDestination.route
+    } else {
+        UserProfileDestination.route
+    }
     NavHost(
         navController = sbNavController,
-        startDestination = SupabaseDestination.route,
+        startDestination = startDestination,
         route = SBNavDestination.route,
         modifier = Modifier
     ) {
@@ -133,7 +140,7 @@ fun SupabaseNav(
                     SupabaseDestination.route, inclusive = false
                 )
             }
-            MyProfile(getUIStyle)
+            MyProfile(getUIStyle, supabaseVM)
         }
     }
 }

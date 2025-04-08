@@ -17,7 +17,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCa
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.AddDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.DeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.EditDeckViewModel
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.FlashCardApplication
+import com.belmontCrest.cardCrafter.model.application.FlashCardApplication
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserProfileViewModel
 

@@ -115,12 +115,16 @@ fun GoogleSignInButton(
                 val googleIdTokenCredential = GoogleIdTokenCredential
                     .createFrom(result.credential.data)
                 val googleIdToken = googleIdTokenCredential.idToken
-                supabaseVM.signUpWithGoogle(
+                val signedIn = supabaseVM.signUpWithGoogle(
                     googleIdToken = googleIdToken,
                     rawNonce = rawNonce
                 )
                 enabled = true
-                showToastMessage(context, "You are Signed in")
+                if (signedIn) {
+                    showToastMessage(context, "You are signed in")
+                } else {
+                    showToastMessage(context, "Couldn't sign in.")
+                }
             } catch (e: GetCredentialException) {
                 showToastMessage(context, "$e")
                 Log.d("GOOGLE SIGN IN", "$e")

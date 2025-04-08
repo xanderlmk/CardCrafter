@@ -2,10 +2,10 @@ package com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.ScienceSpecificRepository
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.CT
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.ListStringConverter
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.ScienceSpecificRepository
+import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

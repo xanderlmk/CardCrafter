@@ -7,12 +7,13 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
-import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.AllCardTypes
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.localDatabase.tables.AllCardTypes
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
 import com.belmontCrest.cardCrafter.supabase.controller.networkConnectivityFlow
+import com.belmontCrest.cardCrafter.supabase.model.GoogleCredentials
 import com.belmontCrest.cardCrafter.supabase.model.OwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_OWNER
 import com.belmontCrest.cardCrafter.supabase.model.SBDeckListDto
@@ -154,24 +155,38 @@ class SupabaseViewModel(
     }
 
     /** Google Oauth */
-    fun getGoogleId() {
-        viewModelScope.launch {
+    suspend fun getGoogleId(): Pair<Boolean, String> {
+        return withContext(Dispatchers.IO) {
+            var result = false
             googleClientId.update {
-                authRepository.getGoogleCredentials()
+                authRepository.getGoogleCredentials().let {
+                    when (it) {
+                        is GoogleCredentials.Success -> {
+                            result = true
+                            it.credentials
+                        }
+
+                        is GoogleCredentials.Failure -> {
+                            result = false
+                            it.errorMessage
+                        }
+                    }
+                }
             }
+            Pair(result, if (result) { "" } else { googleClientId.value })
         }
     }
 
-    fun signUpWithGoogle(
+    suspend fun signUpWithGoogle(
         googleIdToken: String,
         rawNonce: String
-    ) {
-        viewModelScope.launch {
+    ): Boolean {
+        return withContext(Dispatchers.IO) {
             authRepository.signInWithGoogle(googleIdToken, rawNonce).let {
                 thisUser.update {
                     supabase.auth.currentUserOrNull()
                 }
-                getOwner()
+                it
             }
         }
     }

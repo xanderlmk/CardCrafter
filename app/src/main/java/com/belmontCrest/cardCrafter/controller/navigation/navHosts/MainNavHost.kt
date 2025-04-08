@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.AddDeckDestination
@@ -31,6 +32,7 @@ import com.belmontCrest.cardCrafter.controller.navigation.destinations.DeckViewD
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.SettingsDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
@@ -38,6 +40,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDe
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass
 import com.belmontCrest.cardCrafter.views.mainViews.GeneralSettings
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -78,6 +81,7 @@ fun AppNavHost(
         getUIStyle = getUIStyle,
         navViewModel = navViewModel,
         cardDeckVM = cardDeckVM,
+        supabaseVM = supabaseVM
     ) {
         NavHost(
             navController = navController,
@@ -90,6 +94,7 @@ fun AppNavHost(
                     // Exit the app when back is pressed on the main screen
                     (navController.context as? Activity)?.finish()
                 }
+                val context = LocalContext.current
                 mainView.DeckList(
                     mainViewModel,
                     // In DeckList Composable
@@ -102,7 +107,7 @@ fun AppNavHost(
                         }
                         fields.navigateToDeck()
                         onDeckView = true
-                        navViewModel.updateStartingRoute(DeckViewDestination.route)
+                        navViewModel.updateStartingDeckRoute(DeckViewDestination.route)
                         navViewModel.updateRoute(DeckNavDestination.route)
                         navController.navigate(DeckNavDestination.route)
                     },
@@ -116,8 +121,12 @@ fun AppNavHost(
                             supabaseVM.getOwner()
                         }
                         coroutineScope.launch {
-                            supabaseVM.getGoogleId()
+                            val result = supabaseVM.getGoogleId()
+                            if (!result.first) {
+                                showToastMessage(context, result.second)
+                            }
                         }
+                        navViewModel.updateStartingSBRoute(SupabaseDestination.route)
                         navViewModel.updateRoute(SBNavDestination.route)
                         navController.navigate(SBNavDestination.route)
                     },
@@ -130,7 +139,7 @@ fun AppNavHost(
                         }
                         fields.navigateToDueCards()
                         cardDeckVM.updateWhichDeck(id)
-                        navViewModel.updateStartingRoute(ViewDueCardsDestination.route)
+                        navViewModel.updateStartingDeckRoute(ViewDueCardsDestination.route)
                         navViewModel.updateRoute(ViewDueCardsDestination.route)
                         navController.navigate(DeckNavDestination.route)
                     }

@@ -2,7 +2,7 @@ package com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Date

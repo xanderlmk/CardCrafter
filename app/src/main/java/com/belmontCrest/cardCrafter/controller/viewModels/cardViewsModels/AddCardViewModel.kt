@@ -3,16 +3,16 @@ package com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.model.databaseInterface.repositories.ScienceSpecificRepository
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.BasicCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Card
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.Deck
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.HintCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.NotationCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.MultiChoiceCard
-import com.belmontCrest.cardCrafter.model.tablesAndApplication.ThreeFieldCard
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.ScienceSpecificRepository
+import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.Card
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
