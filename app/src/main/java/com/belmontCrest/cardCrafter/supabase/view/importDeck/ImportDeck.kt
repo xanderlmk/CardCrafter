@@ -45,7 +45,7 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_STRING
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.REPLACED_DECK
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
@@ -278,6 +278,7 @@ class ImportDeck(
                                             }, dismiss
                                         )
                                     } else {
+                                        showToastMessage(context, errorMessage)
                                         enabled = true
                                     }
                                 }

@@ -35,7 +35,6 @@ import com.belmontCrest.cardCrafter.model.uiModels.WhichDeck
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import io.github.jan.supabase.gotrue.user.UserInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

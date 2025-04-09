@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.view.authViews.CreateAccount
 import com.belmontCrest.cardCrafter.supabase.view.authViews.SignUp
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle

@@ -81,66 +81,70 @@ fun GoogleSignInButton(
     val context = LocalContext.current
     var enabled by rememberSaveable { mutableStateOf(true) }
     val onClick: () -> Unit = {
-        enabled = false
-        val credentialManager = CredentialManager.create(context)
-        // Generate a nonce and hash it with sha-256
-        // Providing a nonce is optional but recommended
-        val rawNonce = UUID.randomUUID()
-            .toString()
-        // Generate a random String. UUID should be sufficient,
-        // but can also be any other random string.
-        val bytes = rawNonce.toString().toByteArray()
-        val md = MessageDigest.getInstance("SHA-256")
-        val digest = md.digest(bytes)
+        if (googleClientId.isEmpty()) {
+            showToastMessage(context, "No credentials available.")
+        } else {
+            enabled = false
+            val credentialManager = CredentialManager.create(context)
+            // Generate a nonce and hash it with sha-256
+            // Providing a nonce is optional but recommended
+            val rawNonce = UUID.randomUUID()
+                .toString()
+            // Generate a random String. UUID should be sufficient,
+            // but can also be any other random string.
+            val bytes = rawNonce.toString().toByteArray()
+            val md = MessageDigest.getInstance("SHA-256")
+            val digest = md.digest(bytes)
 
-        /** Hashed nonce to be passed to Google sign-in */
-        val hashedNonce = digest.fold("") { str, it -> str + "%02x".format(it) }
-        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(true)
-            .setServerClientId(googleClientId)
-            .setAutoSelectEnabled(true)
-            .setNonce(hashedNonce) // Provide the nonce if you have one
-            .build()
+            /** Hashed nonce to be passed to Google sign-in */
+            val hashedNonce = digest.fold("") { str, it -> str + "%02x".format(it) }
+            val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
+                .setFilterByAuthorizedAccounts(true)
+                .setServerClientId(googleClientId)
+                .setAutoSelectEnabled(true)
+                .setNonce(hashedNonce) // Provide the nonce if you have one
+                .build()
 
-        val request: GetCredentialRequest = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
-            .build()
+            val request: GetCredentialRequest = GetCredentialRequest.Builder()
+                .addCredentialOption(googleIdOption)
+                .build()
 
-        coroutineScope.launch {
-            try {
-                val result = credentialManager.getCredential(
-                    request = request,
-                    context = context,
-                )
-                val googleIdTokenCredential = GoogleIdTokenCredential
-                    .createFrom(result.credential.data)
-                val googleIdToken = googleIdTokenCredential.idToken
-                val signedIn = supabaseVM.signUpWithGoogle(
-                    googleIdToken = googleIdToken,
-                    rawNonce = rawNonce
-                )
-                enabled = true
-                if (signedIn) {
-                    showToastMessage(context, "You are signed in")
-                } else {
-                    showToastMessage(context, "Couldn't sign in.")
+            coroutineScope.launch {
+                try {
+                    val result = credentialManager.getCredential(
+                        request = request,
+                        context = context,
+                    )
+                    val googleIdTokenCredential = GoogleIdTokenCredential
+                        .createFrom(result.credential.data)
+                    val googleIdToken = googleIdTokenCredential.idToken
+                    val signedIn = supabaseVM.signUpWithGoogle(
+                        googleIdToken = googleIdToken,
+                        rawNonce = rawNonce
+                    )
+                    enabled = true
+                    if (signedIn) {
+                        showToastMessage(context, "You are signed in")
+                    } else {
+                        showToastMessage(context, "Couldn't sign in.")
+                    }
+                } catch (e: GetCredentialException) {
+                    showToastMessage(context, "$e")
+                    Log.d("GOOGLE SIGN IN", "$e")
+                    enabled = true
+                } catch (e: GoogleIdTokenParsingException) {
+                    showToastMessage(context, "$e")
+                    Log.d("GOOGLE SIGN IN", "$e")
+                    enabled = true
+                } catch (e: RestException) {
+                    showToastMessage(context, "$e")
+                    Log.d("GOOGLE SIGN IN", "$e")
+                    enabled = true
+                } catch (e: Exception) {
+                    showToastMessage(context, "$e")
+                    Log.d("GOOGLE SIGN IN", "$e")
+                    enabled = true
                 }
-            } catch (e: GetCredentialException) {
-                showToastMessage(context, "$e")
-                Log.d("GOOGLE SIGN IN", "$e")
-                enabled = true
-            } catch (e: GoogleIdTokenParsingException) {
-                showToastMessage(context, "$e")
-                Log.d("GOOGLE SIGN IN", "$e")
-                enabled = true
-            } catch (e: RestException) {
-                showToastMessage(context, "$e")
-                Log.d("GOOGLE SIGN IN", "$e")
-                enabled = true
-            } catch (e: Exception) {
-                showToastMessage(context, "$e")
-                Log.d("GOOGLE SIGN IN", "$e")
-                enabled = true
             }
         }
     }

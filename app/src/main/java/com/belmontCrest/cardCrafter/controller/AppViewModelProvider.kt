@@ -95,8 +95,7 @@ object AppViewModelProvider {
             ImportDeckViewModel(
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.supabaseToRoomRepository,
-                flashCardApplication().container.sbTablesRepository,
-                flashCardApplication().container.supabase
+                flashCardApplication().container.importRepository,
             )
         }
         initializer {

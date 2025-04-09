@@ -6,19 +6,25 @@ import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkI
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkIfDeckUUIDExists
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
-import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.sbctToSealedCts
+import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.converters.sbctToSealedCts
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.BASIC_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CANCELLED
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_CARD_LIST
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.HINT_CT_ERROR
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.MULTI_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NETWORK_ERROR
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOTATION_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.REPLACED_DECK
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.THREE_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UNKNOWN_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UUID_CONFLICT
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckDto
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SBTablesRepository
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardWithCT
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCT
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.ImportRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SupabaseToRoomRepository
-import io.github.jan.supabase.SupabaseClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.SocketException
@@ -27,8 +33,7 @@ import java.util.concurrent.CancellationException
 class ImportDeckViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val supabaseToRoomRepository: SupabaseToRoomRepository,
-    private val sbTableRepository: SBTablesRepository,
-    private val supabase: SupabaseClient
+    private val importRepository: ImportRepository,
 ) : ViewModel() {
 
     /** Local import deck naming and uuid checks from online decks */
@@ -37,6 +42,7 @@ class ImportDeckViewModel(
             checkIfDeckExists(name, uuid, flashCardRepository)
         }
     }
+
     private suspend fun checkDeckName(name: String): Int {
         return withContext(Dispatchers.IO) {
             checkIfDeckExists(name, flashCardRepository)
@@ -64,28 +70,20 @@ class ImportDeckViewModel(
                     /** deck already exists; return 100. */
                     return@withContext DECK_EXISTS
                 }
-                val clCheck = sbTableRepository.checkCardList(sbDeckDto)
-                if (clCheck.second == EMPTY_CARD_LIST) {
-                    return@withContext EMPTY_CARD_LIST
-                }
-                val cardList = clCheck.first
 
-                /** First we get the online cards, then we download them/
-                 *  Hence we need to multiply the total by 2
-                 */
-                val total = cardList.size * 2
-                val ctList = sbctToSealedCts(
-                    cardList, supabase, onProgress = {
-                        onProgress(it)
-                    }, total
-                )
+                val cardObject = getCardList(sbDeckDto) {
+                    onProgress(it)
+                }
+                if (cardObject.returnValue != SUCCESS) {
+                    return@withContext cardObject.returnValue
+                }
                 supabaseToRoomRepository.insertDeckList(
-                    sbDeckDto, ctList, sbDeckDto.name,
+                    sbDeckDto, cardObject.cardList, sbDeckDto.name,
                     preferences.reviewAmount.intValue,
                     preferences.cardAmount.intValue,
                     onProgress = {
                         onProgress(it)
-                    }, total
+                    }, cardObject.total
                 )
             } catch (e: Exception) {
                 return@withContext returnError(e) {
@@ -115,28 +113,20 @@ class ImportDeckViewModel(
                 if (existingUUID > 0) {
                     return@withContext UUID_CONFLICT
                 }
-                val clCheck = sbTableRepository.checkCardList(sbDeckDto)
-                if (clCheck.second == EMPTY_CARD_LIST) {
-                    return@withContext EMPTY_CARD_LIST
-                }
-                val cardList = clCheck.first
 
-                /** First we get the online cards, then we download them/
-                 *  Hence we need to multiply the total by 2
-                 */
-                val total = cardList.size * 2
-                val ctList = sbctToSealedCts(
-                    cardList, supabase, onProgress = {
-                        onProgress(it)
-                    }, total
-                )
+                val cardObject = getCardList(sbDeckDto) {
+                    onProgress(it)
+                }
+                if (cardObject.returnValue != SUCCESS) {
+                    return@withContext cardObject.returnValue
+                }
                 supabaseToRoomRepository.insertDeckList(
-                    sbDeckDto, ctList, name,
+                    sbDeckDto, cardObject.cardList, name,
                     preferences.reviewAmount.intValue,
                     preferences.cardAmount.intValue,
                     onProgress = {
                         onProgress(it)
-                    }, total
+                    }, cardObject.total
                 )
             } catch (e: Exception) {
                 return@withContext returnError(e) {
@@ -176,30 +166,19 @@ class ImportDeckViewModel(
                         }
                     }
                 }
-
-                val clCheck = sbTableRepository.checkCardList(sbDeckDto)
-
-                if (clCheck.second == EMPTY_CARD_LIST) {
-                    return@withContext Pair(EMPTY_CARD_LIST, "")
+                val cardObject = getCardList(sbDeckDto) {
+                    onProgress(it)
                 }
-                val cardList = clCheck.first
-
-                /** First we get the online cards, then we download them/
-                 *  Hence we need to multiply the total by 2
-                 */
-                val total = cardList.size * 2
-                val ctList = sbctToSealedCts(
-                    cardList, supabase, onProgress = {
-                        onProgress(it)
-                    }, total
-                )
+                if (cardObject.returnValue != SUCCESS) {
+                    return@withContext Pair(cardObject.returnValue, "")
+                }
                 supabaseToRoomRepository.replaceDeckList(
-                    sbDeckDto, ctList,
+                    sbDeckDto, cardObject.cardList,
                     preferences.reviewAmount.intValue,
                     preferences.cardAmount.intValue, name,
                     onProgress = {
                         onProgress(it)
-                    }, total
+                    }, cardObject.total
                 )
 
             } catch (e: Exception) {
@@ -213,6 +192,55 @@ class ImportDeckViewModel(
                 return@withContext Pair(REPLACED_DECK, name)
             }
         }
+    }
+
+    private suspend fun getCardList(
+        sbDeckDto: SBDeckDto, onProgress: (Float) -> Unit
+    ): CardObject {
+        val basicCheck = importRepository.checkBasicCardList(sbDeckDto.deckUUID)
+        val threeCheck = importRepository.checkThreeCardList(sbDeckDto.deckUUID)
+        val hintCheck = importRepository.checkHintCardList(sbDeckDto.deckUUID)
+        val multiCheck = importRepository.checkMultiCardList(sbDeckDto.deckUUID)
+        val notationCheck = importRepository.checkNotationCardList(sbDeckDto.deckUUID)
+        val checkLists = checkList(
+            basic = basicCheck.second, three = threeCheck.second,
+            hint = hintCheck.second, multi = multiCheck.second,
+            notation = notationCheck.second
+        )
+        if (checkLists != SUCCESS) {
+            return CardObject(
+                cardList = listOf(), returnValue = checkLists, total = 0
+            )
+        }
+
+        val allCards = mutableListOf<SBCardWithCT>().apply {
+            addAll(basicCheck.first)
+            addAll(hintCheck.first)
+            addAll(threeCheck.first)
+            addAll(multiCheck.first)
+            addAll(notationCheck.first)
+        }
+
+        if (allCards.isEmpty()) {
+            return CardObject(
+                cardList = listOf(), returnValue = EMPTY_CARD_LIST, total = 0
+            )
+        }
+
+        val sortedCards = allCards.sortedBy { it.sortKey() }
+
+        /** First we get the map all the cards, then we download them/
+         *  Hence we need to multiply the total by 2
+         */
+        val total = allCards.size * 2
+        val ctList = sbctToSealedCts(
+            sortedCards, onProgress = {
+                onProgress(it)
+            }, total
+        )
+        return CardObject(
+            cardList = ctList, returnValue = SUCCESS, total = total
+        )
     }
 }
 
@@ -237,3 +265,20 @@ private fun returnError(e: Exception, onError: (String) -> Unit): Pair<Int, Stri
         }
     }
 }
+
+private fun checkList(
+    basic: Int, three: Int, hint: Int, multi: Int, notation: Int
+): Int {
+    if (basic != SUCCESS) return BASIC_CT_ERROR
+    if (hint != SUCCESS) return HINT_CT_ERROR
+    if (three != SUCCESS) return THREE_CT_ERROR
+    if (multi != SUCCESS) return MULTI_CT_ERROR
+    if (notation != SUCCESS) return NOTATION_CT_ERROR
+    return SUCCESS
+}
+
+private data class CardObject(
+    val cardList: List<SealedCT>,
+    val returnValue: Int,
+    val total: Int
+)

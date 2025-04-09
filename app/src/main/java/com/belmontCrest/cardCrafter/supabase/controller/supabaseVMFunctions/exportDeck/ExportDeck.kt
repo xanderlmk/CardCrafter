@@ -3,14 +3,14 @@ package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.exp
 import android.util.Log
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.ctsToSbCts
+import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.converters.ctsToSbCts
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CC_LESS_THAN_20
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_CARD_LIST
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_USER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UNKNOWN_ERROR
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckUUIDDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckUUIDDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from

@@ -56,7 +56,7 @@ class Fields(
         middleField = mutableStateOf(parcel.readString()!!),
         answer = mutableStateOf(parcel.readString()!!),
         choices = List(4) { mutableStateOf(parcel.readString() ?: "") },
-        correct = mutableStateOf(parcel.readString()!![0]),
+        correct = mutableStateOf((parcel.readString() ?: "?").first()),
         scrollPosition = mutableIntStateOf(parcel.readInt()),
         mainClicked = mutableStateOf(parcel.readByte() != 0.toByte()),
         inDeckClicked = mutableStateOf(parcel.readByte() != 0.toByte()),
@@ -75,7 +75,7 @@ class Fields(
             parcel.writeString(middleField.value)
             parcel.writeString(answer.value)
             parcel.writeStringList(choices.map { it.value })
-            parcel.writeString(choices.toString())
+            parcel.writeString(correct.toString())
             parcel.writeInt(scrollPosition.value)
             parcel.writeByte(if (mainClicked.value) 1 else 0)
             parcel.writeByte(if (inDeckClicked.value) 1 else 0)
