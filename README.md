@@ -12,7 +12,8 @@
 - Custom Themes based off Light/Dark Theme
 - Spanish and English Language Support
 - KaTeX for NotationCard.
-### To see what other features to add, please look [At the TODO List](./TODO.md)
+### To see what other features to add, please view the [TODO List](./TODO.md)
+### For logs and changes, please view the [LOG](./LOG.md)
 
 
 
