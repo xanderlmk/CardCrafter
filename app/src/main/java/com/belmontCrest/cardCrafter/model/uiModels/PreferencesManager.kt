@@ -13,11 +13,15 @@ class PreferencesManager(
     private val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     val customScheme: MutableState<Boolean> = mutableStateOf(false)
     val darkTheme: MutableState<Boolean> = mutableStateOf(false)
+    val cuteTheme: MutableState<Boolean> = mutableStateOf(false)
+    val darkCuteTheme: MutableState<Boolean> = mutableStateOf(false)
     val cardAmount: MutableIntState = mutableIntStateOf(20)
     val reviewAmount: MutableIntState = mutableIntStateOf(1)
     init {
         // Initialize themes
         darkTheme.value = isDarkThemeEnabled
+        cuteTheme.value = isCuteThemeEnabled
+        darkCuteTheme.value = isDarkThemeEnabled
         customScheme.value = isDynamicThemeEnabled
         cardAmount.intValue = allCardAmounts
         reviewAmount.intValue = allReviewAmounts
@@ -30,7 +34,12 @@ class PreferencesManager(
     fun saveDarkTheme() {
         isDarkThemeEnabled = darkTheme.value
     }
-
+    fun saveCuteTheme() {
+        isCuteThemeEnabled = cuteTheme.value
+    }
+    fun saveDarkCuteTheme(){
+        isDarkThemeEnabled = darkCuteTheme.value
+    }
     fun saveCardAmount() {
         allCardAmounts = cardAmount.intValue
     }
@@ -41,6 +50,8 @@ class PreferencesManager(
     fun savePreferences(){
         isDynamicThemeEnabled = customScheme.value
         isDarkThemeEnabled = darkTheme.value
+        isCuteThemeEnabled = cuteTheme.value
+        isDarkCuteThemeEnabled = darkCuteTheme.value
         allCardAmounts = cardAmount.intValue
         allReviewAmounts = reviewAmount.intValue
     }
@@ -54,6 +65,17 @@ class PreferencesManager(
         set(value) {
             sharedPreferences.edit { putBoolean("dark_theme", value) }
         }
+    private var isCuteThemeEnabled: Boolean
+        get() = sharedPreferences.getBoolean("cute_theme", false)
+        set(value) {
+            sharedPreferences.edit { putBoolean("cute_theme", value) }
+        }
+    private var isDarkCuteThemeEnabled: Boolean
+        get() = sharedPreferences.getBoolean("dark_cute_theme", false)
+        set(value) {
+            sharedPreferences.edit { putBoolean("dark_cute_theme", value) }
+        }
+
     fun setDarkTheme(isDarkTheme : Boolean ){
         isDarkThemeEnabled = isDarkTheme
     }

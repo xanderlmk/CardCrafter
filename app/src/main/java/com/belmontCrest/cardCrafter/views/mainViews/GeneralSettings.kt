@@ -29,10 +29,16 @@ class GeneralSettings(
 
         val darkToggled = if(preferences.darkTheme.value)
             painterResource(R.drawable.toggle_on) else
-                painterResource(R.drawable.toggle_off)
+            painterResource(R.drawable.toggle_off)
         val customToggled = if (!preferences.customScheme.value)
             painterResource(R.drawable.toggle_on) else
-                painterResource(R.drawable.toggle_off)
+            painterResource(R.drawable.toggle_off)
+        val cuteToggled = if(preferences.cuteTheme.value)
+            painterResource(R.drawable.toggle_on) else
+            painterResource(R.drawable.toggle_off)
+        val darkCuteToggled = if(preferences.darkCuteTheme.value)
+            painterResource(R.drawable.toggle_on) else
+            painterResource(R.drawable.toggle_off)
         val reviewAmount = rememberSaveable {
             mutableStateOf(preferences.reviewAmount.intValue.toString())  }
         val cardAmount = rememberSaveable {
@@ -66,12 +72,39 @@ class GeneralSettings(
                         preferences.saveCustomScheme()
                     },
                     darkTheme = {
-                        preferences.darkTheme.value =
-                            !preferences.darkTheme.value // Toggle dark theme
+                        preferences.darkTheme.value = !preferences.darkTheme.value
+                        if (preferences.darkTheme.value) {
+                            preferences.cuteTheme.value = false
+                            preferences.darkCuteTheme.value = false
+                            preferences.saveCuteTheme()
+                            preferences.saveDarkCuteTheme()
+                        }
                         preferences.saveDarkTheme()
+                    },
+                    cuteTheme = {
+                        preferences.cuteTheme.value = !preferences.cuteTheme.value
+                        if (preferences.cuteTheme.value) {
+                            preferences.darkTheme.value = false
+                            preferences.darkCuteTheme.value = false
+                            preferences.saveDarkTheme()
+                            preferences.saveDarkCuteTheme()
+                        }
+                        preferences.saveCuteTheme()
+                    },
+                    darkCuteTheme = {
+                        preferences.darkCuteTheme.value = !preferences.darkCuteTheme.value
+                        if (preferences.darkCuteTheme.value) {
+                            preferences.darkTheme.value = false
+                            preferences.cuteTheme.value = false
+                            preferences.saveDarkTheme()
+                            preferences.saveCuteTheme()
+                        }
+                        preferences.saveDarkCuteTheme()
                     },
                     customToggled = customToggled,
                     darkToggled = darkToggled,
+                    cuteToggled = cuteToggled,
+                    darkCuteToggled = darkCuteToggled,
                     clicked = themeClicked,
                     getUIStyle = getUIStyle
                 )
@@ -106,7 +139,6 @@ class GeneralSettings(
                     clicked = deckOptionsClicked,
                     getUIStyle = getUIStyle
                 )
-
             }
         }
     }

@@ -9,10 +9,20 @@ import androidx.compose.material3.ColorScheme
 class GetUIStyle(
     private var cS: ColorSchemeClass,
     private var isDarkTheme: Boolean,
-    private var isCustomTheme: Boolean
+    private var isCustomTheme: Boolean,
+    private var isCuteTheme: Boolean,
+    private var isDarkCuteTheme: Boolean
 ) {
     fun getIsDarkTheme(): Boolean {
         return isDarkTheme
+    }
+
+    fun getIsCuteTheme(): Boolean {
+        return isCuteTheme
+    }
+
+    private fun isDarkCuteTheme(): Boolean {
+        return isDarkCuteTheme
     }
 
     fun getColorScheme(): ColorScheme {
@@ -48,39 +58,50 @@ class GetUIStyle(
     }
 
     fun choiceColor(): Color {
-        return if (isDarkTheme) {
-            if (isCustomTheme) {
-                blendColors(cS.colorScheme.onTertiary, darkChoiceColor, 0.25f)
-            } else {
-                darkChoiceColor
+        return when {
+            isDarkCuteTheme -> darkCuteChoiceColor
+            isCuteTheme -> cuteChoiceColor
+            isDarkTheme -> {
+                if (isCustomTheme) {
+                    blendColors(cS.colorScheme.onTertiary, darkChoiceColor, 0.25f)
+                } else {
+                    darkChoiceColor
+                }
             }
-        } else {
-            if (isCustomTheme) {
-                blendColors(cS.colorScheme.onTertiary, choiceColor, 0.25f)
-            } else {
-                choiceColor
+            else -> {
+                if (isCustomTheme) {
+                    blendColors(cS.colorScheme.onTertiary, choiceColor, 0.25f)
+                } else {
+                    choiceColor
+                }
             }
         }
     }
 
     fun pickedChoice(): Color {
-        return if (isDarkTheme) {
-            darkPickedChoice
-        } else {
-            pickedChoice
+        return when {
+            isDarkCuteTheme() -> darkCutePickedChoice
+            isCuteTheme -> cutePickedChoice
+            isDarkTheme -> darkPickedChoice
+            else -> pickedChoice
         }
     }
 
     fun correctChoice(): Color {
-        return if (isDarkTheme) {
-            darkCorrectChoice
-        } else {
-            correctChoice
+        return when {
+            isDarkCuteTheme() -> darkCuteCorrectChoice
+            isCuteTheme -> cuteCorrectChoice
+            isDarkTheme -> darkCorrectChoice
+            else -> correctChoice
         }
     }
 
     fun onCorrectChoice(): Color {
-        return cS.colorScheme.onSurfaceVariant
+        return when {
+            isDarkCuteTheme() -> onDarkCuteCorrectChoice
+            isCuteTheme -> onCuteCorrectChoice
+            else -> cS.colorScheme.onSurfaceVariant
+        }
     }
 
     fun isThemeOn(): Color {
@@ -92,10 +113,11 @@ class GetUIStyle(
     }
 
     fun altBackground(): Color {
-        return if (isDarkTheme) {
-            secondaryDBC
-        } else {
-            secondaryBC
+        return when {
+            isDarkCuteTheme() -> darkCuteSecondaryBC
+            isCuteTheme -> cuteSecondaryBC
+            isDarkTheme -> secondaryDBC
+            else -> secondaryBC
         }
     }
 
@@ -104,30 +126,35 @@ class GetUIStyle(
     }
 
     fun navBarColor(): Color {
-        return if (isDarkTheme) {
-            if (!isCustomTheme) {
-                darkNavBar
-            } else {
-                cS.colorScheme.primaryContainer
+        return when {
+            isDarkCuteTheme() -> darkCuteButton
+            isCuteTheme -> cuteButton
+            isDarkTheme -> {
+                if (!isCustomTheme) {
+                    darkNavBar
+                } else {
+                    cS.colorScheme.primaryContainer
+                }
             }
-        } else {
-            cS.colorScheme.primaryContainer
+            else -> cS.colorScheme.primaryContainer
         }
     }
 
-    fun dialogColor() : Color {
-        return if(isDarkTheme){
-            dialogDarkBackground
-        } else {
-            dialogLightBackground
+    fun dialogColor(): Color {
+        return when {
+            isDarkCuteTheme() -> Color(70, 20, 50, 240)
+            isCuteTheme -> Color(255, 230, 240, 240)
+            isDarkTheme -> dialogDarkBackground
+            else -> dialogLightBackground
         }
     }
 
-    fun importingDeckColor() : Color {
-        return if (isDarkTheme) {
-            Color.DarkGray
-        } else {
-            Color.Gray
+    fun importingDeckColor(): Color {
+        return when {
+            isDarkCuteTheme() -> Color(100, 40, 80)
+            isCuteTheme -> Color(255, 192, 203, 180)
+            isDarkTheme -> Color.DarkGray
+            else -> Color.Gray
         }
     }
 
@@ -140,5 +167,3 @@ class GetUIStyle(
         return Color(r, g, b, a)
     }
 }
-
-

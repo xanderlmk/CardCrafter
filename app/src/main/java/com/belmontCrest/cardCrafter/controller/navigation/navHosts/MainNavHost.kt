@@ -68,7 +68,9 @@ fun AppNavHost(
         GetUIStyle(
             colorScheme,
             preferences.darkTheme.value,
-            preferences.customScheme.value
+            preferences.customScheme.value,
+            preferences.cuteTheme.value,
+            preferences.darkCuteTheme.value  // Add this parameter
         )
     ).value
     val mainView = MainView(getUIStyle, fields)

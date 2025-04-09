@@ -77,4 +77,6 @@
     <string name="failed_card_amount">Failed to update card amount</string>
     <string name="card_amount_5_1000">Card amount must be in between 5 and 1000!</string>
     <string name="review_amount_1_40">Review amount must be between 1 and 40!</string>
+    <string name="cute_theme">Cute Theme</string>
+    <string name="dark_cute_theme">Dark Cute Theme</string>
 </resources>
