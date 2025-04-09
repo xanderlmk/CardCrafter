@@ -32,8 +32,12 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 fun SystemThemeOptions(
     customScheme: () -> Unit,
     darkTheme: () -> Unit,
+    cuteTheme: () -> Unit,
+    darkCuteTheme: () ->Unit,
     customToggled: Painter,
     darkToggled: Painter,
+    cuteToggled: Painter,
+    darkCuteToggled: Painter,
     clicked: Boolean,
     getUIStyle: GetUIStyle
 ) {
@@ -94,6 +98,28 @@ fun SystemThemeOptions(
                     Icon(
                         painter = darkToggled,
                         contentDescription = "Toggle Dynamic Theme",
+                        tint = getUIStyle.isThemeOn()
+                    )
+                })
+            DropdownMenuItem(
+                onClick = {
+                    cuteTheme()
+                },
+                text = { Text(stringResource(R.string.cute_theme)) },
+                leadingIcon = {
+                    Icon(
+                        painter = cuteToggled,
+                        contentDescription = "Toggle Cute Theme",
+                        tint = getUIStyle.isThemeOn()
+                    )
+                })
+            DropdownMenuItem(
+                onClick = { darkCuteTheme() },
+                text = { Text(stringResource(R.string.dark_cute_theme)) },
+                leadingIcon = {
+                    Icon(
+                        painter = darkCuteToggled,
+                        contentDescription = "Toggle Dark Cute Theme",
                         tint = getUIStyle.isThemeOn()
                     )
                 })

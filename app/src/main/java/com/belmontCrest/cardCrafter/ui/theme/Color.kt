@@ -45,3 +45,41 @@ val darkPickedChoice = Color(90, 70, 60)
 val darkCorrectChoice = Color(10, 60, 10)
 val onDarkCorrectChoice = Color (90, 180, 90)
 
+//cute Theme
+
+val cuteBackground = Color(255, 230, 240)
+val cuteSecondaryBC = Color(250, 218, 230)
+val cuteOnBackground = Color(199, 77, 152)
+val cuteEditingBackground = Color(255, 240, 245)
+
+val cuteBorder = Color(255, 153, 204)
+val cuteButton = Color(255, 192, 203)
+val cuteText = Color(199, 21, 133)
+
+val cuteIcon = Color(219, 112, 147)
+val cuteSecondaryButton = Color(255, 182, 193)
+val cuteTertiaryButton = Color(255, 105, 180)
+val onCuteTertiaryButton = Color(255, 240, 245)
+val cuteChoiceColor = Color(255, 105, 180)
+val cutePickedChoice = Color(255, 182, 193)
+val cuteCorrectChoice = Color(152, 251, 152)
+val onCuteCorrectChoice = Color(46, 139, 87)
+
+// da dark cute theme, for those emo people who like that
+val darkCuteBackground = Color(70, 20, 50)
+val darkCuteSecondaryBC = Color(90, 40, 70)
+val darkCuteOnBackground = Color(255, 175, 210)
+val darkCuteEditingBackground = Color(80, 30, 60)
+
+val darkCuteBorder = Color(170, 80, 130)
+val darkCuteButton = Color(140, 60, 100)
+val darkCuteText = Color(255, 200, 230)
+
+val darkCuteIcon = Color(255, 150, 180)
+val darkCuteSecondaryButton = Color(120, 50, 90)
+val darkCuteTertiaryButton = Color(160, 70, 120)
+val onDarkCuteTertiaryButton = Color(255, 220, 240)
+val darkCuteChoiceColor = Color(180, 80, 140)
+val darkCutePickedChoice = Color(140, 60, 100)
+val darkCuteCorrectChoice = Color(100, 180, 100)
+val onDarkCuteCorrectChoice = Color(200, 255, 200)

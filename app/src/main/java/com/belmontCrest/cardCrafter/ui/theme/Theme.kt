@@ -55,6 +55,45 @@ private val LightColorScheme = lightColorScheme(
     onTertiaryContainer = onTertiaryButtonColor
 )
 
+private val CuteColorScheme = lightColorScheme(
+    background = cuteBackground,
+    outline = cuteBorder,
+    surface = cuteEditingBackground,
+    primaryContainer = cuteButton,
+    secondaryContainer = cuteSecondaryButton,
+    tertiaryContainer = cuteTertiaryButton,
+
+    onPrimary = cuteCorrectChoice,
+    onSecondary = cutePickedChoice,
+    onTertiary = cuteChoiceColor,
+    onBackground = cuteOnBackground,
+    onSurfaceVariant = onCuteCorrectChoice,
+
+    onPrimaryContainer = cuteIcon,
+    onSecondaryContainer = cuteText,
+    onTertiaryContainer = onCuteTertiaryButton
+)
+
+private val DarkCuteColorScheme = darkColorScheme(
+    background = darkCuteBackground,
+    outline = darkCuteBorder,
+    surface = darkCuteEditingBackground,
+    primaryContainer = darkCuteButton,
+    secondaryContainer = darkCuteSecondaryButton,
+    tertiaryContainer = darkCuteTertiaryButton,
+
+    onPrimary = darkCuteCorrectChoice,
+    onSecondary = darkCutePickedChoice,
+    onTertiary = darkCuteChoiceColor,
+    onBackground = darkCuteOnBackground,
+    onSurfaceVariant = onDarkCuteCorrectChoice,
+
+    onPrimaryContainer = darkCuteIcon,
+    onSecondaryContainer = darkCuteText,
+    onTertiaryContainer = onDarkCuteTertiaryButton
+)
+
+
 class ColorSchemeClass(
     var colorScheme: ColorScheme = LightColorScheme
 )
@@ -62,6 +101,8 @@ class ColorSchemeClass(
 @Composable
 fun FlashcardsTheme(
     darkTheme: Boolean,
+    cuteTheme: Boolean,
+    darkCuteTheme: Boolean,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean,
     content: @Composable () -> Unit
@@ -71,8 +112,9 @@ fun FlashcardsTheme(
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             if (darkTheme) {dynamicDarkColorScheme(context)}
             else {dynamicLightColorScheme(context)}
-
         }
+        darkCuteTheme -> DarkCuteColorScheme
+        cuteTheme -> CuteColorScheme
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }

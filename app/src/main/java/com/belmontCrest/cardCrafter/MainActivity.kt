@@ -79,6 +79,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+
             fields = rememberSaveable { Fields() }
 
             LaunchedEffect(Unit) {
@@ -95,7 +96,9 @@ class MainActivity : ComponentActivity() {
 
             FlashcardsTheme(
                 darkTheme = preferences.darkTheme.value,
-                dynamicColor = preferences.customScheme.value
+                dynamicColor = preferences.customScheme.value,
+                darkCuteTheme = preferences.darkCuteTheme.value,
+                cuteTheme = preferences.cuteTheme.value
             ) {
                 AppNavHost(
                     navController = navController,
@@ -130,7 +133,6 @@ class MainActivity : ComponentActivity() {
         if (::preferences.isInitialized) {
             preferences.savePreferences()
         }
-
     }
 }
 
