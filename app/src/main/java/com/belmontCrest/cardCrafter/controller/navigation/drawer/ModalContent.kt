@@ -54,20 +54,8 @@ class ModalContent(
     fun Home(coroutineScope: CoroutineScope) {
         CustomRow(
             onClick = {
+                updateCards(coroutineScope)
                 fields.mainClicked.value = false
-                if (cr.name == ViewDueCardsDestination.route) {
-                    wd.deck?.let {
-                        /** If the list is empty, no cards
-                         *  have been due even before the user joined,
-                         *  or the user finished the deck.
-                         */
-                        println("updating cards!")
-                        coroutineScope.launch(Dispatchers.IO) {
-                            updateDecksCardList(it, cardDeckVM)
-                        }
-
-                    }
-                }
                 launchHome(
                     coroutineScope, navViewModel, cardDeckVM, fields
                 )
@@ -79,7 +67,7 @@ class ModalContent(
             Icon(
                 imageVector = Icons.Filled.Home,
                 modifier = Modifier
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 4.dp)
                     .size(28.dp)
                     .background(
                         color = getUIStyle.buttonColor(),
@@ -95,18 +83,7 @@ class ModalContent(
     fun Settings(coroutineScope: CoroutineScope) {
         CustomRow(
             onClick = {
-                if (cr.name == ViewDueCardsDestination.route) {
-                    wd.deck?.let {
-                        /** If the list is empty, no cards
-                         *  have been due even before the user joined,
-                         *  or the user finished the deck.
-                         */
-                        println("updating cards!")
-                        coroutineScope.launch(Dispatchers.IO) {
-                            updateDecksCardList(it, cardDeckVM)
-                        }
-                    }
-                }
+                updateCards(coroutineScope)
                 cardDeckVM.updateIndex(0)
                 navViewModel.updateRoute(SettingsDestination.route)
                 navController.navigate(SettingsDestination.route)
@@ -116,7 +93,7 @@ class ModalContent(
             Icon(
                 imageVector = Icons.Filled.Settings,
                 modifier = Modifier
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 4.dp)
                     .size(28.dp)
                     .background(
                         color = getUIStyle.buttonColor(),
@@ -130,11 +107,12 @@ class ModalContent(
 
     @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
-    fun UserProfile(coroutineScope : CoroutineScope) {
+    fun UserProfile(coroutineScope: CoroutineScope) {
         val context = LocalContext.current
         CustomRow(
             onClick = {
                 if (cr.name != UserProfileDestination.route) {
+                    updateCards(coroutineScope)
                     navViewModel.updateStartingSBRoute(UserProfileDestination.route)
                     navViewModel.updateRoute(UserProfileDestination.route)
                     navController.navigate(SBNavDestination.route)
@@ -151,7 +129,7 @@ class ModalContent(
             Icon(
                 imageVector = Icons.Default.AccountCircle,
                 modifier = Modifier
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 4.dp)
                     .size(28.dp)
                     .background(
                         color = getUIStyle.buttonColor(),
@@ -159,6 +137,21 @@ class ModalContent(
                     ),
                 contentDescription = "Main Settings",
             )
+        }
+    }
+
+    private fun updateCards(coroutineScope: CoroutineScope) {
+        if (cr.name == ViewDueCardsDestination.route) {
+            wd.deck?.let {
+                /** If the list is empty, no cards
+                 *  have been due even before the user joined,
+                 *  or the user finished the deck.
+                 */
+                println("updating cards!")
+                coroutineScope.launch(Dispatchers.IO) {
+                    updateDecksCardList(it, cardDeckVM)
+                }
+            }
         }
     }
 }

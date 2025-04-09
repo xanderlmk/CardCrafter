@@ -20,12 +20,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -80,6 +82,8 @@ fun GoogleSignInButton(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     var enabled by rememberSaveable { mutableStateOf(true) }
+    val signedIn = stringResource(R.string.signed_in)
+    val couldNotSignIn = stringResource(R.string.could_not_sign_in)
     val onClick: () -> Unit = {
         if (googleClientId.isEmpty()) {
             showToastMessage(context, "No credentials available.")
@@ -118,15 +122,15 @@ fun GoogleSignInButton(
                     val googleIdTokenCredential = GoogleIdTokenCredential
                         .createFrom(result.credential.data)
                     val googleIdToken = googleIdTokenCredential.idToken
-                    val signedIn = supabaseVM.signUpWithGoogle(
+                    val success = supabaseVM.signUpWithGoogle(
                         googleIdToken = googleIdToken,
                         rawNonce = rawNonce
                     )
                     enabled = true
-                    if (signedIn) {
-                        showToastMessage(context, "You are signed in")
+                    if (success) {
+                        showToastMessage(context, signedIn)
                     } else {
-                        showToastMessage(context, "Couldn't sign in.")
+                        showToastMessage(context, couldNotSignIn)
                     }
                 } catch (e: GetCredentialException) {
                     showToastMessage(context, "$e")

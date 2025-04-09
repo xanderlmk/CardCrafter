@@ -79,7 +79,4 @@
     <string name="review_amount_1_40">Numero de revisions debe estar entre 1 y 40!</string>
     <string name="cute_theme">Tema Tiernito</string>
     <string name="dark_cute_theme">Oscuro Tema Tiernito</string>
-    <string name="signed_in">Ha iniciado sesión</string>
-    <string name="could_not_sign_in">No se puede iniciar sesión</string>
-    <string name="no_credentials_available">No hay credenciales</string>
 </resources>

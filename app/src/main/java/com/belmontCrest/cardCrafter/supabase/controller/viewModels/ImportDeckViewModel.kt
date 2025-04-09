@@ -6,7 +6,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkI
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkIfDeckUUIDExists
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
-import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.converters.sbctToSealedCts
+import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.converters.cardColsCTToSBCT
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.BASIC_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CANCELLED
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
@@ -20,9 +20,9 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.THREE_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UNKNOWN_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UUID_CONFLICT
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardWithCT
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsWithCT
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
-import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCT
+import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCTToImport
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.ImportRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SupabaseToRoomRepository
 import kotlinx.coroutines.Dispatchers
@@ -213,7 +213,7 @@ class ImportDeckViewModel(
             )
         }
 
-        val allCards = mutableListOf<SBCardWithCT>().apply {
+        val allCards = mutableListOf<SBCardColsWithCT>().apply {
             addAll(basicCheck.first)
             addAll(hintCheck.first)
             addAll(threeCheck.first)
@@ -233,7 +233,7 @@ class ImportDeckViewModel(
          *  Hence we need to multiply the total by 2
          */
         val total = allCards.size * 2
-        val ctList = sbctToSealedCts(
+        val ctList = cardColsCTToSBCT(
             sortedCards, onProgress = {
                 onProgress(it)
             }, total
@@ -278,7 +278,7 @@ private fun checkList(
 }
 
 private data class CardObject(
-    val cardList: List<SealedCT>,
+    val cardList: List<SealedCTToImport>,
     val returnValue: Int,
     val total: Int
 )

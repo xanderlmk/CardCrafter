@@ -3,42 +3,42 @@ package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.con
 import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardBasic
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsBasic
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardDto
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardHint
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardMulti
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardNotation
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardThree
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardWithCT
-import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCT
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsHint
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsMulti
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsNotation
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsThree
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsWithCT
+import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCTToImport
 
 /** Converting our Supabase Card Columns with its Card Type to
  *  a SealedCardType */
-fun sbctToSealedCts(
-    ctList: List<SBCardWithCT>, onProgress: (Float) -> Unit, total: Int
-): List<SealedCT> {
-    val list: List<SealedCT> = ctList.mapIndexed { index, card ->
+fun cardColsCTToSBCT(
+    ctList: List<SBCardColsWithCT>, onProgress: (Float) -> Unit, total: Int
+): List<SealedCTToImport> {
+    val list: List<SealedCTToImport> = ctList.mapIndexed { index, card ->
         when (card) {
-            is SBCardBasic -> {
+            is SBCardColsBasic -> {
                 onProgress((index + 1).toFloat() / total)
-                SealedCT.Basic(
+                SealedCTToImport.Basic(
                     sbWctToSCT(card), card.basicCard
                 )
             }
 
-            is SBCardThree -> {
+            is SBCardColsThree -> {
                 onProgress((index + 1).toFloat() / total)
-                SealedCT.Three(
+                SealedCTToImport.Three(
                     sbWctToSCT(card), card.threeCard
                 )
             }
-            is SBCardHint -> {
+            is SBCardColsHint -> {
                 onProgress((index + 1).toFloat() / total)
-                SealedCT.Hint(sbWctToSCT(card), card.hintCard)
+                SealedCTToImport.Hint(sbWctToSCT(card), card.hintCard)
             }
-            is SBCardMulti -> {
+            is SBCardColsMulti -> {
                 onProgress((index + 1).toFloat() / total)
-                SealedCT.Multi(
+                SealedCTToImport.Multi(
                     sbWctToSCT(card),
                     MultiChoiceCard(
                         cardId = -1,
@@ -60,10 +60,10 @@ fun sbctToSealedCts(
                 )
             }
 
-            is SBCardNotation -> {
+            is SBCardColsNotation -> {
                 val listStringConverter = ListStringConverter()
                 onProgress((index + 1).toFloat() / total)
-                SealedCT.Notation(
+                SealedCTToImport.Notation(
                     sbWctToSCT(card),
                     NotationCard(
                         cardId = -1,
@@ -78,7 +78,7 @@ fun sbctToSealedCts(
     return list
 }
 
-private fun sbWctToSCT(card: SBCardWithCT): SBCardDto {
+private fun sbWctToSCT(card: SBCardColsWithCT): SBCardDto {
     return SBCardDto(
         id = card.id,
         deckUUID = card.deckUUID,

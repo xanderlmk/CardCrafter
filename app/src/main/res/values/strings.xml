@@ -79,4 +79,7 @@
     <string name="review_amount_1_40">Review amount must be between 1 and 40!</string>
     <string name="cute_theme">Cute Theme</string>
     <string name="dark_cute_theme">Dark Cute Theme</string>
+    <string name="signed_in">You are signed in</string>
+    <string name="could_not_sign_in">Couldn\'t sign in.</string>
+    <string name="no_credentials_available">No credentials available</string>
 </resources>
