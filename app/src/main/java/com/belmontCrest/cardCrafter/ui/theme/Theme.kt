@@ -100,27 +100,35 @@ class ColorSchemeClass(
 
 @Composable
 fun FlashcardsTheme(
-    darkTheme: Boolean,
-    cuteTheme: Boolean,
-    darkCuteTheme: Boolean,
+    darkTheme: Boolean, cuteTheme: Boolean,
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean,
-    content: @Composable () -> Unit
+    dynamicColor: Boolean, content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            if (darkTheme) {dynamicDarkColorScheme(context)}
-            else {dynamicLightColorScheme(context)}
+            if (darkTheme) {
+                dynamicDarkColorScheme(context)
+            } else {
+                dynamicLightColorScheme(context)
+            }
         }
-        darkCuteTheme -> DarkCuteColorScheme
-        cuteTheme -> CuteColorScheme
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> {
+            if (cuteTheme) {
+                DarkCuteColorScheme
+            } else {
+                DarkColorScheme
+            }
+        }
+        else -> {
+            if (cuteTheme) {
+                CuteColorScheme
+            } else {
+                LightColorScheme
+            }
+        }
     }
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+        colorScheme = colorScheme, typography = Typography, content = content
     )
 }

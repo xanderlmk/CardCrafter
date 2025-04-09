@@ -27,22 +27,21 @@ class GeneralSettings(
         var themeClicked by remember { mutableStateOf(false) }
         var deckOptionsClicked by remember { mutableStateOf(false) }
 
-        val darkToggled = if(preferences.darkTheme.value)
+        val darkToggled = if (preferences.darkTheme.value)
             painterResource(R.drawable.toggle_on) else
             painterResource(R.drawable.toggle_off)
         val customToggled = if (!preferences.customScheme.value)
             painterResource(R.drawable.toggle_on) else
             painterResource(R.drawable.toggle_off)
-        val cuteToggled = if(preferences.cuteTheme.value)
-            painterResource(R.drawable.toggle_on) else
-            painterResource(R.drawable.toggle_off)
-        val darkCuteToggled = if(preferences.darkCuteTheme.value)
+        val cuteToggled = if (preferences.cuteTheme.value)
             painterResource(R.drawable.toggle_on) else
             painterResource(R.drawable.toggle_off)
         val reviewAmount = rememberSaveable {
-            mutableStateOf(preferences.reviewAmount.intValue.toString())  }
+            mutableStateOf(preferences.reviewAmount.intValue.toString())
+        }
         val cardAmount = rememberSaveable {
-            mutableStateOf(preferences.cardAmount.intValue.toString()) }
+            mutableStateOf(preferences.cardAmount.intValue.toString())
+        }
         val invalid = rememberSaveable { mutableStateOf(false) }
         val errorMessage = rememberSaveable { mutableStateOf("") }
         val invalidReview = stringResource(R.string.review_amount_1_40).toString()
@@ -68,50 +67,31 @@ class GeneralSettings(
                 SystemThemeOptions(
                     customScheme = {
                         preferences.customScheme.value =
-                            !preferences.customScheme.value // Toggle custom theme
+                            !preferences.customScheme.value
+                        if (preferences.customScheme.value) {
+                            preferences.cuteTheme.value = false
+                            preferences.saveCuteTheme()
+                        }
                         preferences.saveCustomScheme()
                     },
                     darkTheme = {
                         preferences.darkTheme.value = !preferences.darkTheme.value
-                        if (preferences.darkTheme.value) {
-                            preferences.cuteTheme.value = false
-                            preferences.darkCuteTheme.value = false
-                            preferences.saveCuteTheme()
-                            preferences.saveDarkCuteTheme()
-                        }
                         preferences.saveDarkTheme()
                     },
                     cuteTheme = {
                         preferences.cuteTheme.value = !preferences.cuteTheme.value
-                        if (preferences.cuteTheme.value) {
-                            preferences.darkTheme.value = false
-                            preferences.darkCuteTheme.value = false
-                            preferences.saveDarkTheme()
-                            preferences.saveDarkCuteTheme()
-                        }
                         preferences.saveCuteTheme()
-                    },
-                    darkCuteTheme = {
-                        preferences.darkCuteTheme.value = !preferences.darkCuteTheme.value
-                        if (preferences.darkCuteTheme.value) {
-                            preferences.darkTheme.value = false
-                            preferences.cuteTheme.value = false
-                            preferences.saveDarkTheme()
-                            preferences.saveCuteTheme()
-                        }
-                        preferences.saveDarkCuteTheme()
                     },
                     customToggled = customToggled,
                     darkToggled = darkToggled,
                     cuteToggled = cuteToggled,
-                    darkCuteToggled = darkCuteToggled,
                     clicked = themeClicked,
+                    isDynamicTheme = preferences.customScheme.value,
                     getUIStyle = getUIStyle
                 )
                 DefaultDeckOptions(
                     changeReviewAmount = {
-                        if((reviewAmount.value.toIntOrNull() ?: 0) in 1..40)
-                        {
+                        if ((reviewAmount.value.toIntOrNull() ?: 0) in 1..40) {
                             preferences.reviewAmount.intValue =
                                 reviewAmount.value.toInt()
                             preferences.saveReviewAmount()
@@ -122,7 +102,7 @@ class GeneralSettings(
                         }
                     },
                     changeCardAmount = {
-                        if((cardAmount.value.toIntOrNull() ?: 1) in 5..1000) {
+                        if ((cardAmount.value.toIntOrNull() ?: 1) in 5..1000) {
                             preferences.cardAmount.intValue =
                                 cardAmount.value.toInt()
                             preferences.saveCardAmount()

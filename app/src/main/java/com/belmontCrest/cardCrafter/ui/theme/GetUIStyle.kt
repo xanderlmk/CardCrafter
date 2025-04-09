@@ -9,9 +9,8 @@ import androidx.compose.material3.ColorScheme
 class GetUIStyle(
     private var cS: ColorSchemeClass,
     private var isDarkTheme: Boolean,
-    private var isCustomTheme: Boolean,
+    private var isDynamicTheme: Boolean,
     private var isCuteTheme: Boolean,
-    private var isDarkCuteTheme: Boolean
 ) {
     fun getIsDarkTheme(): Boolean {
         return isDarkTheme
@@ -19,10 +18,6 @@ class GetUIStyle(
 
     fun getIsCuteTheme(): Boolean {
         return isCuteTheme
-    }
-
-    private fun isDarkCuteTheme(): Boolean {
-        return isDarkCuteTheme
     }
 
     fun getColorScheme(): ColorScheme {
@@ -59,20 +54,27 @@ class GetUIStyle(
 
     fun choiceColor(): Color {
         return when {
-            isDarkCuteTheme -> darkCuteChoiceColor
-            isCuteTheme -> cuteChoiceColor
             isDarkTheme -> {
-                if (isCustomTheme) {
+                if (isDynamicTheme) {
                     blendColors(cS.colorScheme.onTertiary, darkChoiceColor, 0.25f)
                 } else {
-                    darkChoiceColor
+                    if (isCuteTheme) {
+                        darkCuteChoiceColor
+                    } else {
+                        darkChoiceColor
+                    }
                 }
             }
+
             else -> {
-                if (isCustomTheme) {
+                if (isDynamicTheme) {
                     blendColors(cS.colorScheme.onTertiary, choiceColor, 0.25f)
                 } else {
-                    choiceColor
+                    if (isCuteTheme){
+                        cuteChoiceColor
+                    } else {
+                        choiceColor
+                    }
                 }
             }
         }
@@ -80,26 +82,52 @@ class GetUIStyle(
 
     fun pickedChoice(): Color {
         return when {
-            isDarkCuteTheme() -> darkCutePickedChoice
-            isCuteTheme -> cutePickedChoice
-            isDarkTheme -> darkPickedChoice
-            else -> pickedChoice
+            isDarkTheme -> {
+                if (isCuteTheme) {
+                    darkCutePickedChoice
+                } else {
+                    darkPickedChoice
+                }
+            }
+
+            else -> {
+                if (isCuteTheme) {
+                    cutePickedChoice
+                } else {
+                    pickedChoice
+                }
+            }
         }
     }
 
     fun correctChoice(): Color {
         return when {
-            isDarkCuteTheme() -> darkCuteCorrectChoice
-            isCuteTheme -> cuteCorrectChoice
-            isDarkTheme -> darkCorrectChoice
-            else -> correctChoice
+            isDarkTheme -> {
+                if (isCuteTheme) {
+                    darkCuteCorrectChoice
+                } else {
+                    darkCorrectChoice
+                }
+            }
+            else -> {
+                if (isCuteTheme) {
+                    cuteCorrectChoice
+                } else {
+                    correctChoice
+                }
+            }
         }
     }
 
     fun onCorrectChoice(): Color {
         return when {
-            isDarkCuteTheme() -> onDarkCuteCorrectChoice
-            isCuteTheme -> onCuteCorrectChoice
+            isCuteTheme -> {
+                if (isDarkTheme) {
+                    onDarkCuteCorrectChoice
+                } else {
+                    onCuteCorrectChoice
+                }
+            }
             else -> cS.colorScheme.onSurfaceVariant
         }
     }
@@ -114,10 +142,21 @@ class GetUIStyle(
 
     fun altBackground(): Color {
         return when {
-            isDarkCuteTheme() -> darkCuteSecondaryBC
-            isCuteTheme -> cuteSecondaryBC
-            isDarkTheme -> secondaryDBC
-            else -> secondaryBC
+            isDarkTheme -> {
+                if (isCuteTheme) {
+                    darkCuteSecondaryBC
+                } else {
+                    secondaryDBC
+                }
+            }
+
+            else -> {
+                if (isCuteTheme) {
+                    cuteSecondaryBC
+                } else {
+                    secondaryBC
+                }
+            }
         }
     }
 
@@ -127,34 +166,65 @@ class GetUIStyle(
 
     fun navBarColor(): Color {
         return when {
-            isDarkCuteTheme() -> darkCuteButton
-            isCuteTheme -> cuteButton
             isDarkTheme -> {
-                if (!isCustomTheme) {
-                    darkNavBar
+                if (!isDynamicTheme) {
+                    if (isCuteTheme) {
+                        darkCuteButton
+                    } else {
+                        darkNavBar
+                    }
                 } else {
                     cS.colorScheme.primaryContainer
                 }
             }
-            else -> cS.colorScheme.primaryContainer
+
+            else -> {
+                if (isCuteTheme && !isDynamicTheme) {
+                    cuteButton
+                } else {
+                    cS.colorScheme.primaryContainer
+                }
+            }
         }
     }
 
     fun dialogColor(): Color {
         return when {
-            isDarkCuteTheme() -> Color(70, 20, 50, 240)
-            isCuteTheme -> Color(255, 230, 240, 240)
-            isDarkTheme -> dialogDarkBackground
-            else -> dialogLightBackground
+            isDarkTheme -> {
+                if (isCuteTheme) {
+                    Color(70, 20, 50, 240)
+                } else {
+                    dialogDarkBackground
+                }
+            }
+
+            else -> {
+                if (isCuteTheme) {
+                    Color(255, 230, 240, 240)
+                } else {
+                    dialogLightBackground
+                }
+            }
         }
     }
 
     fun importingDeckColor(): Color {
         return when {
-            isDarkCuteTheme() -> Color(100, 40, 80)
-            isCuteTheme -> Color(255, 192, 203, 180)
-            isDarkTheme -> Color.DarkGray
-            else -> Color.Gray
+            isDarkTheme -> {
+                if (isCuteTheme) {
+                    Color(100, 40, 80)
+                } else {
+                    Color.DarkGray
+                }
+            }
+
+            else -> {
+                if (isCuteTheme) {
+                    Color(255, 192, 203, 180)
+                } else {
+                    Color.Gray
+                }
+            }
         }
     }
 
