@@ -129,7 +129,6 @@ class CardDeckView(
                     deck.nextReview > Date()
                 ) {
                     if (cardDeckVM.getState() == CardState.Loading){
-
                     } else {
                         NoDueCards(getUIStyle)
                     }
@@ -219,6 +218,7 @@ class CardDeckView(
                                                             success = false,
                                                             again = true
                                                         )
+                                                    clickedChoice.value = '?'
                                                     show = !show
                                                 }
                                                 coroutineScope.launch {

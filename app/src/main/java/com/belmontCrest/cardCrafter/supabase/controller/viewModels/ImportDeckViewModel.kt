@@ -229,7 +229,7 @@ class ImportDeckViewModel(
 
         val sortedCards = allCards.sortedBy { it.sortKey() }
 
-        /** First we get the map all the cards, then we download them/
+        /** First we map all the cards, then we download them/
          *  Hence we need to multiply the total by 2
          */
         val total = allCards.size * 2

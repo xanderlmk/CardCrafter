@@ -27,6 +27,7 @@ interface ImportRepository {
     suspend fun checkThreeCardList(uuid: String): Pair<List<SBCardThree>, Int>
 
     suspend fun checkMultiCardList(uuid: String): Pair<List<SBCardMulti>, Int>
+
     suspend fun checkNotationCardList(uuid: String): Pair<List<SBCardNotation>, Int>
 }
 

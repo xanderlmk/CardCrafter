@@ -97,7 +97,6 @@ class MainActivity : ComponentActivity() {
             FlashcardsTheme(
                 darkTheme = preferences.darkTheme.value,
                 dynamicColor = preferences.customScheme.value,
-                darkCuteTheme = preferences.darkCuteTheme.value,
                 cuteTheme = preferences.cuteTheme.value
             ) {
                 AppNavHost(
