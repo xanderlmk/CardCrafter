@@ -1,7 +1,7 @@
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository
 
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckDto
-import com.belmontCrest.cardCrafter.supabase.model.SealedCT
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCT
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.DeckSignature
 
 interface SupabaseToRoomRepository {

@@ -10,6 +10,8 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.Offli
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.ScienceSpecificRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.AuthRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.AuthRepositoryImpl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.ImportRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.ImportRepositoryImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SBTableRepositoryImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SBTablesRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.OfflineSupabaseToRoomRepository
@@ -27,6 +29,7 @@ interface AppContainer {
     val scienceSpecificRepository: ScienceSpecificRepository
     val supabaseToRoomRepository: SupabaseToRoomRepository
     val sbTablesRepository: SBTablesRepository
+    val importRepository : ImportRepository
     val authRepository: AuthRepository
     val supabase: SupabaseClient
 }
@@ -62,10 +65,12 @@ class AppDataContainer(
             FlashCardDatabase.Companion.getDatabase(context, scope).supabaseDao()
         )
     }
+    override val importRepository: ImportRepository by lazy {
+        ImportRepositoryImpl(supabaseClient)
+    }
     override val sbTablesRepository: SBTablesRepository by lazy {
         SBTableRepositoryImpl(supabaseClient)
     }
-
     override val authRepository: AuthRepository by lazy {
         AuthRepositoryImpl(supabaseClient)
     }

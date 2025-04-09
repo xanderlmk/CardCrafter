@@ -13,6 +13,11 @@ object ReturnValues {
     const val CC_LESS_THAN_20 = 4
     const val DECK_EXISTS = 6
     const val NOT_DECK_OWNER = 8
+    const val BASIC_CT_ERROR = 10
+    const val HINT_CT_ERROR = 11
+    const val THREE_CT_ERROR = 12
+    const val MULTI_CT_ERROR = 13
+    const val NOTATION_CT_ERROR = 14
     const val EMPTY_CARD_LIST = 88
     const val UUID_CONFLICT = 101
     const val CANCELLED = 499
