@@ -4,8 +4,8 @@ import android.util.Log
 import com.belmontCrest.cardCrafter.BuildConfig
 import com.belmontCrest.cardCrafter.supabase.model.GoogleClientResponse
 import com.belmontCrest.cardCrafter.supabase.model.GoogleCredentials
-import com.belmontCrest.cardCrafter.supabase.model.OwnerDto
-import com.belmontCrest.cardCrafter.supabase.model.UserProfile
+import com.belmontCrest.cardCrafter.supabase.model.tables.OwnerDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.UserProfile
 import com.belmontCrest.cardCrafter.supabase.model.getSBKey
 import com.belmontCrest.cardCrafter.supabase.model.getSBUrl
 import io.github.jan.supabase.SupabaseClient
@@ -94,8 +94,7 @@ class AuthRepositoryImpl(
                 }
             } catch (e: Exception) {
                 Log.e("Error", "Network call failed", e)
-                GoogleCredentials.Failure("Network Error")
-            }
+                GoogleCredentials.Failure("Network Error: ${e.message ?: "Unknown Error"}")            }
         }
     }
 

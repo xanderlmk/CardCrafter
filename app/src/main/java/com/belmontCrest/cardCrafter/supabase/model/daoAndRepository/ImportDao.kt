@@ -13,9 +13,9 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
-import com.belmontCrest.cardCrafter.supabase.model.SBCardDto
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckDto
-import com.belmontCrest.cardCrafter.supabase.model.SealedCT
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCT
 
 import java.util.Date
 

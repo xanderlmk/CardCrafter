@@ -1,15 +1,16 @@
-package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions
+package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.converters
 
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
-import com.belmontCrest.cardCrafter.supabase.model.SBCT
-import com.belmontCrest.cardCrafter.supabase.model.SBCardDto
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckToExportDto
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckDto
-import com.belmontCrest.cardCrafter.supabase.model.SBMultiCardDto
-import com.belmontCrest.cardCrafter.supabase.model.SBNotationCardDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCT
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckToExportDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBMultiCardDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBNotationCardDto
 
+/** Mapping our local CardTypes to the Supabase CardType*/
 fun ctsToSbCts(
     deck: Deck, cts: List<CT>,
     description: String, userId: String

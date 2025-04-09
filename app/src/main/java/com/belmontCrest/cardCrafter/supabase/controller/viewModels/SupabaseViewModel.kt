@@ -14,10 +14,10 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
 import com.belmontCrest.cardCrafter.supabase.controller.networkConnectivityFlow
 import com.belmontCrest.cardCrafter.supabase.model.GoogleCredentials
-import com.belmontCrest.cardCrafter.supabase.model.OwnerDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.OwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_OWNER
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckListDto
-import com.belmontCrest.cardCrafter.supabase.model.SBDeckDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckListDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.AuthRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SBTablesRepository
@@ -157,23 +157,20 @@ class SupabaseViewModel(
     /** Google Oauth */
     suspend fun getGoogleId(): Pair<Boolean, String> {
         return withContext(Dispatchers.IO) {
-            var result = false
-            googleClientId.update {
-                authRepository.getGoogleCredentials().let {
-                    when (it) {
-                        is GoogleCredentials.Success -> {
-                            result = true
-                            it.credentials
+            authRepository.getGoogleCredentials().let {credentials ->
+                when (credentials) {
+                    is GoogleCredentials.Success -> {
+                        googleClientId.update {
+                            credentials.credentials
                         }
+                        Pair(true, "")
+                    }
 
-                        is GoogleCredentials.Failure -> {
-                            result = false
-                            it.errorMessage
-                        }
+                    is GoogleCredentials.Failure -> {
+                        Pair(false, credentials.errorMessage)
                     }
                 }
             }
-            Pair(result, if (result) { "" } else { googleClientId.value })
         }
     }
 

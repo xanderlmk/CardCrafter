@@ -1,6 +1,6 @@
 @file:Suppress("PropertyName")
 
-package com.belmontCrest.cardCrafter.supabase.model
+package com.belmontCrest.cardCrafter.supabase.model.tables
 
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
@@ -76,6 +76,8 @@ data class SBDeckToExportDto(
     val deck : SBDeckDto,
     val cts : List<SBCT>
 )
+
+/** Supabase Card with its respective Card Type to export to supabase. */
 @Serializable
 sealed class SBCT {
     @Serializable
@@ -105,6 +107,10 @@ sealed class SBCT {
     ): SBCT()
 }
 
+/** SealedCT to import to the local database, contains a Supabase Card
+ *  which will be converted to the local Card
+ *  once it's in the transaction phase.
+ */
 sealed class SealedCT {
     data class Basic(
         val card: SBCardDto,
@@ -127,3 +133,4 @@ sealed class SealedCT {
         val notationCard: NotationCard
     ): SealedCT()
 }
+
