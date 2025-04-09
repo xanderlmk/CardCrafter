@@ -15,7 +15,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
-import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCT
+import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCTToImport
 
 import java.util.Date
 
@@ -82,7 +82,7 @@ interface SupabaseDao {
 
     @Transaction
     suspend fun replaceDeckList(
-        sbDeckDto: SBDeckDto, cardList: List<SealedCT>,
+        sbDeckDto: SBDeckDto, cardList: List<SealedCTToImport>,
         reviewAmount: Int, cardAmount: Int, name: String,
         onProgress: (Float) -> Unit, total: Int
     ) {
@@ -114,7 +114,7 @@ interface SupabaseDao {
 
     @Transaction
     suspend fun insertDeckList(
-        sbDeckDto: SBDeckDto, cardList: List<SealedCT>,
+        sbDeckDto: SBDeckDto, cardList: List<SealedCTToImport>,
         name: String, reviewAmount: Int, cardAmount: Int,
         onProgress: (Float) -> Unit, total: Int
     ) {
@@ -139,13 +139,13 @@ interface SupabaseDao {
     }
 
     private fun insertTransactionCT(
-        ct: SealedCT, deckId: Long, sbDeckDto: SBDeckDto,
+        ct: SealedCTToImport, deckId: Long, sbDeckDto: SBDeckDto,
         reviewAmount: Int
     ) {
         val cardIdentifier = returnCard(ct).cardIdentifier
         val deckCardNumber = cardIdentifier.substringAfterLast("-").toInt()
         when (ct) {
-            is SealedCT.Basic -> {
+            is SealedCTToImport.Basic -> {
                 val cardId = insertCard(
                     Card(
                         deckId = deckId.toInt(),
@@ -170,7 +170,7 @@ interface SupabaseDao {
 
             }
 
-            is SealedCT.Three -> {
+            is SealedCTToImport.Three -> {
                 val cardId = insertCard(
                     Card(
                         deckId = deckId.toInt(),
@@ -195,7 +195,7 @@ interface SupabaseDao {
                 )
             }
 
-            is SealedCT.Hint -> {
+            is SealedCTToImport.Hint -> {
                 val cardId = insertCard(
                     Card(
                         deckId = deckId.toInt(),
@@ -220,7 +220,7 @@ interface SupabaseDao {
                 )
             }
 
-            is SealedCT.Multi -> {
+            is SealedCTToImport.Multi -> {
                 val cardId = insertCard(
                     Card(
                         deckId = deckId.toInt(),
@@ -248,7 +248,7 @@ interface SupabaseDao {
                 )
             }
 
-            is SealedCT.Notation -> {
+            is SealedCTToImport.Notation -> {
                 val cardId = insertCard(
                     Card(
                         deckId = deckId.toInt(),
@@ -276,16 +276,16 @@ interface SupabaseDao {
     }
 }
 
-private fun returnCard(ct: SealedCT): SBCardDto {
+private fun returnCard(ct: SealedCTToImport): SBCardDto {
     return when (ct) {
-        is SealedCT.Basic -> ct.card
+        is SealedCTToImport.Basic -> ct.card
 
-        is SealedCT.Three -> ct.card
+        is SealedCTToImport.Three -> ct.card
 
-        is SealedCT.Hint -> ct.card
+        is SealedCTToImport.Hint -> ct.card
 
-        is SealedCT.Multi -> ct.card
+        is SealedCTToImport.Multi -> ct.card
 
-        is SealedCT.Notation -> ct.card
+        is SealedCTToImport.Notation -> ct.card
     }
 }

@@ -3,7 +3,7 @@ package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.con
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCT
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCTToExport
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckToExportDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
@@ -11,7 +11,7 @@ import com.belmontCrest.cardCrafter.supabase.model.tables.SBMultiCardDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBNotationCardDto
 
 /** Mapping our local CardTypes to the Supabase CardType*/
-fun ctsToSbCts(
+fun localCTToSBCT(
     deck: Deck, cts: List<CT>,
     description: String, userId: String
 ): SBDeckToExportDto {
@@ -26,7 +26,7 @@ fun ctsToSbCts(
         cts = cts.map { ct ->
             when (ct) {
                 is CT.Basic -> {
-                    SBCT.Basic(
+                    SBCTToExport.Basic(
                         card = SBCardDto(
                             deckUUID = ct.card.deckUUID,
                             type = ct.card.type,
@@ -37,7 +37,7 @@ fun ctsToSbCts(
                 }
 
                 is CT.ThreeField -> {
-                    SBCT.Three(
+                    SBCTToExport.Three(
                         card = SBCardDto(
                             deckUUID = ct.card.deckUUID,
                             type = ct.card.type,
@@ -48,7 +48,7 @@ fun ctsToSbCts(
                 }
 
                 is CT.Hint -> {
-                    SBCT.Hint(
+                    SBCTToExport.Hint(
                         card = SBCardDto(
                             deckUUID = ct.card.deckUUID,
                             type = ct.card.type,
@@ -59,7 +59,7 @@ fun ctsToSbCts(
                 }
 
                 is CT.MultiChoice -> {
-                    SBCT.Multi(
+                    SBCTToExport.Multi(
                         card = SBCardDto(
                             deckUUID = ct.card.deckUUID,
                             type = ct.card.type,
@@ -77,7 +77,7 @@ fun ctsToSbCts(
                 }
 
                 is CT.Notation -> {
-                    SBCT.Notation(
+                    SBCTToExport.Notation(
                         card = SBCardDto(
                             deckUUID = ct.card.deckUUID,
                             type = ct.card.type,

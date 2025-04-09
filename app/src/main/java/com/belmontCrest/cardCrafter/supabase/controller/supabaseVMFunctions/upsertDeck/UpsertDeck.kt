@@ -3,7 +3,7 @@ package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.ups
 import android.util.Log
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.converters.ctsToSbCts
+import com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.converters.localCTToSBCT
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CC_LESS_THAN_20
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_CARD_LIST
@@ -47,7 +47,7 @@ suspend fun tryUpsertDeck(
         return CC_LESS_THAN_20
     }
 
-    val deckToUpsert = ctsToSbCts(deck, cts, description, user.id)
+    val deckToUpsert = localCTToSBCT(deck, cts, description, user.id)
 
     try {
         val successResponse = supabase.auth.supabaseClient.postgrest.rpc(

@@ -74,63 +74,63 @@ data class UserProfile(
 @Serializable
 data class SBDeckToExportDto(
     val deck : SBDeckDto,
-    val cts : List<SBCT>
+    val cts : List<SBCTToExport>
 )
 
 /** Supabase Card with its respective Card Type to export to supabase. */
 @Serializable
-sealed class SBCT {
+sealed class SBCTToExport {
     @Serializable
     data class Basic(
         val card: SBCardDto,
         val basicCard: BasicCard
-    ) : SBCT()
+    ) : SBCTToExport()
     @Serializable
     data class Three(
         val card: SBCardDto,
         val threeCard: ThreeFieldCard,
-    ): SBCT()
+    ): SBCTToExport()
     @Serializable
     data class Hint(
         val card: SBCardDto,
         val hintCard: HintCard
-    ): SBCT()
+    ): SBCTToExport()
     @Serializable
     data class Multi(
         val card: SBCardDto,
         val multiCard: SBMultiCardDto
-    ): SBCT()
+    ): SBCTToExport()
     @Serializable
     data class Notation(
         val card: SBCardDto,
         val notationCard: SBNotationCardDto
-    ): SBCT()
+    ): SBCTToExport()
 }
 
 /** SealedCT to import to the local database, contains a Supabase Card
  *  which will be converted to the local Card
  *  once it's in the transaction phase.
  */
-sealed class SealedCT {
+sealed class SealedCTToImport {
     data class Basic(
         val card: SBCardDto,
         val basicCard: BasicCard
-    ) : SealedCT()
+    ) : SealedCTToImport()
     data class Three(
         val card: SBCardDto,
         val threeCard: ThreeFieldCard,
-    ): SealedCT()
+    ): SealedCTToImport()
     data class Hint(
         val card: SBCardDto,
         val hintCard: HintCard
-    ): SealedCT()
+    ): SealedCTToImport()
     data class Multi(
         val card: SBCardDto,
         val multiCard: MultiChoiceCard
-    ): SealedCT()
+    ): SealedCTToImport()
     data class Notation(
         val card: SBCardDto,
         val notationCard: NotationCard
-    ): SealedCT()
+    ): SealedCTToImport()
 }
 

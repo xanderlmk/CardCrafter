@@ -8,11 +8,11 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.MULTI_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOTATION_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.THREE_CT_ERROR
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardBasic
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardHint
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardMulti
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardNotation
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardThree
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsBasic
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsHint
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsMulti
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsNotation
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsThree
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
@@ -20,21 +20,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 interface ImportRepository {
-    suspend fun checkBasicCardList(uuid: String): Pair<List<SBCardBasic>, Int>
+    suspend fun checkBasicCardList(uuid: String): Pair<List<SBCardColsBasic>, Int>
 
-    suspend fun checkHintCardList(uuid: String): Pair<List<SBCardHint>, Int>
+    suspend fun checkHintCardList(uuid: String): Pair<List<SBCardColsHint>, Int>
 
-    suspend fun checkThreeCardList(uuid: String): Pair<List<SBCardThree>, Int>
+    suspend fun checkThreeCardList(uuid: String): Pair<List<SBCardColsThree>, Int>
 
-    suspend fun checkMultiCardList(uuid: String): Pair<List<SBCardMulti>, Int>
+    suspend fun checkMultiCardList(uuid: String): Pair<List<SBCardColsMulti>, Int>
 
-    suspend fun checkNotationCardList(uuid: String): Pair<List<SBCardNotation>, Int>
+    suspend fun checkNotationCardList(uuid: String): Pair<List<SBCardColsNotation>, Int>
 }
 
 class ImportRepositoryImpl(
     private val supabase : SupabaseClient
 ) : ImportRepository {
-    override suspend fun checkBasicCardList(uuid: String): Pair<List<SBCardBasic>, Int> {
+    override suspend fun checkBasicCardList(uuid: String): Pair<List<SBCardColsBasic>, Int> {
         return withContext(Dispatchers.IO) {
             try {
                 val data = supabase.from(SBCardTN)
@@ -49,7 +49,7 @@ class ImportRepositoryImpl(
                             eq("deckUUID", uuid)
                             eq("type", "basic")
                         }
-                    }.decodeList<SBCardBasic>()
+                    }.decodeList<SBCardColsBasic>()
                 Pair(data, SUCCESS)
             } catch (e: Exception) {
                 Log.e("BasicCardList", "$e")
@@ -59,7 +59,7 @@ class ImportRepositoryImpl(
         }
     }
 
-    override suspend fun checkHintCardList(uuid: String): Pair<List<SBCardHint>, Int> {
+    override suspend fun checkHintCardList(uuid: String): Pair<List<SBCardColsHint>, Int> {
         return withContext(Dispatchers.IO) {
             try {
                 val data = supabase.from(SBCardTN)
@@ -74,7 +74,7 @@ class ImportRepositoryImpl(
                             eq("deckUUID", uuid)
                             eq("type", "hint")
                         }
-                    }.decodeList<SBCardHint>()
+                    }.decodeList<SBCardColsHint>()
                 Pair(data, SUCCESS)
             } catch (e: Exception) {
                 Log.e("HintCardList", "$e")
@@ -82,7 +82,7 @@ class ImportRepositoryImpl(
             }
         }
     }
-    override suspend fun checkThreeCardList(uuid: String): Pair<List<SBCardThree>, Int> {
+    override suspend fun checkThreeCardList(uuid: String): Pair<List<SBCardColsThree>, Int> {
         return withContext(Dispatchers.IO) {
             try {
                 val data = supabase.from(SBCardTN)
@@ -97,7 +97,7 @@ class ImportRepositoryImpl(
                             eq("deckUUID", uuid)
                             eq("type", "three")
                         }
-                    }.decodeList<SBCardThree>()
+                    }.decodeList<SBCardColsThree>()
                 Pair(data, SUCCESS)
             } catch (e: Exception) {
                 Log.e("HintCardList", "$e")
@@ -105,7 +105,7 @@ class ImportRepositoryImpl(
             }
         }
     }
-    override suspend fun checkMultiCardList(uuid: String): Pair<List<SBCardMulti>, Int> {
+    override suspend fun checkMultiCardList(uuid: String): Pair<List<SBCardColsMulti>, Int> {
         return withContext(Dispatchers.IO) {
             try {
                 val data = supabase.from(SBCardTN)
@@ -121,7 +121,7 @@ class ImportRepositoryImpl(
                             eq("deckUUID", uuid)
                             eq("type", "multi")
                         }
-                    }.decodeList<SBCardMulti>()
+                    }.decodeList<SBCardColsMulti>()
                 Pair(data, SUCCESS)
             } catch (e: Exception) {
                 Log.e("ThreeCardList", "$e")
@@ -130,7 +130,7 @@ class ImportRepositoryImpl(
         }
     }
 
-    override suspend fun checkNotationCardList(uuid: String): Pair<List<SBCardNotation>, Int> {
+    override suspend fun checkNotationCardList(uuid: String): Pair<List<SBCardColsNotation>, Int> {
         return withContext(Dispatchers.IO) {
             try {
                 val data = supabase.from(SBCardTN)
@@ -145,7 +145,7 @@ class ImportRepositoryImpl(
                             eq("deckUUID", uuid)
                             eq("type", "notation")
                         }
-                    }.decodeList<SBCardNotation>()
+                    }.decodeList<SBCardColsNotation>()
                 Pair(data, SUCCESS)
             } catch (e: Exception) {
                 Log.e("NotationCardList", "$e")

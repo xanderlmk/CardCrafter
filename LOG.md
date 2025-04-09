@@ -10,6 +10,9 @@
 - Add new ReturnValues
 ### 4/9/2025 1:16am
 - Fix Cute theming
+### 4/9/2025 1:04pm
+- Renaming some things
+- New xml string for spanish.
 ## John
 ### 4/8/2025 11:50pm
 - Cute Theme: ADDED for people who like cute stuff
