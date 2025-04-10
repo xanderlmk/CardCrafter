@@ -12,6 +12,8 @@
 - Custom Themes based off Light/Dark Theme
 - Spanish and English Language Support
 - KaTeX for NotationCard.
+### In order to run the application, you will need local.properties set up correctly.
+### https://discord.gg/bw6h8mWg please join this to get the local.properties environment.
 ### To see what other features to add, please view the [TODO List](./TODO.md)
 ### For logs and changes, please view the [LOG](./LOG.md)
 
