@@ -157,7 +157,7 @@ class SupabaseViewModel(
     /** Google Oauth */
     suspend fun getGoogleId(): Pair<Boolean, String> {
         return withContext(Dispatchers.IO) {
-            authRepository.getGoogleCredentials().let {credentials ->
+            authRepository.getGoogleCredentials().let { credentials ->
                 when (credentials) {
                     is GoogleCredentials.Success -> {
                         googleClientId.update {
@@ -183,6 +183,7 @@ class SupabaseViewModel(
                 thisUser.update {
                     supabase.auth.currentUserOrNull()
                 }
+                getOwner()
                 it
             }
         }

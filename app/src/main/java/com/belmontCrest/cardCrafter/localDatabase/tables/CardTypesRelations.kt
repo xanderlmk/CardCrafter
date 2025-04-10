@@ -8,7 +8,11 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
+/** In order to process the cards into a sealed CT, we must get
+ *  ALL card types before we map them into a seal CT.
+ */
 @Parcelize
 data class AllCardTypes(
     @Embedded var card: Card,
@@ -66,6 +70,8 @@ data class AllCardTypes(
     }
 }
 
+/** A Sealed CT which represents a card with it's specialized card. */
+@Serializable
 @Parcelize
 sealed class CT : Parcelable {
     @Parcelize
@@ -85,7 +91,6 @@ sealed class CT : Parcelable {
                 BasicCard::class.java
             )!!,
         )
-
         companion object : Parceler<Basic> {
             override fun Basic.write(parcel: Parcel, flags: Int) {
                 parcel.writeParcelable(card, flags)

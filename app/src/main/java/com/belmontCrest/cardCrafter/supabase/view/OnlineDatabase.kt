@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -70,33 +69,40 @@ class OnlineDatabase(
                 supabaseVM.getDeckList()
             }
         }
-        key(currentUser) {
+        LaunchedEffect(currentUser) {
             if (currentUser == null) {
                 supabaseVM.updateStatus()
             }
         }
+        LaunchedEffect(owner) {
+            if (owner == null) {
+                supabaseVM.getOwner()
+            }
+        }
         if (currentUser == null) {
-            SignUp(supabaseVM, getUIStyle)
+            SignUp(supabaseVM, getUIStyle) {
+                refreshing = it
+            }
         } else {
-            Box(
-                modifier = Modifier
-                    .boxViewsModifier(getUIStyle.getColorScheme()),
-                contentAlignment = Alignment.TopCenter
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isRefreshing = refreshing),
+                onRefresh = { refreshing = true },
             ) {
-                if (owner != null) {
-                    LocalDecks(
-                        pressed, localDeckList, getUIStyle,
-                        supabaseVM, onExportDeck
-                    )
-                } else {
-                    CreateAccount(
-                        supabaseVM, pressed, getUIStyle
-                    )
-                }
-                SwipeRefresh(
-                    state = rememberSwipeRefreshState(isRefreshing = refreshing),
-                    onRefresh = { refreshing = true },
+                Box(
+                    modifier = Modifier
+                        .boxViewsModifier(getUIStyle.getColorScheme()),
+                    contentAlignment = Alignment.TopCenter
                 ) {
+                    if (owner != null) {
+                        LocalDecks(
+                            pressed, localDeckList, getUIStyle,
+                            supabaseVM, onExportDeck
+                        )
+                    } else {
+                        CreateAccount(
+                            supabaseVM, pressed, getUIStyle
+                        )
+                    }
                     LazyColumn(
                         contentPadding = PaddingValues(
                             horizontal = 4.dp,
@@ -108,11 +114,11 @@ class OnlineDatabase(
                             DeckView(deck, onImportDeck)
                         }
                     }
+                    ExportDeckButton(
+                        onClick = { pressed.value = true },
+                        modifier = Modifier.align(Alignment.BottomEnd)
+                    )
                 }
-                ExportDeckButton(
-                    onClick = { pressed.value = true },
-                    modifier = Modifier.align(Alignment.BottomEnd)
-                )
             }
         }
     }

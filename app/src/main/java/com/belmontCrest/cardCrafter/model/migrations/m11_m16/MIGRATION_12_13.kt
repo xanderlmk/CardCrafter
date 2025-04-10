@@ -1,31 +1,32 @@
-package com.belmontCrest.cardCrafter.model.migrations
+package com.belmontCrest.cardCrafter.model.migrations.m11_m16
 
 import android.util.Log
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
- * Adding a cardsLeft column to deck
+ * Adding a cardAmount to decks
  * */
 
-val MIGRATION_15_16 = object : Migration(15, 16) {
+val MIGRATION_12_13 = object : Migration(12, 13) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.beginTransaction()
         try {
             database.execSQL("PRAGMA foreign_keys=ON;")
-            // Add 'cardLeft' column to the 'decks' table
+            // Add 'cardAmount' column to the 'decks' table
             database.execSQL("""
-                ALTER TABLE decks 
-                ADD COLUMN cardsLeft 
-                INTEGER NOT NULL DEFAULT 0
+                ALTER TABLE decks
+                ADD COLUMN cardAmount 
+                INTEGER NOT NULL DEFAULT 20
                 """)
             database.setTransactionSuccessful()
         } catch (e: Exception) {
             // Log the error for debugging
-            Log.e("Migration", "Migration 14 to 15 failed", e)
-            throw RuntimeException("Migration 14 to 15 failed: ${e.message}")
+            Log.e("Migration", "Migration 12 to 13 failed", e)
+            throw RuntimeException("Migration 12 to 13 failed: ${e.message}")
         } finally {
             database.endTransaction()
         }
     }
 }
+

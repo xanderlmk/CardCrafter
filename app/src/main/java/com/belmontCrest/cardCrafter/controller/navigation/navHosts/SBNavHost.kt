@@ -20,12 +20,14 @@ import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.ExportSBDestination
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.ImportSBDestination
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.SupabaseDestination
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.UserEDDestination
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.view.UserExportedDecks
 import com.belmontCrest.cardCrafter.supabase.view.profile.MyProfile
 import com.belmontCrest.cardCrafter.supabase.view.importDeck.ImportDeck
 import com.belmontCrest.cardCrafter.supabase.view.OnlineDatabase
@@ -135,12 +137,31 @@ fun SupabaseNav(
         }
         composable(UserProfileDestination.route) {
             BackHandler {
+                if (startDestination == UserProfileDestination.route) {
+                    navViewModel.updateRoute(MainNavDestination.route)
+                    BackNavHandler.returnToDeckListFromSB(
+                        navController, updateCurrentTime(), fields
+                    )
+                } else {
+                    navViewModel.updateRoute(SupabaseDestination.route)
+                    sbNavController.popBackStack(
+                        SupabaseDestination.route, inclusive = false
+                    )
+                }
+            }
+            MyProfile(getUIStyle, supabaseVM, startDestination) {
+                navViewModel.updateRoute(SupabaseDestination.route)
+                sbNavController.navigate(SupabaseDestination.route)
+            }
+        }
+        composable(UserEDDestination.route) {
+            BackHandler {
                 navViewModel.updateRoute(SupabaseDestination.route)
                 sbNavController.popBackStack(
                     SupabaseDestination.route, inclusive = false
                 )
             }
-            MyProfile(getUIStyle, supabaseVM)
+            UserExportedDecks(getUIStyle)
         }
     }
 }

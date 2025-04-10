@@ -27,9 +27,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserProfileViewModel
-import com.belmontCrest.cardCrafter.supabase.view.EnterAccountDetails
+import com.belmontCrest.cardCrafter.supabase.view.authViews.EnterAccountDetails
 import com.belmontCrest.cardCrafter.supabase.view.authViews.SignUp
 import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -40,7 +41,10 @@ import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
-fun MyProfile(getUIStyle: GetUIStyle, supabaseVM: SupabaseViewModel) {
+fun MyProfile(
+    getUIStyle: GetUIStyle, supabaseVM: SupabaseViewModel,
+    startingRoute: String, onSignOut: () -> Unit
+) {
     val userProfileVM: UserProfileViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val userProfile by userProfileVM.userProfile.collectAsStateWithLifecycle()
     val isLoading by userProfileVM.isLoading.collectAsStateWithLifecycle()
@@ -117,7 +121,12 @@ fun MyProfile(getUIStyle: GetUIStyle, supabaseVM: SupabaseViewModel) {
                                     if (!it) {
                                         showToastMessage(context, "Could not sign out.")
                                     } else {
+                                        supabaseVM.updateStatus()
                                         userProfileVM.getUserInfo()
+                                        supabaseVM.getOwner()
+                                        if (startingRoute == SupabaseDestination.route) {
+                                            onSignOut()
+                                        }
                                     }
                                     enabled = true
                                 }
@@ -127,7 +136,9 @@ fun MyProfile(getUIStyle: GetUIStyle, supabaseVM: SupabaseViewModel) {
                 }
             }
         } else {
-            SignUp(supabaseVM, getUIStyle)
+            SignUp(supabaseVM, getUIStyle) {
+
+            }
         }
     }
 }

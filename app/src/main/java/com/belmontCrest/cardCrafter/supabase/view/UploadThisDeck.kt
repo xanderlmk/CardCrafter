@@ -123,8 +123,7 @@ fun UploadThisDeck(
                                         showToastMessage(
                                             context, "Success!",
                                             onNavigate = { dismiss() })
-                                    }
-                                    if (it == DECK_EXISTS) {
+                                    } else if (it == DECK_EXISTS) {
                                         enabled = true
                                         failed.value = true
                                         code = it

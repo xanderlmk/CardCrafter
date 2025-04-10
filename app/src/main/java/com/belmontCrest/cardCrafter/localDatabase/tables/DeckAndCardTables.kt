@@ -15,9 +15,16 @@ import androidx.room.Relation
 import androidx.room.TypeConverter
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import java.util.Date
 import java.util.UUID
 
+@Serializable
 @Parcelize
 @Entity(
     tableName = "decks",
@@ -35,9 +42,12 @@ data class Deck(
     val badMultiplier: Double = 0.5,
     val createdOn: Long = Date().time,
     val cardAmount: Int = 20,
+    @Serializable(with = DateAsLong::class)
     var nextReview: Date,
     var cardsLeft: Int = 20,
-    var lastUpdated : Date
+    var cardsDone: Int = 0,
+    @Serializable(with = DateAsLong::class)
+    var lastUpdated : Date,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
@@ -49,6 +59,7 @@ data class Deck(
         parcel.readLong(),
         parcel.readInt(),
         Date(parcel.readLong()),
+        parcel.readInt(),
         parcel.readInt(),
         Date(parcel.readLong())
         )
@@ -65,6 +76,7 @@ data class Deck(
             parcel.writeInt(cardAmount)
             parcel.writeLong(nextReview.time)
             parcel.writeInt(cardsLeft)
+            parcel.writeInt(cardsDone)
             parcel.writeLong(lastUpdated.time)
         }
         override fun create(parcel: Parcel): Deck {
@@ -188,4 +200,12 @@ class TimeConverter {
     fun dateToTimestamp(date: Date): Long {
         return date.time
     }
+}
+
+object DateAsLong : KSerializer<Date> {
+    override val descriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
+    override fun serialize(encoder: Encoder, value: Date) =
+        encoder.encodeLong(value.time)
+    override fun deserialize(decoder: Decoder) =
+        Date(decoder.decodeLong())
 }

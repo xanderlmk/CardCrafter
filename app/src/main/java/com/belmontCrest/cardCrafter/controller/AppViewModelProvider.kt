@@ -19,6 +19,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.DeckVi
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.EditDeckViewModel
 import com.belmontCrest.cardCrafter.model.application.FlashCardApplication
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserProfileViewModel
 
 
@@ -101,6 +102,11 @@ object AppViewModelProvider {
         initializer {
             UserProfileViewModel(
                 flashCardApplication().container.authRepository
+            )
+        }
+        initializer {
+            UserExportedDecksViewModel(
+                flashCardApplication().container.userExportedDecksRepository
             )
         }
     }

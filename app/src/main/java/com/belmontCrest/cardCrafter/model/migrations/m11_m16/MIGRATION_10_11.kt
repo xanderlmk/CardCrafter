@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.model.migrations
+package com.belmontCrest.cardCrafter.model.migrations.m11_m16
 
 import android.util.Log
 import androidx.room.migration.Migration

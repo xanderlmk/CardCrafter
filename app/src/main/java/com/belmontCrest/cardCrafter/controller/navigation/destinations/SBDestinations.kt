@@ -20,3 +20,8 @@ object ExportSBDestination : NavigationDestination {
 object UserProfileDestination : NavigationDestination {
     override val route = "UserProfile"
 }
+
+@Serializable
+object UserEDDestination : NavigationDestination {
+    override val route = "UserExportedDecks"
+}

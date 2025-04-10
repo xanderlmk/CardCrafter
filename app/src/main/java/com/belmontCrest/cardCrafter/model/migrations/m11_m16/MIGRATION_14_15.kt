@@ -1,26 +1,28 @@
-package com.belmontCrest.cardCrafter.model.migrations
+package com.belmontCrest.cardCrafter.model.migrations.m11_m16
 
 import android.util.Log
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-
 /**
- * Changing primary keys of cardTypes
+ * Refactoring the primary key of cardTypes back into the old version
+ * where the primary key was the cardId
  * */
 
-val MIGRATION_11_12 = object : Migration(11, 12) {
+val MIGRATION_14_15 = object : Migration(14, 15)  {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.beginTransaction()
         try {
+            database.execSQL("PRAGMA foreign_keys=ON;")
             // Create temporary table
             database.execSQL(
                 """
-                CREATE TABLE basicCard_temp ( 
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,  
+                CREATE TABLE basicCard_temp (
                         cardId INTEGER NOT NULL,
                         question TEXT NOT NULL, 
-                        answer TEXT NOT NULL)
+                        answer TEXT NOT NULL,
+                        PRIMARY KEY(cardId),
+                        FOREIGN KEY(cardId) REFERENCES cards(id) ON DELETE CASCADE)
                         """
             )
 
@@ -34,7 +36,6 @@ val MIGRATION_11_12 = object : Migration(11, 12) {
 
             // Drop old table
             database.execSQL("DROP TABLE basicCard")
-
             // Rename temporary table
             database.execSQL("ALTER TABLE basicCard_temp RENAME TO basicCard")
 
@@ -44,13 +45,13 @@ val MIGRATION_11_12 = object : Migration(11, 12) {
             // Create temporary table
             database.execSQL("""
                 CREATE TABLE threeFieldCard_temp (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                         cardId INTEGER NOT NULL,
                         question TEXT NOT NULL,
                         middle TEXT NOT NULL,
-                        answer TEXT NOT NULL)
-                        """
-            )
+                        answer TEXT NOT NULL,
+                        PRIMARY KEY(cardId),
+                        FOREIGN KEY(cardId) REFERENCES cards(id) ON DELETE CASCADE )
+                        """)
 
             // Copy data
             database.execSQL("""
@@ -64,7 +65,6 @@ val MIGRATION_11_12 = object : Migration(11, 12) {
 
             // Rename temporary table
             database.execSQL("ALTER TABLE threeFieldCard_temp RENAME TO threeFieldCard")
-
             // Create index
             database.execSQL("CREATE INDEX index_threeFieldCard_cardId ON threeFieldCard (cardId)")
 
@@ -72,13 +72,13 @@ val MIGRATION_11_12 = object : Migration(11, 12) {
             // Create temporary table
             database.execSQL("""
                 CREATE TABLE hintCard_temp (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
                         cardId INTEGER NOT NULL, 
                         question TEXT NOT NULL, 
                         hint TEXT NOT NULL, 
-                        answer TEXT NOT NULL)
-                        """
-            )
+                        answer TEXT NOT NULL,
+                        PRIMARY KEY(cardId),
+                        FOREIGN KEY(cardId) REFERENCES cards(id) ON DELETE CASCADE)
+                        """)
 
             // Copy data
             database.execSQL("""
@@ -92,23 +92,22 @@ val MIGRATION_11_12 = object : Migration(11, 12) {
 
             // Rename temporary table
             database.execSQL("ALTER TABLE hintCard_temp RENAME TO hintCard")
-
             // Create index
             database.execSQL("CREATE INDEX index_hintCard_cardId ON hintCard (cardId)")
 
             // Create temporary table
             database.execSQL("""
                 CREATE TABLE multiChoiceCard_temp (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                         cardId INTEGER NOT NULL,
                         question TEXT NOT NULL, 
                         choiceA TEXT NOT NULL,
                         choiceB TEXT NOT NULL, 
                         choiceC TEXT NOT NULL, 
                         choiceD TEXT NOT NULL, 
-                        correct TEXT NOT NULL)
-                        """
-            )
+                        correct INTEGER  NOT NULL,
+                        PRIMARY KEY(cardId),
+                        FOREIGN KEY(cardId) REFERENCES cards(id) ON DELETE CASCADE)
+                        """)
 
             // Copy data
             database.execSQL(
@@ -124,45 +123,14 @@ val MIGRATION_11_12 = object : Migration(11, 12) {
 
             database.execSQL("CREATE INDEX index_multiChoiceCard_cardId ON multiChoiceCard (cardId)")
 
-            database.execSQL("""
-                CREATE TABLE Card_temp (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 
-                        deckId INTEGER NOT NULL, 
-                        deckUUID TEXT NOT NULL, 
-                        reviewsLeft INTEGER NOT NULL,
-                        nextReview INTEGER NOT NULL,
-                        passes INTEGER NOT NULL, 
-                        prevSuccess INTEGER NOT NULL, 
-                        totalPasses INTEGER NOT NULL, 
-                        type TEXT NOT NULL, 
-                        createdOn INTEGER NOT NULL)
-                """
-            )
-
-            // Copy data, handling nulls by setting a default date
-            database.execSQL("""
-                INSERT INTO Card_temp (id, deckId, deckUUID, reviewsLeft, nextReview, passes, prevSuccess, totalPasses, type, createdOn) 
-                        SELECT id, deckId, deckUUID, reviewsLeft,
-                        passes, prevSuccess, totalPasses, type, createdOn 
-                        FROM Card
-            """
-            )
-
-            // Drop old table
-            database.execSQL("DROP TABLE Card")
-
-            // Rename temporary table
-            database.execSQL("ALTER TABLE Card_temp RENAME TO Card")
-
 
             database.setTransactionSuccessful()
         } catch (e: Exception) {
             // Log the error for debugging
-            Log.e("Migration", "Migration 11 to 12 failed", e)
-            throw RuntimeException("Migration 11 to 12 failed: ${e.message}")
+            Log.e("Migration", "Migration 14 to 15 failed", e)
+            throw RuntimeException("Migration 14 to 15 failed: ${e.message}")
         } finally {
             database.endTransaction()
         }
     }
 }
-
