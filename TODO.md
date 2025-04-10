@@ -5,7 +5,7 @@
 - Create Coding/Programming card, Custom Card Type
 - Documentation on the symbol mapping on NotationCard
 - More math input shortcuts
-- - For more info look at [katex](https://katex.org/docs/supported)
+  - For more info look at [katex](https://katex.org/docs/supported)
 - Tutorial page on how to use the application
 - Application Logo
 - Fix/report any existing glitches/bugs you find
