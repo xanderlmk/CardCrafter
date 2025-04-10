@@ -16,8 +16,8 @@
 ### 4/9/2025 9:32pm
 - New SQLite tables (SyncedDeckInfo and ImportedDeckInfo)
 - Migrations for adding the new tables, and new column for deck (for later)
-- Changed up supabase DB functions and added better error handling
-- Add view and view model for user to see their own exported decks
+- Changed up supabase DB functions (in the actual supabase website/back-end) and added better error handling
+- Added view and view model for user to see their own exported decks
 - Added a repository for letting users see their own decks
 ## John
 ### 4/8/2025 11:50pm
