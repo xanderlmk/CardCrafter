@@ -13,6 +13,12 @@
 ### 4/9/2025 1:04pm
 - Renaming some things
 - New xml string for spanish.
+### 4/9/2025 9:32pm
+- New SQLite tables (SyncedDeckInfo and ImportedDeckInfo)
+- Migrations for adding the new tables, and new column for deck (for later)
+- Changed up supabase DB functions and added better error handling
+- Add view and view model for user to see their own exported decks
+- Added a repository for letting users see their own decks
 ## John
 ### 4/8/2025 11:50pm
 - Cute Theme: ADDED for people who like cute stuff

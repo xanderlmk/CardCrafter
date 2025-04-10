@@ -4,8 +4,6 @@ package com.belmontCrest.cardCrafter.supabase.model.tables
 
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import io.github.jan.supabase.gotrue.user.UserInfo
 import kotlinx.serialization.SerialName
@@ -16,7 +14,8 @@ data class SBDeckDto(
     val deckUUID: String,
     val user_id: String,
     val name: String,
-    val description: String
+    val description: String,
+    val updated_on: String = ""
 )
 
 @Serializable
@@ -70,7 +69,7 @@ data class UserProfile(
     val user : UserInfo,
     val owner : OwnerDto? = null
 )
-
+/** Supabase Deck and it's cards to Export*/
 @Serializable
 data class SBDeckToExportDto(
     val deck : SBDeckDto,
@@ -105,32 +104,5 @@ sealed class SBCTToExport {
         val card: SBCardDto,
         val notationCard: SBNotationCardDto
     ): SBCTToExport()
-}
-
-/** SealedCT to import to the local database, contains a Supabase Card
- *  which will be converted to the local Card
- *  once it's in the transaction phase.
- */
-sealed class SealedCTToImport {
-    data class Basic(
-        val card: SBCardDto,
-        val basicCard: BasicCard
-    ) : SealedCTToImport()
-    data class Three(
-        val card: SBCardDto,
-        val threeCard: ThreeFieldCard,
-    ): SealedCTToImport()
-    data class Hint(
-        val card: SBCardDto,
-        val hintCard: HintCard
-    ): SealedCTToImport()
-    data class Multi(
-        val card: SBCardDto,
-        val multiCard: MultiChoiceCard
-    ): SealedCTToImport()
-    data class Notation(
-        val card: SBCardDto,
-        val notationCard: NotationCard
-    ): SealedCTToImport()
 }
 

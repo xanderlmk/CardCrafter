@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.controller.supabaseVMFunctions.converters
+package com.belmontCrest.cardCrafter.supabase.controller.converters
 
 import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard

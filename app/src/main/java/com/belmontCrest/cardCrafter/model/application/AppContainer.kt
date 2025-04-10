@@ -16,6 +16,8 @@ import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.S
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SBTablesRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.OfflineSupabaseToRoomRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SupabaseToRoomRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.UserExportDecksRepositoryImpl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.UserExportedDecksRepository
 import io.github.jan.supabase.SupabaseClient
 import kotlinx.coroutines.CoroutineScope
 
@@ -31,6 +33,7 @@ interface AppContainer {
     val sbTablesRepository: SBTablesRepository
     val importRepository : ImportRepository
     val authRepository: AuthRepository
+    val userExportedDecksRepository : UserExportedDecksRepository
     val supabase: SupabaseClient
 }
 
@@ -73,6 +76,9 @@ class AppDataContainer(
     }
     override val authRepository: AuthRepository by lazy {
         AuthRepositoryImpl(supabaseClient)
+    }
+    override val userExportedDecksRepository: UserExportedDecksRepository by lazy {
+        UserExportDecksRepositoryImpl(supabaseClient)
     }
     override val supabase: SupabaseClient by lazy { supabaseClient }
 }

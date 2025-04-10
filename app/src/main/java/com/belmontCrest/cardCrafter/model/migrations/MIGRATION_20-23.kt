@@ -6,8 +6,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 val MIGRATION_20_21 = object : Migration(20, 21) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        db.beginTransaction()
         try {
+            db.beginTransaction()
             db.execSQL(
                 """
     CREATE TABLE cards_temp (
@@ -57,7 +57,7 @@ val MIGRATION_20_21 = object : Migration(20, 21) {
             db.execSQL(
                 """
             ALTER TABLE cards_temp RENAME TO cards;
-"""
+            """
             )
             db.execSQL(
                 """
@@ -85,8 +85,8 @@ val MIGRATION_20_21 = object : Migration(20, 21) {
 
 val MIGRATION_21_22 = object : Migration(21,22) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        db.beginTransaction()
         try {
+            db.beginTransaction()
             db.execSQL("""
                 CREATE UNIQUE INDEX IF NOT EXISTS index_decks_uuid
                 ON decks(uuid)
@@ -96,6 +96,53 @@ val MIGRATION_21_22 = object : Migration(21,22) {
             // Log the error for debugging
             Log.e("Migration", "Migration 21 to 22 failed", e)
             throw RuntimeException("Migration 21 to 22 failed: ${e.message}")
+        } finally {
+            db.endTransaction()
+        }
+    }
+}
+
+val MIGRATION_22_23 = object : Migration(22,23) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        try {
+            db.beginTransaction()
+            db.execSQL("PRAGMA foreign_keys=OFF;")
+
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS importedDeckInfo(
+                uuid TEXT PRIMARY KEY NOT NULL,
+                lastUpdatedOn TEXT NOT NULL,
+                FOREIGN KEY(uuid) REFERENCES decks(uuid) ON DELETE CASCADE
+                )
+            """.trimIndent())
+
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS syncedDeckInfo(
+                uuid TEXT PRIMARY KEY NOT NULL,
+                lastUpdatedOn TEXT NOT NULL,
+                FOREIGN KEY(uuid) REFERENCES decks(uuid) ON DELETE CASCADE
+                )
+            """.trimIndent())
+
+            db.execSQL("""
+                ALTER TABLE decks
+                ADD COLUMN cardsDone
+                INTEGER NOT NULL DEFAULT 0
+            """.trimIndent())
+            db.execSQL("""
+                CREATE INDEX IF NOT EXISTS index_importedDeckInfo_uuid on importedDeckInfo(uuid)
+            """.trimIndent())
+            db.execSQL("""
+                CREATE INDEX IF NOT EXISTS index_syncedDeckInfo_uuid on syncedDeckInfo(uuid)
+            """.trimIndent())
+            db.execSQL("PRAGMA foreign_keys=ON;")
+
+            Log.d("MIGRATION 22-23", "SUCCESS")
+            db.setTransactionSuccessful()
+        }  catch (e: Exception) {
+            // Log the error for debugging
+            Log.e("Migration", "Migration 22 to 23 failed", e)
+            throw RuntimeException("Migration 22 to 23 failed: ${e.message}")
         } finally {
             db.endTransaction()
         }

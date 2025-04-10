@@ -2,6 +2,8 @@ package com.belmontCrest.cardCrafter.supabase.model.tables
 
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -23,7 +25,6 @@ sealed class SBCardColsWithCT {
         return cardIdentifier.substringAfterLast('-').toInt()
     }
 }
-
 
 @Serializable
 data class SBCardColsBasic(
@@ -77,3 +78,30 @@ data class SBCardColsNotation(
     override val cardIdentifier: String,
     val notationCard: SBNotationCardDto
 ) : SBCardColsWithCT()
+
+/** SealedCT to import to the local database, contains a Supabase Card
+ *  which will be converted to the local Card
+ *  once it's in the transaction phase.
+ */
+sealed class SealedCTToImport {
+    data class Basic(
+        val card: SBCardDto,
+        val basicCard: BasicCard
+    ) : SealedCTToImport()
+    data class Three(
+        val card: SBCardDto,
+        val threeCard: ThreeFieldCard,
+    ): SealedCTToImport()
+    data class Hint(
+        val card: SBCardDto,
+        val hintCard: HintCard
+    ): SealedCTToImport()
+    data class Multi(
+        val card: SBCardDto,
+        val multiCard: MultiChoiceCard
+    ): SealedCTToImport()
+    data class Notation(
+        val card: SBCardDto,
+        val notationCard: NotationCard
+    ): SealedCTToImport()
+}

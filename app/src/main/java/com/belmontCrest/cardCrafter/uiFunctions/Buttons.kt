@@ -48,6 +48,7 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.launch
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.controller.navigation.destinations.UserEDDestination
 import com.belmontCrest.cardCrafter.controller.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.views.miscFunctions.delayNavigate
@@ -404,7 +405,8 @@ fun EditProfileButton(
                 HorizontalDivider()
                 DropdownMenuItem(
                     onClick = {
-
+                        navViewModel.updateRoute(UserEDDestination.route)
+                        sbNavController?.navigate(UserEDDestination.route)
                     },
                     text = { Text("Exported decks") }
                 )

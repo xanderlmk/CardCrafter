@@ -1,5 +1,8 @@
+@file:RequiresApi(Build.VERSION_CODES.O)
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -10,6 +13,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
@@ -49,6 +53,9 @@ interface SupabaseDao {
     @Insert
     fun insertDeck(deck: Deck): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertImportedDeckInfo(importedDeckInfo: ImportedDeckInfo)
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertCard(card: Card): Long
 
@@ -79,7 +86,6 @@ interface SupabaseDao {
 
     @Query("""SELECT * from cards where deckUUID = :uuid""")
     fun getCards(uuid: String): List<Card>
-
     @Transaction
     suspend fun replaceDeckList(
         sbDeckDto: SBDeckDto, cardList: List<SealedCTToImport>,
@@ -99,6 +105,12 @@ interface SupabaseDao {
                 lastUpdated = Date(),
                 reviewAmount = reviewAmount,
                 cardAmount = cardAmount
+            )
+        )
+        insertImportedDeckInfo(
+            ImportedDeckInfo(
+                uuid = sbDeckDto.deckUUID,
+                lastUpdatedOn = sbDeckDto.updated_on
             )
         )
         cardList.forEachIndexed { index, ct ->
@@ -126,6 +138,12 @@ interface SupabaseDao {
                 lastUpdated = Date(),
                 reviewAmount = reviewAmount,
                 cardAmount = cardAmount
+            )
+        )
+        insertImportedDeckInfo(
+            ImportedDeckInfo(
+                uuid = sbDeckDto.deckUUID,
+                lastUpdatedOn = sbDeckDto.updated_on
             )
         )
         cardList.forEachIndexed { index, ct ->

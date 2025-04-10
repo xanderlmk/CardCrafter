@@ -45,7 +45,8 @@ import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 @Composable
 fun SignUp(
     supabaseVM: SupabaseViewModel,
-    getUIStyle: GetUIStyle
+    getUIStyle: GetUIStyle,
+    onRefresh: (Boolean) -> Unit
 ) {
     val clientId by supabaseVM.clientId.collectAsStateWithLifecycle()
     Box(
@@ -67,7 +68,9 @@ fun SignUp(
                 textAlign = TextAlign.Center,
                 fontSize = 22.sp
             )
-            GoogleSignInButton(supabaseVM, clientId, getUIStyle)
+            GoogleSignInButton(supabaseVM, clientId, getUIStyle) {
+                onRefresh(it)
+            }
         }
     }
 }
@@ -77,7 +80,8 @@ fun SignUp(
 fun GoogleSignInButton(
     supabaseVM: SupabaseViewModel,
     googleClientId: String,
-    getUIStyle: GetUIStyle
+    getUIStyle: GetUIStyle,
+    onRefresh: (Boolean) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -129,6 +133,7 @@ fun GoogleSignInButton(
                     enabled = true
                     if (success) {
                         showToastMessage(context, signedIn)
+                        onRefresh(true)
                     } else {
                         showToastMessage(context, couldNotSignIn)
                     }
