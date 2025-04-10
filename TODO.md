@@ -4,6 +4,7 @@
 - Import Image to use in Card
 - Create Coding/Programming card, Custom Card Type
 - Documentation on the symbol mapping on NotationCard
+- More math input shortcuts
 - - For more info look at [katex](https://katex.org/docs/supported)
 - Tutorial page on how to use the application
 - Application Logo
