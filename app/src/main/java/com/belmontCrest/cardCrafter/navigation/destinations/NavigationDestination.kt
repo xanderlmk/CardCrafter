@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.controller.navigation.destinations
+package com.belmontCrest.cardCrafter.navigation.destinations
 
 import kotlinx.serialization.Serializable
 

@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.controller.navigation.navHosts
+package com.belmontCrest.cardCrafter.navigation.navHosts
 
 import android.os.Build
 import androidx.activity.compose.BackHandler
@@ -14,20 +14,20 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.SBNavDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.MainNavDestination
-import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.ExportSBDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.ImportSBDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.SupabaseDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.UserEDDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.UserProfileDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.SBNavDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
+import com.belmontCrest.cardCrafter.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.ImportSBDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.view.UserExportedDecks
+import com.belmontCrest.cardCrafter.supabase.view.profile.UserExportedDecks
 import com.belmontCrest.cardCrafter.supabase.view.profile.MyProfile
 import com.belmontCrest.cardCrafter.supabase.view.importDeck.ImportDeck
 import com.belmontCrest.cardCrafter.supabase.view.OnlineDatabase

@@ -19,6 +19,11 @@
 - Changed up supabase DB functions (in the actual supabase website/back-end) and added better error handling
 - Added view and view model for user to see their own exported decks
 - Added a repository for letting users see their own decks
+### 4/11/2025 10:02am
+- Create a sign up/in option for email
+- New activity to handle deep links
+- New GETTINGSTARTED.md for helping people understand the project
+- Move navigation directory out of controller for better structure
 ## John
 ### 4/8/2025 11:50pm
 - Cute Theme: ADDED for people who like cute stuff

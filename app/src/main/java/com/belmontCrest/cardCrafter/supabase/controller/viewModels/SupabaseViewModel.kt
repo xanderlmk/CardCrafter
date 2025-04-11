@@ -1,6 +1,7 @@
 package com.belmontCrest.cardCrafter.supabase.controller.viewModels
 
 import android.app.Application
+import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -64,7 +65,6 @@ class SupabaseViewModel(
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
     }
-
     private var googleClientId = MutableStateFlow("")
     val clientId = googleClientId.asStateFlow()
 
@@ -190,6 +190,32 @@ class SupabaseViewModel(
     }
 
     /** End of Google Oauth */
+
+    suspend fun signUpWithEmail(email: String, password: String): String {
+        return withContext(Dispatchers.IO) {
+            authRepository.signUpWithEmail(email, password)
+        }
+    }
+
+    suspend fun deepLinker(intent: Intent, callback : (String,String) -> Unit): String {
+        return withContext(Dispatchers.IO) {
+            authRepository.deepLinker(intent) { email, createdAt ->
+                callback(email, createdAt)
+            }
+        }
+    }
+
+    suspend fun signInWithEmail(email: String, password: String) : String {
+        return withContext(Dispatchers.IO) {
+            authRepository.signInWithEmail(email, password).let {
+                thisUser.update {
+                    supabase.auth.currentUserOrNull()
+                }
+                getOwner()
+                it
+            }
+        }
+    }
 
     fun changeDeckId(id: Int) {
         deckId.value = id

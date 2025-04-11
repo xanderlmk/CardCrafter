@@ -12,7 +12,7 @@ import kotlinx.parcelize.Parcelize
  *  used throughout the entire application.
  */
 @Parcelize
-class Fields(
+data class Fields(
     var question : MutableState<String> = mutableStateOf(""),
     var middleField : MutableState<String> = mutableStateOf(""),
     var answer : MutableState<String> = mutableStateOf(""),
@@ -52,11 +52,11 @@ class Fields(
         inDeckClicked.value = false
     }
     constructor(parcel: Parcel) : this(
-        question = mutableStateOf(parcel.readString()!!),
-        middleField = mutableStateOf(parcel.readString()!!),
-        answer = mutableStateOf(parcel.readString()!!),
+        question = mutableStateOf(parcel.readString().orEmpty().ifEmpty { "" }),
+        middleField = mutableStateOf(parcel.readString().orEmpty().ifEmpty { "" }),
+        answer = mutableStateOf(parcel.readString().orEmpty().ifEmpty { "" }),
         choices = List(4) { mutableStateOf(parcel.readString() ?: "") },
-        correct = mutableStateOf((parcel.readString() ?: "?").first()),
+        correct = mutableStateOf(parcel.readString().orEmpty().ifEmpty { "?" }.first()),
         scrollPosition = mutableIntStateOf(parcel.readInt()),
         mainClicked = mutableStateOf(parcel.readByte() != 0.toByte()),
         inDeckClicked = mutableStateOf(parcel.readByte() != 0.toByte()),
@@ -65,7 +65,7 @@ class Fields(
             parcel.readStringList(this.map { it.value }.toMutableList())
             addAll(this)
         },
-        newType = mutableStateOf(parcel.readString()!!),
+        newType = mutableStateOf(parcel.readString().orEmpty().ifEmpty { "" }),
         isEditing = mutableStateOf(parcel.readByte() != 0.toByte())
     )
 

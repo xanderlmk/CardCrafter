@@ -24,6 +24,20 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".DeepLinkerActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Flashcards" >
+            <intent-filter android:autoVerify="true"
+                tools:ignore="AppLinkUrlError">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="supabase.com"
+                    android:scheme="app" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

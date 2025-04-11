@@ -1,5 +1,6 @@
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository
 
+import android.content.Intent
 import android.util.Log
 import com.belmontCrest.cardCrafter.BuildConfig
 import com.belmontCrest.cardCrafter.supabase.model.GoogleClientResponse
@@ -9,12 +10,18 @@ import com.belmontCrest.cardCrafter.supabase.model.tables.UserProfile
 import com.belmontCrest.cardCrafter.supabase.model.getSBKey
 import com.belmontCrest.cardCrafter.supabase.model.getSBUrl
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.exceptions.HttpRequestException
+import io.github.jan.supabase.exceptions.UnauthorizedRestException
 import io.github.jan.supabase.gotrue.auth
+import io.github.jan.supabase.gotrue.exception.AuthWeakPasswordException
+import io.github.jan.supabase.gotrue.handleDeeplinks
 import io.github.jan.supabase.gotrue.providers.Google
+import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.gotrue.providers.builtin.IDToken
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.header
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
@@ -33,6 +40,12 @@ interface AuthRepository {
     suspend fun signInWithGoogle(
         googleIdToken: String, rawNonce: String
     ): Boolean
+
+    suspend fun signUpWithEmail(inputEmail: String, inputPassword: String): String
+
+    suspend fun deepLinker(intent: Intent, callback: (String, String) -> Unit): String
+
+    suspend fun signInWithEmail(inputEmail: String, inputPassword: String): String
 
     suspend fun getUserProfile(): UserProfile?
 
@@ -94,7 +107,8 @@ class AuthRepositoryImpl(
                 }
             } catch (e: Exception) {
                 Log.e("Error", "Network call failed", e)
-                GoogleCredentials.Failure("Network Error: ${e.message ?: "Unknown Error"}")            }
+                GoogleCredentials.Failure("Network Error: ${e.message ?: "Unknown Error"}")
+            }
         }
     }
 
@@ -113,6 +127,104 @@ class AuthRepositoryImpl(
             }
         }
     }
+
+    override suspend fun signUpWithEmail(inputEmail: String, inputPassword: String): String {
+        return withContext(Dispatchers.IO) {
+            try {
+                supabase.auth.signUpWith(
+                    provider = Email,
+                    redirectUrl = "app://supabase.com"
+                ) {
+                    email = inputEmail
+                    password = inputPassword
+                }
+                "yay"
+            } catch (e: Exception) {
+                when (e) {
+                    is AuthWeakPasswordException -> {
+                        e.message ?: "weak password"
+                    }
+
+                    is HttpRequestTimeoutException -> {
+                        "timeout"
+                    }
+
+                    is HttpRequestException -> {
+                        "network"
+                    }
+
+                    else -> {
+                        "unknown"
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun deepLinker(
+        intent: Intent,
+        callback: (String, String) -> Unit
+    ): String {
+        return withContext(Dispatchers.IO) {
+            try {
+                supabase.handleDeeplinks(
+                    intent = intent,
+                    onSessionSuccess = { session ->
+                        Log.d("LOGIN", "Log in successfully with user info: ${session.user}")
+                        session.user?.apply {
+                            callback(email ?: "", createdAt.toString())
+                        }
+                    }
+                )
+                "yay"
+            } catch (e: Exception) {
+                when (e) {
+                    is HttpRequestTimeoutException -> {
+                        "timeout"
+                    }
+
+                    is HttpRequestException -> {
+                        "network"
+                    }
+
+                    else -> {
+                        "unknown"
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun signInWithEmail(inputEmail: String, inputPassword: String): String {
+        return withContext(Dispatchers.IO) {
+            try {
+                supabase.auth.signInWith(Email) {
+                    email = inputEmail
+                    password = inputPassword
+                }
+                "yay"
+            } catch (e: Exception) {
+                when (e) {
+                    is UnauthorizedRestException -> {
+                        "incorrect credentials"
+                    }
+
+                    is HttpRequestTimeoutException -> {
+                        "timeout"
+                    }
+
+                    is HttpRequestException -> {
+                        "network"
+                    }
+
+                    else -> {
+                        "unknown"
+                    }
+                }
+            }
+        }
+    }
+
 
     override suspend fun getUserProfile(): UserProfile? {
         return withContext(Dispatchers.IO) {
