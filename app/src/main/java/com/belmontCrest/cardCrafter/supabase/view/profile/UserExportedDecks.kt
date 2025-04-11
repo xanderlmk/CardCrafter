@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.view
+package com.belmontCrest.cardCrafter.supabase.view.profile
 
 import android.os.Build
 import androidx.annotation.RequiresApi

@@ -5,6 +5,7 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.annotations.SupabaseInternal
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.Auth
+import io.github.jan.supabase.gotrue.FlowType
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
 import io.ktor.client.engine.okhttp.OkHttp
@@ -22,7 +23,11 @@ fun createSupabase(
     ) {
         install(Realtime)
         install(Postgrest)
-        install(Auth)
+        install(Auth) {
+            flowType = FlowType.PKCE
+            scheme = "app"
+            host = "supabase.com"
+        }
         httpConfig {
             install(WebSockets)
             engine {

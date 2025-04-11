@@ -47,9 +47,9 @@ import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.launch
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.UserEDDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.UserProfileDestination
+import com.belmontCrest.cardCrafter.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.views.miscFunctions.delayNavigate
 

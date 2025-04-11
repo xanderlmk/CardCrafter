@@ -1,13 +1,13 @@
-package com.belmontCrest.cardCrafter.controller.navigation
+package com.belmontCrest.cardCrafter.navigation
 
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.DeckViewDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.MainNavDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.SupabaseDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.DeckViewDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.model.uiModels.StringVar

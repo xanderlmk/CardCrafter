@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.controller.navigation.navHosts
+package com.belmontCrest.cardCrafter.navigation.navHosts
 
 import android.os.Build
 import androidx.activity.compose.BackHandler
@@ -16,16 +16,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.belmontCrest.cardCrafter.controller.cardHandlers.updateDecksCardList
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.AddCardDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.DeckListDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.DeckNavDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.DeckViewDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.EditDeckDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.EditingCardDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.MainNavDestination
-import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.ViewAllCardsDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.ViewDueCardsDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.DeckListDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.DeckNavDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.DeckViewDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.EditDeckDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.EditingCardDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
+import com.belmontCrest.cardCrafter.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime

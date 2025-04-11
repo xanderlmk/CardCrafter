@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.controller.navigation.drawer
+package com.belmontCrest.cardCrafter.navigation.drawer
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -30,14 +30,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.DeckListDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.MainNavDestination
-import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.SBNavDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.SettingsDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.ViewAllCardsDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.ViewDueCardsDestination
-import com.belmontCrest.cardCrafter.controller.navigation.destinations.SupabaseDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.DeckListDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
+import com.belmontCrest.cardCrafter.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.navigation.destinations.SBNavDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.SettingsDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.uiModels.Fields

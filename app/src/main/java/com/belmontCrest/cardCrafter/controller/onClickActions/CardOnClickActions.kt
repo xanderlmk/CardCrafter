@@ -16,7 +16,7 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.deleteTextColor
 import kotlinx.coroutines.CoroutineScope
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.controller.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import kotlinx.coroutines.launch
 
 fun saveCard(

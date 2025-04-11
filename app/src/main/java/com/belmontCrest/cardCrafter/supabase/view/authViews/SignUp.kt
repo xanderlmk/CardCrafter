@@ -29,6 +29,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.view.authViews.email.EmailView
 import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -41,7 +42,7 @@ import java.util.UUID
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun SignUp(
     supabaseVM: SupabaseViewModel,
@@ -49,11 +50,20 @@ fun SignUp(
     onRefresh: (Boolean) -> Unit
 ) {
     val clientId by supabaseVM.clientId.collectAsStateWithLifecycle()
+    var pressed by rememberSaveable { mutableStateOf(false) }
     Box(
         contentAlignment = Alignment.TopCenter,
         modifier = Modifier
             .boxViewsModifier(getUIStyle.getColorScheme())
     ) {
+        if (pressed) {
+            @Suppress("KotlinConstantConditions")
+            EmailView(pressed, onRefresh = {
+                onRefresh(it)
+            }, supabaseVM, getUIStyle) {
+                pressed = it
+            }
+        }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -61,16 +71,28 @@ fun SignUp(
                 .fillMaxSize()
                 .padding(4.dp)
         ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                Text(
+                    text = "Use Google to Sign In/Sign Up",
+                    color = getUIStyle.titleColor(),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    fontSize = 22.sp
+                )
+                GoogleSignInButton(supabaseVM, clientId, getUIStyle) {
+                    onRefresh(it)
+                }
+            }
             Text(
-                text = "You must use Google to Sign In/Sign Up",
+                text = "Sign in with email",
                 color = getUIStyle.titleColor(),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 fontSize = 22.sp
             )
-            GoogleSignInButton(supabaseVM, clientId, getUIStyle) {
-                onRefresh(it)
-            }
+            SubmitButton(onClick = {
+                pressed = true
+            }, enabled = true, getUIStyle, "Sign up/Sign up with email")
         }
     }
 }
@@ -107,9 +129,9 @@ fun GoogleSignInButton(
             /** Hashed nonce to be passed to Google sign-in */
             val hashedNonce = digest.fold("") { str, it -> str + "%02x".format(it) }
             val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-                .setFilterByAuthorizedAccounts(true)
+                .setFilterByAuthorizedAccounts(false)
                 .setServerClientId(googleClientId)
-                .setAutoSelectEnabled(true)
+                .setAutoSelectEnabled(false)
                 .setNonce(hashedNonce) // Provide the nonce if you have one
                 .build()
 
