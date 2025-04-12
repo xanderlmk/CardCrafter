@@ -11,18 +11,18 @@
 ![Local DB schema](LocalDBSchema.png)
 
 #### Explanation 
-- TODO
+- Explanation forthcoming.
 
 ### Community DB
 ![Community DB schema](CommunityDBSchema.png)
  #### Explanation
-- TODO
+- Explanation forthcoming.
 
 ### Synced/Remote DB (Not yet implemented to the application)
 ![Synced DB schema](SyncedDBSchema.png)
 
 #### Explanation
-- TODO
+- Explanation forthcoming.
 
 
 
