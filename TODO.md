@@ -16,3 +16,6 @@
   - Write contributing guidelines
   - Set up a security policy
   - Pull request template
+- Search queries for cards.
+- Allow copying, moving cards to other decks
+- Sub decks of decks? yes.
