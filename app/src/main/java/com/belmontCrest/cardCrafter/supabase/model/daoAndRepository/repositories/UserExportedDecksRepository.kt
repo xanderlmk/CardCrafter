@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository
+package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 
 import android.util.Log
 import com.belmontCrest.cardCrafter.BuildConfig
@@ -21,16 +21,16 @@ interface UserExportedDecksRepository {
 
 @OptIn(SupabaseExperimental::class)
 class UserExportDecksRepositoryImpl(
-    private val supabase: SupabaseClient
+    private val sharedSupabase: SupabaseClient
 ) : UserExportedDecksRepository {
     override suspend fun userExportedDecks(): Flow<List<SBDeckDto>> {
         return withContext(Dispatchers.IO) {
             try {
-                val userInfo = supabase.auth.currentUserOrNull()
+                val userInfo = sharedSupabase.auth.currentUserOrNull()
                 if (userInfo == null) {
                     throw IllegalAccessException("User is not authenticated.")
                 }
-                val result = supabase.from(SBDeckTN)
+                val result = sharedSupabase.from(SBDeckTN)
                     .selectAsFlow(
                         SBDeckDto::deckUUID,
                         filter = FilterOperation(

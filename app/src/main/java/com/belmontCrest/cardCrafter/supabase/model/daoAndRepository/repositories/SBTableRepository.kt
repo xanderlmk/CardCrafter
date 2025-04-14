@@ -1,6 +1,6 @@
 @file:OptIn(SupabaseExperimental::class)
 
-package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository
+package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 
 import android.util.Log
 import com.belmontCrest.cardCrafter.BuildConfig
@@ -52,12 +52,12 @@ interface SBTablesRepository {
 }
 
 class SBTableRepositoryImpl(
-    private val supabase: SupabaseClient
+    private val sharedSupabase: SupabaseClient
 ) : SBTablesRepository {
     override suspend fun getDeckList(): Flow<List<SBDeckDto>> {
         return withContext(Dispatchers.IO) {
             try {
-                val result = supabase.from(SBDeckTN)
+                val result = sharedSupabase.from(SBDeckTN)
                     .selectAsFlow(SBDeckDto::deckUUID)
                 result
             } catch (e: Exception) {
@@ -83,12 +83,12 @@ class SBTableRepositoryImpl(
         deck: Deck, description: String, cts: List<CT>
     ): Int {
         return withContext(Dispatchers.IO) {
-            val user = supabase.auth.currentUserOrNull()
+            val user = sharedSupabase.auth.currentUserOrNull()
             if (user == null) {
                 Log.d("SupabaseViewModel", "User is null!")
                 return@withContext NULL_USER
             }
-            val response = supabase.from(SBDeckTN)
+            val response = sharedSupabase.from(SBDeckTN)
                 .select(columns = Columns.type<SBDeckUUIDDto>()) {
                     filter {
                         eq("deckUUID", deck.uuid)
@@ -110,7 +110,7 @@ class SBTableRepositoryImpl(
                 deck, cts, description, user.id
             )
             try {
-                val successResponse = supabase.postgrest.rpc(
+                val successResponse = sharedSupabase.postgrest.rpc(
                     function = "import_deck",
                     parameters = buildJsonObject {
                         put("deck_data", Json.encodeToJsonElement(deckToExport))
@@ -132,12 +132,12 @@ class SBTableRepositoryImpl(
         deck: Deck, description: String, cts: List<CT>
     ): Int {
         return withContext(Dispatchers.IO) {
-            val user = supabase.auth.currentUserOrNull()
+            val user = sharedSupabase.auth.currentUserOrNull()
             if (user == null) {
                 Log.d("SupabaseViewModel", "User is null!")
                 return@withContext NULL_USER
             }
-            val response = supabase.from(SBDeckTN)
+            val response = sharedSupabase.from(SBDeckTN)
                 .select(columns = Columns.type<SBDeckOwnerDto>()) {
                     filter {
                         eq("deckUUID", deck.uuid)
@@ -157,7 +157,7 @@ class SBTableRepositoryImpl(
             val deckToUpsert = localCTToSBCT(deck, cts, description, user.id)
 
             try {
-                val successResponse = supabase.postgrest.rpc(
+                val successResponse = sharedSupabase.postgrest.rpc(
                     function = "upsert_deck",
                     parameters = buildJsonObject {
                         put("deck_data", Json.encodeToJsonElement(deckToUpsert))
@@ -180,7 +180,7 @@ class SBTableRepositoryImpl(
 
     override suspend fun checkCardList(sbDeckDto: SBDeckDto): Pair<List<SBCardDto>, Int> {
         return withContext(Dispatchers.IO) {
-            val cardList = supabase.from(SBCardTN)
+            val cardList = sharedSupabase.from(SBCardTN)
                 .select(columns = Columns.ALL) {
                     filter {
                         eq("deckUUID", sbDeckDto.deckUUID)

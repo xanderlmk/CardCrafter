@@ -1,9 +1,12 @@
-package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository
+package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.SupabaseDao
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.SupabaseDao
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCTToImport
 
+@RequiresApi(Build.VERSION_CODES.O)
 class OfflineSupabaseToRoomRepository(
     private val supabaseDao: SupabaseDao
 ) : SupabaseToRoomRepository {

@@ -24,6 +24,11 @@
 - New activity to handle deep links
 - New GETTINGSTARTED.md for helping people understand the project
 - Move navigation directory out of controller for better structure
+### 4/14/2025 10:15am
+- Connect second supabase client and handle signing in/up for both clients
+- Store encrypted temporary password in DB to deal with signing in with synced SB client.
+- Migration for adding the temp password table to the DB
+- Update VMs, Repos, DB files accordingly
 ## John
 ### 4/8/2025 11:50pm
 - Cute Theme: ADDED for people who like cute stuff

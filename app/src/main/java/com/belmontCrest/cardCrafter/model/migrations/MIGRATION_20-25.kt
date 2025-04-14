@@ -148,3 +148,54 @@ val MIGRATION_22_23 = object : Migration(22,23) {
         }
     }
 }
+
+val MIGRATION_23_24 = object : Migration(23,24) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        try {
+            db.beginTransaction()
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS pwd(
+                    password TEXT PRIMARY KEY NOT NULL
+                )
+            """.trimIndent())
+            db.setTransactionSuccessful()
+        }  catch (e: Exception) {
+            // Log the error for debugging
+            Log.e("Migration", "Migration 23 to 24 failed", e)
+            throw RuntimeException("Migration 23 to 24 failed: ${e.message}")
+        } finally {
+            db.endTransaction()
+        }
+    }
+}
+
+val MIGRATION_24_25 = object : Migration(24,25) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        try {
+            db.beginTransaction()
+            // 1. create a temp.
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS pwd_temp(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    password TEXT NOT NULL
+                )
+            """.trimIndent())
+            // 2. copy data
+            db.execSQL("""
+                INSERT INTO pwd_temp (password)
+                SELECT password FROM pwd
+            """.trimIndent())
+            // 3. swap tables
+            db.execSQL("DROP TABLE pwd")
+            db.execSQL("ALTER TABLE pwd_temp RENAME TO pwd")
+
+            db.setTransactionSuccessful()
+        }  catch (e: Exception) {
+            // Log the error for debugging
+            Log.e("Migration", "Migration 24 to 25 failed", e)
+            throw RuntimeException("Migration 24 to 25 failed: ${e.message}")
+        } finally {
+            db.endTransaction()
+        }
+    }
+}

@@ -23,8 +23,8 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UUID_CONFLICT
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsWithCT
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCTToImport
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.ImportRepository
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SupabaseToRoomRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ImportRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SupabaseToRoomRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.SocketException
