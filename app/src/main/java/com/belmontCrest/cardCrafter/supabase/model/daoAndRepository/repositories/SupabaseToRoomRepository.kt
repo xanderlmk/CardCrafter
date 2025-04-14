@@ -1,8 +1,8 @@
-package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository
+package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCTToImport
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.DeckSignature
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.DeckSignature
 
 interface SupabaseToRoomRepository {
     suspend fun insertDeckList(

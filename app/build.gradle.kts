@@ -1,6 +1,7 @@
 @file:Suppress("PropertyName")
 
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import com.android.build.gradle.internal.dsl.NdkOptions.DebugSymbolLevel
 import com.android.build.gradle.internal.dsl.NdkOptions.DebugSymbolLevel.SYMBOL_TABLE
 
 plugins {
@@ -22,8 +23,9 @@ android {
         applicationId = "com.belmontCrest.cardCrafter"
         minSdk = 25
         targetSdk = 35
-        versionCode = 9
-        versionName = "1.0.303"
+        versionCode = 10
+        versionName = "1.0.4"
+        ndk { this.debugSymbolLevel = "SYMBOL_TABLE" }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -64,8 +66,21 @@ android {
                     .getProperty("SB_OWNER_TN", "")
             }" + "\""
         )
+        buildConfigField(
+            "String",
+            "SYNCED_SB_URL", "\"" + "${
+                gradleLocalProperties(rootDir, providers)
+                    .getProperty("SYNCED_SB_URL", "")
+            }" + "\""
+        )
+        buildConfigField(
+            "String",
+            "SYNCED_SB_KEY", "\"" + "${
+                gradleLocalProperties(rootDir, providers)
+                    .getProperty("SYNCED_SB_KEY", "")
+            }" + "\""
+        )
     }
-
 
     buildTypes {
         getByName("release") {
@@ -74,13 +89,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            ndk.debugSymbolLevel = SYMBOL_TABLE.name
+            ndk { this.debugSymbolLevel = "SYMBOL_TABLE" }
         }
-
         getByName("debug") {
             applicationIdSuffix = ".debug"
             isDebuggable = true
-            ndk.debugSymbolLevel = SYMBOL_TABLE.name
         }
     }
     flavorDimensions += "version"

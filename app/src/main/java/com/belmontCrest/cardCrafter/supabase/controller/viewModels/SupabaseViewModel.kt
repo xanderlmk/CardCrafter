@@ -19,11 +19,11 @@ import com.belmontCrest.cardCrafter.supabase.model.tables.OwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_OWNER
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckListDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
-import com.belmontCrest.cardCrafter.supabase.model.createSupabase
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.AuthRepository
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SBTablesRepository
-import com.belmontCrest.cardCrafter.supabase.model.getSBKey
-import com.belmontCrest.cardCrafter.supabase.model.getSBUrl
+import com.belmontCrest.cardCrafter.supabase.model.createSharedSupabase
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.AuthRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SBTablesRepository
+import com.belmontCrest.cardCrafter.supabase.model.getSharedSBKey
+import com.belmontCrest.cardCrafter.supabase.model.getSharedSBUrl
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.annotations.SupabaseInternal
@@ -144,7 +144,7 @@ class SupabaseViewModel(
                     isClientActive = false
                 } else if (isConnected && !isClientActive) {
                     // Reinitialize the client only if it's not active
-                    supabase = createSupabase(getSBUrl(), getSBKey())
+                    supabase = createSharedSupabase(getSharedSBUrl(), getSharedSBKey())
                     Log.d("NETWORK", "RECONNECTED!")
                     getDeckList()
                     getOwner()
@@ -202,6 +202,12 @@ class SupabaseViewModel(
             authRepository.deepLinker(intent) { email, createdAt ->
                 callback(email, createdAt)
             }
+        }
+    }
+
+    suspend fun signInSyncedDBUser(): String {
+        return withContext(Dispatchers.IO){
+            authRepository.signInSyncedDBUser()
         }
     }
 

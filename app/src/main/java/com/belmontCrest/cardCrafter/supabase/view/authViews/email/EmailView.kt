@@ -230,6 +230,7 @@ private fun SignInWithEmail(
                         showToastMessage(context, success)
                         onPress(false)
                     } else {
+                        showToastMessage(context, it)
                         errorMessage = it
                     }
                 }

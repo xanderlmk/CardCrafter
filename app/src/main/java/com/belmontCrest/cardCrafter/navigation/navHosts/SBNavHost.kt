@@ -49,6 +49,7 @@ fun SupabaseNav(
 
     LaunchedEffect(Unit) {
         navViewModel.updateSBNav(sbNavController)
+        supabaseVM.signInSyncedDBUser()
     }
     /** Our Supabase Client and Views. */
     val onlineDatabase = OnlineDatabase(

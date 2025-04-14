@@ -1,6 +1,8 @@
 package com.belmontCrest.cardCrafter.model.application
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.belmontCrest.cardCrafter.localDatabase.database.FlashCardDatabase
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
@@ -8,16 +10,16 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.Offli
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineFlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineScienceRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.ScienceSpecificRepository
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.AuthRepository
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.AuthRepositoryImpl
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.ImportRepository
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.ImportRepositoryImpl
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SBTableRepositoryImpl
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SBTablesRepository
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.OfflineSupabaseToRoomRepository
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.SupabaseToRoomRepository
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.UserExportDecksRepositoryImpl
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.UserExportedDecksRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.AuthRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.AuthRepositoryImpl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ImportRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ImportRepositoryImpl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SBTableRepositoryImpl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SBTablesRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.OfflineSupabaseToRoomRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SupabaseToRoomRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserExportDecksRepositoryImpl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserExportedDecksRepository
 import io.github.jan.supabase.SupabaseClient
 import kotlinx.coroutines.CoroutineScope
 
@@ -31,16 +33,19 @@ interface AppContainer {
     val scienceSpecificRepository: ScienceSpecificRepository
     val supabaseToRoomRepository: SupabaseToRoomRepository
     val sbTablesRepository: SBTablesRepository
-    val importRepository : ImportRepository
+    val importRepository: ImportRepository
     val authRepository: AuthRepository
-    val userExportedDecksRepository : UserExportedDecksRepository
-    val supabase: SupabaseClient
+    val userExportedDecksRepository: UserExportedDecksRepository
+    val sharedSupabase: SupabaseClient
+    val syncedSupabase: SupabaseClient
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 class AppDataContainer(
     private val context: Context,
     scope: CoroutineScope,
-    supabaseClient: SupabaseClient
+    sharedSupabase: SupabaseClient,
+    syncedSupabase: SupabaseClient
 ) : AppContainer {
     override val flashCardRepository: FlashCardRepository by lazy {
         OfflineFlashCardRepository(
@@ -69,16 +74,20 @@ class AppDataContainer(
         )
     }
     override val importRepository: ImportRepository by lazy {
-        ImportRepositoryImpl(supabaseClient)
+        ImportRepositoryImpl(sharedSupabase)
     }
     override val sbTablesRepository: SBTablesRepository by lazy {
-        SBTableRepositoryImpl(supabaseClient)
+        SBTableRepositoryImpl(sharedSupabase)
     }
     override val authRepository: AuthRepository by lazy {
-        AuthRepositoryImpl(supabaseClient)
+        AuthRepositoryImpl(
+            sharedSupabase, syncedSupabase,
+            FlashCardDatabase.Companion.getDatabase(context, scope).pwdDao()
+        )
     }
     override val userExportedDecksRepository: UserExportedDecksRepository by lazy {
-        UserExportDecksRepositoryImpl(supabaseClient)
+        UserExportDecksRepositoryImpl(sharedSupabase)
     }
-    override val supabase: SupabaseClient by lazy { supabaseClient }
+    override val sharedSupabase: SupabaseClient by lazy { sharedSupabase }
+    override val syncedSupabase: SupabaseClient by lazy { syncedSupabase }
 }

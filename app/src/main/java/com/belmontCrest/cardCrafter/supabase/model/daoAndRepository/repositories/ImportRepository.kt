@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository
+package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 
 import android.util.Log
 import com.belmontCrest.cardCrafter.BuildConfig
@@ -32,12 +32,12 @@ interface ImportRepository {
 }
 
 class ImportRepositoryImpl(
-    private val supabase : SupabaseClient
+    private val sharedSupabase : SupabaseClient
 ) : ImportRepository {
     override suspend fun checkBasicCardList(uuid: String): Pair<List<SBCardColsBasic>, Int> {
         return withContext(Dispatchers.IO) {
             try {
-                val data = supabase.from(SBCardTN)
+                val data = sharedSupabase.from(SBCardTN)
                     .select(
                         Columns.raw(
                             "id, type, deckUUID, cardIdentifier," +
@@ -62,7 +62,7 @@ class ImportRepositoryImpl(
     override suspend fun checkHintCardList(uuid: String): Pair<List<SBCardColsHint>, Int> {
         return withContext(Dispatchers.IO) {
             try {
-                val data = supabase.from(SBCardTN)
+                val data = sharedSupabase.from(SBCardTN)
                     .select(
                         Columns.raw(
                             "id, type, deckUUID, cardIdentifier," +
@@ -85,7 +85,7 @@ class ImportRepositoryImpl(
     override suspend fun checkThreeCardList(uuid: String): Pair<List<SBCardColsThree>, Int> {
         return withContext(Dispatchers.IO) {
             try {
-                val data = supabase.from(SBCardTN)
+                val data = sharedSupabase.from(SBCardTN)
                     .select(
                         Columns.raw(
                             "id, type, deckUUID, cardIdentifier," +
@@ -108,7 +108,7 @@ class ImportRepositoryImpl(
     override suspend fun checkMultiCardList(uuid: String): Pair<List<SBCardColsMulti>, Int> {
         return withContext(Dispatchers.IO) {
             try {
-                val data = supabase.from(SBCardTN)
+                val data = sharedSupabase.from(SBCardTN)
                     .select(
                         Columns.raw(
                             "id, type, deckUUID, cardIdentifier," +
@@ -133,7 +133,7 @@ class ImportRepositoryImpl(
     override suspend fun checkNotationCardList(uuid: String): Pair<List<SBCardColsNotation>, Int> {
         return withContext(Dispatchers.IO) {
             try {
-                val data = supabase.from(SBCardTN)
+                val data = sharedSupabase.from(SBCardTN)
                     .select(
                         Columns.raw(
                             "id, type, deckUUID, cardIdentifier," +

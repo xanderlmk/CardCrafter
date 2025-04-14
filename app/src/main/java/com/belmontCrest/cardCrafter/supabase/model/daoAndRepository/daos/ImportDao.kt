@@ -1,5 +1,6 @@
 @file:RequiresApi(Build.VERSION_CODES.O)
-package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository
+
+package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -60,19 +61,15 @@ interface SupabaseDao {
     fun insertCard(card: Card): Long
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-
     fun insertBasicCard(basicCard: BasicCard)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-
     fun insertThreeCard(threeFieldCard: ThreeFieldCard)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-
     fun insertHintCard(hintCard: HintCard)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-
     fun insertMultiChoiceCard(multiCard: MultiChoiceCard)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
@@ -86,6 +83,7 @@ interface SupabaseDao {
 
     @Query("""SELECT * from cards where deckUUID = :uuid""")
     fun getCards(uuid: String): List<Card>
+
     @Transaction
     suspend fun replaceDeckList(
         sbDeckDto: SBDeckDto, cardList: List<SealedCTToImport>,
