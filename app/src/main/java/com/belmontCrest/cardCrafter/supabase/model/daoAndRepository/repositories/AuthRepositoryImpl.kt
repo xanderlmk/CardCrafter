@@ -7,11 +7,11 @@ import androidx.annotation.RequiresApi
 import com.belmontCrest.cardCrafter.BuildConfig
 import com.belmontCrest.cardCrafter.localDatabase.tables.Encryption
 import com.belmontCrest.cardCrafter.localDatabase.tables.Pwd
-import com.belmontCrest.cardCrafter.supabase.model.GoogleClientResponse
-import com.belmontCrest.cardCrafter.supabase.model.GoogleCredentials
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.GoogleClientResponse
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.GoogleCredentials
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.PwdDao
-import com.belmontCrest.cardCrafter.supabase.model.getSharedSBKey
-import com.belmontCrest.cardCrafter.supabase.model.getSharedSBUrl
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSharedSBKey
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSharedSBUrl
 import com.belmontCrest.cardCrafter.supabase.model.tables.OwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.UserProfile
 import io.github.jan.supabase.SupabaseClient

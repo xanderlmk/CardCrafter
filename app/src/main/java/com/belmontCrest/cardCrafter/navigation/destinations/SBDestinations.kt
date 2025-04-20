@@ -8,7 +8,10 @@ object SupabaseDestination : NavigationDestination {
 }
 @Serializable
 object ImportSBDestination : NavigationDestination {
-    override val route = "ImportDeck"
+    override val route = "ImportDeck/{uuid}"
+    fun createRoute(uuid: String): String {
+        return "ImportDeck/$uuid"
+    }
 }
 
 @Serializable
@@ -24,4 +27,9 @@ object UserProfileDestination : NavigationDestination {
 @Serializable
 object UserEDDestination : NavigationDestination {
     override val route = "UserExportedDecks"
+}
+
+@Serializable
+object UseEmailDestination : NavigationDestination{
+    override val route = "UseEmail"
 }

@@ -2,6 +2,7 @@ package com.belmontCrest.cardCrafter.supabase.controller.viewModels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkIfDeckExists
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkIfDeckUUIDExists
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
@@ -25,7 +26,13 @@ import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCTToImport
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ImportRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SupabaseToRoomRepository
+import com.belmontCrest.cardCrafter.supabase.model.tables.CardsToDisplay
+import com.belmontCrest.cardCrafter.supabase.model.tables.FourSBCards
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.SocketException
 import java.util.concurrent.CancellationException
@@ -34,9 +41,44 @@ class ImportDeckViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val supabaseToRoomRepository: SupabaseToRoomRepository,
     private val importRepository: ImportRepository,
+    private val uuid: String
 ) : ViewModel() {
+    private val _cardsToDisplay = MutableStateFlow(CardsToDisplay())
+    private val _errorMessage = MutableStateFlow("")
+    val errorMessage = _errorMessage.asStateFlow()
+    private val _theCards = MutableStateFlow(FourSBCards())
+    val theCards = _theCards.asStateFlow()
 
     /** Local import deck naming and uuid checks from online decks */
+
+    init {
+        viewModelScope.launch {
+            try {
+                val ctd = importRepository.getCardsToDisplay(uuid)
+                if (ctd.second == SUCCESS) {
+                    _cardsToDisplay.update {
+                        ctd.first
+                    }.also {
+                        _theCards.update {
+                            importRepository.getCards(ctd.first)
+                        }
+                    }
+                } else {
+                    _errorMessage.update {
+                        "Failed to get cards"
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("ImportDeckVM", "$e")
+                _errorMessage.update {
+                    "Something went wrong."
+                }
+            }
+
+
+        }
+    }
+
     private suspend fun checkDeckNameAndUUID(name: String, uuid: String): Int {
         return withContext(Dispatchers.IO) {
             checkIfDeckExists(name, uuid, flashCardRepository)

@@ -6,9 +6,7 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.localDatabase.tables.AllCardTypes
 import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,13 +24,14 @@ class EditingCardListViewModel(
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
     }
+
     private val deckId = MutableStateFlow(savedStateHandle["deckId"] ?: 0)
     private val sealedUiState = deckId.flatMapLatest { id ->
         if (id == 0) {
             flowOf(SealedAllCTs())
         } else {
             cardTypeRepository.getAllCardTypes(id).map {
-                updateSealedUiState(it)
+                SealedAllCTs(it.toMutableList())
             }
         }
     }.stateIn(
@@ -49,22 +48,6 @@ class EditingCardListViewModel(
         deckId.update { id }
     }
 
-    private fun updateSealedUiState(
-        allCards: List<AllCardTypes>
-    ): SealedAllCTs {
-        var allCTs = try {
-            mapAllCardTypesToCTs(allCards)
-        } catch (e: IllegalStateException) {
-            Log.e(
-                "GetDueTypesForDeck",
-                "Invalid AllCardType data: ${e.message}"
-            )
-            return SealedAllCTs()
-        }
-        return SealedAllCTs(
-            allCTs = allCTs.toMutableList()
-        )
-    }
 }
 
 

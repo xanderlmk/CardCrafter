@@ -67,7 +67,7 @@ val onCuteCorrectChoice = Color(46, 139, 87)
 // da dark cute theme, for those emo people who like that
 val darkCuteBackground = Color(51, 15, 35)
 val darkCuteSecondaryBC = Color(90, 40, 70)
-val darkCuteOnBackground = Color(255, 175, 210)
+val darkCuteOnBackground = Color(255, 201, 225, 255)
 val darkCuteEditingBackground = Color(80, 30, 60)
 
 val darkCuteBorder = Color(170, 80, 130)

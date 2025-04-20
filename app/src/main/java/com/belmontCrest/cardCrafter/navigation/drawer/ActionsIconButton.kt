@@ -2,12 +2,20 @@ package com.belmontCrest.cardCrafter.navigation.drawer
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -23,7 +31,9 @@ import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestinat
 import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.CardPickerDropdown
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.redoButtonModifier
@@ -60,7 +70,6 @@ fun ActionIconButton(
         deckNavController?.navigate(ViewAllCardsDestination.route)
     }
     val cr = navViewModel.route.collectAsStateWithLifecycle().value
-
 
     when (cr.name) {
         SupabaseDestination.route -> {
@@ -174,6 +183,24 @@ fun ActionIconButton(
                 CardOptionsButton(
                     navViewModel, getUIStyle, it, fields,
                     expanded, Modifier, onNavigateBack
+                )
+            }
+        }
+
+        ExportSBDestination.route -> {
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = null,
+                    tint = getUIStyle.defaultIconColor(),
+                    modifier = Modifier
+                        .size(30.dp)
+                )
+                CardPickerDropdown(
+                    getUIStyle, supabaseVM, Modifier.wrapContentSize(Alignment.TopEnd)
                 )
             }
         }

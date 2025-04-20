@@ -1,7 +1,7 @@
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 
 import android.content.Intent
-import com.belmontCrest.cardCrafter.supabase.model.GoogleCredentials
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.GoogleCredentials
 import com.belmontCrest.cardCrafter.supabase.model.tables.OwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.UserProfile
 

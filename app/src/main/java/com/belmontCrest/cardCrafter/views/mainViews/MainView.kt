@@ -201,7 +201,7 @@ class MainView(
                         color = getUIStyle.titleColor(),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 6.dp, horizontal = 0.dp),
+                            .padding(vertical = 6.dp),
                         textAlign = TextAlign.Center,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold

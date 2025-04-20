@@ -21,10 +21,10 @@ android {
 
     defaultConfig {
         applicationId = "com.belmontCrest.cardCrafter"
-        minSdk = 25
+        minSdk = 26
         targetSdk = 35
-        versionCode = 10
-        versionName = "1.0.4"
+        versionCode = 11
+        versionName = "1.0.5"
         ndk { this.debugSymbolLevel = "SYMBOL_TABLE" }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -64,6 +64,13 @@ android {
             "SB_OWNER_TN", "\"" + "${
                 gradleLocalProperties(rootDir, providers)
                     .getProperty("SB_OWNER_TN", "")
+            }" + "\""
+        )
+        buildConfigField(
+            "String",
+            "SB_CTD_TN", "\"" + "${
+                gradleLocalProperties(rootDir, providers)
+                    .getProperty("SB_CTD_TN", "")
             }" + "\""
         )
         buildConfigField(

@@ -43,7 +43,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MyProfile(
     getUIStyle: GetUIStyle, supabaseVM: SupabaseViewModel,
-    startingRoute: String, onSignOut: () -> Unit
+    startingRoute: String, onSignOut: () -> Unit, onUseEmail: () -> Unit
 ) {
     val userProfileVM: UserProfileViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val userProfile by userProfileVM.userProfile.collectAsStateWithLifecycle()
@@ -62,7 +62,10 @@ fun MyProfile(
             modifier = Modifier.boxViewsModifier(getUIStyle.getColorScheme()),
             contentAlignment = Alignment.Center
         ) {
-            CircularProgressIndicator(color = getUIStyle.titleColor())
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = getUIStyle.titleColor()
+            )
         }
     } else {
         if (userProfile != null) {
@@ -136,7 +139,7 @@ fun MyProfile(
                 }
             }
         } else {
-            SignUp(supabaseVM, getUIStyle) {
+            SignUp(supabaseVM, getUIStyle, onUseEmail) {
 
             }
         }

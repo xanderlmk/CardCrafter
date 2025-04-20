@@ -16,10 +16,6 @@ class GetUIStyle(
         return isDarkTheme
     }
 
-    fun getIsCuteTheme(): Boolean {
-        return isCuteTheme
-    }
-
     fun getColorScheme(): ColorScheme {
         return cS.colorScheme
     }
@@ -70,7 +66,7 @@ class GetUIStyle(
                 if (isDynamicTheme) {
                     blendColors(cS.colorScheme.onTertiary, choiceColor, 0.25f)
                 } else {
-                    if (isCuteTheme){
+                    if (isCuteTheme) {
                         cuteChoiceColor
                     } else {
                         choiceColor
@@ -109,6 +105,7 @@ class GetUIStyle(
                     darkCorrectChoice
                 }
             }
+
             else -> {
                 if (isCuteTheme) {
                     cuteCorrectChoice
@@ -128,6 +125,7 @@ class GetUIStyle(
                     onCuteCorrectChoice
                 }
             }
+
             else -> cS.colorScheme.onSurfaceVariant
         }
     }
@@ -225,6 +223,14 @@ class GetUIStyle(
                     Color.Gray
                 }
             }
+        }
+    }
+
+    fun defaultIconColor(): Color {
+        return if (isDarkTheme) {
+            Color.White
+        } else {
+            Color.Black
         }
     }
 

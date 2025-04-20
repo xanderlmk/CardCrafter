@@ -26,16 +26,15 @@ fun KaTeXWebView(latexExpression: String, getUIStyle: GetUIStyle) {
     AndroidView(
         factory = {
             webView.apply {
+                settings.javaScriptEnabled = true
                 setBackgroundColor(getUIStyle.background().toArgb())
+
             }
         }, modifier = Modifier
             .fillMaxWidth()
             .zIndex(-1f)
     ) { view ->
         view.loadUrl("file:///android_asset/katex.html")
-        with(view.settings) {
-            javaScriptEnabled = true
-        }
         view.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
                 super.onPageFinished(view, url)

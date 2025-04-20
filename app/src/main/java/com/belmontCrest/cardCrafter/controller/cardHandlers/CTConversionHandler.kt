@@ -26,6 +26,24 @@ fun returnCard(ct: CT) : Card{
         }
     }
 }
+
+fun CT.getCardType(): String = when(this) {
+    is CT.Basic -> {
+        card.type
+    }
+    is CT.Hint -> {
+        card.type
+    }
+    is CT.ThreeField -> {
+        card.type
+    }
+    is CT.MultiChoice->{
+        card.type
+    }
+    is CT.Notation -> {
+        card.type
+    }
+}
 fun returnCardId(ct : CT) : Int {
     return when (ct) {
         is CT.Basic -> {

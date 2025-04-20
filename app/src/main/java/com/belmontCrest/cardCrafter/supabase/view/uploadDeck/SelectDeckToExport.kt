@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.view
+package com.belmontCrest.cardCrafter.supabase.view.uploadDeck
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -35,10 +35,10 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.mainViewModifier
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CC_LESS_THAN_20
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOT_DECK_OWNER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
+import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 import kotlinx.coroutines.launch
 
@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 fun LocalDecks(
     dismiss: MutableState<Boolean>, deckList: List<Deck>,
     getUIStyle: GetUIStyle, supabaseVM: SupabaseViewModel,
-    uploadThisDeck: () -> Unit
+    uploadThisDeck: (String) -> Unit
 ) {
     if (dismiss.value) {
         Dialog(
@@ -81,7 +81,7 @@ fun LocalDecks(
                                 .mainViewModifier(getUIStyle.getColorScheme())
                                 .clickable {
                                     supabaseVM.changeDeckId(deck.id)
-                                    uploadThisDeck()
+                                    uploadThisDeck(deck.uuid)
                                 }
                         )
                     }
@@ -131,45 +131,41 @@ fun FailedUpload(
                 }
             },
             confirmButton = {
-                SubmitButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            enabled = false
-                            supabaseVM.updateExportedDeck(
-                                deck, description
-                            ).let {
-                                if (it == SUCCESS) {
-                                    showToastMessage(
-                                        context, "Success!",
-                                        onNavigate = {
-                                            onSuccess()
-                                        }, dismiss
-                                    )
-                                } else if (it == NOT_DECK_OWNER) {
-                                    showToastMessage(
-                                        context,
-                                        "You are not the owner of this deck.",
-                                        dismiss = dismiss
-                                    )
-                                } else if (it == CC_LESS_THAN_20) {
-                                    showToastMessage(
-                                        context,
-                                        "Card count is less than 20.",
-                                        dismiss = dismiss
-                                    )
-                                } else {
-                                    showToastMessage(
-                                        context,
-                                        "Unable to upload this deck.\n" +
-                                                "Try again later.",
-                                        dismiss = dismiss
-                                    )
+                if (code == DECK_EXISTS) {
+                    SubmitButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                enabled = false
+                                supabaseVM.updateExportedDeck(
+                                    deck, description
+                                ).let {
+                                    if (it == SUCCESS) {
+                                        showToastMessage(
+                                            context, "Success!",
+                                            onNavigate = {
+                                                onSuccess()
+                                            }, dismiss
+                                        )
+                                    } else if (it == NOT_DECK_OWNER) {
+                                        showToastMessage(
+                                            context,
+                                            "You are not the owner of this deck.",
+                                            dismiss = dismiss
+                                        )
+                                    } else {
+                                        showToastMessage(
+                                            context,
+                                            "Unable to upload this deck.\n" +
+                                                    "Try again later.",
+                                            dismiss = dismiss
+                                        )
+                                    }
                                 }
-                            }
 
-                        }
-                    }, enabled, getUIStyle, "Update"
-                )
+                            }
+                        }, enabled, getUIStyle, "Update"
+                    )
+                }
             },
             title = {
                 Text("Failed!")

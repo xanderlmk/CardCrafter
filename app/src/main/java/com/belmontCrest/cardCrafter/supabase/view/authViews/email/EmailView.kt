@@ -3,18 +3,15 @@ package com.belmontCrest.cardCrafter.supabase.view.authViews.email
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -30,12 +27,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
+import com.belmontCrest.cardCrafter.uiFunctions.PasswordTextField
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -44,64 +42,46 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun EmailView(
-    pressed: Boolean, onRefresh: (Boolean) -> Unit,
-    supabaseVM: SupabaseViewModel, getUIStyle: GetUIStyle,
-    onPress: (Boolean) -> Unit,
+    supabaseVM: SupabaseViewModel, getUIStyle: GetUIStyle, onNavigate: () -> Unit,
 ) {
     val context = LocalContext.current
-    if (pressed) {
-        var inputEmail = rememberSaveable { mutableStateOf("") }
-        var inputPassword = rememberSaveable { mutableStateOf("") }
-        var inputConfirmPass = rememberSaveable { mutableStateOf("") }
-        var enabled = rememberSaveable { mutableStateOf(true) }
-        val coroutineScope = rememberCoroutineScope()
-        var show = rememberSaveable { mutableStateOf(false) }
-        var signIn = rememberSaveable { mutableStateOf(false) }
-        Dialog(onDismissRequest = {
-            if (enabled.value) {
-                onPress(false)
-                onRefresh(true)
-            }
-        }) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.95f)
-                    .fillMaxHeight(0.80f)
-                    .background(
-                        color = getUIStyle.altBackground(),
-                        shape = RoundedCornerShape(20.dp)
-                    )
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceAround,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(10.dp)
-                ) {
-                    if (!signIn.value) {
-                        SignUpWithEmail(
-                            inputEmail = inputEmail, inputPassword = inputPassword,
-                            inputConfirmPass = inputConfirmPass, enabled = enabled,
-                            show = show, coroutineScope = coroutineScope,
-                            supabaseVM = supabaseVM, context = context, signIn = signIn,
-                            getUIStyle = getUIStyle
-                        )
-                    } else {
-                        SignInWithEmail(
-                            inputEmail = inputEmail, inputPassword = inputPassword,
-                            enabled = enabled, coroutineScope = coroutineScope,
-                            supabaseVM = supabaseVM, context = context, signIn = signIn,
-                            getUIStyle = getUIStyle
-                        ) {
-                            if (!it) { onRefresh(true) }
-                            onPress(it)
-                        }
-                    }
-                }
+    var inputEmail = rememberSaveable { mutableStateOf("") }
+    var inputPassword = rememberSaveable { mutableStateOf("") }
+    var inputConfirmPass = rememberSaveable { mutableStateOf("") }
+    var enabled = rememberSaveable { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
+    var show = rememberSaveable { mutableStateOf(false) }
+    var signIn = rememberSaveable { mutableStateOf(false) }
+    Box(
+        modifier = Modifier.boxViewsModifier(getUIStyle.getColorScheme())
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceAround,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp)
+        ) {
+            if (!signIn.value) {
+                SignUpWithEmail(
+                    inputEmail = inputEmail, inputPassword = inputPassword,
+                    inputConfirmPass = inputConfirmPass, enabled = enabled,
+                    show = show, coroutineScope = coroutineScope,
+                    supabaseVM = supabaseVM, context = context, signIn = signIn,
+                    getUIStyle = getUIStyle
+                )
+            } else {
+                SignInWithEmail(
+                    inputEmail = inputEmail, inputPassword = inputPassword,
+                    enabled = enabled, coroutineScope = coroutineScope,
+                    supabaseVM = supabaseVM, context = context, signIn = signIn,
+                    getUIStyle = getUIStyle, onNavigate = onNavigate
+                )
             }
         }
     }
+
+
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -120,21 +100,23 @@ private fun SignUpWithEmail(
         labelStr = "Email",
         modifier = Modifier.fillMaxWidth(),
     )
-    EditTextField(
-        value = inputPassword.value,
-        onValueChanged = {
+    PasswordTextField(
+        password = inputPassword.value,
+        onPasswordChange = {
             inputPassword.value = it
         },
-        labelStr = "Password",
+        label = "Password",
         modifier = Modifier.fillMaxWidth(),
+        getUIStyle = getUIStyle
     )
-    EditTextField(
-        value = inputConfirmPass.value,
-        onValueChanged = {
+    PasswordTextField(
+        password = inputConfirmPass.value,
+        onPasswordChange = {
             inputConfirmPass.value = it
         },
-        labelStr = "Confirm Password",
+        label = "Confirm Password",
         modifier = Modifier.fillMaxWidth(),
+        getUIStyle = getUIStyle
     )
     SubmitButton(onClick = {
         coroutineScope.launch {
@@ -198,7 +180,7 @@ private fun SignInWithEmail(
     inputEmail: MutableState<String>, inputPassword: MutableState<String>,
     enabled: MutableState<Boolean>, coroutineScope: CoroutineScope, getUIStyle: GetUIStyle,
     supabaseVM: SupabaseViewModel, context: Context, signIn: MutableState<Boolean>,
-    onPress: (Boolean) -> Unit
+    onNavigate: () -> Unit
 ) {
     var errorMessage by rememberSaveable { mutableStateOf("") }
     val success = stringResource(R.string.signed_in)
@@ -210,13 +192,14 @@ private fun SignInWithEmail(
         labelStr = "Email",
         modifier = Modifier.fillMaxWidth(),
     )
-    EditTextField(
-        value = inputPassword.value,
-        onValueChanged = {
+    PasswordTextField(
+        password = inputPassword.value,
+        onPasswordChange = {
             inputPassword.value = it
         },
-        labelStr = "Password",
+        label = "Password",
         modifier = Modifier.fillMaxWidth(),
+        getUIStyle = getUIStyle
     )
     Spacer(Modifier.padding(vertical = 20.dp))
     SubmitButton(
@@ -228,7 +211,7 @@ private fun SignInWithEmail(
                 ).let {
                     if (it == "yay") {
                         showToastMessage(context, success)
-                        onPress(false)
+                        onNavigate()
                     } else {
                         showToastMessage(context, it)
                         errorMessage = it

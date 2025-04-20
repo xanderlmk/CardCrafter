@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.model
+package com.belmontCrest.cardCrafter.supabase.model.createSupabase
 
 import com.belmontCrest.cardCrafter.BuildConfig
 import io.github.jan.supabase.SupabaseClient

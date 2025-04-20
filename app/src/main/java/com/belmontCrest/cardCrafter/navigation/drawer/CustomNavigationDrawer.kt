@@ -41,6 +41,7 @@ import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.CoroutineScope
@@ -92,6 +93,7 @@ fun CustomNavigationDrawer(
 
         SBNavDestination.route -> "Online Decks"
         SupabaseDestination.route -> "Online Decks"
+        ExportSBDestination.route -> "Select 4 cards here "
         else -> "CardCrafter"
     }
 
@@ -118,15 +120,28 @@ fun CustomNavigationDrawer(
                             titleContentColor = MaterialTheme.colorScheme.primary,
                         ),
                     title = {
-                        Text(
-                            text = titleText,
-                            color = getUIStyle.titleColor(),
-                            textAlign = TextAlign.Start,
-                            fontSize = 22.sp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp)
-                        )
+                        if (titleText == ExportSBDestination.route) {
+                            Text(
+                                text = titleText,
+                                color = getUIStyle.titleColor(),
+                                textAlign = TextAlign.End,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp)
+                            )
+                        } else {
+                            Text(
+                                text = titleText,
+                                color = getUIStyle.titleColor(),
+                                textAlign = TextAlign.Start,
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 10.dp)
+                            )
+                        }
                     },
                     navigationIcon = {
                         IconButton(

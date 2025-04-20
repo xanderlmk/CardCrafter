@@ -10,6 +10,7 @@ object ReturnValues {
     const val SUCCESS = 0
     const val NULL_USER = 1
     const val NULL_OWNER = 2
+    const val NULL_CARDS = 3
     const val CC_LESS_THAN_20 = 4
     const val DECK_EXISTS = 6
     const val NOT_DECK_OWNER = 8
@@ -18,6 +19,7 @@ object ReturnValues {
     const val THREE_CT_ERROR = 12
     const val MULTI_CT_ERROR = 13
     const val NOTATION_CT_ERROR = 14
+    const val CTD_ERROR = 27
     const val EMPTY_CARD_LIST = 88
     const val UUID_CONFLICT = 101
     const val CANCELLED = 499
