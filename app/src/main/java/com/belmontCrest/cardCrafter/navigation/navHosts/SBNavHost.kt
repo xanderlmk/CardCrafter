@@ -10,10 +10,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
 import com.belmontCrest.cardCrafter.navigation.destinations.SBNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
@@ -26,12 +30,15 @@ import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainVi
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
+import com.belmontCrest.cardCrafter.navigation.destinations.UseEmailDestination
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.view.profile.UserExportedDecks
 import com.belmontCrest.cardCrafter.supabase.view.profile.MyProfile
 import com.belmontCrest.cardCrafter.supabase.view.importDeck.ImportDeck
 import com.belmontCrest.cardCrafter.supabase.view.OnlineDatabase
-import com.belmontCrest.cardCrafter.supabase.view.UploadThisDeck
+import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.UploadThisDeck
+import com.belmontCrest.cardCrafter.supabase.view.authViews.email.EmailView
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.launch
 
@@ -90,37 +97,82 @@ fun SupabaseNav(
             }
             onlineDatabase.SupabaseView(
                 onImportDeck = { uuid ->
-                    navViewModel.updateRoute(SupabaseDestination.route)
-                    sbNavController.navigate(ImportSBDestination.route)
+                    navViewModel.updateRoute(ImportSBDestination.route)
+                    sbNavController.navigate(ImportSBDestination.createRoute(uuid))
                     coroutineScope.launch {
                         supabaseVM.updateUUID(uuid)
                     }
                 },
-                onExportDeck = {
-                    navViewModel.updateRoute(SupabaseDestination.route)
+                onExportDeck = { uuid ->
+                    navViewModel.updateRoute(ExportSBDestination.route)
                     sbNavController.navigate(ExportSBDestination.route)
+                    supabaseVM.updateCardsToDisplayUUID(uuid)
                 },
+                onUseEmail = {
+                    navViewModel.updateRoute(UseEmailDestination.route)
+                    sbNavController.navigate(UseEmailDestination.route)
+                }
             )
         }
-        composable(ImportSBDestination.route) {
+        composable(UseEmailDestination.route) {
+            BackHandler {
+                if (startDestination == UserProfileDestination.route) {
+                    navViewModel.updateRoute(UserProfileDestination.route)
+                    sbNavController.popBackStack(
+                        UserProfileDestination.route, inclusive = false
+                    )
+                } else {
+                    navViewModel.updateRoute(SupabaseDestination.route)
+                    sbNavController.popBackStack(
+                        SupabaseDestination.route, inclusive = false
+                    )
+                }
+            }
+            EmailView(
+                supabaseVM = supabaseVM, getUIStyle = getUIStyle,
+                onNavigate = {
+                    if (startDestination == UserProfileDestination.route) {
+                        navViewModel.updateRoute(UserProfileDestination.route)
+                        sbNavController.popBackStack(
+                            UserProfileDestination.route, inclusive = false
+                        )
+                    } else {
+                        navViewModel.updateRoute(SupabaseDestination.route)
+                        sbNavController.popBackStack(
+                            SupabaseDestination.route, inclusive = false
+                        )
+                    }
+                }
+            )
+        }
+        composable(
+            ImportSBDestination.route,
+            arguments = listOf(navArgument("uuid") {
+                type = NavType.StringType
+            })
+        ) {
             BackHandler {
                 navViewModel.updateRoute(SupabaseDestination.route)
                 sbNavController.popBackStack(
                     SupabaseDestination.route, inclusive = false
                 )
             }
+            val importDeckVM: ImportDeckViewModel =
+                viewModel(factory = AppViewModelProvider.Factory)
+
             sbDeck?.let {
                 importDeck.GetDeck(
                     deck = it,
                     onNavigate = {
                         navViewModel.updateRoute(SupabaseDestination.route)
                         sbNavController.navigate(SupabaseDestination.route)
-                    }
+                    }, importDeckVM = importDeckVM
                 )
             }
         }
         composable(ExportSBDestination.route) {
             BackHandler {
+                navViewModel.updateRoute(SupabaseDestination.route)
                 sbNavController.popBackStack(
                     SupabaseDestination.route, inclusive = false
                 )
@@ -128,11 +180,10 @@ fun SupabaseNav(
             pickedDeck?.let {
                 UploadThisDeck(
                     dismiss = {
+                        navViewModel.updateRoute(SupabaseDestination.route)
                         sbNavController.navigate(SupabaseDestination.route)
                     },
-                    it,
-                    supabaseVM,
-                    getUIStyle
+                    it, supabaseVM, getUIStyle
                 )
             }
         }
@@ -150,10 +201,15 @@ fun SupabaseNav(
                     )
                 }
             }
-            MyProfile(getUIStyle, supabaseVM, startDestination) {
-                navViewModel.updateRoute(SupabaseDestination.route)
-                sbNavController.navigate(SupabaseDestination.route)
-            }
+            MyProfile(
+                getUIStyle, supabaseVM, startDestination,
+                onUseEmail = {
+                    navViewModel.updateRoute(UseEmailDestination.route)
+                    sbNavController.navigate(UseEmailDestination.route)
+                }, onSignOut = {
+                    navViewModel.updateRoute(SupabaseDestination.route)
+                    sbNavController.navigate(SupabaseDestination.route)
+                })
         }
         composable(UserEDDestination.route) {
             BackHandler {

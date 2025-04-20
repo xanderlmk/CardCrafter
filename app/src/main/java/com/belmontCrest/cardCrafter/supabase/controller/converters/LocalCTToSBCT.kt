@@ -3,6 +3,7 @@ package com.belmontCrest.cardCrafter.supabase.controller.converters
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
+import com.belmontCrest.cardCrafter.supabase.model.tables.CardsToDisplay
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCTToExport
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckToExportDto
@@ -12,7 +13,7 @@ import com.belmontCrest.cardCrafter.supabase.model.tables.SBNotationCardDto
 
 /** Mapping our local CardTypes to the Supabase CardType*/
 fun localCTToSBCT(
-    deck: Deck, cts: List<CT>,
+    deck: Deck, cts: List<CT>, cardsToDisplay: CardsToDisplay,
     description: String, userId: String
 ): SBDeckToExportDto {
     val stringConverter = ListStringConverter()
@@ -91,7 +92,8 @@ fun localCTToSBCT(
                     )
                 }
             }
-        }
+        },
+        cardsToDisplay = cardsToDisplay
     )
 
 }

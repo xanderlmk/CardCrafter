@@ -29,6 +29,14 @@
 - Store encrypted temporary password in DB to deal with signing in with synced SB client.
 - Migration for adding the temp password table to the DB
 - Update VMs, Repos, DB files accordingly
+### 4/20/2025 9.52am
+- Add new table to show cards to display for exported decks
+- Update supabase back-end transaction accordingly to handle the new table input
+- New deck_content.html to display deck content more cleanly
+- New return values, new props, new icons, etc
+- Update password input to not be visible(optional)
+- Add data classes to handle the cards to display
+- Some loading screens for better UI
 ## John
 ### 4/8/2025 11:50pm
 - Cute Theme: ADDED for people who like cute stuff

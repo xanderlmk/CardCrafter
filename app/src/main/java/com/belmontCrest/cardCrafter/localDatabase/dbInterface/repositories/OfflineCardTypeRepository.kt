@@ -77,7 +77,14 @@ class OfflineCardTypeRepository(
         newChoiceC, newChoiceD, newCorrect
     )
 
-    override fun getAllCardTypes(deckId: Int) = cardTypesDao.getAllCardTypes(deckId)
+    override fun getAllCardTypes(deckId: Int) = cardTypesDao.getAllCardTypes(deckId).map {
+        try {
+            mapAllCardTypesToCTs(it)
+        } catch (e: IllegalStateException) {
+            Log.d("CardTypeRepository", "$e")
+            listOf<CT>()
+        }
+    }
 
     override fun getAllDueCards(
         deckId: Int,

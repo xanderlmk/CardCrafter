@@ -28,6 +28,7 @@ import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.AddCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
@@ -61,19 +62,19 @@ class AddCardView(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 val text = when (type) {
-                    "hint" -> {
+                    Type.HINT -> {
                         stringResource(R.string.hint)
                     }
 
-                    "three" -> {
+                    Type.THREE -> {
                         stringResource(R.string.three_fields)
                     }
 
-                    "multi" -> {
+                    Type.MULTI -> {
                         stringResource(R.string.multi)
                     }
 
-                    "notation" -> {
+                    Type.NOTATION -> {
                         "Notation"
                     }
 
@@ -115,26 +116,27 @@ class AddCardView(
                     }
                 }
                 when (type) {
-                    "basic" -> AddBasicCard(
+                    Type.BASIC -> AddBasicCard(
                         addCardVM, deck,
                         fields, getUIStyle
                     )
 
-                    "three" -> AddThreeCard(
-                        addCardVM, deck,
-                        fields, getUIStyle
-                    )
-                    "hint" -> AddHintCard(
+                    Type.THREE -> AddThreeCard(
                         addCardVM, deck,
                         fields, getUIStyle
                     )
 
-                    "multi" -> AddMultiChoiceCard(
+                    Type.HINT -> AddHintCard(
                         addCardVM, deck,
                         fields, getUIStyle
                     )
 
-                    "notation" -> AddNotationCard(
+                    Type.MULTI -> AddMultiChoiceCard(
+                        addCardVM, deck,
+                        fields, getUIStyle
+                    )
+
+                    Type.NOTATION -> AddNotationCard(
                         addCardVM, deck,
                         fields, getUIStyle
                     )

@@ -1,6 +1,6 @@
 @file:Suppress("PropertyName")
 
-package com.belmontCrest.cardCrafter.supabase.model
+package com.belmontCrest.cardCrafter.supabase.model.createSupabase
 
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable

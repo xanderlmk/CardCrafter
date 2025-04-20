@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -32,13 +34,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues
@@ -48,87 +47,94 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
+import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
+import com.belmontCrest.cardCrafter.views.miscFunctions.details.toCardDetails
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class ImportDeck(
-    private val getUIStyle: GetUIStyle,
-    private val preferences: PreferencesManager
+    private val getUIStyle: GetUIStyle, private val preferences: PreferencesManager
 ) {
     @Composable
-    fun GetDeck(deck: SBDeckDto, onNavigate: () -> Unit) {
-        val importDeckVM: ImportDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    fun GetDeck(deck: SBDeckDto, onNavigate: () -> Unit, importDeckVM: ImportDeckViewModel) {
         val coroutineScope = rememberCoroutineScope()
         val success = rememberSaveable { mutableIntStateOf(-1) }
         var enabled by rememberSaveable { mutableStateOf(true) }
         val conflict = rememberSaveable { mutableStateOf(false) }
         var progress by rememberSaveable { mutableFloatStateOf(0f) }
         var errorMessage by rememberSaveable { mutableStateOf("") }
+        var loading by rememberSaveable { mutableStateOf(true) }
         val context = LocalContext.current
+        val cards by importDeckVM.theCards.collectAsStateWithLifecycle()
         Box(
             contentAlignment = Alignment.TopCenter,
-            modifier = Modifier
-                .boxViewsModifier(getUIStyle.getColorScheme())
+            modifier = Modifier.scrollableBoxViewModifier(
+                    rememberScrollState(),
+                    getUIStyle.getColorScheme()
+                )
         ) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                ConflictDeck(conflict, deck, importDeckVM, onNavigate)
-                Text(
-                    text = "Import ${deck.name} ?",
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(4.dp)
-                )
-                Text(
-                    text = deck.description,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(4.dp)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
+            val allCDs = listOfNotNull(
+                cards.first?.let { it.toCardDetails() to it.type },
+                cards.second?.let { it.toCardDetails() to it.type },
+                cards.third?.let { it.toCardDetails() to it.type },
+                cards.fourth?.let { it.toCardDetails() to it.type })
+            if (allCDs.isNotEmpty()) {
+                Column(
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    SubmitButton(
-                        onClick = {
-                            coroutineScope.launch {
-                                enabled = false
-                                success.intValue = importDeckVM.importDeck(
-                                    sbDeckDto = deck,
-                                    preferences = preferences,
-                                    onProgress = {
-                                        progress = it
-                                    },
-                                    onError = {
-                                        errorMessage = it
+                    ConflictDeck(conflict, deck, importDeckVM, onNavigate)
+                    DisplayCardDetails(allCDs, getUIStyle, deck) {
+                        loading = it
+                    }
+                    if (!loading) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            SubmitButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        enabled = false
+                                        success.intValue = importDeckVM.importDeck(
+                                            sbDeckDto = deck,
+                                            preferences = preferences,
+                                            onProgress = {
+                                                progress = it
+                                            },
+                                            onError = {
+                                                errorMessage = it
+                                            })
+                                        if (success.intValue == SUCCESS) {
+                                            Toast.makeText(
+                                                context, "Success!", Toast.LENGTH_SHORT
+                                            ).show()
+                                            onNavigate()
+                                        } else {
+                                            if (success.intValue == ReturnValues.DECK_EXISTS) {
+                                                conflict.value = true
+                                            }
+                                            enabled = true
+                                        }
                                     }
-                                )
-                                if (success.intValue == SUCCESS) {
-                                    Toast.makeText(
-                                        context, "Success!", Toast.LENGTH_SHORT
-                                    ).show()
-                                    onNavigate()
-                                } else {
-                                    if (success.intValue == ReturnValues.DECK_EXISTS) {
-                                        conflict.value = true
-                                    }
-                                    enabled = true
-                                }
-                            }
-                        }, enabled, getUIStyle, "Ok"
-                    )
-                    CancelButton(onNavigate, enabled, getUIStyle)
+                                }, enabled, getUIStyle, "Import"
+                            )
+                            CancelButton(onNavigate, enabled, getUIStyle)
+                        }
+                        if (!enabled) {
+                            ImportingDeck(progress, getUIStyle)
+                        }
+                    }
                 }
-                if (!enabled) {
-                    ImportingDeck(progress, getUIStyle)
-                }
+            } else {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center), color = getUIStyle.titleColor()
+                )
             }
         }
     }
@@ -164,8 +170,7 @@ class ImportDeck(
                     if (enabled) {
                         dismiss.value = false
                     }
-                }
-            ) {
+                }) {
                 Column(
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -182,8 +187,7 @@ class ImportDeck(
                             }
                         )
                         .background(
-                            color = getUIStyle.dialogColor(),
-                            shape = RoundedCornerShape(18.dp)
+                            color = getUIStyle.dialogColor(), shape = RoundedCornerShape(18.dp)
                         )
                         .padding(10.dp)
                 ) {
@@ -196,37 +200,34 @@ class ImportDeck(
                             onClick = {
                                 coroutineScope.launch {
                                     enabled = false
-                                    val thisResult = importDeckVM.replaceDeck(
-                                        deck, preferences,
-                                        onProgress = {
+                                    val thisResult =
+                                        importDeckVM.replaceDeck(deck, preferences, onProgress = {
                                             progress = it
-                                        },
-                                        onError = {
+                                        }, onError = {
                                             errorMessage = it
                                         })
                                     result = thisResult.first
                                     if (result == SUCCESS) {
                                         showToastMessage(
-                                            context, "Success!",
-                                            onNavigate = {
+                                            context, "Success!", onNavigate = {
                                                 onNavigate()
                                             }, dismiss
                                         )
                                     } else if (result == REPLACED_DECK) {
                                         showToastMessage(
-                                            context, "Success, the deck is called:\n" +
-                                                    thisResult.second,
+                                            context,
+                                            "Success, the deck is called:\n" + thisResult.second,
                                             onNavigate = {
                                                 onNavigate()
-                                            }, dismiss
+                                            },
+                                            dismiss
                                         )
                                     } else {
                                         showToastMessage(context, errorMessage)
                                         enabled = true
                                     }
                                 }
-                            }, enabled, getUIStyle,
-                            "Replace"
+                            }, enabled, getUIStyle, "Replace"
                         )
                         Button(
                             onClick = {
@@ -250,8 +251,7 @@ class ImportDeck(
                                 newName = it
                             },
                             labelStr = stringResource(R.string.deck_name),
-                            modifier = Modifier
-                                .padding(4.dp)
+                            modifier = Modifier.padding(4.dp)
                         )
                         SubmitButton(
                             onClick = {
@@ -262,18 +262,18 @@ class ImportDeck(
                                     }
                                     enabled = false
                                     result = importDeckVM.createNewDeck(
-                                        deck, preferences, newName,
+                                        deck,
+                                        preferences,
+                                        newName,
                                         onProgress = {
                                             progress = it
                                         },
                                         onError = {
                                             errorMessage = it
-                                        }
-                                    )
+                                        })
                                     if (result == SUCCESS) {
                                         showToastMessage(
-                                            context, "Success!",
-                                            onNavigate = {
+                                            context, "Success!", onNavigate = {
                                                 onNavigate()
                                             }, dismiss
                                         )
@@ -282,8 +282,7 @@ class ImportDeck(
                                         enabled = true
                                     }
                                 }
-                            }, enabled, getUIStyle,
-                            stringResource(R.string.submit)
+                            }, enabled, getUIStyle, stringResource(R.string.submit)
                         )
                         ImportDeckErrorMessage(result, errorMessage)
                     }

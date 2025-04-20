@@ -1,12 +1,12 @@
 package com.belmontCrest.cardCrafter.model.application
 
 import android.app.Application
-import com.belmontCrest.cardCrafter.supabase.model.createSharedSupabase
-import com.belmontCrest.cardCrafter.supabase.model.createSyncedSupabase
-import com.belmontCrest.cardCrafter.supabase.model.getSharedSBKey
-import com.belmontCrest.cardCrafter.supabase.model.getSharedSBUrl
-import com.belmontCrest.cardCrafter.supabase.model.getSyncedSBKey
-import com.belmontCrest.cardCrafter.supabase.model.getSyncedSBUrl
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.createSharedSupabase
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.createSyncedSupabase
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSharedSBKey
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSharedSBUrl
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSyncedSBKey
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSyncedSBUrl
 import io.github.jan.supabase.SupabaseClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob

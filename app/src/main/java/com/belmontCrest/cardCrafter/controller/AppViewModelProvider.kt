@@ -97,6 +97,7 @@ object AppViewModelProvider {
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.supabaseToRoomRepository,
                 flashCardApplication().container.importRepository,
+                this.createSavedStateHandle().get<String>("uuid")!!
             )
         }
         initializer {

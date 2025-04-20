@@ -2,17 +2,23 @@ package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositorie
 
 import android.util.Log
 import com.belmontCrest.cardCrafter.BuildConfig
+import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.BASIC_CT_ERROR
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CTD_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.HINT_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.MULTI_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOTATION_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.THREE_CT_ERROR
+import com.belmontCrest.cardCrafter.supabase.model.tables.CardsToDisplay
+import com.belmontCrest.cardCrafter.supabase.model.tables.FourSBCards
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsBasic
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsHint
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsMulti
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsNotation
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsThree
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsWithCT
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
@@ -29,10 +35,13 @@ interface ImportRepository {
     suspend fun checkMultiCardList(uuid: String): Pair<List<SBCardColsMulti>, Int>
 
     suspend fun checkNotationCardList(uuid: String): Pair<List<SBCardColsNotation>, Int>
+
+    suspend fun getCardsToDisplay(uuid: String): Pair<CardsToDisplay, Int>
+    suspend fun getCards(cardsToDisplay: CardsToDisplay): FourSBCards
 }
 
 class ImportRepositoryImpl(
-    private val sharedSupabase : SupabaseClient
+    private val sharedSupabase: SupabaseClient
 ) : ImportRepository {
     override suspend fun checkBasicCardList(uuid: String): Pair<List<SBCardColsBasic>, Int> {
         return withContext(Dispatchers.IO) {
@@ -82,6 +91,7 @@ class ImportRepositoryImpl(
             }
         }
     }
+
     override suspend fun checkThreeCardList(uuid: String): Pair<List<SBCardColsThree>, Int> {
         return withContext(Dispatchers.IO) {
             try {
@@ -105,6 +115,7 @@ class ImportRepositoryImpl(
             }
         }
     }
+
     override suspend fun checkMultiCardList(uuid: String): Pair<List<SBCardColsMulti>, Int> {
         return withContext(Dispatchers.IO) {
             try {
@@ -153,6 +164,127 @@ class ImportRepositoryImpl(
             }
         }
     }
+
+    override suspend fun getCardsToDisplay(uuid: String): Pair<CardsToDisplay, Int> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val data = sharedSupabase.from(SBCtdTN)
+                    .select(Columns.ALL) {
+                        filter {
+                            eq("deckUUID", uuid)
+                        }
+                    }.decodeSingle<CardsToDisplay>()
+                return@withContext Pair(data, SUCCESS)
+            } catch (e: Exception) {
+                Log.e("CardsToDisplay", "$e")
+                Pair(CardsToDisplay(), CTD_ERROR)
+            }
+        }
+    }
+
+    override suspend fun getCards(cardsToDisplay: CardsToDisplay): FourSBCards {
+        return withContext(Dispatchers.IO) {
+            try {
+                val ids = listOfNotNull(
+                    cardsToDisplay.cardOne,
+                    cardsToDisplay.cardTwo,
+                    cardsToDisplay.cardThree,
+                    cardsToDisplay.cardFour
+                )
+                val cards = sharedSupabase.from(SBCardTN)
+                    .select(Columns.ALL) {
+                        filter {
+                            isIn("cardIdentifier", ids)
+                        }
+                    }.decodeList<SBCardDto>()
+                val sbCTs = cards.mapIndexed { index , it ->
+                    it.toSBCardColsWithCT()
+                }
+
+                FourSBCards(
+                    first = sbCTs.getOrNull(0),
+                    second = sbCTs.getOrNull(1),
+                    third = sbCTs.getOrNull(2),
+                    fourth = sbCTs.getOrNull(3)
+                )
+            } catch (e: Exception) {
+                Log.e("ImportRepo", "$e")
+                FourSBCards()
+            }
+        }
+    }
+
+    private suspend fun SBCardDto.toSBCardColsWithCT(): SBCardColsWithCT = when (this.type) {
+        Type.BASIC -> {
+            sharedSupabase.from(SBCardTN).select(
+                Columns.raw(
+                    "id, type, deckUUID, cardIdentifier," +
+                            " basicCard(cardId, question, answer)"
+                )
+            ){
+                filter {
+                    eq("id", id)
+                }
+            }.decodeSingle<SBCardColsBasic>()
+        }
+
+        Type.HINT -> {
+            sharedSupabase.from(SBCardTN).select(
+                Columns.raw(
+                    "id, type, deckUUID, cardIdentifier," +
+                            " hintCard(cardId, question, hint, answer)"
+                )
+            ){
+                filter {
+                    eq("id", id)
+                }
+            }.decodeSingle<SBCardColsHint>()
+        }
+
+        Type.THREE -> {
+            sharedSupabase.from(SBCardTN).select(
+                Columns.raw(
+                    "id, type, deckUUID, cardIdentifier," +
+                            " threeCard(cardId, question, middle, answer)"
+                )
+            ){
+                filter {
+                    eq("id", id)
+                }
+            }.decodeSingle<SBCardColsThree>()
+        }
+
+        Type.MULTI -> {
+            sharedSupabase.from(SBCardTN).select(
+                Columns.raw(
+                    "id, type, deckUUID, cardIdentifier," +
+                            " multiCard(cardId, question, choiceA, choiceB, " +
+                            " choiceC, choiceD, correct)"
+                )
+            ){
+                filter {
+                    eq("id", id)
+                }
+            }.decodeSingle<SBCardColsMulti>()
+        }
+
+        Type.NOTATION -> {
+            sharedSupabase.from(SBCardTN).select(
+                Columns.raw(
+                    "id, type, deckUUID, cardIdentifier," +
+                            " notationCard(cardId, question, steps, answer)"
+                )
+            ){
+                filter {
+                    eq("id", id)
+                }
+            }.decodeSingle<SBCardColsNotation>()
+        }
+        else -> {
+            throw IllegalStateException("Not a valid card type!")
+        }
+    }
 }
 
 private const val SBCardTN = BuildConfig.SB_CARD_TN
+private const val SBCtdTN = BuildConfig.SB_CTD_TN

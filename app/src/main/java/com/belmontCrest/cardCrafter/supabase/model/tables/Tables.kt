@@ -73,7 +73,8 @@ data class UserProfile(
 @Serializable
 data class SBDeckToExportDto(
     val deck : SBDeckDto,
-    val cts : List<SBCTToExport>
+    val cts : List<SBCTToExport>,
+    val cardsToDisplay : CardsToDisplay
 )
 
 /** Supabase Card with its respective Card Type to export to supabase. */

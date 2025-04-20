@@ -35,6 +35,7 @@ import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewM
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.view.authViews.CreateAccount
 import com.belmontCrest.cardCrafter.supabase.view.authViews.SignUp
+import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.LocalDecks
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.ExportDeckButton
@@ -50,7 +51,8 @@ class OnlineDatabase(
     @Composable
     fun SupabaseView(
         onImportDeck: (String) -> Unit,
-        onExportDeck: () -> Unit,
+        onExportDeck: (String) -> Unit,
+        onUseEmail: () -> Unit
     ) {
         val currentUser by supabaseVM.currentUser.collectAsStateWithLifecycle()
         val deckList by supabaseVM.deckList.collectAsStateWithLifecycle()
@@ -80,7 +82,7 @@ class OnlineDatabase(
             }
         }
         if (currentUser == null) {
-            SignUp(supabaseVM, getUIStyle) {
+            SignUp(supabaseVM, getUIStyle, onUseEmail) {
                 refreshing = it
             }
         } else {

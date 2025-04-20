@@ -43,7 +43,7 @@ interface CardTypeRepository {
         newCorrect: Char
     )
 
-    fun getAllCardTypes(deckId: Int): Flow<List<AllCardTypes>>
+    fun getAllCardTypes(deckId: Int): Flow<List<CT>>
 
     fun getAllDueCards(
         deckId: Int,

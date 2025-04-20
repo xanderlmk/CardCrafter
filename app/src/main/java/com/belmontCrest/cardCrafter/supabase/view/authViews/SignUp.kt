@@ -29,7 +29,6 @@ import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.view.authViews.email.EmailView
 import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -47,23 +46,15 @@ import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 fun SignUp(
     supabaseVM: SupabaseViewModel,
     getUIStyle: GetUIStyle,
+    onUseEmail: () -> Unit,
     onRefresh: (Boolean) -> Unit
 ) {
     val clientId by supabaseVM.clientId.collectAsStateWithLifecycle()
-    var pressed by rememberSaveable { mutableStateOf(false) }
     Box(
         contentAlignment = Alignment.TopCenter,
         modifier = Modifier
             .boxViewsModifier(getUIStyle.getColorScheme())
     ) {
-        if (pressed) {
-            @Suppress("KotlinConstantConditions")
-            EmailView(pressed, onRefresh = {
-                onRefresh(it)
-            }, supabaseVM, getUIStyle) {
-                pressed = it
-            }
-        }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -91,7 +82,7 @@ fun SignUp(
                 fontSize = 22.sp
             )
             SubmitButton(onClick = {
-                pressed = true
+                onUseEmail()
             }, enabled = true, getUIStyle, "Sign up/Sign up with email")
         }
     }

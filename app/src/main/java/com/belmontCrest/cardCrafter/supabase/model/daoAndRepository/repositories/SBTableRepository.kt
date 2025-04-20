@@ -8,16 +8,20 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.supabase.controller.converters.localCTToSBCT
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CC_LESS_THAN_20
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CTD_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_CARD_LIST
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOT_DECK_OWNER
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_CARDS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_USER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UNKNOWN_ERROR
+import com.belmontCrest.cardCrafter.supabase.model.tables.CardsToDisplay
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckOwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckUUIDDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.isEmpty
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.gotrue.auth
@@ -40,15 +44,17 @@ interface SBTablesRepository {
     suspend fun getDeckList(): Flow<List<SBDeckDto>>
 
     suspend fun exportDeck(
-        deck: Deck, description: String, cts: List<CT>
+        deck: Deck, description: String, cts: List<CT>, cardsToDisplay: CardsToDisplay
     ): Int
 
     /**suspend fun deleteDeck(uuid: String)*/
     suspend fun upsertDeck(
-        deck: Deck, description: String, cts: List<CT>
+        deck: Deck, description: String, cts: List<CT>, cardsToDisplay: CardsToDisplay
     ): Int
 
     suspend fun checkCardList(sbDeckDto: SBDeckDto): Pair<List<SBCardDto>, Int>
+
+    suspend fun getCardsToDisplay(uuid: String): Pair<CardsToDisplay, Int>
 }
 
 class SBTableRepositoryImpl(
@@ -80,12 +86,12 @@ class SBTableRepositoryImpl(
     }
 
     override suspend fun exportDeck(
-        deck: Deck, description: String, cts: List<CT>
+        deck: Deck, description: String, cts: List<CT>, cardsToDisplay: CardsToDisplay
     ): Int {
         return withContext(Dispatchers.IO) {
             val user = sharedSupabase.auth.currentUserOrNull()
             if (user == null) {
-                Log.d("SupabaseViewModel", "User is null!")
+                Log.e("SupabaseViewModel", "User is null!")
                 return@withContext NULL_USER
             }
             val response = sharedSupabase.from(SBDeckTN)
@@ -97,7 +103,7 @@ class SBTableRepositoryImpl(
                 .decodeSingleOrNull<SBDeckUUIDDto>()
 
             if (response?.deckUUID == deck.uuid) {
-                Log.d("SupabaseVM", "Deck already Exists!")
+                Log.e("SupabaseVM", "Deck already Exists!")
                 return@withContext DECK_EXISTS
             }
 
@@ -107,7 +113,7 @@ class SBTableRepositoryImpl(
                 return@withContext CC_LESS_THAN_20
             }
             val deckToExport = localCTToSBCT(
-                deck, cts, description, user.id
+                deck, cts, cardsToDisplay, description, user.id
             )
             try {
                 val successResponse = sharedSupabase.postgrest.rpc(
@@ -122,14 +128,14 @@ class SBTableRepositoryImpl(
                     return@withContext CC_LESS_THAN_20
                 }
             } catch (e: Exception) {
-                Log.d("NEW export", "$e")
+                Log.e("NEW export", "$e")
             }
             return@withContext UNKNOWN_ERROR
         }
     }
 
     override suspend fun upsertDeck(
-        deck: Deck, description: String, cts: List<CT>
+        deck: Deck, description: String, cts: List<CT>, cardsToDisplay: CardsToDisplay
     ): Int {
         return withContext(Dispatchers.IO) {
             val user = sharedSupabase.auth.currentUserOrNull()
@@ -154,7 +160,20 @@ class SBTableRepositoryImpl(
                 return@withContext CC_LESS_THAN_20
             }
 
-            val deckToUpsert = localCTToSBCT(deck, cts, description, user.id)
+            val deckToUpsert = if (cardsToDisplay.isEmpty()) {
+                val ctd = sharedSupabase.from("cards_to_display")
+                    .select(columns = Columns.ALL) {
+                        filter {
+                            eq("deckUUID", deck.uuid)
+                        }
+                    }.decodeSingleOrNull<CardsToDisplay>()
+                if (ctd == null){
+                    return@withContext NULL_CARDS
+                }
+                localCTToSBCT(deck, cts, ctd, description, user.id)
+            } else {
+                localCTToSBCT(deck, cts, cardsToDisplay, description, user.id)
+            }
 
             try {
                 val successResponse = sharedSupabase.postgrest.rpc(
@@ -194,7 +213,25 @@ class SBTableRepositoryImpl(
             }
         }
     }
+
+    override suspend fun getCardsToDisplay(uuid: String): Pair<CardsToDisplay, Int> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val data = sharedSupabase.from(SBCtdTN)
+                    .select(Columns.ALL) {
+                        filter {
+                            eq("deckUUID", uuid)
+                        }
+                    }.decodeSingle<CardsToDisplay>()
+                return@withContext Pair(data, SUCCESS)
+            } catch (e: Exception) {
+                Log.e("CardsToDisplay", "$e")
+                Pair(CardsToDisplay(), CTD_ERROR)
+            }
+        }
+    }
 }
 
 private const val SBDeckTN = BuildConfig.SB_DECK_TN
 private const val SBCardTN = BuildConfig.SB_CARD_TN
+private const val SBCtdTN = BuildConfig.SB_CTD_TN
