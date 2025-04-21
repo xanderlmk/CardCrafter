@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteDeck
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateCardAmount
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateDeckName

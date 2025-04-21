@@ -38,8 +38,8 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.cardHandlers.redoACard
-import com.belmontCrest.cardCrafter.controller.cardHandlers.returnCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.showReviewsLeft
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.updateCTCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.updateDecksCardList
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
@@ -128,8 +128,7 @@ class CardDeckView(
                 if (sealedCL.allCTs.isEmpty() || dueCTs.value.isEmpty() ||
                     deck.nextReview > Date()
                 ) {
-                    if (cardDeckVM.getState() == CardState.Loading){
-                    } else {
+                    if (cardDeckVM.getState() == CardState.Finished){
                         NoDueCards(getUIStyle)
                     }
 
@@ -192,12 +191,12 @@ class CardDeckView(
                                     .align(Alignment.BottomCenter)
                             ) {
                                 val good =
-                                    ((returnCard(dueCTs.value[index.intValue]).passes + 1) *
+                                    ((dueCTs.value[index.intValue].toCard().passes + 1) *
                                             deck.goodMultiplier).toInt()
-                                val hard = if (returnCard(dueCTs.value[index.intValue]).passes > 0)
-                                    ((returnCard(dueCTs.value[index.intValue]).passes + 1) *
+                                val hard = if (dueCTs.value[index.intValue].toCard().passes > 0)
+                                    ((dueCTs.value[index.intValue].toCard().passes + 1) *
                                             deck.badMultiplier).toInt()
-                                else (returnCard(dueCTs.value[index.intValue]).passes *
+                                else (dueCTs.value[index.intValue].toCard().passes *
                                         deck.badMultiplier).toInt()
                                 Column(
                                     verticalArrangement = Arrangement.Top,

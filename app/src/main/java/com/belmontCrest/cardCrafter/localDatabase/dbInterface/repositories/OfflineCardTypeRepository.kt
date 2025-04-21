@@ -1,6 +1,7 @@
 package com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories
 
 import android.util.Log
+import com.belmontCrest.cardCrafter.controller.cardHandlers.mapACardTypeToCT
 import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.allCardTypesDao.BasicCardDao
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.allCardTypesDao.HintCardDao
@@ -111,7 +112,22 @@ class OfflineCardTypeRepository(
     }
 
 
-    override fun getACardType(id: Int) = cardTypesDao.getACardType(id)
+    override fun getACardType(id: Int) = try {
+        mapACardTypeToCT(cardTypesDao.getACardType(id))
+    } catch (e: IllegalStateException) {
+        Log.d("CardTypeRepository", "$e")
+        throw e
+    }
+
+    override fun getACardTypeStream(id: Int)  = try {
+        cardTypesDao.getACardTypeStream(id).map {
+            mapACardTypeToCT(it)
+        }
+    } catch (e: IllegalStateException) {
+        Log.d("CardTypeRepository", "$e")
+        throw e
+    }
+
 
     override suspend fun updateCT(
         cardId: Int, type: String, fields: Fields,

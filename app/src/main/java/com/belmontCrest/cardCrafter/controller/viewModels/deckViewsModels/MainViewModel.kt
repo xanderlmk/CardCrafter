@@ -32,6 +32,7 @@ import kotlin.collections.map
 /**
  * ViewModel to retrieve all decks and the cards due with the respective deck
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val savedStateHandle: SavedStateHandle
@@ -52,7 +53,6 @@ class MainViewModel(
                 initialValue = DeckUiState()
             )
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private val thisCardCountUiState: StateFlow<CardListUiCount> = currentTime
         .flatMapLatest {
             flashCardRepository.getCardCount(it)

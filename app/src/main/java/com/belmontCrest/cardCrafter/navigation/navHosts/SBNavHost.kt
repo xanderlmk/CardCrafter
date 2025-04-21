@@ -17,7 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.navigation.destinations.SBNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
@@ -30,15 +30,18 @@ import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainVi
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
+import com.belmontCrest.cardCrafter.navigation.destinations.SBCardListDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UseEmailDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.view.profile.UserExportedDecks
 import com.belmontCrest.cardCrafter.supabase.view.profile.MyProfile
 import com.belmontCrest.cardCrafter.supabase.view.importDeck.ImportDeck
 import com.belmontCrest.cardCrafter.supabase.view.OnlineDatabase
 import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.UploadThisDeck
 import com.belmontCrest.cardCrafter.supabase.view.authViews.email.EmailView
+import com.belmontCrest.cardCrafter.supabase.view.profile.AllCards
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.launch
 
@@ -55,7 +58,6 @@ fun SupabaseNav(
     val sbNavController = rememberNavController()
 
     LaunchedEffect(Unit) {
-        navViewModel.updateSBNav(sbNavController)
         supabaseVM.signInSyncedDBUser()
     }
     /** Our Supabase Client and Views. */
@@ -75,9 +77,12 @@ fun SupabaseNav(
     val startingNavRoute by navViewModel.startingSBRoute.collectAsStateWithLifecycle()
     val startDestination = if (startingNavRoute.name == SupabaseDestination.route) {
         SupabaseDestination.route
-    } else {
+    } else if (startingNavRoute.name == UserProfileDestination.route) {
         UserProfileDestination.route
+    } else {
+        UserEDDestination.route
     }
+    val uEDVM: UserExportedDecksViewModel = viewModel(factory = AppViewModelProvider.Factory)
     NavHost(
         navController = sbNavController,
         startDestination = startDestination,
@@ -189,17 +194,10 @@ fun SupabaseNav(
         }
         composable(UserProfileDestination.route) {
             BackHandler {
-                if (startDestination == UserProfileDestination.route) {
-                    navViewModel.updateRoute(MainNavDestination.route)
-                    BackNavHandler.returnToDeckListFromSB(
-                        navController, updateCurrentTime(), fields
-                    )
-                } else {
-                    navViewModel.updateRoute(SupabaseDestination.route)
-                    sbNavController.popBackStack(
-                        SupabaseDestination.route, inclusive = false
-                    )
-                }
+                navViewModel.updateRoute(MainNavDestination.route)
+                BackNavHandler.returnToDeckListFromSB(
+                    navController, updateCurrentTime(), fields
+                )
             }
             MyProfile(
                 getUIStyle, supabaseVM, startDestination,
@@ -213,12 +211,26 @@ fun SupabaseNav(
         }
         composable(UserEDDestination.route) {
             BackHandler {
-                navViewModel.updateRoute(SupabaseDestination.route)
-                sbNavController.popBackStack(
-                    SupabaseDestination.route, inclusive = false
+                navViewModel.updateRoute(MainNavDestination.route)
+                BackNavHandler.returnToDeckListFromSB(
+                    navController, updateCurrentTime(), fields
                 )
             }
-            UserExportedDecks(getUIStyle)
+            UserExportedDecks(getUIStyle, uEDVM) { uuid ->
+                uEDVM.updateUUUID(uuid)
+                navViewModel.updateRoute(SBCardListDestination.route)
+                sbNavController.navigate(SBCardListDestination.route)
+            }
+        }
+
+        composable(SBCardListDestination.route) {
+            BackHandler {
+                navViewModel.updateRoute(UserEDDestination.route)
+                sbNavController.popBackStack(
+                    UserEDDestination.route, inclusive = false
+                )
+            }
+            AllCards(getUIStyle, uEDVM)
         }
     }
 }

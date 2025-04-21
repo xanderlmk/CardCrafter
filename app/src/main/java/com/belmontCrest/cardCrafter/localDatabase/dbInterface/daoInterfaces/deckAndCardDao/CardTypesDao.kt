@@ -50,6 +50,10 @@ interface CardTypesDao {
     @Query("""SELECT * FROM cards where id = :id""")
     fun getACardType(id: Int): AllCardTypes
 
+    @Transaction
+    @Query("""SELECT * FROM cards where id = :id""")
+    fun getACardTypeStream(id: Int) : Flow<AllCardTypes>
+
     @Insert(onConflict = OnConflictStrategy.Companion.ABORT)
     suspend fun insertBasicCard(basicCard: BasicCard)
 

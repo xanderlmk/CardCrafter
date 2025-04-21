@@ -37,6 +37,12 @@
 - Update password input to not be visible(optional)
 - Add data classes to handle the cards to display
 - Some loading screens for better UI
+### 4/21/2025 2:13pm
+- Search query for local cards in database
+- Drawer modal content increased
+- Refactor of SBNavHost
+- New CardListView.
+- More options for Supabase decks for owners.
 ## John
 ### 4/8/2025 11:50pm
 - Cute Theme: ADDED for people who like cute stuff

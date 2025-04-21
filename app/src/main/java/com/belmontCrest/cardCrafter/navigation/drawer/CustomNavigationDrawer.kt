@@ -78,6 +78,7 @@ fun CustomNavigationDrawer(
 
 
     val deckName by navViewModel.deckName.collectAsStateWithLifecycle()
+    val owner by supabaseVM.owner.collectAsStateWithLifecycle()
 
     // Determine the title based on the current route.
     val titleText = when (cr.name) {
@@ -107,6 +108,9 @@ fun CustomNavigationDrawer(
                 modalContent.Home(coroutineScope)
                 modalContent.Settings(coroutineScope)
                 modalContent.UserProfile(coroutineScope)
+                if (owner != null) {
+                    modalContent.ExportDecks()
+                }
             }
         },
     ) {

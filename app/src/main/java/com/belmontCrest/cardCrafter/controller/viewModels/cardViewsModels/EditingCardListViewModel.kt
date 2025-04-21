@@ -2,7 +2,6 @@
 
 package com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +10,7 @@ import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -41,6 +41,15 @@ class EditingCardListViewModel(
     )
     var sealedAllCTs = sealedUiState
 
+    private val _searchQuery = MutableStateFlow(savedStateHandle["query"] ?: "")
+    val searchQuery = _searchQuery.asStateFlow()
+
+    fun updateQuery(query : String) {
+        savedStateHandle["query"] = query
+        _searchQuery.update {
+            query
+        }
+    }
     fun updateId(
         id: Int,
     ) {

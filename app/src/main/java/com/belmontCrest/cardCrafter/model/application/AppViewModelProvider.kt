@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.controller
+package com.belmontCrest.cardCrafter.model.application
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -17,7 +17,6 @@ import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCa
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.AddDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.DeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.EditDeckViewModel
-import com.belmontCrest.cardCrafter.model.application.FlashCardApplication
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserProfileViewModel
@@ -32,6 +31,7 @@ object AppViewModelProvider {
         initializer {
             NavViewModel(
                 flashCardApplication().container.flashCardRepository,
+                flashCardApplication().container.cardTypeRepository,
                 this.createSavedStateHandle()
             )
         }
@@ -107,7 +107,9 @@ object AppViewModelProvider {
         }
         initializer {
             UserExportedDecksViewModel(
-                flashCardApplication().container.userExportedDecksRepository
+                flashCardApplication().container.sbTablesRepository,
+                flashCardApplication().container.userExportedDecksRepository,
+                this.createSavedStateHandle()
             )
         }
     }

@@ -15,6 +15,9 @@ class GetUIStyle(
     fun getIsDarkTheme(): Boolean {
         return isDarkTheme
     }
+    fun getIsCuteTheme(): Boolean {
+        return isCuteTheme
+    }
 
     fun getColorScheme(): ColorScheme {
         return cS.colorScheme

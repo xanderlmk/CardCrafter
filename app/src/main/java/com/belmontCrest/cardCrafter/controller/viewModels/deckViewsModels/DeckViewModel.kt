@@ -10,10 +10,10 @@ import java.util.Date
 class DeckViewModel(
     private val flashCardRepository: FlashCardRepository
 ) : ViewModel() {
-    fun updateDueDate(deckId : Int, cardAmount : Int){
+    fun updateDueDate(deckId : Int, cardAmount : Int, cardsDone: Int){
         viewModelScope.launch(Dispatchers.IO){
             flashCardRepository.updateNextReview(Date(), deckId).also {
-                flashCardRepository.updateCardsLeft(deckId, cardAmount)
+                flashCardRepository.updateCardsLeft(deckId, cardAmount, cardsDone)
             }
         }
     }

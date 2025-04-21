@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.belmontCrest.cardCrafter.controller.cardHandlers.returnCard
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
@@ -131,10 +131,10 @@ class SupabaseViewModel(
         if (cardsTD == null) {
             FourSelectedCards()
         } else {
-            // Lookup a CT by cardId
+            // Lookup a CT by cardIdentifier
             fun findCT(cardIdentifier: String?): CT? =
                 cardIdentifier?.let { lookup ->
-                    sealedAll.allCTs.firstOrNull { returnCard(it).cardIdentifier == lookup }
+                    sealedAll.allCTs.firstOrNull { it.toCard().cardIdentifier == lookup }
                 }
             // Build the FourSelectedCards
             FourSelectedCards(
@@ -155,15 +155,15 @@ class SupabaseViewModel(
         viewModelScope.launch {
             try {
                 val result = sbTableRepository.getCardsToDisplay(uuid)
-                if(result.second == SUCCESS) {
+                if (result.second == SUCCESS) {
                     _cardsToDisplay.update {
                         result.first
                     }
                 } else {
                     Log.e("SupabaseVM", "Failed to retrieve cards")
                 }
-            } catch (e : Exception) {
-                    Log.e("SupabaseVM", "$e")
+            } catch (e: Exception) {
+                Log.e("SupabaseVM", "$e")
             }
         }
     }
@@ -200,7 +200,6 @@ class SupabaseViewModel(
 
     init {
         viewModelScope.launch {
-            getDeckList()
             application.networkConnectivityFlow().collectLatest { isConnected ->
                 if (!isConnected && isClientActive) {
                     Log.d("NETWORK", "NETWORK HAS BEEN DISCONNECTED")
@@ -220,6 +219,8 @@ class SupabaseViewModel(
                 }
             }
         }
+        getOwner()
+        getDeckList()
     }
 
     /** Google Oauth */

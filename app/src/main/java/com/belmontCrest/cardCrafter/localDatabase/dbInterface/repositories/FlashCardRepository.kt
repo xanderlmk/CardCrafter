@@ -86,7 +86,7 @@ interface FlashCardRepository {
 
     suspend fun becomePartOfList(id: Int)
 
-    fun updateCardsLeft(deckId: Int, cardsLeft : Int)
+    fun updateCardsLeft(deckId: Int, cardsLeft : Int, cardsDone: Int)
 
     fun getDueDeckDetails(id: Int): Flow<DueDeckDetails?>
 }

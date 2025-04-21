@@ -3,7 +3,6 @@ package com.belmontCrest.cardCrafter.model.uiModels
 
 import android.os.Parcelable
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
-import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
 import kotlinx.parcelize.Parcelize
@@ -38,7 +37,7 @@ data class WhichDeck(
 ) : Parcelable
 @Parcelize
 data class SelectedCard(
-    val card : Card?
+    val ct : CT?
 ) : Parcelable
  /** DueCards States */
 data class DueDeckDetails(

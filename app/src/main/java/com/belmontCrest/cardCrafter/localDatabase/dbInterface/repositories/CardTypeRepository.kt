@@ -1,6 +1,5 @@
 package com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories
 
-import com.belmontCrest.cardCrafter.localDatabase.tables.AllCardTypes
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
@@ -54,7 +53,10 @@ interface CardTypeRepository {
     fun getDueAllCardTypes(deckId: Int, cardAmount: Int, currentTime: Long = Date().time):
             List<CT>
 
-    fun getACardType(id: Int): AllCardTypes
+    fun getACardType(id: Int): CT
+
+    fun getACardTypeStream(id: Int) : Flow<CT>
+
 
     suspend fun updateCT(
         cardId: Int, type: String, fields: Fields,

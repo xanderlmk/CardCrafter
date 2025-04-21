@@ -40,6 +40,10 @@ data class FourSBCards(
     val fourth: SBCardColsWithCT? = null
 )
 
+fun FourSBCards.toList() : List<SBCardColsWithCT> {
+    return listOfNotNull(first, second, third, fourth)
+}
+
 @Parcelize
 data class FourSelectedCards(
     val first: CT? = null,

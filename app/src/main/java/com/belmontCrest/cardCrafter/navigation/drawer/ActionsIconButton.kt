@@ -19,16 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckViewDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.EditDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.EditingCardDestination
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
-import com.belmontCrest.cardCrafter.navigation.destinations.SBNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
-import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
@@ -41,7 +40,6 @@ import com.belmontCrest.cardCrafter.ui.theme.settingsButtonModifier
 import com.belmontCrest.cardCrafter.uiFunctions.BackButton
 import com.belmontCrest.cardCrafter.uiFunctions.CardOptionsButton
 import com.belmontCrest.cardCrafter.uiFunctions.CardTypesButton
-import com.belmontCrest.cardCrafter.uiFunctions.EditProfileButton
 import com.belmontCrest.cardCrafter.uiFunctions.RedoCardButton
 import com.belmontCrest.cardCrafter.uiFunctions.SettingsButton
 import kotlinx.coroutines.launch
@@ -58,7 +56,6 @@ fun ActionIconButton(
     val deckNavController by navViewModel.deckNav.collectAsStateWithLifecycle()
     val sc by navViewModel.card.collectAsStateWithLifecycle()
     val wd by navViewModel.wd.collectAsStateWithLifecycle()
-    val user by supabaseVM.currentUser.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     val onNavigateBack: () -> Unit = {
         fields.isEditing.value = false
@@ -72,17 +69,6 @@ fun ActionIconButton(
     val cr = navViewModel.route.collectAsStateWithLifecycle().value
 
     when (cr.name) {
-        SupabaseDestination.route -> {
-            if (user != null) {
-                EditProfileButton(getUIStyle, navViewModel, supabaseVM)
-            }
-        }
-
-        SBNavDestination.route -> {
-            if (user != null) {
-                EditProfileButton(getUIStyle, navViewModel, supabaseVM)
-            }
-        }
 
         DeckNavDestination.route -> {
             wd.deck?.let {
@@ -179,7 +165,7 @@ fun ActionIconButton(
 
         EditingCardDestination.route -> {
             val expanded = rememberSaveable { mutableStateOf(false) }
-            sc.card?.let {
+            sc.ct?.toCard()?.let {
                 CardOptionsButton(
                     navViewModel, getUIStyle, it, fields,
                     expanded, Modifier, onNavigateBack

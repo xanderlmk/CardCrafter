@@ -33,7 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardType
-import com.belmontCrest.cardCrafter.controller.cardHandlers.returnCard
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
@@ -166,7 +166,7 @@ fun CardPickerDropdown(
                 TextButton(
                     onClick = {
                         // 4) Slot the card ID into the next free spot
-                        supabaseVM.addCardsToDisplay(returnCard(ct).cardIdentifier)
+                        supabaseVM.addCardsToDisplay(ct.toCard().cardIdentifier)
                         selectedCT = null
                     },
                     colors = ButtonDefaults.buttonColors(
