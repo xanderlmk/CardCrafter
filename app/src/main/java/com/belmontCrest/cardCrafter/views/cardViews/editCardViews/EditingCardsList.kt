@@ -2,7 +2,8 @@ package com.belmontCrest.cardCrafter.views.cardViews.editCardViews
 
 import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,6 +11,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,12 +26,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.belmontCrest.cardCrafter.controller.cardHandlers.returnCardId
+import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardId
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
+import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.model.TAProp
+import com.belmontCrest.cardCrafter.model.toTextProp
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.views.miscFunctions.CardSelector
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
+import com.belmontCrest.cardCrafter.uiFunctions.CustomText
 
 class EditCardsList(
     private var editingCardListVM: EditingCardListViewModel,
@@ -39,11 +46,27 @@ class EditCardsList(
     @SuppressLint("CoroutineCreationDuringComposition")
     @Composable
     fun ViewFlashCards(
-        goToEditCard: (Int, Int) -> Unit
+        goToEditCard: (Int) -> Unit
     ) {
         val sealedCardsList by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
+        val searchQuery by editingCardListVM.searchQuery.collectAsStateWithLifecycle()
         val middleCard = rememberSaveable { mutableIntStateOf(0) }
         var clicked by remember { mutableStateOf(false) }
+
+        val filtered = sealedCardsList.allCTs.filter { ct ->
+            if (searchQuery.isBlank()) {
+                return@filter true
+            }
+            val q = when (ct) {
+                is CT.Basic -> ct.basicCard.question
+                is CT.Hint -> ct.hintCard.question
+                is CT.ThreeField -> ct.threeFieldCard.question
+                is CT.MultiChoice -> ct.multiChoiceCard.question
+                is CT.Notation -> ct.notationCard.question
+            }
+            q.contains(searchQuery, ignoreCase = true)
+        }
+
         // Restore the scroll position when returning from editing
         LaunchedEffect(Unit) {
             snapshotFlow { listState.layoutInfo.visibleItemsInfo }
@@ -52,24 +75,41 @@ class EditCardsList(
                 }
             getListState(listState, middleCard.intValue)
         }
-        Box(
+        Column(
             modifier = Modifier
                 .boxViewsModifier(getUIStyle.getColorScheme()),
-            contentAlignment = Alignment.Center
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { editingCardListVM.updateQuery(it) },
+                placeholder = { Text("Search…", color = getUIStyle.defaultIconColor()) },
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+            )
+            if (searchQuery.isNotEmpty() && filtered.isEmpty()) {
+                CustomText(
+                    "No Results Found.", getUIStyle,
+                    Modifier.padding(vertical = 10.dp),
+                    TAProp.Center.toTextProp()
+                )
+            }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize(),
                 state = listState
             ) {
-                items(sealedCardsList.allCTs.size) { index ->
+                items(filtered.size) { index ->
                     Button(
                         onClick = {
                             if (!clicked) {
                                 fields.scrollPosition.value = index
                                 fields.isEditing.value = true
                                 clicked = true
-                                goToEditCard(index, returnCardId(sealedCardsList.allCTs[index]))
+                                goToEditCard(filtered[index].getCardId())
                             }
                         },
                         colors = ButtonDefaults.buttonColors(
@@ -81,7 +121,7 @@ class EditCardsList(
                             .padding(8.dp)
                     ) {
                         CardSelector(
-                            sealedCardsList,
+                            filtered,
                             index
                         )
                     }

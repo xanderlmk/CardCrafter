@@ -7,70 +7,40 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 
 
-fun returnCard(ct: CT) : Card{
-    return when (ct) {
-        is CT.Basic -> {
-            ct.card
-        }
-        is CT.Hint -> {
-            ct.card
-        }
-        is CT.ThreeField -> {
-            ct.card
-        }
-        is CT.MultiChoice->{
-            ct.card
-        }
-        is CT.Notation -> {
-            ct.card
-        }
-    }
+fun CT.toCard(): Card = when (this) {
+    is CT.Basic -> card
+    is CT.Hint -> card
+    is CT.ThreeField -> card
+    is CT.MultiChoice -> card
+    is CT.Notation -> card
 }
 
-fun CT.getCardType(): String = when(this) {
-    is CT.Basic -> {
-        card.type
-    }
-    is CT.Hint -> {
-        card.type
-    }
-    is CT.ThreeField -> {
-        card.type
-    }
-    is CT.MultiChoice->{
-        card.type
-    }
-    is CT.Notation -> {
-        card.type
-    }
+fun CT.getCardType(): String = when (this) {
+    is CT.Basic -> card.type
+    is CT.Hint -> card.type
+    is CT.ThreeField -> card.type
+    is CT.MultiChoice -> card.type
+    is CT.Notation -> card.type
 }
-fun returnCardId(ct : CT) : Int {
-    return when (ct) {
-        is CT.Basic -> {
-            ct.card.id
-        }
-        is CT.Hint -> {
-            ct.card.id
-        }
-        is CT.ThreeField -> {
-            ct.card.id
-        }
-        is CT.MultiChoice->{
-            ct.card.id
-        }
-        is CT.Notation -> {
-            ct.card.id
-        }
-    }
+
+fun CT.getCardId(): Int = when (this) {
+    is CT.Basic -> card.id
+    is CT.Hint -> card.id
+    is CT.ThreeField -> card.id
+    is CT.MultiChoice -> card.id
+    is CT.Notation -> card.id
 }
-fun updateCTCard(ct: CT, dueCT: CT,
-                 deck: Deck, vm: CardDeckViewModel,
-                 success : Boolean, again : Boolean) : CT {
+
+fun updateCTCard(
+    ct: CT, dueCT: CT,
+    deck: Deck, vm: CardDeckViewModel,
+    success: Boolean, again: Boolean
+): CT {
     return when (ct) {
         is CT.Basic -> {
             ct.copy(
                 card = handleCardUpdate(
-                    returnCard(dueCT),
+                    dueCT.toCard(),
                     success = success,
                     vm,
                     deck.goodMultiplier,
@@ -81,10 +51,11 @@ fun updateCTCard(ct: CT, dueCT: CT,
                 basicCard = ct.basicCard
             )
         }
+
         is CT.Hint -> {
             ct.copy(
                 card = handleCardUpdate(
-                    returnCard(dueCT),
+                    dueCT.toCard(),
                     success = success,
                     vm,
                     deck.goodMultiplier,
@@ -95,10 +66,11 @@ fun updateCTCard(ct: CT, dueCT: CT,
                 hintCard = ct.hintCard
             )
         }
+
         is CT.ThreeField -> {
             ct.copy(
                 card = handleCardUpdate(
-                    returnCard(dueCT),
+                    dueCT.toCard(),
                     success = success,
                     vm,
                     deck.goodMultiplier,
@@ -109,10 +81,11 @@ fun updateCTCard(ct: CT, dueCT: CT,
                 threeFieldCard = ct.threeFieldCard
             )
         }
-        is CT.MultiChoice->{
+
+        is CT.MultiChoice -> {
             ct.copy(
                 card = handleCardUpdate(
-                    returnCard(dueCT),
+                    dueCT.toCard(),
                     success = success,
                     vm,
                     deck.goodMultiplier,
@@ -123,10 +96,11 @@ fun updateCTCard(ct: CT, dueCT: CT,
                 multiChoiceCard = ct.multiChoiceCard
             )
         }
+
         is CT.Notation -> {
             ct.copy(
                 card = handleCardUpdate(
-                    returnCard(dueCT),
+                    dueCT.toCard(),
                     success = success,
                     vm,
                     deck.goodMultiplier,
@@ -139,8 +113,10 @@ fun updateCTCard(ct: CT, dueCT: CT,
     }
 }
 
-suspend fun redoACard(ct : CT, cardDeckVM : CardDeckViewModel, index : Int,
-                      dueCTs : MutableList<CT>){
+suspend fun redoACard(
+    ct: CT, cardDeckVM: CardDeckViewModel, index: Int,
+    dueCTs: MutableList<CT>
+) {
     when (ct) {
         /** Even though it seems like getting the new card isn't necessary,
          * it is because we want to replace the savedCard with a new savedCard
@@ -154,6 +130,7 @@ suspend fun redoACard(ct : CT, cardDeckVM : CardDeckViewModel, index : Int,
                 dueCTs[index] = ct
             }
         }
+
         is CT.Hint -> {
             ct.card = cardDeckVM.getRedoCardType(
                 ct.card.id,
@@ -162,6 +139,7 @@ suspend fun redoACard(ct : CT, cardDeckVM : CardDeckViewModel, index : Int,
                 dueCTs[index] = ct
             }
         }
+
         is CT.ThreeField -> {
             ct.card = cardDeckVM.getRedoCardType(
                 ct.card.id,
@@ -170,7 +148,8 @@ suspend fun redoACard(ct : CT, cardDeckVM : CardDeckViewModel, index : Int,
                 dueCTs[index] = ct
             }
         }
-        is CT.MultiChoice->{
+
+        is CT.MultiChoice -> {
             ct.card = cardDeckVM.getRedoCardType(
                 ct.card.id,
                 index
@@ -178,6 +157,7 @@ suspend fun redoACard(ct : CT, cardDeckVM : CardDeckViewModel, index : Int,
                 dueCTs[index] = ct
             }
         }
+
         is CT.Notation -> {
             ct.card = cardDeckVM.getRedoCardType(
                 ct.card.id,
@@ -189,40 +169,48 @@ suspend fun redoACard(ct : CT, cardDeckVM : CardDeckViewModel, index : Int,
     }
 }
 
-fun showReviewsLeft(ct : CT): String{
+fun showReviewsLeft(ct: CT): String {
     return when (ct) {
         is CT.Basic -> {
             ct.card.reviewsLeft.toString()
         }
+
         is CT.Hint -> {
             ct.card.reviewsLeft.toString()
         }
+
         is CT.ThreeField -> {
             ct.card.reviewsLeft.toString()
         }
-        is CT.MultiChoice->{
+
+        is CT.MultiChoice -> {
             ct.card.reviewsLeft.toString()
         }
+
         is CT.Notation -> {
             ct.card.reviewsLeft.toString()
         }
     }
 }
 
-fun returnReviewsLeft(ct: CT): Int{
+fun returnReviewsLeft(ct: CT): Int {
     return when (ct) {
         is CT.Basic -> {
             ct.card.reviewsLeft
         }
+
         is CT.Hint -> {
             ct.card.reviewsLeft
         }
+
         is CT.ThreeField -> {
             ct.card.reviewsLeft
         }
-        is CT.MultiChoice->{
+
+        is CT.MultiChoice -> {
             ct.card.reviewsLeft
         }
+
         is CT.Notation -> {
             ct.card.reviewsLeft
         }
@@ -252,6 +240,7 @@ fun mapAllCardTypesToCTs(allCardTypesList: List<AllCardTypes>): List<CT> {
                 allCardTypes.card,
                 allCardTypes.multiChoiceCard
             )
+
             allCardTypes.notationCard != null -> CT.Notation(
                 allCardTypes.card,
                 allCardTypes.notationCard
@@ -264,7 +253,8 @@ fun mapAllCardTypesToCTs(allCardTypesList: List<AllCardTypes>): List<CT> {
                 hintCard=${allCardTypes.hintCard},
                 threeFieldCard=${allCardTypes.threeFieldCard},
                 multiChoiceCard=${allCardTypes.multiChoiceCard},
-                notationCard=${allCardTypes.notationCard}""")
+                notationCard=${allCardTypes.notationCard}"""
+            )
         }
     }
 }

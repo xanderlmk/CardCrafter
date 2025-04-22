@@ -1,7 +1,5 @@
 package com.belmontCrest.cardCrafter.uiFunctions
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -10,12 +8,10 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
@@ -48,9 +43,6 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.launch
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
-import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
-import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.views.miscFunctions.delayNavigate
 
 @Composable
@@ -327,7 +319,8 @@ fun CardTypesButton(getUIStyle: GetUIStyle, navViewModel: NavViewModel) {
 
 @Composable
 fun CancelButton(
-    onClick: () -> Unit, enabled: Boolean, getUIStyle: GetUIStyle
+    onClick: () -> Unit, enabled: Boolean, getUIStyle: GetUIStyle,
+    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = {
@@ -337,80 +330,25 @@ fun CancelButton(
             containerColor = getUIStyle.secondaryButtonColor(),
             contentColor = getUIStyle.buttonTextColor()
         ),
-        enabled = enabled
+        enabled = enabled, modifier = modifier
     ) { Text(stringResource(R.string.cancel)) }
 }
 
 @Composable
 fun SubmitButton(
     onClick: () -> Unit, enabled: Boolean,
-    getUIStyle: GetUIStyle, string: String
+    getUIStyle: GetUIStyle, string: String,
+    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = {
             onClick()
-        },
-        enabled = enabled,
+        }, enabled = enabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = getUIStyle.secondaryButtonColor(),
             contentColor = getUIStyle.buttonTextColor()
-        )
+        ), modifier = modifier
     ) {
         Text(string)
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.Q)
-@Composable
-fun EditProfileButton(
-    getUIStyle: GetUIStyle,
-    navViewModel: NavViewModel,
-    supabaseVM: SupabaseViewModel
-) {
-    val sbNavController by navViewModel.sbNav.collectAsStateWithLifecycle()
-    var expanded by rememberSaveable { mutableStateOf(false) }
-    val owner by supabaseVM.owner.collectAsStateWithLifecycle()
-    Box(
-        Modifier
-            .wrapContentSize(Alignment.TopEnd)
-    ) {
-        IconButton(
-            onClick = { expanded = true },
-            modifier = Modifier
-                .padding(4.dp)
-                .size(54.dp)
-        ) {
-            Icon(
-                Icons.Default.AccountCircle,
-                contentDescription = "Profile",
-                tint = getUIStyle.titleColor()
-            )
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Person,
-                        contentDescription = "Profile Settings",
-                        tint = getUIStyle.titleColor()
-                    )
-                },
-                onClick = {
-                    navViewModel.updateRoute(UserProfileDestination.route)
-                    sbNavController?.navigate(UserProfileDestination.route)
-                },
-                text = { Text("My profile") }
-            )
-            owner?.let {
-                HorizontalDivider()
-                DropdownMenuItem(
-                    onClick = {
-                        navViewModel.updateRoute(UserEDDestination.route)
-                        sbNavController?.navigate(UserEDDestination.route)
-                    },
-                    text = { Text("Exported decks") }
-                )
-            }
-        }
     }
 }

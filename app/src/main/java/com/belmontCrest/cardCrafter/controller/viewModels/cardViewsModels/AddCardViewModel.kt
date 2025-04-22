@@ -28,9 +28,11 @@ class AddCardViewModel(
 ) : ViewModel() {
     private val privateErrorMessage: MutableStateFlow<String> = MutableStateFlow("")
     val errorMessage = privateErrorMessage.asStateFlow()
+
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
     }
+
     fun addBasicCard(deck: Deck, question: String, answer: String) {
         if (question.isNotBlank() && answer.isNotBlank()) {
             viewModelScope.launch(Dispatchers.IO) {
@@ -120,11 +122,12 @@ class AddCardViewModel(
     fun addNotationCard(
         deck: Deck,
         question: String,
-        steps : List<String>,
+        steps: List<String>,
         answer: String
-    ){
+    ) {
         if (question.isNotBlank() &&
-            steps.all { it.isNotBlank() } && answer.isNotBlank()) {
+            steps.all { it.isNotBlank() } && answer.isNotBlank()
+        ) {
             viewModelScope.launch(Dispatchers.IO) {
                 val cardId = createCard("notation", deck)
                 scienceSpecificRepository.insertNotationCard(
@@ -140,7 +143,7 @@ class AddCardViewModel(
     }
 
 
-    suspend fun createCard(type: String, deck: Deck) : Long {
+    suspend fun createCard(type: String, deck: Deck): Long {
         val currentMax = flashCardRepository.getMaxDCNumber(deck.uuid) ?: 0
         val newDeckCardNumber = currentMax + 1
         return flashCardRepository.insertCard(
@@ -166,24 +169,43 @@ class AddCardViewModel(
         return withContext(Dispatchers.IO) {
             /** Only add the cards if the deck's review is due */
             if (deck.nextReview <= Date()) {
-                /** Make sure the cardsLeft + cardsAdded don't
-                 * exceed the deck's cardAmount
-                 */
                 viewModelScope.launch(Dispatchers.IO) {
                     withTimeout(TIMEOUT_MILLIS) {
-                        if ((deck.cardsLeft + cardsToAdd) < deck.cardAmount) {
+                        /** This keeps a record of the amount of cards left vs done and compares
+                         *  it to the card amount. Here's three examples
+                         *  cardsLeft = CL, cardsDone = CD, cardAmount = CA
+                         *  CA = 20
+                         *  1. CL = 19, CD = 1
+                         *      CL + 1 = 20, CD + 1 = 2, ! < CA, F; move down
+                         *      CD + 1 = 2, ! >= CA, F; just update to CA
+                         *
+                         *  2. CL = 1, CD = 19
+                         *      CL + 1 = 2, CD + 1 = 20, ! < CA, F; move down
+                         *      CD + 1 = 20 >= CA, T, Don't update just return.
+                         *
+                         *  3. CL = 15, CD = 5
+                         *      CL + 1 = 16, CD + 1 = 6, 16 && 6 < CA, T; Update accordingly.
+                         */
+                        if (((deck.cardsLeft + cardsToAdd) < deck.cardAmount) &&
+                            ((deck.cardsDone + cardsToAdd) < deck.cardAmount)
+                        ) {
                             flashCardRepository.updateCardsLeft(
-                                deck.id,
-                                (deck.cardsLeft + cardsToAdd)
+                                deckId = deck.id, cardsDone = deck.cardsDone,
+                                cardsLeft = (deck.cardsLeft + cardsToAdd),
                             )
+                        } else if ((deck.cardsDone + cardsToAdd) >= deck.cardAmount) {
+                            return@withTimeout
                         } else {
-                            flashCardRepository.updateCardsLeft(deck.id, deck.cardAmount)
+                            flashCardRepository.updateCardsLeft(
+                                deck.id, deck.cardAmount, deck.cardsDone
+                            )
                         }
                     }
                 }
             }
         }
     }
+
     fun setErrorMessage(message: String) {
         privateErrorMessage.value = message
     }

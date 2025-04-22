@@ -26,13 +26,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserProfileViewModel
 import com.belmontCrest.cardCrafter.supabase.view.authViews.EnterAccountDetails
 import com.belmontCrest.cardCrafter.supabase.view.authViews.SignUp
-import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
+import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
@@ -139,9 +139,7 @@ fun MyProfile(
                 }
             }
         } else {
-            SignUp(supabaseVM, getUIStyle, onUseEmail) {
-
-            }
+            SignUp(supabaseVM, getUIStyle, onUseEmail) { /** This is for OnlineDatabase.kt */}
         }
     }
 }

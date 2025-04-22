@@ -13,6 +13,8 @@ enum class FSProp { Font22, Font20, Font18, Font16, Font14, Default }
 enum class FWProp { SemiBold, Bold, Default }
 /** Text align prop */
 enum class TAProp  { Start, Center, End, Default }
+/** Max lines prop */
+enum class MLProp { One, Two, Three, Default }
 
 /** Defining our text props */
 data class TextProps (
@@ -21,7 +23,8 @@ data class TextProps (
     /** Font weight */
     val fw: FWProp = FWProp.Default,
     /** Text align */
-    val ta: TAProp = TAProp.Default
+    val ta: TAProp = TAProp.Default,
+    val ml: MLProp = MLProp.Default
 )
 
 fun TAProp.toTextProp(): TextProps = when (this) {
@@ -29,6 +32,13 @@ fun TAProp.toTextProp(): TextProps = when (this) {
     TAProp.Start -> TextProps(ta = TAProp.Start)
     TAProp.End -> TextProps(ta = TAProp.End)
     TAProp.Default -> TextProps()
+}
+
+fun MLProp.toTextProp(): TextProps = when (this) {
+    MLProp.One -> TextProps(ml = MLProp.One)
+    MLProp.Two -> TextProps(ml = MLProp.Two)
+    MLProp.Three -> TextProps(ml = MLProp.Three)
+    MLProp.Default -> TextProps(ml = MLProp.Default)
 }
 
 fun setFontSize(fsProp: FSProp): TextUnit {
@@ -56,5 +66,14 @@ fun setTextAlign(taProp: TAProp): TextAlign? {
         TAProp.Start -> TextAlign.Start
         TAProp.End -> TextAlign.End
         TAProp.Default -> null
+    }
+}
+
+fun setMaxLines(mlProp: MLProp): Int {
+    return when(mlProp) {
+        MLProp.One -> 1
+        MLProp.Two -> 2
+        MLProp.Three -> 3
+        MLProp.Default -> Int.MAX_VALUE
     }
 }

@@ -15,12 +15,17 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.cardHandlers.updateDecksCardList
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckListDestination
@@ -32,8 +37,9 @@ import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDe
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.StringVar
 import com.belmontCrest.cardCrafter.model.uiModels.WhichDeck
+import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
+import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,18 +70,19 @@ class ModalContent(
             })
         {
             Text(text = "Home")
-            Icon(
-                imageVector = Icons.Filled.Home,
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .size(28.dp)
-                    .background(
-                        color = getUIStyle.buttonColor(),
-                        shape = RoundedCornerShape(12.dp)
-                    ),
-                contentDescription = "Home",
-                tint = getUIStyle.iconColor()
-            )
+            ContentIcon("Home", Icons.Filled.Home)
+        }
+    }
+
+    @Composable
+    fun ExportDecks() {
+        CustomRow(onClick = {
+            navViewModel.updateRoute(UserEDDestination.route)
+            navViewModel.updateStartingSBRoute(UserEDDestination.route)
+            navController.navigate(SBNavDestination.route)
+        }) {
+            Text("Exported Decks")
+            ContentIcon("Rounded Playing Cards", painterResource(R.drawable.rounded_playing_cards))
         }
     }
 
@@ -90,18 +97,7 @@ class ModalContent(
             })
         {
             Text("Settings")
-            Icon(
-                imageVector = Icons.Filled.Settings,
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .size(28.dp)
-                    .background(
-                        color = getUIStyle.buttonColor(),
-                        shape = RoundedCornerShape(12.dp)
-                    ),
-                contentDescription = "Main Settings",
-                tint = getUIStyle.iconColor()
-            )
+            ContentIcon("Main Settings", Icons.Default.Settings)
         }
     }
 
@@ -126,17 +122,7 @@ class ModalContent(
             }
         ) {
             Text("User Profile")
-            Icon(
-                imageVector = Icons.Default.AccountCircle,
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .size(28.dp)
-                    .background(
-                        color = getUIStyle.buttonColor(),
-                        shape = RoundedCornerShape(12.dp)
-                    ),
-                contentDescription = "Main Settings",
-            )
+            ContentIcon("User Profile", Icons.Default.AccountCircle)
         }
     }
 
@@ -153,6 +139,45 @@ class ModalContent(
                 }
             }
         }
+    }
+
+    @Composable
+    private fun ContentIcon(cd: String, icon: ImageVector) {
+        Icon(
+            imageVector = icon,
+            modifier = Modifier
+                .padding(horizontal = 4.dp)
+                .size(28.dp)
+                .background(
+                    color = getUIStyle.buttonColor(),
+                    shape = RoundedCornerShape(12.dp)
+                ),
+            contentDescription = cd,
+            tint = if (getUIStyle.getIsCuteTheme()) {
+                LocalContentColor.current
+            } else {
+                getUIStyle.iconColor()
+            }
+        )
+    }
+    @Composable
+    private fun ContentIcon(cd: String, icon: Painter) {
+        Icon(
+            painter = icon,
+            modifier = Modifier
+                .padding(horizontal = 4.dp)
+                .size(28.dp)
+                .background(
+                    color = getUIStyle.buttonColor(),
+                    shape = RoundedCornerShape(12.dp)
+                ),
+            contentDescription = cd,
+            tint = if (getUIStyle.getIsCuteTheme()) {
+                LocalContentColor.current
+            } else {
+                getUIStyle.iconColor()
+            }
+        )
     }
 }
 

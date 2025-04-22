@@ -126,7 +126,7 @@ class OnlineDatabase(
     }
 
     @Composable
-    fun DeckView(deck: SBDeckDto, onImportDeck: (String) -> Unit) {
+    private fun DeckView(deck: SBDeckDto, onImportDeck: (String) -> Unit) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier

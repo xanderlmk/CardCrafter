@@ -45,7 +45,7 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_STRING
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.REPLACED_DECK
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
-import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
+import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
@@ -97,6 +97,7 @@ class ImportDeck(
                             horizontalArrangement = Arrangement.SpaceEvenly,
                             modifier = Modifier.fillMaxWidth()
                         ) {
+                            CancelButton(onNavigate, enabled, getUIStyle)
                             SubmitButton(
                                 onClick = {
                                     coroutineScope.launch {
@@ -124,7 +125,6 @@ class ImportDeck(
                                     }
                                 }, enabled, getUIStyle, "Import"
                             )
-                            CancelButton(onNavigate, enabled, getUIStyle)
                         }
                         if (!enabled) {
                             ImportingDeck(progress, getUIStyle)

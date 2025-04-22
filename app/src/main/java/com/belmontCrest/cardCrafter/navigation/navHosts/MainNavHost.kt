@@ -22,7 +22,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.navigation.destinations.AddDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SBNavDestination
 import com.belmontCrest.cardCrafter.navigation.drawer.CustomNavigationDrawer
@@ -40,7 +40,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDe
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
+import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass
 import com.belmontCrest.cardCrafter.views.mainViews.GeneralSettings
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle

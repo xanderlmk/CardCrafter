@@ -10,11 +10,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.belmontCrest.cardCrafter.controller.cardHandlers.updateDecksCardList
 import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckListDestination
@@ -58,9 +56,7 @@ fun DeckNavHost(
         cardDeckVM, getUIStyle, fields
     )
     val editDeckView = EditDeckView(fields, getUIStyle)
-    val editingCardView = EditingCardView(
-        editingCardListVM, getUIStyle
-    )
+    val editingCardView = EditingCardView(getUIStyle)
     val editCardsList =
         EditCardsList(
             editingCardListVM,
@@ -231,7 +227,7 @@ fun DeckNavHost(
             }
             wd.deck?.let { thisDeck ->
                 editCardsList.ViewFlashCards(
-                    goToEditCard = { index, cardId ->
+                    goToEditCard = { cardId ->
                         fields.resetFields()
                         coroutineScope.launch {
                             navViewModel.getCardById(cardId)
@@ -240,18 +236,15 @@ fun DeckNavHost(
                             EditingCardDestination.route
                         )
                         deckNavController.navigate(
-                            EditingCardDestination.createRoute(index)
+                            EditingCardDestination.route
                         )
                     }
                 )
             }
         }
         composable(
-            route = EditingCardDestination.route,
-            arguments = listOf(
-                navArgument("index") { type = NavType.IntType })
+            route = EditingCardDestination.route
         ) { backStackEntry ->
-            val index = backStackEntry.arguments?.getInt("index")
             BackHandler {
                 fields.navigateToCardList()
                 navViewModel.resetCard()
@@ -261,11 +254,10 @@ fun DeckNavHost(
                     inclusive = false
                 )
             }
-            sc.card?.let {
+            sc.ct?.let {
                 editingCardView.EditFlashCardView(
-                    card = it,
+                    ct = it,
                     fields = fields,
-                    index = index ?: 0,
                     onNavigateBack = {
                         fields.navigateToCardList()
                         navViewModel.resetCard()

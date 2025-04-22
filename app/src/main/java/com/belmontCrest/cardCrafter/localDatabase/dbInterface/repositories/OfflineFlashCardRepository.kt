@@ -151,8 +151,8 @@ class OfflineFlashCardRepository(
 
     override suspend fun becomePartOfList(id: Int) = cardDao.becomePartOfList(id)
 
-    override fun updateCardsLeft(deckId: Int, cardsLeft: Int) =
-        deckDao.updateCardsLeft(deckId, cardsLeft)
+    override fun updateCardsLeft(deckId: Int, cardsLeft: Int, cardsDone: Int) =
+        deckDao.updateCardsLeft(deckId, cardsLeft, cardsDone)
 
     override fun getDueDeckDetails(id: Int) = deckDao.getDueDeckDetails(id)
 }

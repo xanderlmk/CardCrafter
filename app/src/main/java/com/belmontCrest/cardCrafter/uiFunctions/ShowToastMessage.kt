@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.view
+package com.belmontCrest.cardCrafter.uiFunctions
 
 import android.content.Context
 import android.widget.Toast

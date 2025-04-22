@@ -32,7 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.AddDeckViewModel
 import com.belmontCrest.cardCrafter.uiFunctions.BackButton
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField

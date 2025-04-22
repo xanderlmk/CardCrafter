@@ -2,21 +2,18 @@ package com.belmontCrest.cardCrafter.views.miscFunctions
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
-import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
 
 @Composable
 fun BasicCardQuestion(basicCard: BasicCard) {
     Text(
-        text = stringResource(R.string.question) + ": ${basicCard.question}",
+        text = basicCard.question,
         maxLines = 3,
         overflow = TextOverflow.Ellipsis
 
@@ -26,7 +23,7 @@ fun BasicCardQuestion(basicCard: BasicCard) {
 @Composable
 fun ThreeCardQuestion(threeFieldCard: ThreeFieldCard) {
     Text(
-        text = stringResource(R.string.question) + ": ${threeFieldCard.question}",
+        text = threeFieldCard.question,
         maxLines = 3,
         overflow = TextOverflow.Companion.Ellipsis
 
@@ -36,7 +33,7 @@ fun ThreeCardQuestion(threeFieldCard: ThreeFieldCard) {
 @Composable
 fun HintCardQuestion(hintCard: HintCard) {
     Text(
-        text = stringResource(R.string.question) + ": ${hintCard.question}",
+        text = hintCard.question,
         maxLines = 3,
         overflow = TextOverflow.Companion.Ellipsis
 
@@ -46,7 +43,7 @@ fun HintCardQuestion(hintCard: HintCard) {
 @Composable
 fun ChoiceCardQuestion(multiChoiceCard: MultiChoiceCard) {
     Text(
-        text = stringResource(R.string.question) + ": ${multiChoiceCard.question}",
+        text = multiChoiceCard.question,
         maxLines = 3,
         overflow = TextOverflow.Companion.Ellipsis
     )
@@ -55,7 +52,7 @@ fun ChoiceCardQuestion(multiChoiceCard: MultiChoiceCard) {
 @Composable
 fun NotationCardQuestion(notationCard: NotationCard){
     Text(
-        text = stringResource(R.string.question) + ": ${notationCard.question}",
+        text = notationCard.question,
         maxLines = 3,
         overflow = TextOverflow.Companion.Ellipsis
     )
@@ -63,10 +60,10 @@ fun NotationCardQuestion(notationCard: NotationCard){
 
 @Composable
 fun CardSelector(
-    sealedAllCTs: SealedAllCTs,
+    allCTs: List<CT>,
     index: Int
 ) {
-    val ct = sealedAllCTs.allCTs[index]
+    val ct = allCTs[index]
     when(ct){
         is CT.Basic -> {
             BasicCardQuestion(ct.basicCard)

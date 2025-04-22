@@ -16,7 +16,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.coroutineScope
 import androidx.navigation.compose.rememberNavController
-import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.navigation.navHosts.AppNavHost
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel

@@ -23,7 +23,7 @@ data class SBCardDto(
     val id: Int = -1,
     @SerialName("deckUUID") val deckUUID: String,
     val type: String,
-    @SerialName("cardIdentifier") val cardIdentifier : String
+    @SerialName("cardIdentifier") val cardIdentifier: String
 )
 
 
@@ -43,6 +43,10 @@ data class SBDeckListDto(
     val list: List<SBDeckDto> = emptyList()
 )
 
+fun SBDeckListDto.toUUIDs(): List<String> = this.list.map {
+    it.deckUUID
+}
+
 @Serializable
 data class SBNotationCardDto(
     val cardId: Int = -1,
@@ -53,28 +57,30 @@ data class SBNotationCardDto(
 
 @Serializable
 data class SBDeckUUIDDto(val deckUUID: String)
+
 @Serializable
 data class SBDeckOwnerDto(val user_id: String)
 
 @Serializable
 data class OwnerDto(
-    val user_id : String,
-    val username : String,
-    val f_name : String,
-    val l_name : String
+    val user_id: String,
+    val username: String,
+    val f_name: String,
+    val l_name: String
 )
 
 @Serializable
 data class UserProfile(
-    val user : UserInfo,
-    val owner : OwnerDto? = null
+    val user: UserInfo,
+    val owner: OwnerDto? = null
 )
+
 /** Supabase Deck and it's cards to Export*/
 @Serializable
 data class SBDeckToExportDto(
-    val deck : SBDeckDto,
-    val cts : List<SBCTToExport>,
-    val cardsToDisplay : CardsToDisplay
+    val deck: SBDeckDto,
+    val cts: List<SBCTToExport>,
+    val cardsToDisplay: CardsToDisplay
 )
 
 /** Supabase Card with its respective Card Type to export to supabase. */
@@ -85,25 +91,29 @@ sealed class SBCTToExport {
         val card: SBCardDto,
         val basicCard: BasicCard
     ) : SBCTToExport()
+
     @Serializable
     data class Three(
         val card: SBCardDto,
         val threeCard: ThreeFieldCard,
-    ): SBCTToExport()
+    ) : SBCTToExport()
+
     @Serializable
     data class Hint(
         val card: SBCardDto,
         val hintCard: HintCard
-    ): SBCTToExport()
+    ) : SBCTToExport()
+
     @Serializable
     data class Multi(
         val card: SBCardDto,
         val multiCard: SBMultiCardDto
-    ): SBCTToExport()
+    ) : SBCTToExport()
+
     @Serializable
     data class Notation(
         val card: SBCardDto,
         val notationCard: SBNotationCardDto
-    ): SBCTToExport()
+    ) : SBCTToExport()
 }
 

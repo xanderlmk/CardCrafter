@@ -34,7 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.DeckViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.uiFunctions.AddCardButton
@@ -67,7 +67,7 @@ class DeckView(
             modifier = Modifier
                 .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
-            ResetDeckDueDate(pressed, deckVM, deck.id, deck.cardAmount)
+            ResetDeckDueDate(pressed, deckVM, deck)
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceEvenly,
@@ -156,7 +156,7 @@ class DeckView(
     fun ResetDeckDueDate(
         pressed: MutableState<Boolean>,
         deckVM: DeckViewModel,
-        deckId: Int, cardAmount: Int
+        deck: Deck
     ) {
         if (pressed.value) {
             Dialog(onDismissRequest = { pressed.value = false }) {
@@ -194,9 +194,10 @@ class DeckView(
                             }
                             Button(
                                 onClick = {
-                                    deckVM.updateDueDate(deckId, cardAmount).also {
-                                        pressed.value = false
-                                    }
+                                    deckVM.updateDueDate(deck.id, deck.cardAmount, deck.cardsDone)
+                                        .also {
+                                            pressed.value = false
+                                        }
                                 },
                                 modifier = Modifier
                                     .padding(horizontal = 10.dp)

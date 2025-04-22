@@ -3,6 +3,7 @@ package com.belmontCrest.cardCrafter.supabase.view.profile
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -23,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -31,8 +32,10 @@ import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-fun UserExportedDecks(getUIStyle: GetUIStyle) {
-    val uEDVM: UserExportedDecksViewModel = viewModel(factory = AppViewModelProvider.Factory)
+fun UserExportedDecks(
+    getUIStyle: GetUIStyle, uEDVM: UserExportedDecksViewModel,
+    onNavigate: (String) -> Unit
+) {
     val deckList by uEDVM.userExportedDecks.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
         uEDVM.getUserDeckList()
@@ -50,25 +53,26 @@ fun UserExportedDecks(getUIStyle: GetUIStyle) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             items(deckList.list) { deck ->
-                DeckView(deck, getUIStyle)
+                DeckView(deck, getUIStyle, onNavigate)
             }
         }
     }
 }
+
 @Composable
-private fun DeckView(deck: SBDeckDto, getUIStyle: GetUIStyle) {
+private fun DeckView(deck: SBDeckDto, getUIStyle: GetUIStyle, onNavigate: (String) -> Unit) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .fillMaxHeight(.80f)
-            .fillMaxWidth(.95f)
             .padding(8.dp)
             .background(
                 color = getUIStyle.secondaryButtonColor(),
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(4.dp)
-    ) {
+            .clickable {
+                onNavigate(deck.deckUUID)
+            }) {
         Text(
             text = deck.name,
             textAlign = TextAlign.Center,

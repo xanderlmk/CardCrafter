@@ -7,7 +7,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.res.stringResource
-import com.belmontCrest.cardCrafter.controller.cardHandlers.returnCard
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
@@ -16,6 +15,7 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.deleteTextColor
 import kotlinx.coroutines.CoroutineScope
 import com.belmontCrest.cardCrafter.R
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import kotlinx.coroutines.launch
 
@@ -128,7 +128,7 @@ suspend fun updateCardType(
     ct: CT,
     newType : String
 ): Boolean {
-    val card = returnCard(ct)
+    val card = ct.toCard()
     when (newType) {
         "basic" -> {
             if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()) {

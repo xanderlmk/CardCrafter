@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckViewDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
@@ -33,6 +34,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 class NavViewModel(
     private val flashCardRepository: FlashCardRepository,
+    private val cardTypeRepository: CardTypeRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     companion object {
@@ -60,14 +62,6 @@ class NavViewModel(
     val deckNav = _deckNav.asStateFlow()
     fun updateDeckNav(navHostController: NavHostController) {
         _deckNav.update {
-            navHostController
-        }
-    }
-
-    private val _sbNav: MutableStateFlow<NavHostController?> = MutableStateFlow(null)
-    val sbNav = _sbNav.asStateFlow()
-    fun updateSBNav(navHostController: NavHostController) {
-        _sbNav.update {
             navHostController
         }
     }
@@ -137,7 +131,7 @@ class NavViewModel(
         if (id == 0) {
             flowOf(SelectedCard(null))
         } else {
-            flashCardRepository.getCardStream(id).map {
+            cardTypeRepository.getACardTypeStream(id).map {
                 Log.d("CARD STATUS", "$it")
                 SelectedCard(it)
             }
@@ -149,7 +143,7 @@ class NavViewModel(
             if (cardId.value == 0) {
                 SelectedCard(null)
             } else {
-                SelectedCard(flashCardRepository.getCardById(cardId.value))
+                SelectedCard(cardTypeRepository.getACardType(cardId.value))
             }
     )
 

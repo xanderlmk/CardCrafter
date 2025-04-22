@@ -3,7 +3,6 @@ package com.belmontCrest.cardCrafter.supabase.view.uploadDeck
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,9 +39,6 @@ import com.belmontCrest.cardCrafter.model.FWProp
 import com.belmontCrest.cardCrafter.model.TAProp
 import com.belmontCrest.cardCrafter.model.TextProps
 import com.belmontCrest.cardCrafter.model.Type
-import com.belmontCrest.cardCrafter.model.setFontSize
-import com.belmontCrest.cardCrafter.model.setFontWeight
-import com.belmontCrest.cardCrafter.model.setTextAlign
 import com.belmontCrest.cardCrafter.model.toTextProp
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CC_LESS_THAN_20
@@ -50,10 +46,11 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_CARDS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.tables.isThereCards
-import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
+import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
+import com.belmontCrest.cardCrafter.uiFunctions.CustomText
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.toCardDetails
@@ -70,7 +67,6 @@ fun UploadThisDeck(
     var message by remember { mutableStateOf("") }
     var code by remember { mutableIntStateOf(-1) }
     val coroutineScope = rememberCoroutineScope()
-    val cts by supabaseVM.sealedAllCTs.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val selectedCards by supabaseVM.selectedCards.collectAsStateWithLifecycle()
     val defaultModifier = Modifier
@@ -136,13 +132,6 @@ fun UploadThisDeck(
                     onClick = {
                         if (description.length < 20) {
                             showToastMessage(context, "Description must be longer!")
-                        } else if (cts.allCTs.isEmpty()) {
-                            showToastMessage(
-                                context,
-                                "Card list is empty, please wait for it " + "to load or add at least 20 cards."
-                            )
-                        } else if (cts.allCTs.size < 20) {
-                            showToastMessage(context, "Card list must have at least 20 cards.")
                         } else {
                             coroutineScope.launch {
                                 enabled = false
@@ -153,25 +142,17 @@ fun UploadThisDeck(
                                         showToastMessage(
                                             context, "Success!", onNavigate = { dismiss() })
                                     } else if (it == DECK_EXISTS) {
-                                        enabled = true
-                                        failed.value = true
-                                        code = it
+                                        code = it; enabled = true; failed.value = true
                                         message = "Deck already exists!"
                                     } else if (it == CC_LESS_THAN_20) {
-                                        enabled = true
-                                        failed.value = true
-                                        code = it
+                                        code = it; enabled = true; failed.value = true
                                         message = "Card count less than 20."
-                                    } else if (it == NULL_CARDS){
-                                        code = it
+                                    } else if (it == NULL_CARDS) {
+                                        code = it; enabled = true; failed.value = true
                                         message = "Please select at least one card to display"
-                                        enabled = true
-                                        failed.value = true
                                     } else {
-                                        code = it
+                                        code = it; enabled = true; failed.value = true
                                         message = "Something went wrong."
-                                        enabled = true
-                                        failed.value = true
                                     }
                                 }
                             }
@@ -179,6 +160,7 @@ fun UploadThisDeck(
                     }, enabled, getUIStyle, "Export"
                 )
             }
+
         }
     }
 }
@@ -237,26 +219,14 @@ private fun ShowCardDetails(ct: CT, getUIStyle: GetUIStyle) {
     }
 }
 
-@Composable
-private fun CustomText(
-    text: String, getUIStyle: GetUIStyle, modifier: Modifier = Modifier,
-    props: TextProps = TextProps()
-) {
-    val fontWeight = setFontWeight(props.fw)
-    val fontSize = setFontSize(props.fs)
-    val textAlign = setTextAlign(props.ta)
-    Text(
-        text = text,
-        color = getUIStyle.titleColor(),
-        textAlign = textAlign,
-        modifier = modifier,
-        fontSize = fontSize,
-        fontWeight = fontWeight
-    )
-}
 
 @Composable
-private fun LimitedText(text: String, getUIStyle: GetUIStyle,modifier: Modifier, onShow: (Boolean) -> Unit) {
+private fun LimitedText(
+    text: String,
+    getUIStyle: GetUIStyle,
+    modifier: Modifier,
+    onShow: (Boolean) -> Unit
+) {
     Text(
         text = text,
         color = getUIStyle.titleColor(),

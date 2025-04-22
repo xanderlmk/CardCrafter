@@ -1,9 +1,7 @@
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 
 import android.content.Intent
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.belmontCrest.cardCrafter.BuildConfig
 import com.belmontCrest.cardCrafter.localDatabase.tables.Encryption
 import com.belmontCrest.cardCrafter.localDatabase.tables.Pwd
@@ -40,13 +38,12 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 class AuthRepositoryImpl(
     private val sharedSupabase: SupabaseClient,
     private val syncedSupabase: SupabaseClient,
     private val pwdDao: PwdDao
 ) : AuthRepository {
-    companion object{
+    companion object {
         private const val SB_OWNER_TN = BuildConfig.SB_OWNER_TN
         private const val POST_FUNCTION_STRING = "functions/v1/getKeys"
         private const val POST_FUNCTION_JTW = "functions/v1/jwt-checker"
@@ -56,6 +53,7 @@ class AuthRepositoryImpl(
         private const val AUTH_REPO = "Auth Repository"
         private const val USER_EXISTS = "email address has already been registered"
     }
+
     override suspend fun createOwner(username: String, fName: String, lName: String): Boolean {
         return withContext(Dispatchers.IO) {
             val user = sharedSupabase.auth.currentUserOrNull()
@@ -126,6 +124,7 @@ class AuthRepositoryImpl(
                 }
                 true
             } catch (e: Exception) {
+                signOutIssue()
                 Log.e("AuthRepo", "Failed to sign in with google: $e")
                 false
             }
@@ -213,16 +212,20 @@ class AuthRepositoryImpl(
                 }
                 "yay"
             } catch (e: Exception) {
+                signOutIssue()
                 when (e) {
                     is UnauthorizedRestException -> {
                         "incorrect credentials"
                     }
+
                     is HttpRequestTimeoutException -> {
                         "timeout"
                     }
+
                     is HttpRequestException -> {
                         "network"
                     }
+
                     else -> {
                         Log.e("Auth Repository", "$e")
                         "unknown"
@@ -283,8 +286,11 @@ class AuthRepositoryImpl(
                     return@withContext "Sign in to synced DB."
                 }
                 val issuer = Json.decodeFromJsonElement(
-                    String.serializer(), user?.userMetadata?.get("iss") ?:
-                    Json.encodeToJsonElement(String.serializer(), "empty")
+                    String.serializer(),
+                    user?.userMetadata?.get("iss") ?: Json.encodeToJsonElement(
+                        String.serializer(),
+                        "empty"
+                    )
                 )
                 // if the user already exist with google it's okay, but don't sign in.
                 if (issuer == GOOGLE_ISSUER) {
@@ -315,7 +321,7 @@ class AuthRepositoryImpl(
                 } else {
                     val errorBody = response.bodyAsText()
                     Log.e(AUTH_REPO, "Failed: ${response.status} - $errorBody")
-                    if (errorBody.contains(USER_EXISTS)){
+                    if (errorBody.contains(USER_EXISTS)) {
                         deletePwd(pwd)
                     }
                     return@withContext "Couldn't sign in to the synced DB."
@@ -326,9 +332,29 @@ class AuthRepositoryImpl(
             }
         }
     }
+
     private fun deletePwd(pwd: Pwd?) {
         if (pwd != null) {
             pwdDao.deletePwd(pwd)
+        }
+    }
+
+    /**
+     *  In case there's an issue signing in with either account
+     *  sign out of the one that did successfully sign in.
+     */
+    private suspend fun signOutIssue() {
+        try {
+            val syncedUser = syncedSupabase.auth.currentUserOrNull()
+            val sharedUser = sharedSupabase.auth.currentUserOrNull()
+            if (syncedUser == null && sharedUser != null
+            ) {
+                sharedSupabase.auth.signOut()
+            } else if (syncedUser != null && sharedUser == null) {
+                syncedSupabase.auth.signOut()
+            }
+        } catch (e : Exception) {
+            Log.e(AUTH_REPO, "$e")
         }
     }
 }

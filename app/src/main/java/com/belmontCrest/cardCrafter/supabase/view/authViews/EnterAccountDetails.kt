@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.view.showToastMessage
+import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField

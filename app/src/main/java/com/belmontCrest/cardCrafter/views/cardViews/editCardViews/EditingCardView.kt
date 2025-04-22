@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,39 +27,37 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.controller.AppViewModelProvider
+import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardType
+import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnCardTypeHandler
 import com.belmontCrest.cardCrafter.controller.onClickActions.saveCard
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateCardType
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
+import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
-import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.editCardModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
+import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 import kotlinx.coroutines.launch
 
 class EditingCardView(
-    private var editingCardListVM: EditingCardListViewModel,
     private var getUIStyle: GetUIStyle
 ) {
     @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     fun EditFlashCardView(
-        card: Card,
+        ct: CT,
         fields: Fields,
-        index: Int,
         onNavigateBack: () -> Unit
     ) {
         val editCardVM: EditCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
-        fields.newType =  rememberSaveable { mutableStateOf(card.type) }
+        fields.newType =  rememberSaveable { mutableStateOf(ct.getCardType()) }
         val fillOutfields = stringResource(R.string.fill_out_all_fields).toString()
         val errorMessage by editCardVM.errorMessage.collectAsStateWithLifecycle()
         val coroutineScope = rememberCoroutineScope()
         val cardTypeChanged = rememberSaveable { mutableStateOf(false) }
-        val sealedAllCTs by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
 
         Box(
             modifier = Modifier
@@ -89,14 +85,13 @@ class EditingCardView(
                     )
                 }
                 val cardTypeHandler = returnCardTypeHandler(
-                    fields.newType.value, card.type
+                    fields.newType.value, ct.getCardType()
                 )
-                if (fields.newType.value != card.type) {
+                if (fields.newType.value != ct.getCardType()) {
                     cardTypeChanged.value = true
                 }
                 cardTypeHandler?.HandleCardEdit(
-                    ct = sealedAllCTs.allCTs[index],
-                    fields = fields,
+                    ct = ct, fields = fields,
                     changed = cardTypeChanged.value,
                     getUIStyle = getUIStyle
                 )
@@ -104,21 +99,19 @@ class EditingCardView(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     CancelButton(
                         onClick = {
                             onNavigateBack()
-                        }, true, getUIStyle
+                        }, true, getUIStyle,
+                        modifier = Modifier.weight(1f).padding(2.dp)
                     )
-                    Button(
+                    SubmitButton(
                         onClick = {
                             coroutineScope.launch {
-                                if (fields.newType.value == card.type) {
-                                    val success = saveCard(
-                                        fields, editCardVM,
-                                        sealedAllCTs.allCTs[index]
-                                    )
+                                if (fields.newType.value == ct.getCardType()) {
+                                    val success = saveCard(fields, editCardVM, ct)
                                     if (success) {
                                         editCardVM.clearErrorMessage()
                                         onNavigateBack()
@@ -127,9 +120,7 @@ class EditingCardView(
                                     }
                                 } else {
                                     val success = updateCardType(
-                                        fields, editCardVM,
-                                        sealedAllCTs.allCTs[index],
-                                        fields.newType.value
+                                        fields, editCardVM, ct, fields.newType.value
                                     )
                                     if (success) {
                                         editCardVM.clearErrorMessage()
@@ -139,16 +130,9 @@ class EditingCardView(
                                     }
                                 }
                             }
-                        },
-                        modifier = Modifier
-                            .weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = getUIStyle.secondaryButtonColor(),
-                            contentColor = getUIStyle.buttonTextColor()
-                        )
-                    ) {
-                        Text(stringResource(R.string.save))
-                    }
+                        }, true, getUIStyle, stringResource(R.string.save),
+                        modifier = Modifier.weight(1f).padding(2.dp)
+                    )
                 }
                 if (errorMessage.isNotEmpty()) {
                     Text(

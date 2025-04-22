@@ -97,6 +97,7 @@ interface DeckDao {
     FROM RankedCards rc
     WHERE rc.deckId = decks.id
     ),
+    cardsDone = 0,
     lastUpdated = :startOfDay
     WHERE EXISTS (
     SELECT 1
@@ -199,17 +200,12 @@ interface DeckDao {
     @Query(
         """ 
         UPDATE decks 
-        SET cardsLeft = :cardsLeft
+        SET cardsLeft = :cardsLeft,
+        cardsDone = :cardsDone
         WHERE id = :deckId
-        AND NOT EXISTS (
-            SELECT 1 
-            FROM cards c
-            WHERE c.deckId = :deckId
-            AND c.partOfList = 1                    -- Making sure there's no cards in a list.
-        )
     """
     )
-    fun updateCardsLeft(deckId: Int, cardsLeft: Int)
+    fun updateCardsLeft(deckId: Int, cardsLeft: Int, cardsDone: Int)
 
     @Query(
         """

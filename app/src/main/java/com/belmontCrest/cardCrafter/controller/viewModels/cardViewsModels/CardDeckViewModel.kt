@@ -5,10 +5,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.cardHandlers.callError
-import com.belmontCrest.cardCrafter.controller.cardHandlers.mapACardTypeToCT
-import com.belmontCrest.cardCrafter.controller.cardHandlers.returnCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnError
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnSavedCard
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
@@ -118,8 +117,8 @@ class CardDeckViewModel(
         return withContext(Dispatchers.IO) {
             try {
                 /** Forcefully creating a mutable list to override the current card. */
-                val ct = mapACardTypeToCT(cardTypeRepository.getACardType(cardId))
-                val card = returnCard(ct)
+                val ct = cardTypeRepository.getACardType(cardId)
+                val card = ct.toCard()
                 viewModelScope.launch {
                     addCardToUpdate(card)
                     state.value.allCTs[index] = ct
@@ -132,7 +131,7 @@ class CardDeckViewModel(
                 thisErrorState.value?.let { cardUE ->
                     callError(cardUE)
                 }
-                returnCard(state.value.allCTs[index])
+                state.value.allCTs[index].toCard()
             }
         }
     }
@@ -242,6 +241,7 @@ class CardDeckViewModel(
                              * */
                             if (card.nextReview > Date()) {
                                 deck.cardsLeft -= 1
+                                deck.cardsDone += 1
                                 flashCardRepository.updateSavedCards(
                                     cardId = card.id,
                                     reviewsLeft = card.reviewsLeft,
@@ -277,7 +277,9 @@ class CardDeckViewModel(
                     return@withContext true
                 } else {
                     viewModelScope.launch(Dispatchers.IO) {
-                        flashCardRepository.updateCardsLeft(deck.id, deck.cardsLeft)
+                        flashCardRepository.updateCardsLeft(
+                            deck.id, deck.cardsLeft, deck.cardsDone
+                        )
                     }
                 }
                 /** Making sure the deck does not have any due cards left
