@@ -28,3 +28,6 @@
 - edited in preference management file
 - added new string resources for both CuteTheme and DarkCuteTheme
 ## Gus
+### 4/20/2025 4:05pm
+- Katex mapping
+- autocomplete for users who need it fast
