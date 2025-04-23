@@ -199,3 +199,60 @@ val MIGRATION_24_25 = object : Migration(24,25) {
         }
     }
 }
+
+val MIGRATION_25_26 = object : Migration(25,26) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        try {
+            db.beginTransaction()
+            db.execSQL("""
+            CREATE TABLE IF NOT EXISTS syncedDeckInfo_new (
+                uuid TEXT NOT NULL,
+                lastUpdatedOn TEXT NOT NULL,
+                PRIMARY KEY(uuid)
+            )
+        """.trimIndent())
+
+            db.execSQL("""
+            INSERT INTO syncedDeckInfo_new(uuid, lastUpdatedOn)
+            SELECT uuid, lastUpdatedOn FROM syncedDeckInfo
+        """.trimIndent())
+
+            db.execSQL("DROP TABLE syncedDeckInfo")
+
+            db.execSQL("ALTER TABLE syncedDeckInfo_new RENAME TO syncedDeckInfo")
+
+            db.setTransactionSuccessful()
+        }  catch (e: Exception) {
+
+            Log.e("Migration", "Migration 25 to 26 failed", e)
+            throw RuntimeException("Migration 25 to 26 failed: ${e.message}")
+        } finally {
+            db.endTransaction()
+        }
+    }
+}
+
+
+val MIGRATION_26_27 = object : Migration(26,27) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        try {
+            db.beginTransaction()
+            db.execSQL("""
+            ALTER TABLE syncedDeckInfo RENAME to syncedDeckInfo_T
+        """.trimIndent())
+
+            db.execSQL("""
+            ALTER TABLE syncedDeckInfo_T RENAME to syncedDeckInfo
+        """.trimIndent())
+
+
+
+            db.setTransactionSuccessful()
+        }  catch (e: Exception) {
+            Log.e("Migration", "Migration 26 to 27 failed", e)
+            throw RuntimeException("Migration 26 to 27 failed: ${e.message}")
+        } finally {
+            db.endTransaction()
+        }
+    }
+}

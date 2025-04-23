@@ -40,16 +40,7 @@ data class ImportedDeckInfo(
 )
 
 @Entity(
-    tableName = "syncedDeckInfo",
-    foreignKeys = [
-        ForeignKey(
-            entity = Deck::class,
-            parentColumns = ["uuid"],
-            childColumns = ["uuid"],
-            onDelete = CASCADE
-        )
-    ],
-    indices = [Index(value = ["uuid"])]
+    tableName = "syncedDeckInfo"
 )
 data class SyncedDeckInfo(
     @PrimaryKey val uuid: String,

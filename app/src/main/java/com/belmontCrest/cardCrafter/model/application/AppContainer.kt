@@ -17,9 +17,11 @@ import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SBTableRepositoryImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SBTablesRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.OfflineSupabaseToRoomRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.OfflineUserSyncedInfoRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SupabaseToRoomRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserExportDecksRepositoryImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserExportedDecksRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserSyncedInfoRepository
 import io.github.jan.supabase.SupabaseClient
 import kotlinx.coroutines.CoroutineScope
 
@@ -38,6 +40,7 @@ interface AppContainer {
     val userExportedDecksRepository: UserExportedDecksRepository
     val sharedSupabase: SupabaseClient
     val syncedSupabase: SupabaseClient
+    val userSyncedInfoRepository: UserSyncedInfoRepository
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -49,28 +52,28 @@ class AppDataContainer(
 ) : AppContainer {
     override val flashCardRepository: FlashCardRepository by lazy {
         OfflineFlashCardRepository(
-            FlashCardDatabase.Companion.getDatabase(context, scope).deckDao(),
-            FlashCardDatabase.Companion.getDatabase(context, scope).cardDao(),
-            FlashCardDatabase.Companion.getDatabase(context, scope).savedCardDao()
+            FlashCardDatabase.getDatabase(context, scope).deckDao(),
+            FlashCardDatabase.getDatabase(context, scope).cardDao(),
+            FlashCardDatabase.getDatabase(context, scope).savedCardDao()
         )
     }
     override val cardTypeRepository: CardTypeRepository by lazy {
         OfflineCardTypeRepository(
-            FlashCardDatabase.Companion.getDatabase(context, scope).cardTypes(),
-            FlashCardDatabase.Companion.getDatabase(context, scope).basicCardDao(),
-            FlashCardDatabase.Companion.getDatabase(context, scope).hintCardDao(),
-            FlashCardDatabase.Companion.getDatabase(context, scope).threeCardDao(),
-            FlashCardDatabase.Companion.getDatabase(context, scope).multiChoiceCardDao()
+            FlashCardDatabase.getDatabase(context, scope).cardTypes(),
+            FlashCardDatabase.getDatabase(context, scope).basicCardDao(),
+            FlashCardDatabase.getDatabase(context, scope).hintCardDao(),
+            FlashCardDatabase.getDatabase(context, scope).threeCardDao(),
+            FlashCardDatabase.getDatabase(context, scope).multiChoiceCardDao()
         )
     }
     override val scienceSpecificRepository: ScienceSpecificRepository by lazy {
         OfflineScienceRepository(
-            FlashCardDatabase.Companion.getDatabase(context, scope).notationCardDao()
+            FlashCardDatabase.getDatabase(context, scope).notationCardDao()
         )
     }
     override val supabaseToRoomRepository: SupabaseToRoomRepository by lazy {
         OfflineSupabaseToRoomRepository(
-            FlashCardDatabase.Companion.getDatabase(context, scope).supabaseDao()
+            FlashCardDatabase.getDatabase(context, scope).supabaseDao()
         )
     }
     override val importRepository: ImportRepository by lazy {
@@ -82,7 +85,7 @@ class AppDataContainer(
     override val authRepository: AuthRepository by lazy {
         AuthRepositoryImpl(
             sharedSupabase, syncedSupabase,
-            FlashCardDatabase.Companion.getDatabase(context, scope).pwdDao()
+            FlashCardDatabase.getDatabase(context, scope).pwdDao()
         )
     }
     override val userExportedDecksRepository: UserExportedDecksRepository by lazy {
@@ -90,4 +93,10 @@ class AppDataContainer(
     }
     override val sharedSupabase: SupabaseClient by lazy { sharedSupabase }
     override val syncedSupabase: SupabaseClient by lazy { syncedSupabase }
+
+    override val userSyncedInfoRepository: UserSyncedInfoRepository by lazy {
+        OfflineUserSyncedInfoRepository(
+            FlashCardDatabase.getDatabase(context, scope).syncedDeckInfoDao()
+        )
+    }
 }

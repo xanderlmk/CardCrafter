@@ -44,6 +44,8 @@ import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_21_22
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_22_23
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_23_24
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_24_25
+import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_25_26
+import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_26_27
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_3_5
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_5_6
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_6_7
@@ -52,6 +54,7 @@ import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_8_9
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_9_10
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.PwdDao
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.SupabaseDao
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.SyncedDeckInfoDao
 import kotlinx.coroutines.CoroutineScope
 
 /** The database instance. */
@@ -61,7 +64,7 @@ import kotlinx.coroutines.CoroutineScope
         HintCard::class, MultiChoiceCard::class, NotationCard::class, SavedCard::class,
         ImportedDeckInfo::class, SyncedDeckInfo::class, Pwd::class
     ],
-    version = 25, exportSchema = false
+    version = 27, exportSchema = false
 )
 @TypeConverters(
     TimeConverter::class, ListStringConverter::class, EncryptionConverter::class
@@ -78,6 +81,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
     abstract fun savedCardDao(): SavedCardDao
     abstract fun supabaseDao(): SupabaseDao
     abstract fun pwdDao(): PwdDao
+    abstract fun syncedDeckInfoDao(): SyncedDeckInfoDao
 
     companion object {
         @Volatile
@@ -94,7 +98,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                             MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16,
                             MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20,
                             MIGRATION_20_21, MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24,
-                            MIGRATION_24_25
+                            MIGRATION_24_25, MIGRATION_25_26, MIGRATION_26_27
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(FlashCardDatabaseCallback(scope))
