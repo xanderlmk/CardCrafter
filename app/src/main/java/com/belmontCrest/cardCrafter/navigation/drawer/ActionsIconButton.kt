@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,8 +18,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckNavDestination
@@ -31,6 +34,7 @@ import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestinat
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.CardPickerDropdown
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -69,6 +73,15 @@ fun ActionIconButton(
     val cr = navViewModel.route.collectAsStateWithLifecycle().value
 
     when (cr.name) {
+
+        MainNavDestination.route -> {
+            IconButton(onClick = {}) {
+                Icon(
+                    painter = painterResource(R.drawable.cloud_sync),
+                    contentDescription = "Cloud Sync"
+                )
+            }
+        }
 
         DeckNavDestination.route -> {
             wd.deck?.let {

@@ -1,6 +1,8 @@
 package com.belmontCrest.cardCrafter.model.application
 
 import android.app.Application
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.createSharedSupabase
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.createSyncedSupabase
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSharedSBKey
@@ -20,6 +22,7 @@ class FlashCardApplication : Application() {
     lateinit var sharedSupabase: SupabaseClient
     lateinit var syncedSupabase: SupabaseClient
     private val applicationScope = CoroutineScope(SupervisorJob())
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate() {
         super.onCreate()
         sharedSupabase = createSharedSupabase(getSharedSBUrl(), getSharedSBKey())
