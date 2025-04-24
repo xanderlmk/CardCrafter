@@ -84,7 +84,7 @@ data class Deck(
         }
     }
 }
-
+@Serializable
 @Parcelize
 @Entity(
     tableName = "cards",
@@ -104,6 +104,7 @@ data class Card(
     var deckId: Int,
     val deckUUID: String,
     var reviewsLeft: Int,
+    @Serializable(with = DateAsLong::class)
     var nextReview: Date,
     var passes: Int = 0,
     var prevSuccess: Boolean,

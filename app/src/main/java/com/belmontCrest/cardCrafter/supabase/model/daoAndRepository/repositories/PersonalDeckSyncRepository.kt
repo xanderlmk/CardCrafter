@@ -28,7 +28,6 @@ interface PersonalDeckSyncRepository {
 @RequiresApi(Build.VERSION_CODES.O)
 
 class PersonalDeckSyncRepositoryImpl(
-
     private val syncedSupabase: SupabaseClient
 ) : PersonalDeckSyncRepository {
 
@@ -39,8 +38,7 @@ class PersonalDeckSyncRepositoryImpl(
 
     override suspend fun syncUserDecks(decks: List<DeckWithLotsCards>): Int {
         return withContext(Dispatchers.IO) {
-            val user = syncedSupabase.auth.currentUserOrNull()
-                ?: return@withContext ReturnValues.NULL_USER
+            val user = syncedSupabase.auth.currentUserOrNull() ?: return@withContext ReturnValues.NULL_USER
 
             try {
 

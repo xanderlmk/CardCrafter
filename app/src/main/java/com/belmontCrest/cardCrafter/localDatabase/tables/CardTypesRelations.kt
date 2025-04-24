@@ -74,6 +74,7 @@ data class AllCardTypes(
 @Serializable
 @Parcelize
 sealed class CT : Parcelable {
+    @Serializable
     @Parcelize
     data class Basic(
         @Embedded var card: Card,
@@ -103,7 +104,7 @@ sealed class CT : Parcelable {
             }
         }
     }
-
+    @Serializable
     @Parcelize
     data class Hint(
         @Embedded var card: Card,
@@ -135,7 +136,7 @@ sealed class CT : Parcelable {
             }
         }
     }
-
+    @Serializable
     @Parcelize
     data class ThreeField(
         @Embedded var card: Card,
@@ -166,7 +167,7 @@ sealed class CT : Parcelable {
             }
         }
     }
-
+    @Serializable
     @Parcelize
     data class MultiChoice(
         @Embedded var card: Card,
@@ -197,6 +198,7 @@ sealed class CT : Parcelable {
             }
         }
     }
+    @Serializable
     @Parcelize
     data class Notation(
         @Embedded var card: Card,

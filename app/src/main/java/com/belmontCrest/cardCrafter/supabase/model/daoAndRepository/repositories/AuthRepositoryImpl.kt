@@ -309,7 +309,7 @@ class AuthRepositoryImpl(
                         header(HttpHeaders.Authorization, "Bearer $jwt")
                         header(HttpHeaders.ContentType, "application/json")
                         setBody(
-                            """{ "password": "${pwd?.password}", "user_id": "$userId" } """
+                            """{ "password": "${pwd?.password?.pd}", "user_id": "$userId" } """
                         )
                     }
                 if (response.status == HttpStatusCode.OK) {

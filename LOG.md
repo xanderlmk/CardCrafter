@@ -51,7 +51,7 @@
 - added logic for supporting theme switching for CuteTheme & DarkCuteTheme
 - edited in preference management file
 - added new string resources for both CuteTheme and DarkCuteTheme
-## 4/22/2025
+### 4/22/2025
 - Start of the Deck Sync ( Doesn't Work At ALL!)
 - Added a cool cloud sync logo
 - Added files in /multiple files in Supabase/Controller/viewModels, Supabase/Controllermodel/daoAndRepository/daos
@@ -59,6 +59,11 @@
 - Added files in Supabase/model/viewModels
 - added files in Supabase/model/tables
 - added then the Cloud_sync.xml
+### 4/24/2025
+- added functionality to the syncing
+- sends data to online database
+- cannot be retrieved yet
+- fixed bug where password wasn't being correctly sent to sign up on the second supabase auth
 - 
 - 
 ## Gus
