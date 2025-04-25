@@ -22,6 +22,8 @@ import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserExportDecksRepositoryImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserExportedDecksRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserSyncedInfoRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.PersonalDeckSyncRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.PersonalDeckSyncRepositoryImpl
 import io.github.jan.supabase.SupabaseClient
 import kotlinx.coroutines.CoroutineScope
 
@@ -41,6 +43,7 @@ interface AppContainer {
     val sharedSupabase: SupabaseClient
     val syncedSupabase: SupabaseClient
     val userSyncedInfoRepository: UserSyncedInfoRepository
+    val personalDeckSyncRepository: PersonalDeckSyncRepository
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -97,6 +100,11 @@ class AppDataContainer(
     override val userSyncedInfoRepository: UserSyncedInfoRepository by lazy {
         OfflineUserSyncedInfoRepository(
             FlashCardDatabase.getDatabase(context, scope).syncedDeckInfoDao()
+        )
+    }
+    override val personalDeckSyncRepository: PersonalDeckSyncRepository by lazy {
+        PersonalDeckSyncRepositoryImpl(
+            syncedSupabase
         )
     }
 }

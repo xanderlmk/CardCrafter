@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
@@ -32,9 +33,12 @@ import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
+import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.navigation.destinations.DeckListDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.PersonalDeckSyncViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.CardPickerDropdown
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -75,7 +79,25 @@ fun ActionIconButton(
     when (cr.name) {
 
         MainNavDestination.route -> {
-            IconButton(onClick = {}) {
+            val pdsVM: PersonalDeckSyncViewModel = viewModel(factory = AppViewModelProvider.Factory)
+            IconButton(onClick = {
+                coroutineScope.launch {
+                    pdsVM.syncDecks()
+                }
+            }) {
+                Icon(
+                    painter = painterResource(R.drawable.cloud_sync),
+                    contentDescription = "Cloud Sync"
+                )
+            }
+        }
+        DeckListDestination.route -> {
+            val pdsVM: PersonalDeckSyncViewModel = viewModel(factory = AppViewModelProvider.Factory)
+            IconButton(onClick = {
+                coroutineScope.launch {
+                    pdsVM.syncDecks()
+                }
+            }) {
                 Icon(
                     painter = painterResource(R.drawable.cloud_sync),
                     contentDescription = "Cloud Sync"

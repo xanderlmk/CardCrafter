@@ -33,14 +33,18 @@ class PersonalDeckSyncViewModel(
                 when (result) {
                     ReturnValues.SUCCESS -> {
                         _syncStatus.value = SyncStatus.Success
+                        Log.d("PDSVM", "Successfully Synced Decks")
                     }
                     ReturnValues.NULL_USER -> {
+                        Log.e("PDSVM", "Sync failed with code: $result")
                         _syncStatus.value = SyncStatus.Error("User not authenticated")
                     }
                     ReturnValues.EMPTY_CARD_LIST -> {
+                        Log.e("PDSVM", "Sync failed with code: $result")
                         _syncStatus.value = SyncStatus.Error("No decks to sync")
                     }
                     else -> {
+                        Log.e("PDSVM", "Sync failed with code: $result")
                         _syncStatus.value = SyncStatus.Error("Sync failed with code: $result")
                     }
                 }
