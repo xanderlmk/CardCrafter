@@ -1,5 +1,6 @@
 package com.belmontCrest.cardCrafter.navigation.drawer
 
+import android.icu.text.CaseMap.Title
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
@@ -9,8 +10,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +43,7 @@ import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.PersonalDeckSyncViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SyncStatus
 import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.CardPickerDropdown
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
@@ -80,6 +84,17 @@ fun ActionIconButton(
 
         MainNavDestination.route -> {
             val pdsVM: PersonalDeckSyncViewModel = viewModel(factory = AppViewModelProvider.Factory)
+            val syncStatus by pdsVM.syncStatus.collectAsStateWithLifecycle()
+            if (syncStatus != SyncStatus.Idle && syncStatus != SyncStatus.Syncing &&
+                syncStatus != SyncStatus.Success){
+                AlertDialog(
+                    onDismissRequest = {pdsVM.resetSyncStatus()},
+                    title = { Text("Card Details") },
+                    text = { Text("Error") },
+                    confirmButton = {},
+                    dismissButton = {},
+                )
+            }
             IconButton(onClick = {
                 coroutineScope.launch {
                     pdsVM.syncDecks()
@@ -93,6 +108,17 @@ fun ActionIconButton(
         }
         DeckListDestination.route -> {
             val pdsVM: PersonalDeckSyncViewModel = viewModel(factory = AppViewModelProvider.Factory)
+            val syncStatus by pdsVM.syncStatus.collectAsStateWithLifecycle()
+            if (syncStatus != SyncStatus.Idle && syncStatus != SyncStatus.Syncing &&
+                syncStatus != SyncStatus.Success){
+                AlertDialog(
+                    onDismissRequest = {pdsVM.resetSyncStatus()},
+                    title = { Text("Card Details") },
+                    text = { Text("Error") },
+                    confirmButton = {},
+                    dismissButton = {},
+                )
+            }
             IconButton(onClick = {
                 coroutineScope.launch {
                     pdsVM.syncDecks()

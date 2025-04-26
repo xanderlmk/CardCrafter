@@ -5,6 +5,7 @@ package com.belmontCrest.cardCrafter.localDatabase.tables
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -12,8 +13,10 @@ import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
+import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -122,10 +125,28 @@ object Encryptor {
     }
 }
 
-private val pgFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSxx")
+private val pgFmt = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
+fun String.toInstant(): Instant {
+    return try {
+        OffsetDateTime.parse(this, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant()
+    } catch (e: DateTimeParseException) {
+        try {
+            Log.e("String.toInstant()", "Error: $e,trying 1")
+            OffsetDateTime.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSZ")).toInstant()
+        } catch (e: DateTimeParseException) {
+            try {
+                Log.e("String.toInstant()", "Error: $e,trying 2")
 
-fun String.toInstant() = OffsetDateTime.parse(this, pgFmt).toInstant()!!
+                OffsetDateTime.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSxxx")).toInstant()
+            } catch (e: DateTimeParseException) {
+                Log.e("String.toInstant()", "Error: $e,trying 3")
+                Log.e("PersonalDeckSyncRepo", "Failed to parse timestamp: $this")
+                Instant.now()
+            }
+        }
+    }
+}
 /** Example
 fun thisFunc() {
 // usage

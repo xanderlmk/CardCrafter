@@ -64,8 +64,12 @@
 - sends data to online database
 - cannot be retrieved yet
 - fixed bug where password wasn't being correctly sent to sign up on the second supabase auth
-- 
-- 
+### 4/25/2025
+- Successfully synced decks, from local to supabase database
+- fixed bugs
+- I want to die 
+- make sure that the last updated on, is locally saved for future comparisons to make sure there 
+is no syncing conflicts
 ## Gus
 ### 4/20/2025 4:05pm
 - Katex mapping
