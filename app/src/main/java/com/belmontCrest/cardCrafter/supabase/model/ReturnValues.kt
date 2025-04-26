@@ -25,4 +25,5 @@ object ReturnValues {
     const val CANCELLED = 499
     const val NETWORK_ERROR = 500
     const val UNKNOWN_ERROR = 504
+
 }

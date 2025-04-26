@@ -1,12 +1,11 @@
-package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository
+package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues
 import com.belmontCrest.cardCrafter.supabase.model.tables.DeckWithLotsCards
 import com.belmontCrest.cardCrafter.supabase.model.tables.ListOfDecks
+import com.belmontCrest.cardCrafter.supabase.model.tables.PDUpdatedOn
 import com.belmontCrest.cardCrafter.supabase.model.tables.PersonalDecks
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.gotrue.auth
@@ -21,11 +20,12 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
 interface PersonalDeckSyncRepository {
-    suspend fun syncUserDecks(decks: List<DeckWithLotsCards>): Int
+    suspend fun syncUserDecks(decks: List<DeckWithLotsCards>): Pair<String, Int>
     suspend fun fetchRemoteDecks(): Pair<List<PersonalDecks>, Int>
+    suspend fun getUserUUID(): String?
+    suspend fun getLastUpdatedOn(): Pair<PDUpdatedOn?, Int>
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 
 class PersonalDeckSyncRepositoryImpl(
     private val syncedSupabase: SupabaseClient
@@ -33,17 +33,19 @@ class PersonalDeckSyncRepositoryImpl(
 
     companion object {
         private const val PERSONAL_DECKS_TABLE = "personal_decks"
-        private val pgFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSxx")
+        private val pgFmt = DateTimeFormatter.ISO_OFFSET_DATE_TIME
     }
 
-    override suspend fun syncUserDecks(decks: List<DeckWithLotsCards>): Int {
+
+    override suspend fun syncUserDecks(decks: List<DeckWithLotsCards>): Pair<String, Int> {
         return withContext(Dispatchers.IO) {
-            val user = syncedSupabase.auth.currentUserOrNull() ?: return@withContext ReturnValues.NULL_USER
+            val user =
+                syncedSupabase.auth.currentUserOrNull() ?: return@withContext Pair("", ReturnValues.NULL_USER)
 
             try {
 
                 if (decks.isEmpty()) {
-                    return@withContext ReturnValues.EMPTY_CARD_LIST
+                    return@withContext Pair("", ReturnValues.EMPTY_CARD_LIST)
                 }
 
 
@@ -57,23 +59,24 @@ class PersonalDeckSyncRepositoryImpl(
                 val personalDecks = PersonalDecks(
                     user_id = user.id,
                     data = jsonObject,
-                    created_at = currentTimestamp,
-                    updated_on = currentTimestamp
                 )
 
                 //check if user already has personal decks synced
-                val existingDecks = syncedSupabase.from(PERSONAL_DECKS_TABLE)
+                val existingDeck = syncedSupabase.from(PERSONAL_DECKS_TABLE)
                     .select(Columns.ALL) {
                         filter {
                             eq("user_id", user.id)
                         }
-                    }.decodeList<PersonalDecks>()
+                    }.decodeSingleOrNull<PersonalDecks>()
 
-                if (existingDecks.isEmpty()) {
+                if (existingDeck == null) {
                     //insert new record
-                    syncedSupabase.from(PERSONAL_DECKS_TABLE)
+                    val result = syncedSupabase.from(PERSONAL_DECKS_TABLE)
                         .insert(personalDecks)
+                        .decodeSingle<PersonalDecks>()
+                        return@withContext Pair(result.updated_on, ReturnValues.SUCCESS)
                 } else {
+                    Log.d(PERSONAL_DECKS_TABLE, existingDeck.updated_on)
                     //updates existing record
                     syncedSupabase.from(PERSONAL_DECKS_TABLE)
                         .update({
@@ -84,12 +87,12 @@ class PersonalDeckSyncRepositoryImpl(
                                 eq("user_id", user.id)
                             }
                         }
+                    return@withContext Pair(currentTimestamp, ReturnValues.SUCCESS)
                 }
 
-                return@withContext ReturnValues.SUCCESS
             } catch (e: Exception) {
                 Log.e("PersonalDeckSyncRepo", "Error syncing decks: ${e.message}")
-                return@withContext ReturnValues.UNKNOWN_ERROR
+                return@withContext Pair("", ReturnValues.UNKNOWN_ERROR)
             }
         }
     }
@@ -115,5 +118,35 @@ class PersonalDeckSyncRepositoryImpl(
         }
     }
 
+    override suspend fun getUserUUID(): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                syncedSupabase.auth.currentUserOrNull()?.id
+            } catch (e: Exception) {
+                Log.e("PersonalDeckSyncRepo", "Error, Couldn't get user ID: ${e.message}")
+                null
+            }
+        }
+    }
+
+    override suspend fun getLastUpdatedOn(): Pair<PDUpdatedOn?, Int> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val user = syncedSupabase.auth.currentUserOrNull() ?: return@withContext Pair(
+                    null, ReturnValues.NULL_USER
+                )
+                val result =
+                    syncedSupabase.from(PERSONAL_DECKS_TABLE).select(Columns.type<PDUpdatedOn>()) {
+                        filter {
+                            eq("user_id", user.id)
+                        }
+                    }.decodeSingleOrNull<PDUpdatedOn>()
+                Pair(result, ReturnValues.SUCCESS)
+            } catch (e: Exception) {
+                Log.e("", "${e.message}")
+                Pair(null, ReturnValues.UNKNOWN_ERROR)
+            }
+        }
+    }
 
 }

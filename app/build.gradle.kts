@@ -33,59 +33,43 @@ android {
         }
         buildConfigField(
             "String",
-            "SUPABASE_URL", "\"" + "${
-                gradleLocalProperties(rootDir, providers)
-                    .getProperty("SUPABASE_URL", "")
-            }" + "\""
+            "SUPABASE_URL", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SUPABASE_URL", "") + "\""
         )
         buildConfigField(
             "String",
-            "SUPABASE_KEY", "\"" + "${
-                gradleLocalProperties(rootDir, providers)
-                    .getProperty("SUPABASE_KEY", "")
-            }" + "\""
+            "SUPABASE_KEY", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SUPABASE_KEY", "") + "\""
         )
         buildConfigField(
             "String",
-            "SB_DECK_TN", "\"" + "${
-                gradleLocalProperties(rootDir, providers)
-                    .getProperty("SB_DECK_TN", "")
-            }" + "\""
+            "SB_DECK_TN", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SB_DECK_TN", "") + "\""
         )
         buildConfigField(
             "String",
-            "SB_CARD_TN", "\"" + "${
-                gradleLocalProperties(rootDir, providers)
-                    .getProperty("SB_CARD_TN", "")
-            }" + "\""
+            "SB_CARD_TN", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SB_CARD_TN", "") + "\""
         )
         buildConfigField(
             "String",
-            "SB_OWNER_TN", "\"" + "${
-                gradleLocalProperties(rootDir, providers)
-                    .getProperty("SB_OWNER_TN", "")
-            }" + "\""
+            "SB_OWNER_TN", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SB_OWNER_TN", "") + "\""
         )
         buildConfigField(
             "String",
-            "SB_CTD_TN", "\"" + "${
-                gradleLocalProperties(rootDir, providers)
-                    .getProperty("SB_CTD_TN", "")
-            }" + "\""
+            "SB_CTD_TN", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SB_CTD_TN", "") + "\""
         )
         buildConfigField(
             "String",
-            "SYNCED_SB_URL", "\"" + "${
-                gradleLocalProperties(rootDir, providers)
-                    .getProperty("SYNCED_SB_URL", "")
-            }" + "\""
+            "SYNCED_SB_URL", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SYNCED_SB_URL", "") + "\""
         )
         buildConfigField(
             "String",
-            "SYNCED_SB_KEY", "\"" + "${
-                gradleLocalProperties(rootDir, providers)
-                    .getProperty("SYNCED_SB_KEY", "")
-            }" + "\""
+            "SYNCED_SB_KEY", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SYNCED_SB_KEY", "") + "\""
         )
     }
 

@@ -22,8 +22,8 @@ import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserExportDecksRepositoryImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserExportedDecksRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserSyncedInfoRepository
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.PersonalDeckSyncRepository
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repository.PersonalDeckSyncRepositoryImpl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.PersonalDeckSyncRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.PersonalDeckSyncRepositoryImpl
 import io.github.jan.supabase.SupabaseClient
 import kotlinx.coroutines.CoroutineScope
 
