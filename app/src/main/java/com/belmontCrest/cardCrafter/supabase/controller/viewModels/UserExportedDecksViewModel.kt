@@ -103,10 +103,14 @@ class UserExportedDecksViewModel(
             getCTDs(uuid)
         }
     }
-
     private suspend fun getAllCards() {
         _userCards.update {
-            uEDRepository.userDeckCards(_userExportedDecks.value.toUUIDs())
+            try {
+                uEDRepository.userDeckCards(_userExportedDecks.value.toUUIDs())
+            } catch(e : Exception){
+                Log.e(UEDVM, "$e")
+                SBCardList()
+            }
         }
     }
     private fun getCTDs(uuid: String) {

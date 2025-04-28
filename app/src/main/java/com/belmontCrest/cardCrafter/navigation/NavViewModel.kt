@@ -173,4 +173,17 @@ class NavViewModel(
         savedStateHandle["cardId"] = 0
         cardId.update { 0 }
     }
+    /** Value to check is the user is syncing the deck */
+    private val _isBlocking = MutableStateFlow(false)
+    val isBlocking = _isBlocking.asStateFlow()
+    fun updateIsBlocking() {
+        _isBlocking.update {
+            true
+        }
+    }
+    fun resetIsBlocking() {
+        _isBlocking.update {
+            false
+        }
+    }
 }

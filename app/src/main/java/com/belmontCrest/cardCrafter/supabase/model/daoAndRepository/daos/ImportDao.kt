@@ -1,9 +1,5 @@
-@file:RequiresApi(Build.VERSION_CODES.O)
-
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert

@@ -43,6 +43,11 @@
 - Refactor of SBNavHost
 - New CardListView.
 - More options for Supabase decks for owners.
+### 4/28/2025 11:55am
+- Sync option to replace local DB 
+- Some UI Icon fixes
+- Create some reusable functions for more clean code.
+- New override sync function forthcoming.
 ## John
 ### 4/8/2025 11:50pm
 - Cute Theme: ADDED for people who like cute stuff

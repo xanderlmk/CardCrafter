@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
+import java.io.IOException
 
 interface UserExportedDecksRepository {
     suspend fun userExportedDecks(): Flow<List<SBDeckDto>>
@@ -142,9 +143,15 @@ class UserExportDecksRepositoryImpl(
                 }
                 val sortedCards = allCards.sortedBy { it.sortKey() }
                 SBCardList(sortedCards)
+            } catch (e: IllegalAccessException) {
+                Log.e("UserExportedDecksRepository", "Authentication error retrieving user deck cards", e)
+                throw e
+            } catch (e: IOException) {
+                Log.e("UserExportedDecksRepository", "Network error retrieving user deck cards", e)
+                throw e
             } catch (e: Exception) {
-                Log.e("UserExportedDeckRepo", "$e")
-                SBCardList()
+                Log.e("UserExportedDecksRepository", "Unexpected error retrieving user deck cards", e)
+                throw e
             }
         }
     }

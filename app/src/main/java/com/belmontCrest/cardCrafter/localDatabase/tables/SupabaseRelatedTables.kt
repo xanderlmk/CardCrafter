@@ -1,12 +1,8 @@
-@file:RequiresApi(Build.VERSION_CODES.O)
-
 package com.belmontCrest.cardCrafter.localDatabase.tables
 
-import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
@@ -84,7 +80,7 @@ object Encryptor {
         val ks = java.security.KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
         ks.getKey(KEY_ALIAS, null)?.let { return it as SecretKey }
 
-        val kgen = KeyGenerator.getInstance(
+        val kGen = KeyGenerator.getInstance(
             KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE
         )
         val spec = KeyGenParameterSpec.Builder(
@@ -95,8 +91,8 @@ object Encryptor {
             .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
             .setUserAuthenticationRequired(false) // No need for biometrics screen.
             .build()
-        kgen.init(spec)
-        return kgen.generateKey()
+        kGen.init(spec)
+        return kGen.generateKey()
     }
     @TypeConverter
     fun encryptString(plain: String): String {
@@ -124,8 +120,6 @@ object Encryptor {
         return String(plain)
     }
 }
-
-private val pgFmt = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
 fun String.toInstant(): Instant {
     return try {

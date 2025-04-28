@@ -31,6 +31,18 @@ fun CT.getCardId(): Int = when (this) {
     is CT.Notation -> card.id
 }
 
+fun List<CT>.toCardList(): List<Card> {
+    return this.map {
+        it.toCard()
+    }
+}
+
+fun List<CT>.toBasicList() = filterIsInstance<CT.Basic>().map { it.basicCard }
+fun List<CT>.toHintList() = filterIsInstance<CT.Hint>().map { it.hintCard }
+fun List<CT>.toThreeFieldList() = filterIsInstance<CT.ThreeField>().map { it.threeFieldCard }
+fun List<CT>.toMultiChoiceList() = filterIsInstance<CT.MultiChoice>().map { it.multiChoiceCard }
+fun List<CT>.toNotationList() = filterIsInstance<CT.Notation>().map { it.notationCard }
+
 fun updateCTCard(
     ct: CT, dueCT: CT,
     deck: Deck, vm: CardDeckViewModel,

@@ -21,6 +21,7 @@ object ReturnValues {
     const val NOTATION_CT_ERROR = 14
     const val CTD_ERROR = 27
     const val EMPTY_CARD_LIST = 88
+    const val NO_DECKS_TO_SYNC = 90
     const val UUID_CONFLICT = 101
     const val CANCELLED = 499
     const val NETWORK_ERROR = 500
