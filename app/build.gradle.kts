@@ -1,8 +1,6 @@
 @file:Suppress("PropertyName")
 
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
-import com.android.build.gradle.internal.dsl.NdkOptions.DebugSymbolLevel
-import com.android.build.gradle.internal.dsl.NdkOptions.DebugSymbolLevel.SYMBOL_TABLE
 
 plugins {
     alias(libs.plugins.android.application)
@@ -12,7 +10,6 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.parcelize)
 }
-
 
 android {
     namespace = "com.belmontCrest.cardCrafter"
@@ -71,8 +68,16 @@ android {
             "SYNCED_SB_KEY", "\"" + gradleLocalProperties(rootDir, providers)
                 .getProperty("SYNCED_SB_KEY", "") + "\""
         )
-    }
 
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["room.schemaLocation"] = "$projectDir/schemas"
+            }
+        }
+    }
+    sourceSets {
+        this["androidTest"].assets.srcDir("$projectDir/schemas")
+    }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
@@ -113,7 +118,7 @@ android {
     // Delete this kotlin section to run on Koala version
     kotlin {
         jvmToolchain {
-            languageVersion.set(JavaLanguageVersion.of(17)) // or 1.8 if using an older JDK
+            languageVersion.set(JavaLanguageVersion.of(17))
         }
     }
     kotlinOptions {

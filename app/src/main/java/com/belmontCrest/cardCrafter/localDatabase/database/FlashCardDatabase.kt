@@ -65,7 +65,7 @@ import kotlinx.coroutines.CoroutineScope
         HintCard::class, MultiChoiceCard::class, NotationCard::class, SavedCard::class,
         ImportedDeckInfo::class, SyncedDeckInfo::class, Pwd::class
     ],
-    version = 28, exportSchema = false
+    version = 28, exportSchema = true
 )
 @TypeConverters(
     TimeConverter::class, ListStringConverter::class, EncryptionConverter::class

@@ -41,6 +41,15 @@ fun MLProp.toTextProp(): TextProps = when (this) {
     MLProp.Default -> TextProps(ml = MLProp.Default)
 }
 
+fun FSProp.toTextProp(): TextProps = when (this) {
+    FSProp.Font22 -> TextProps(fs = FSProp.Font22)
+    FSProp.Font20 -> TextProps(fs = FSProp.Font20)
+    FSProp.Font18 -> TextProps(fs = FSProp.Font18)
+    FSProp.Font16 -> TextProps(fs = FSProp.Font16)
+    FSProp.Font14 -> TextProps(fs = FSProp.Font14)
+    FSProp.Default -> TextProps(fs = FSProp.Default)
+}
+
 fun setFontSize(fsProp: FSProp): TextUnit {
     return when(fsProp) {
         FSProp.Font22  -> 22.sp

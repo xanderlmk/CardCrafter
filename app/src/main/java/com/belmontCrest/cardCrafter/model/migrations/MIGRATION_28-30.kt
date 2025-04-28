@@ -42,11 +42,7 @@ val MIGRATION_27_28 = object : Migration(27, 28) {
                     FROM cards;
             """.trimIndent()
             )
-            db.execSQL(
-                """
-            DROP TABLE cards;
-            """
-            )
+            db.execSQL("""DROP TABLE cards;""")
             db.execSQL(
                 """
             ALTER TABLE cards_temp RENAME TO cards;

@@ -38,17 +38,13 @@ data class ImportedDeckInfo(
     val lastUpdatedOn: String,
 )
 
-@Entity(
-    tableName = "syncedDeckInfo"
-)
+@Entity(tableName = "syncedDeckInfo")
 data class SyncedDeckInfo(
     @PrimaryKey val uuid: String,
     val lastUpdatedOn: String
 )
 
-@Entity(
-    tableName = "pwd"
-)
+@Entity(tableName = "pwd")
 data class Pwd(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val password: Encryption
@@ -141,12 +137,3 @@ fun String.toInstant(): Instant {
         }
     }
 }
-/** Example
-fun thisFunc() {
-// usage
-val ts1 = "2025-04-09 23:48:34.411857+00".toInstant()
-val ts2 = "2025-04-10 01:12:00.000000+00".toInstant()
-
-val newer = ts1?.let { if (it > ts2) ts1 else ts2 }       // or ts1.isAfter(ts2)
-
-} */

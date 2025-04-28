@@ -2,22 +2,35 @@ package com.belmontCrest.cardCrafter.navigation.drawer
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.model.FSProp
+import com.belmontCrest.cardCrafter.model.FWProp
+import com.belmontCrest.cardCrafter.model.TAProp
+import com.belmontCrest.cardCrafter.model.TextProps
 import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
@@ -59,36 +72,67 @@ fun MainDLRouteContent(
         }
 
         SyncStatus.Conflict -> {
-            AlertDialog(
+            val fillMWModifier = Modifier.fillMaxWidth()
+            Dialog(
                 onDismissRequest = {
                     pdsVM.resetSyncStatus()
                     navViewModel.resetIsBlocking()
-                },
-                title = { Text("Sync Conflict") },
-                text = {
-                    Column {
-                        CustomText("Another sync has already been made", getUIStyle)
-                        CustomText("Would you like to replace it?", getUIStyle)
-                    }
-                },
-                confirmButton = {
-                    SubmitButton(
-                        onClick = {
-                            navViewModel.updateIsBlocking()
-                            pdsVM.fetchRemoteDecks()
+                }
+            ) {
+                Box(
+                    modifier = fillMWModifier
+                        .background(
+                            color = getUIStyle.altBackground(), shape = RoundedCornerShape(24.dp)
+                        )
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Column(
+                        modifier = fillMWModifier,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CustomText(
+                            "Sync Conflict", getUIStyle, fillMWModifier,
+                            TextProps(fw = FWProp.Bold, ta = TAProp.Start, fs = FSProp.Font20)
+                        )
+                        CustomText(
+                            "Another sync has already been made.",
+                            getUIStyle, fillMWModifier
+                        )
+                        CustomText(
+                            "Would you like to replace this local one or the remote one?",
+                            getUIStyle, fillMWModifier
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = fillMWModifier,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            SubmitButton(
+                                onClick = {
+                                    navViewModel.updateIsBlocking()
+                                    pdsVM.fetchRemoteDecks()
 
-                        }, true, getUIStyle, "Replace"
-                    )
-                },
-                dismissButton = {
-                    CancelButton(
-                        onClick = {
-                            pdsVM.resetSyncStatus()
-                            navViewModel.resetIsBlocking()
-                        }, true, getUIStyle
-                    )
-                },
-            )
+                                }, true, getUIStyle, "Replace This",
+                                fontSize = 12.sp
+                            )
+                            SubmitButton(
+                                onClick = {
+                                    navViewModel.updateIsBlocking()
+                                    pdsVM.overrideSyncDecks()
+                                }, true, getUIStyle, "Replace Remote",
+                                fontSize = 12.sp
+                            )
+                        }
+                        CancelButton(
+                            onClick = {
+                                pdsVM.resetSyncStatus()
+                                navViewModel.resetIsBlocking()
+                            }, true, getUIStyle, fontSize = 12.sp
+                        )
+                    }
+                }
+            }
         }
 
         SyncStatus.Idle -> {
@@ -112,6 +156,7 @@ fun MainDLRouteContent(
             }
         }
     }
+
     IconButton(onClick = {
         coroutineScope.launch {
             pdsVM.syncDecks()
