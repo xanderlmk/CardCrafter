@@ -1,12 +1,8 @@
-@file:RequiresApi(Build.VERSION_CODES.O)
-
 package com.belmontCrest.cardCrafter.localDatabase.tables
 
-import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
@@ -42,17 +38,13 @@ data class ImportedDeckInfo(
     val lastUpdatedOn: String,
 )
 
-@Entity(
-    tableName = "syncedDeckInfo"
-)
+@Entity(tableName = "syncedDeckInfo")
 data class SyncedDeckInfo(
     @PrimaryKey val uuid: String,
     val lastUpdatedOn: String
 )
 
-@Entity(
-    tableName = "pwd"
-)
+@Entity(tableName = "pwd")
 data class Pwd(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val password: Encryption
@@ -84,7 +76,7 @@ object Encryptor {
         val ks = java.security.KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
         ks.getKey(KEY_ALIAS, null)?.let { return it as SecretKey }
 
-        val kgen = KeyGenerator.getInstance(
+        val kGen = KeyGenerator.getInstance(
             KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE
         )
         val spec = KeyGenParameterSpec.Builder(
@@ -95,8 +87,8 @@ object Encryptor {
             .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
             .setUserAuthenticationRequired(false) // No need for biometrics screen.
             .build()
-        kgen.init(spec)
-        return kgen.generateKey()
+        kGen.init(spec)
+        return kGen.generateKey()
     }
     @TypeConverter
     fun encryptString(plain: String): String {
@@ -125,8 +117,6 @@ object Encryptor {
     }
 }
 
-private val pgFmt = DateTimeFormatter.ISO_OFFSET_DATE_TIME
-
 fun String.toInstant(): Instant {
     return try {
         OffsetDateTime.parse(this, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant()
@@ -147,12 +137,3 @@ fun String.toInstant(): Instant {
         }
     }
 }
-/** Example
-fun thisFunc() {
-// usage
-val ts1 = "2025-04-09 23:48:34.411857+00".toInstant()
-val ts2 = "2025-04-10 01:12:00.000000+00".toInstant()
-
-val newer = ts1?.let { if (it > ts2) ts1 else ts2 }       // or ts1.isAfter(ts2)
-
-} */

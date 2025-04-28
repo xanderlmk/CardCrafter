@@ -92,7 +92,8 @@ data class Deck(
         ForeignKey(
             entity = Deck::class,
             parentColumns = ["id"],
-            childColumns = ["deckId"]
+            childColumns = ["deckId"],
+            onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [

@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
@@ -320,7 +321,7 @@ fun CardTypesButton(getUIStyle: GetUIStyle, navViewModel: NavViewModel) {
 @Composable
 fun CancelButton(
     onClick: () -> Unit, enabled: Boolean, getUIStyle: GetUIStyle,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier, fontSize: TextUnit = TextUnit.Unspecified
 ) {
     Button(
         onClick = {
@@ -331,14 +332,14 @@ fun CancelButton(
             contentColor = getUIStyle.buttonTextColor()
         ),
         enabled = enabled, modifier = modifier
-    ) { Text(stringResource(R.string.cancel)) }
+    ) { Text(text = stringResource(R.string.cancel), fontSize = fontSize) }
 }
 
 @Composable
 fun SubmitButton(
     onClick: () -> Unit, enabled: Boolean,
     getUIStyle: GetUIStyle, string: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier, fontSize: TextUnit = TextUnit.Unspecified
 ) {
     Button(
         onClick = {
@@ -349,6 +350,6 @@ fun SubmitButton(
             contentColor = getUIStyle.buttonTextColor()
         ), modifier = modifier
     ) {
-        Text(string)
+        Text(text = string, fontSize = fontSize)
     }
 }

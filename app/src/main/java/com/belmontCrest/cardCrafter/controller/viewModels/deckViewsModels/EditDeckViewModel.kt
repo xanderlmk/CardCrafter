@@ -32,10 +32,8 @@ class EditDeckViewModel(
         }
     }
 
-    // Deleting a deck via the repository
     fun deleteDeck(deck: Deck) {
         viewModelScope.launch {
-            flashCardRepository.deleteAllCards(deck.id)
             flashCardRepository.deleteDeck(deck)
         }
     }

@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.belmontCrest.cardCrafter.R
@@ -41,6 +42,7 @@ import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.uiFunctions.ContentIcons
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -56,6 +58,15 @@ class ModalContent(
     private val cr: StringVar,
     private val wd: WhichDeck
 ) {
+    private val mdModifier = Modifier
+        .padding(horizontal = 4.dp)
+        .size(28.dp)
+        .background(
+            color = getUIStyle.buttonColor(),
+            shape = RoundedCornerShape(12.dp)
+        )
+    private val ci = ContentIcons(getUIStyle)
+
     @Composable
     fun Home(coroutineScope: CoroutineScope) {
         CustomRow(
@@ -70,7 +81,7 @@ class ModalContent(
             })
         {
             Text(text = "Home")
-            ContentIcon("Home", Icons.Filled.Home)
+            ci.ContentIcon("Home", Icons.Filled.Home, mdModifier)
         }
     }
 
@@ -82,7 +93,10 @@ class ModalContent(
             navController.navigate(SBNavDestination.route)
         }) {
             Text("Exported Decks")
-            ContentIcon("Rounded Playing Cards", painterResource(R.drawable.rounded_playing_cards))
+            ci.ContentIcon(
+                "Rounded Playing Cards", painterResource(R.drawable.rounded_playing_cards),
+                mdModifier
+            )
         }
     }
 
@@ -97,7 +111,7 @@ class ModalContent(
             })
         {
             Text("Settings")
-            ContentIcon("Main Settings", Icons.Default.Settings)
+            ci.ContentIcon("Main Settings", Icons.Default.Settings, mdModifier)
         }
     }
 
@@ -122,7 +136,7 @@ class ModalContent(
             }
         ) {
             Text("User Profile")
-            ContentIcon("User Profile", Icons.Default.AccountCircle)
+            ci.ContentIcon("User Profile", Icons.Default.AccountCircle, mdModifier)
         }
     }
 
@@ -141,44 +155,6 @@ class ModalContent(
         }
     }
 
-    @Composable
-    private fun ContentIcon(cd: String, icon: ImageVector) {
-        Icon(
-            imageVector = icon,
-            modifier = Modifier
-                .padding(horizontal = 4.dp)
-                .size(28.dp)
-                .background(
-                    color = getUIStyle.buttonColor(),
-                    shape = RoundedCornerShape(12.dp)
-                ),
-            contentDescription = cd,
-            tint = if (getUIStyle.getIsCuteTheme()) {
-                LocalContentColor.current
-            } else {
-                getUIStyle.iconColor()
-            }
-        )
-    }
-    @Composable
-    private fun ContentIcon(cd: String, icon: Painter) {
-        Icon(
-            painter = icon,
-            modifier = Modifier
-                .padding(horizontal = 4.dp)
-                .size(28.dp)
-                .background(
-                    color = getUIStyle.buttonColor(),
-                    shape = RoundedCornerShape(12.dp)
-                ),
-            contentDescription = cd,
-            tint = if (getUIStyle.getIsCuteTheme()) {
-                LocalContentColor.current
-            } else {
-                getUIStyle.iconColor()
-            }
-        )
-    }
 }
 
 @Composable

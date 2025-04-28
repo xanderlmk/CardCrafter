@@ -21,36 +21,34 @@ import java.time.format.DateTimeFormatter
 
 interface PersonalDeckSyncRepository {
     suspend fun syncUserDecks(decks: List<DeckWithLotsCards>): Pair<String, Int>
-    suspend fun fetchRemoteDecks(): Pair<List<PersonalDecks>, Int>
+    suspend fun fetchRemoteDecks(): Pair<PersonalDecks?, Int>
     suspend fun getUserUUID(): String?
     suspend fun getLastUpdatedOn(): Pair<PDUpdatedOn?, Int>
 }
-
 
 class PersonalDeckSyncRepositoryImpl(
     private val syncedSupabase: SupabaseClient
 ) : PersonalDeckSyncRepository {
 
     companion object {
-        private const val PERSONAL_DECKS_TABLE = "personal_decks"
+        private const val PERSONAL_DECKS = "personal_decks"
         private val pgFmt = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+        private val json = Json
     }
-
 
     override suspend fun syncUserDecks(decks: List<DeckWithLotsCards>): Pair<String, Int> {
         return withContext(Dispatchers.IO) {
             val user =
-                syncedSupabase.auth.currentUserOrNull() ?: return@withContext Pair("", ReturnValues.NULL_USER)
-
+                syncedSupabase.auth.currentUserOrNull() ?: return@withContext Pair(
+                    "", ReturnValues.NULL_USER
+                )
             try {
-
                 if (decks.isEmpty()) {
-                    return@withContext Pair("", ReturnValues.EMPTY_CARD_LIST)
+                    return@withContext Pair("", ReturnValues.NO_DECKS_TO_SYNC)
                 }
 
-
                 val listOfDecks = ListOfDecks(decks)
-                val json = Json
+
                 val jsonElement = json.encodeToJsonElement(ListOfDecks.serializer(), listOfDecks)
                 val jsonObject = jsonElement.jsonObject
 
@@ -62,7 +60,7 @@ class PersonalDeckSyncRepositoryImpl(
                 )
 
                 //check if user already has personal decks synced
-                val existingDeck = syncedSupabase.from(PERSONAL_DECKS_TABLE)
+                val existingDeck = syncedSupabase.from(PERSONAL_DECKS)
                     .select(Columns.ALL) {
                         filter {
                             eq("user_id", user.id)
@@ -71,14 +69,17 @@ class PersonalDeckSyncRepositoryImpl(
 
                 if (existingDeck == null) {
                     //insert new record
-                    val result = syncedSupabase.from(PERSONAL_DECKS_TABLE)
-                        .insert(personalDecks)
-                        .decodeSingle<PersonalDecks>()
-                        return@withContext Pair(result.updated_on, ReturnValues.SUCCESS)
+                    val result = syncedSupabase.from(PERSONAL_DECKS)
+                        .insert(personalDecks) {
+                            select(Columns.type<PDUpdatedOn>())
+                        }
+                        .decodeSingle<PDUpdatedOn>()
+
+                    return@withContext Pair(result.updatedOn, ReturnValues.SUCCESS)
                 } else {
-                    Log.d(PERSONAL_DECKS_TABLE, existingDeck.updated_on)
+                    Log.d(PERSONAL_DECKS, existingDeck.updated_on)
                     //updates existing record
-                    syncedSupabase.from(PERSONAL_DECKS_TABLE)
+                    syncedSupabase.from(PERSONAL_DECKS)
                         .update({
                             set("data", jsonObject)
                             set("updated_on", currentTimestamp)
@@ -97,23 +98,22 @@ class PersonalDeckSyncRepositoryImpl(
         }
     }
 
-    override suspend fun fetchRemoteDecks(): Pair<List<PersonalDecks>, Int> {
+    override suspend fun fetchRemoteDecks(): Pair<PersonalDecks?, Int> {
         return withContext(Dispatchers.IO) {
             val user = syncedSupabase.auth.currentUserOrNull()
-                ?: return@withContext Pair(emptyList(), ReturnValues.NULL_USER)
+                ?: return@withContext Pair(null, ReturnValues.NULL_USER)
 
             try {
-                val personalDecks = syncedSupabase.from(PERSONAL_DECKS_TABLE)
+                val personalDecks = syncedSupabase.from(PERSONAL_DECKS)
                     .select(Columns.ALL) {
                         filter {
                             eq("user_id", user.id)
                         }
-                    }.decodeList<PersonalDecks>()
-
+                    }.decodeSingleOrNull<PersonalDecks>()
                 Pair(personalDecks, ReturnValues.SUCCESS)
             } catch (e: Exception) {
                 Log.e("PersonalDeckSyncRepo", "Error fetching remote decks: ${e.message}")
-                Pair(emptyList(), ReturnValues.UNKNOWN_ERROR)
+                Pair(null, ReturnValues.UNKNOWN_ERROR)
             }
         }
     }
@@ -136,11 +136,12 @@ class PersonalDeckSyncRepositoryImpl(
                     null, ReturnValues.NULL_USER
                 )
                 val result =
-                    syncedSupabase.from(PERSONAL_DECKS_TABLE).select(Columns.type<PDUpdatedOn>()) {
-                        filter {
-                            eq("user_id", user.id)
-                        }
-                    }.decodeSingleOrNull<PDUpdatedOn>()
+                    syncedSupabase.from(PERSONAL_DECKS)
+                        .select(Columns.type<PDUpdatedOn>()) {
+                            filter {
+                                eq("user_id", user.id)
+                            }
+                        }.decodeSingleOrNull<PDUpdatedOn>()
                 Pair(result, ReturnValues.SUCCESS)
             } catch (e: Exception) {
                 Log.e("", "${e.message}")

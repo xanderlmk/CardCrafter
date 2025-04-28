@@ -1,8 +1,6 @@
 package com.belmontCrest.cardCrafter.model.application
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.belmontCrest.cardCrafter.localDatabase.database.FlashCardDatabase
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
@@ -46,7 +44,6 @@ interface AppContainer {
     val personalDeckSyncRepository: PersonalDeckSyncRepository
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 class AppDataContainer(
     private val context: Context,
     scope: CoroutineScope,

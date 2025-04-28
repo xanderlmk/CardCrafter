@@ -24,7 +24,8 @@ val MIGRATION_7_8 = object : Migration(7, 8) {
                     choiceD TEXT NOT NULL,
                     correct INTEGER NOT NULL, 
                     PRIMARY KEY(cardId),
-                    FOREIGN KEY(cardId) REFERENCES cards(id) ON DELETE CASCADE)
+                    FOREIGN KEY(cardId) REFERENCES cards(id) ON DELETE CASCADE
+                    )
             """
             )
             database.setTransactionSuccessful()

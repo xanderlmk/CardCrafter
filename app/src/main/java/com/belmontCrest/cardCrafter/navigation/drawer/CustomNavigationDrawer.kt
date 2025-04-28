@@ -2,12 +2,14 @@ package com.belmontCrest.cardCrafter.navigation.drawer
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,6 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -97,6 +102,8 @@ fun CustomNavigationDrawer(
         ExportSBDestination.route -> "Select 4 cards here "
         else -> "CardCrafter"
     }
+
+    val isBlocking by navViewModel.isBlocking.collectAsStateWithLifecycle()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -171,6 +178,25 @@ fun CustomNavigationDrawer(
         ) { innerPadding ->
             Box(modifier.padding(innerPadding)) {
                 content()
+            }
+            if (isBlocking) {
+                // A semi-transparent layer that consumes every pointer event
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.45f))
+                        .pointerInput(Unit) {
+                            // swallow all touch events while visible
+                            awaitPointerEventScope {
+                                while (true) { awaitPointerEvent() }
+                            }
+                        }
+                ) {
+                    CircularProgressIndicator(
+                        Modifier.align(Alignment.Center),
+                        color = getUIStyle.titleColor()
+                    )
+                }
             }
         }
     }
