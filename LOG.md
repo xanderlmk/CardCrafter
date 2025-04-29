@@ -31,3 +31,5 @@
 ### 4/20/2025 4:05pm
 - Katex mapping
 - autocomplete for users who need it fast
+### 4/27/2025 2:46
+- Uppercase Katex mapping
