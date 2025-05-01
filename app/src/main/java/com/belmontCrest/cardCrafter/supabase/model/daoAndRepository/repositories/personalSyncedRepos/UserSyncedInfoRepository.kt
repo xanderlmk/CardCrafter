@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
+package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.personalSyncedRepos
 
 import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
 import com.belmontCrest.cardCrafter.localDatabase.tables.SyncedDeckInfo

@@ -37,7 +37,7 @@ import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.navigation.destinations.EditDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.PersonalDeckSyncViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SyncStatus
+import com.belmontCrest.cardCrafter.supabase.model.SyncStatus
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.settingsButtonModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CancelButton

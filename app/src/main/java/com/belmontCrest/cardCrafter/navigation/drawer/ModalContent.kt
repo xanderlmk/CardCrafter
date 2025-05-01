@@ -14,16 +14,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.belmontCrest.cardCrafter.R
@@ -51,7 +46,7 @@ import kotlinx.coroutines.launch
 class ModalContent(
     private val navController: NavHostController,
     private val fields: Fields,
-    private val getUIStyle: GetUIStyle,
+    getUIStyle: GetUIStyle,
     private val navViewModel: NavViewModel,
     private val cardDeckVM: CardDeckViewModel,
     private val supabaseVM: SupabaseViewModel,

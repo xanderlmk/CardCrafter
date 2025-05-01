@@ -1,11 +1,19 @@
-package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
+package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo
 
 import android.content.Intent
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.GoogleCredentials
 import com.belmontCrest.cardCrafter.supabase.model.tables.OwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.UserProfile
+import io.github.jan.supabase.gotrue.user.UserInfo
 
 interface AuthRepository {
+
+    fun getCurrentUser() : UserInfo?
+
+    suspend fun closeSupabase() : Boolean
+
+    fun reCreateSupabase(): Boolean
+
     suspend fun createOwner(username: String, fName: String, lName: String): Boolean
 
     suspend fun getOwner(): OwnerDto?

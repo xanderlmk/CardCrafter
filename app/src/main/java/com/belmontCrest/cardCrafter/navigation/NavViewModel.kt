@@ -61,9 +61,13 @@ class NavViewModel(
     private val _deckNav: MutableStateFlow<NavHostController?> = MutableStateFlow(null)
     val deckNav = _deckNav.asStateFlow()
     fun updateDeckNav(navHostController: NavHostController) {
-        _deckNav.update {
-            navHostController
-        }
+        _deckNav.update { navHostController }
+    }
+
+    private val _sbNav: MutableStateFlow<NavHostController?> = MutableStateFlow(null)
+    val sbNav = _sbNav.asStateFlow()
+    fun updateSBNav(navHostController: NavHostController) {
+        _sbNav.update { navHostController }
     }
 
     private val _route = MutableStateFlow(
@@ -102,7 +106,7 @@ class NavViewModel(
         }
     }
 
-    private val thisDeck: StateFlow<WhichDeck> = deckId
+    private val _wd: StateFlow<WhichDeck> = deckId
         .flatMapLatest { id ->
             if (id == 0) {
                 flowOf(WhichDeck())
@@ -116,7 +120,7 @@ class NavViewModel(
             started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
             initialValue = WhichDeck()
         )
-    val wd = thisDeck
+    val wd = _wd
 
     private val thisType = MutableStateFlow(savedStateHandle["type"] ?: "basic")
     val type = thisType.asStateFlow()
@@ -173,6 +177,7 @@ class NavViewModel(
         savedStateHandle["cardId"] = 0
         cardId.update { 0 }
     }
+
     /** Value to check is the user is syncing the deck */
     private val _isBlocking = MutableStateFlow(false)
     val isBlocking = _isBlocking.asStateFlow()
@@ -181,6 +186,7 @@ class NavViewModel(
             true
         }
     }
+
     fun resetIsBlocking() {
         _isBlocking.update {
             false

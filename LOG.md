@@ -50,6 +50,12 @@
 - New override sync function forthcoming.
 ### 4/28/2025 4:19pm
 - Override sync function done along with it's UI components.
+### 4/30/2025 8:35pm
+- Allow for users to send requests for co-owner by username
+- Allow users to accept requests to become co-owner of a deck
+- New Composable function pages, update SBNavHost, etc
+- New VM, Repo, View accordingly.
+- That's all (Sourcery AI don't get mad i put this LOL)
 ## John
 ### 4/8/2025 11:50pm
 - Cute Theme: ADDED for people who like cute stuff

@@ -73,9 +73,9 @@ class ImportDeck(
         Box(
             contentAlignment = Alignment.TopCenter,
             modifier = Modifier.scrollableBoxViewModifier(
-                    rememberScrollState(),
-                    getUIStyle.getColorScheme()
-                )
+                rememberScrollState(),
+                getUIStyle.getColorScheme()
+            )
         ) {
             val allCDs = listOfNotNull(
                 cards.first?.let { it.toCardDetails() to it.type },
@@ -89,9 +89,7 @@ class ImportDeck(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     ConflictDeck(conflict, deck, importDeckVM, onNavigate)
-                    DisplayCardDetails(allCDs, getUIStyle, deck) {
-                        loading = it
-                    }
+                    DisplayCardDetails(allCDs, getUIStyle, deck) { loading = it }
                     if (!loading) {
                         Row(
                             horizontalArrangement = Arrangement.SpaceEvenly,

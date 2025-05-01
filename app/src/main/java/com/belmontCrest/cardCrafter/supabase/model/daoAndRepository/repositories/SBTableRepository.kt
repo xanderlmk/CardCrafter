@@ -29,6 +29,8 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.rpc
+import io.github.jan.supabase.realtime.Realtime
+import io.github.jan.supabase.realtime.realtime
 import io.github.jan.supabase.realtime.selectAsFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -55,29 +57,79 @@ interface SBTablesRepository {
     suspend fun checkCardList(sbDeckDto: SBDeckDto): Pair<List<SBCardDto>, Int>
 
     suspend fun getCardsToDisplay(uuid: String): Pair<CardsToDisplay, Int>
+
+    suspend fun connectRealtime(): Boolean
+
+    fun disconnectRealtime(): Boolean
 }
 
 class SBTableRepositoryImpl(
-    private val sharedSupabase: SupabaseClient
+    private val sharedSupabase: SupabaseClient,
+    private val syncedSupabase: SupabaseClient
 ) : SBTablesRepository {
+
+    companion object {
+        private const val SB_TABLE_REPO = "SBTableRepository"
+        private const val SB_DECK_TN = BuildConfig.SB_DECK_TN
+        private const val SB_CARD_TN = BuildConfig.SB_CARD_TN
+        private const val SB_CTD_TN = BuildConfig.SB_CTD_TN
+    }
+
+    private val user = try {
+        sharedSupabase.auth.currentUserOrNull()
+    } catch (e: Exception) {
+        Log.e(SB_TABLE_REPO, "Couldn't get user info: $e")
+        null
+    }
+
+    override suspend fun connectRealtime(): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                sharedSupabase.useHTTPS
+                syncedSupabase.useHTTPS
+                if (sharedSupabase.realtime.status.value != Realtime.Status.CONNECTED) {
+                    sharedSupabase.realtime.connect()
+                }
+                if (syncedSupabase.realtime.status.value != Realtime.Status.CONNECTED) {
+                    syncedSupabase.realtime.connect()
+                }
+                true
+            } catch (e: SocketException) {
+                Log.d("Socket Issue", "SocketException: $e")
+                false
+            }
+        }
+    }
+
+    override fun disconnectRealtime(): Boolean {
+        try {
+            sharedSupabase.realtime.disconnect()
+            syncedSupabase.realtime.disconnect()
+            return true
+        } catch (e: Exception) {
+            Log.d("Socket Issue", "SocketException: $e")
+            return false
+        }
+    }
+
     override suspend fun getDeckList(): Flow<List<SBDeckDto>> {
         return withContext(Dispatchers.IO) {
             try {
-                val result = sharedSupabase.from(SBDeckTN)
+                val result = sharedSupabase.from(SB_DECK_TN)
                     .selectAsFlow(SBDeckDto::deckUUID)
                 result
             } catch (e: Exception) {
                 when (e) {
                     is SocketException -> {
-                        Log.d("SupabaseVm", "Network Error Occurred: $e")
+                        Log.d(SB_TABLE_REPO, "Network Error Occurred: $e")
                     }
 
                     is CancellationException -> {
-                        Log.d("SupabaseVm", "Cancelled: $e")
+                        Log.d(SB_TABLE_REPO, "Cancelled: $e")
                     }
 
                     else -> {
-                        Log.d("SupabaseVm", "Unknown error: $e")
+                        Log.d(SB_TABLE_REPO, "Unknown error: $e")
                     }
                 }
                 flowOf(listOf())
@@ -89,12 +141,11 @@ class SBTableRepositoryImpl(
         deck: Deck, description: String, cts: List<CT>, cardsToDisplay: CardsToDisplay
     ): Int {
         return withContext(Dispatchers.IO) {
-            val user = sharedSupabase.auth.currentUserOrNull()
             if (user == null) {
                 Log.e("SupabaseViewModel", "User is null!")
                 return@withContext NULL_USER
             }
-            val response = sharedSupabase.from(SBDeckTN)
+            val response = sharedSupabase.from(SB_DECK_TN)
                 .select(columns = Columns.type<SBDeckUUIDDto>()) {
                     filter {
                         eq("deckUUID", deck.uuid)
@@ -103,7 +154,7 @@ class SBTableRepositoryImpl(
                 .decodeSingleOrNull<SBDeckUUIDDto>()
 
             if (response?.deckUUID == deck.uuid) {
-                Log.e("SupabaseVM", "Deck already Exists!")
+                Log.e(SB_TABLE_REPO, "Deck already Exists!")
                 return@withContext DECK_EXISTS
             }
 
@@ -138,19 +189,18 @@ class SBTableRepositoryImpl(
         deck: Deck, description: String, cts: List<CT>, cardsToDisplay: CardsToDisplay
     ): Int {
         return withContext(Dispatchers.IO) {
-            val user = sharedSupabase.auth.currentUserOrNull()
             if (user == null) {
                 Log.d("SupabaseViewModel", "User is null!")
                 return@withContext NULL_USER
             }
-            val response = sharedSupabase.from(SBDeckTN)
+            val response = sharedSupabase.from(SB_DECK_TN)
                 .select(columns = Columns.type<SBDeckOwnerDto>()) {
                     filter {
                         eq("deckUUID", deck.uuid)
                     }
                 }.decodeSingleOrNull<SBDeckOwnerDto>()
             if (response?.user_id != user.id) {
-                Log.d("SupabaseVM", "Not the Deck Owner")
+                Log.d(SB_TABLE_REPO, "Not the Deck Owner")
                 return@withContext NOT_DECK_OWNER
             }
 
@@ -167,7 +217,7 @@ class SBTableRepositoryImpl(
                             eq("deckUUID", deck.uuid)
                         }
                     }.decodeSingleOrNull<CardsToDisplay>()
-                if (ctd == null){
+                if (ctd == null) {
                     return@withContext NULL_CARDS
                 }
                 localCTToSBCT(deck, cts, ctd, description, user.id)
@@ -199,7 +249,7 @@ class SBTableRepositoryImpl(
 
     override suspend fun checkCardList(sbDeckDto: SBDeckDto): Pair<List<SBCardDto>, Int> {
         return withContext(Dispatchers.IO) {
-            val cardList = sharedSupabase.from(SBCardTN)
+            val cardList = sharedSupabase.from(SB_CARD_TN)
                 .select(columns = Columns.ALL) {
                     filter {
                         eq("deckUUID", sbDeckDto.deckUUID)
@@ -217,7 +267,7 @@ class SBTableRepositoryImpl(
     override suspend fun getCardsToDisplay(uuid: String): Pair<CardsToDisplay, Int> {
         return withContext(Dispatchers.IO) {
             try {
-                val data = sharedSupabase.from(SBCtdTN)
+                val data = sharedSupabase.from(SB_CTD_TN)
                     .select(Columns.ALL) {
                         filter {
                             eq("deckUUID", uuid)
@@ -231,7 +281,3 @@ class SBTableRepositoryImpl(
         }
     }
 }
-
-private const val SBDeckTN = BuildConfig.SB_DECK_TN
-private const val SBCardTN = BuildConfig.SB_CARD_TN
-private const val SBCtdTN = BuildConfig.SB_CTD_TN

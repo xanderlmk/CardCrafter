@@ -60,6 +60,11 @@ android {
         )
         buildConfigField(
             "String",
+            "SB_DACO_TN", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SB_DACO_TN", "") + "\""
+        )
+        buildConfigField(
+            "String",
             "SYNCED_SB_URL", "\"" + gradleLocalProperties(rootDir, providers)
                 .getProperty("SYNCED_SB_URL", "") + "\""
         )

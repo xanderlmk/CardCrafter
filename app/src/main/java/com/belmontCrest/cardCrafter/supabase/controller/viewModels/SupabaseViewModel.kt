@@ -22,20 +22,13 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_OWNER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckListDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
-import com.belmontCrest.cardCrafter.supabase.model.createSupabase.createSharedSupabase
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.AuthRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.AuthRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SBTablesRepository
-import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSharedSBKey
-import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSharedSBUrl
 import com.belmontCrest.cardCrafter.supabase.model.tables.CardsToDisplay
 import com.belmontCrest.cardCrafter.supabase.model.tables.add
 import com.belmontCrest.cardCrafter.supabase.model.tables.isEmpty
-import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.annotations.SupabaseInternal
-import io.github.jan.supabase.gotrue.auth
-import io.github.jan.supabase.realtime.Realtime
-import io.github.jan.supabase.realtime.realtime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -52,7 +45,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.net.SocketException
 
 
 @OptIn(
@@ -64,7 +56,6 @@ import java.net.SocketException
 class SupabaseViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val cardTypeRepository: CardTypeRepository,
-    private var supabase: SupabaseClient,
     private val sbTableRepository: SBTablesRepository,
     private val authRepository: AuthRepository,
     application: Application
@@ -72,12 +63,11 @@ class SupabaseViewModel(
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
     }
+    private var _googleClientId = MutableStateFlow("")
+    val googleClientId = _googleClientId.asStateFlow()
 
-    private var googleClientId = MutableStateFlow("")
-    val clientId = googleClientId.asStateFlow()
-
-    private val thisUser = MutableStateFlow(supabase.auth.currentUserOrNull())
-    val currentUser = thisUser.asStateFlow()
+    private val _currentUser = MutableStateFlow(authRepository.getCurrentUser())
+    val currentUser = _currentUser.asStateFlow()
     private var isClientActive = true
 
     private val privateList = MutableStateFlow(SBDeckListDto())
@@ -184,17 +174,12 @@ class SupabaseViewModel(
     }
 
     fun disconnectSupabaseRT() {
-        supabase.realtime.disconnect()
+        sbTableRepository.disconnectRealtime()
     }
 
-    suspend fun connectSupabase() {
-        supabase.useHTTPS
-        try {
-            if (supabase.realtime.status.value != Realtime.Status.CONNECTED) {
-                supabase.realtime.connect()
-            }
-        } catch (e: SocketException) {
-            Log.d("Socket Issue", "SocketException: $e")
+    fun connectSupabase() {
+        viewModelScope.launch {
+            sbTableRepository.connectRealtime()
         }
     }
 
@@ -203,15 +188,18 @@ class SupabaseViewModel(
             application.networkConnectivityFlow().collectLatest { isConnected ->
                 if (!isConnected && isClientActive) {
                     Log.d("NETWORK", "NETWORK HAS BEEN DISCONNECTED")
-                    supabase.close()
+                    authRepository.closeSupabase()
                     delay(2000)
                     privateList.update {
                         SBDeckListDto()
                     }
+                    _ownerDto.update {
+                        null
+                    }
                     isClientActive = false
                 } else if (isConnected && !isClientActive) {
                     // Reinitialize the client only if it's not active
-                    supabase = createSharedSupabase(getSharedSBUrl(), getSharedSBKey())
+                    authRepository.reCreateSupabase()
                     Log.d("NETWORK", "RECONNECTED!")
                     getDeckList()
                     getOwner()
@@ -219,8 +207,11 @@ class SupabaseViewModel(
                 }
             }
         }
-        getOwner()
-        getDeckList()
+        viewModelScope.launch {
+            delay(1250)
+            getOwner()
+            getDeckList()
+        }
     }
 
     /** Google Oauth */
@@ -229,7 +220,7 @@ class SupabaseViewModel(
             authRepository.getGoogleCredentials().let { credentials ->
                 when (credentials) {
                     is GoogleCredentials.Success -> {
-                        googleClientId.update {
+                        _googleClientId.update {
                             credentials.credentials
                         }
                         Pair(true, "")
@@ -249,8 +240,8 @@ class SupabaseViewModel(
     ): Boolean {
         return withContext(Dispatchers.IO) {
             authRepository.signInWithGoogle(googleIdToken, rawNonce).let {
-                thisUser.update {
-                    supabase.auth.currentUserOrNull()
+                _currentUser.update {
+                    authRepository.getCurrentUser()
                 }
                 getOwner()
                 it
@@ -283,8 +274,8 @@ class SupabaseViewModel(
     suspend fun signInWithEmail(email: String, password: String): String {
         return withContext(Dispatchers.IO) {
             authRepository.signInWithEmail(email, password).let {
-                thisUser.update {
-                    supabase.auth.currentUserOrNull()
+                _currentUser.update {
+                    authRepository.getCurrentUser()
                 }
                 getOwner()
                 it
@@ -301,8 +292,8 @@ class SupabaseViewModel(
     }
 
     fun updateStatus() {
-        thisUser.update {
-            supabase.auth.currentUserOrNull()
+        _currentUser.update {
+            authRepository.getCurrentUser()
         }
     }
 

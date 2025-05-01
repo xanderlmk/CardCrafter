@@ -8,11 +8,13 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SBTablesRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserExportedDecksRepository
 import com.belmontCrest.cardCrafter.supabase.model.tables.CardsToDisplay
+import com.belmontCrest.cardCrafter.supabase.model.tables.CoOwnerWithUsername
 import com.belmontCrest.cardCrafter.supabase.model.tables.FourSBCards
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsWithCT
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardList
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckListDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.toUUIDs
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +23,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
 class UserExportedDecksViewModel(
@@ -72,6 +75,9 @@ class UserExportedDecksViewModel(
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS)
     )
 
+    private val _coOwners = MutableStateFlow(listOf<CoOwnerWithUsername>())
+    val coOwners = _coOwners.asStateFlow()
+
     init {
         getUserDeckList()
     }
@@ -97,22 +103,67 @@ class UserExportedDecksViewModel(
 
     fun updateUUUID(uuid: String) {
         savedStateHandle["_uuid"] = uuid
-        _uuid.update {
-            uuid
-        }.also {
-            getCTDs(uuid)
+        _uuid.update { uuid }.also {
+            viewModelScope.launch {
+                getCTDs(uuid)
+                getCoOwnersForDeck(uuid)
+            }
         }
     }
+
+    private fun getCoOwnersForDeck(uuid: String) {
+        viewModelScope.launch {
+            withTimeout(SUPABASE_TIMEOUT) {
+                try {
+                    val result = uEDRepository.coOwners(uuid)
+                    if (result.second == SUCCESS) {
+                        _coOwners.update { result.first }
+                        Log.i(UEDVM, "${result.first}")
+                    } else {
+                        Log.e(UEDVM, "Failed to retrieve co owners")
+                    }
+                } catch (e: Exception) {
+                    Log.e(UEDVM, "$e")
+                }
+            }
+        }
+    }
+
+    suspend fun insertCoOwner(username: String): Int {
+        return withContext(Dispatchers.IO) {
+            uEDRepository.insertCoOwner(_uuid.value, username)
+        }
+    }
+
+    fun getAllCoOwners() {
+        viewModelScope.launch {
+            try {
+                val result = uEDRepository.coOwners(_uuid.value)
+                if (result.second == SUCCESS) {
+                    _coOwners.update {
+                        result.first
+                    }
+                    Log.i(UEDVM, "${result.first}")
+                } else {
+                    Log.e(UEDVM, "Failed to retrieve co owners")
+                }
+            } catch (e: Exception) {
+                Log.e(UEDVM, "$e")
+            }
+        }
+    }
+
     private suspend fun getAllCards() {
         _userCards.update {
             try {
                 uEDRepository.userDeckCards(_userExportedDecks.value.toUUIDs())
-            } catch(e : Exception){
+            } catch (e: Exception) {
                 Log.e(UEDVM, "$e")
                 SBCardList()
             }
         }
     }
+
     private fun getCTDs(uuid: String) {
         viewModelScope.launch {
             withTimeout(SUPABASE_TIMEOUT) {
@@ -123,10 +174,10 @@ class UserExportedDecksViewModel(
                             result.first
                         }
                     } else {
-                        Log.e("SupabaseVM", "Failed to retrieve cards")
+                        Log.e(UEDVM, "Failed to retrieve cards")
                     }
                 } catch (e: Exception) {
-                    Log.e("SupabaseVM", "$e")
+                    Log.e(UEDVM, "$e")
                 }
             }
         }

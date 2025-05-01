@@ -48,6 +48,7 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.tables.isThereCards
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.theme.borderedModifier
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
 import com.belmontCrest.cardCrafter.uiFunctions.CustomText
@@ -174,8 +175,7 @@ private fun ShowCardDetails(ct: CT, getUIStyle: GetUIStyle) {
     val charMap = mapOf<Int, Char>(0 to 'a', 1 to 'b', 2 to 'c', 3 to 'd')
     val cardDetails = ct.toCardDetails()
     Column(
-        modifier = Modifier
-            .border(2.dp, getUIStyle.defaultIconColor(), RoundedCornerShape(12.dp)),
+        modifier = Modifier.borderedModifier(getUIStyle),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (showDetails) {

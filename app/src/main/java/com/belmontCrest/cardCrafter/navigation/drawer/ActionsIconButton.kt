@@ -29,9 +29,11 @@ import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestinat
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.navigation.destinations.CoOwnerRequestsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckListDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.CardPickerDropdown
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -40,6 +42,7 @@ import com.belmontCrest.cardCrafter.ui.theme.redoButtonModifier
 import com.belmontCrest.cardCrafter.uiFunctions.BackButton
 import com.belmontCrest.cardCrafter.uiFunctions.CardOptionsButton
 import com.belmontCrest.cardCrafter.uiFunctions.CardTypesButton
+import com.belmontCrest.cardCrafter.uiFunctions.MailButton
 import com.belmontCrest.cardCrafter.uiFunctions.RedoCardButton
 import kotlinx.coroutines.launch
 
@@ -53,6 +56,7 @@ fun ActionIconButton(
     supabaseVM: SupabaseViewModel
 ) {
     val deckNavController by navViewModel.deckNav.collectAsStateWithLifecycle()
+    val sbNavController by navViewModel.sbNav.collectAsStateWithLifecycle()
     val sc by navViewModel.card.collectAsStateWithLifecycle()
     val wd by navViewModel.wd.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
@@ -71,14 +75,17 @@ fun ActionIconButton(
         MainNavDestination.route -> {
             MainDLRouteContent(getUIStyle, coroutineScope, navViewModel)
         }
+
         DeckListDestination.route -> {
             MainDLRouteContent(getUIStyle, coroutineScope, navViewModel)
         }
+
         DeckNavDestination.route -> {
             wd.deck?.let {
                 DeckRouteContent(fields, navViewModel, it, deckNavController, getUIStyle)
             }
         }
+
         DeckViewDestination.route -> {
             wd.deck?.let {
                 DeckRouteContent(fields, navViewModel, it, deckNavController, getUIStyle)
@@ -122,6 +129,13 @@ fun ActionIconButton(
                     expanded, Modifier, onNavigateBack
                 )
             }
+        }
+
+        UserProfileDestination.route -> {
+            MailButton(onClick = {
+                sbNavController?.navigate(CoOwnerRequestsDestination.route)
+                navViewModel.updateRoute(CoOwnerRequestsDestination.route)
+            }, getUIStyle)
         }
 
         ExportSBDestination.route -> {
