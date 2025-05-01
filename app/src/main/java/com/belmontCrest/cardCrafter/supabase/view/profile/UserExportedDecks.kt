@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,8 +22,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -37,9 +34,7 @@ fun UserExportedDecks(
     onNavigate: (String) -> Unit
 ) {
     val deckList by uEDVM.userExportedDecks.collectAsStateWithLifecycle()
-    LaunchedEffect(Unit) {
-        uEDVM.getUserDeckList()
-    }
+    LaunchedEffect(Unit) { uEDVM.getUserDeckList() }
     Box(
         modifier = Modifier
             .boxViewsModifier(getUIStyle.getColorScheme()),

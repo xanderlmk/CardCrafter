@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.belmontCrest.cardCrafter.model
 
 
@@ -9,17 +11,20 @@ import androidx.compose.ui.unit.sp
 
 /** Font size prop */
 enum class FSProp { Font22, Font20, Font18, Font16, Font14, Default }
+
 /** Font weight prop */
 enum class FWProp { SemiBold, Bold, Default }
+
 /** Text align prop */
-enum class TAProp  { Start, Center, End, Default }
+enum class TAProp { Start, Center, End, Default }
+
 /** Max lines prop */
 enum class MLProp { One, Two, Three, Default }
 
 /** Defining our text props */
-data class TextProps (
+data class TextProps(
     /** Font size */
-    val fs : FSProp = FSProp.Default,
+    val fs: FSProp = FSProp.Default,
     /** Font weight */
     val fw: FWProp = FWProp.Default,
     /** Text align */
@@ -51,12 +56,12 @@ fun FSProp.toTextProp(): TextProps = when (this) {
 }
 
 fun setFontSize(fsProp: FSProp): TextUnit {
-    return when(fsProp) {
-        FSProp.Font22  -> 22.sp
-        FSProp.Font20  -> 20.sp
+    return when (fsProp) {
+        FSProp.Font22 -> 22.sp
+        FSProp.Font20 -> 20.sp
         FSProp.Font18 -> 18.sp
-        FSProp.Font16  -> 16.sp
-        FSProp.Font14  -> 14.sp
+        FSProp.Font16 -> 16.sp
+        FSProp.Font14 -> 14.sp
         FSProp.Default -> TextUnit.Unspecified
     }
 }
@@ -70,7 +75,7 @@ fun setFontWeight(fwProp: FWProp): FontWeight {
 }
 
 fun setTextAlign(taProp: TAProp): TextAlign? {
-    return when(taProp) {
+    return when (taProp) {
         TAProp.Center -> TextAlign.Center
         TAProp.Start -> TextAlign.Start
         TAProp.End -> TextAlign.End
@@ -79,10 +84,14 @@ fun setTextAlign(taProp: TAProp): TextAlign? {
 }
 
 fun setMaxLines(mlProp: MLProp): Int {
-    return when(mlProp) {
+    return when (mlProp) {
         MLProp.One -> 1
         MLProp.Two -> 2
         MLProp.Three -> 3
         MLProp.Default -> Int.MAX_VALUE
     }
 }
+
+fun titledTextProp() = TextProps(FSProp.Font22, FWProp.Default, TAProp.Center)
+
+

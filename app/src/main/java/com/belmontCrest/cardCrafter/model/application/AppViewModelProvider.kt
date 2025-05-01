@@ -17,6 +17,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCa
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.AddDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.DeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.EditDeckViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.CoOwnerViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.PersonalDeckSyncViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
@@ -87,7 +88,6 @@ object AppViewModelProvider {
             SupabaseViewModel(
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.cardTypeRepository,
-                flashCardApplication().container.sharedSupabase,
                 flashCardApplication().container.sbTablesRepository,
                 flashCardApplication().container.authRepository,
                 flashCardApplication()
@@ -117,6 +117,11 @@ object AppViewModelProvider {
             PersonalDeckSyncViewModel(
                 flashCardApplication().container.personalDeckSyncRepository,
                 flashCardApplication().container.userSyncedInfoRepository
+            )
+        }
+        initializer {
+            CoOwnerViewModel(
+                flashCardApplication().container.coOwnerRequestsRepository
             )
         }
     }

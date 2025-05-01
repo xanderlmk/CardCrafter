@@ -17,7 +17,9 @@ import kotlinx.coroutines.SupervisorJob
  * all of its contents + the repositories */
 class FlashCardApplication : Application() {
     lateinit var container: AppContainer
+    /** Shared Supabase for community decks */
     lateinit var sharedSupabase: SupabaseClient
+    /** Synced Supabase for personal/local decks */
     lateinit var syncedSupabase: SupabaseClient
     private val applicationScope = CoroutineScope(SupervisorJob())
     override fun onCreate() {

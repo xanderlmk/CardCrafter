@@ -30,8 +30,10 @@ import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainVi
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
+import com.belmontCrest.cardCrafter.navigation.destinations.CoOwnerRequestsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SBCardListDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UseEmailDestination
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.CoOwnerViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
@@ -41,7 +43,8 @@ import com.belmontCrest.cardCrafter.supabase.view.importDeck.ImportDeck
 import com.belmontCrest.cardCrafter.supabase.view.OnlineDatabase
 import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.UploadThisDeck
 import com.belmontCrest.cardCrafter.supabase.view.authViews.email.EmailView
-import com.belmontCrest.cardCrafter.supabase.view.profile.AllCards
+import com.belmontCrest.cardCrafter.supabase.view.profile.CardListView
+import com.belmontCrest.cardCrafter.supabase.view.profile.RequestsView
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.coroutines.launch
 
@@ -57,9 +60,8 @@ fun SupabaseNav(
 ) {
     val sbNavController = rememberNavController()
 
-    LaunchedEffect(Unit) {
-        supabaseVM.signInSyncedDBUser()
-    }
+    LaunchedEffect(Unit) { supabaseVM.signInSyncedDBUser() }
+    LaunchedEffect(Unit) { navViewModel.updateSBNav(sbNavController) }
     /** Our Supabase Client and Views. */
     val onlineDatabase = OnlineDatabase(
         getUIStyle,
@@ -83,6 +85,7 @@ fun SupabaseNav(
         UserEDDestination.route
     }
     val uEDVM: UserExportedDecksViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val clv = CardListView(uEDVM, getUIStyle)
     NavHost(
         navController = sbNavController,
         startDestination = startDestination,
@@ -230,7 +233,19 @@ fun SupabaseNav(
                     UserEDDestination.route, inclusive = false
                 )
             }
-            AllCards(getUIStyle, uEDVM)
+            clv.AllCards()
+        }
+
+        composable(CoOwnerRequestsDestination.route) {
+            BackHandler {
+                navViewModel.updateRoute(UserProfileDestination.route)
+                sbNavController.popBackStack(
+                    UserProfileDestination.route, inclusive = false
+                )
+            }
+            val corVM: CoOwnerViewModel = viewModel(factory = AppViewModelProvider.Factory)
+            val rv = RequestsView(getUIStyle, corVM)
+            rv.Requests()
         }
     }
 }

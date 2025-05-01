@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Button
@@ -351,5 +352,15 @@ fun SubmitButton(
         ), modifier = modifier
     ) {
         Text(text = string, fontSize = fontSize)
+    }
+}
+
+@Composable
+fun MailButton(
+    onClick: () -> Unit, getUIStyle: GetUIStyle
+) {
+    val ci = ContentIcons(getUIStyle)
+    IconButton(onClick = { onClick() }) {
+        ci.ContentIcon("mail", icon = Icons.Default.MailOutline, Modifier)
     }
 }

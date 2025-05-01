@@ -49,7 +49,7 @@ fun SignUp(
     onUseEmail: () -> Unit,
     onRefresh: (Boolean) -> Unit
 ) {
-    val clientId by supabaseVM.clientId.collectAsStateWithLifecycle()
+    val clientId by supabaseVM.googleClientId.collectAsStateWithLifecycle()
     Box(
         contentAlignment = Alignment.TopCenter,
         modifier = Modifier

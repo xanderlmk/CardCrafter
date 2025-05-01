@@ -3,7 +3,7 @@ package com.belmontCrest.cardCrafter.supabase.controller.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.supabase.model.tables.UserProfile
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.AuthRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.AuthRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -36,5 +36,10 @@ object UseEmailDestination : NavigationDestination{
 
 @Serializable
 object SBCardListDestination : NavigationDestination {
-    override val route: String = "SBCardList"
+    override val route = "SBCardList"
+}
+
+@Serializable
+object CoOwnerRequestsDestination : NavigationDestination {
+    override val route = "CoOwnerRequests"
 }

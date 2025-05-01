@@ -8,8 +8,9 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.toInstant
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NO_DECKS_TO_SYNC
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_USER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserSyncedInfoRepository
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.PersonalDeckSyncRepository
+import com.belmontCrest.cardCrafter.supabase.model.SyncStatus
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.personalSyncedRepos.UserSyncedInfoRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.personalSyncedRepos.PersonalDeckSyncRepository
 import com.belmontCrest.cardCrafter.supabase.model.tables.ListOfDecks
 import com.belmontCrest.cardCrafter.supabase.model.tables.PDUpdatedOn
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -203,12 +204,4 @@ class PersonalDeckSyncViewModel(
         }
         return true
     }
-}
-
-sealed class SyncStatus {
-    data object Idle : SyncStatus()
-    data object Syncing : SyncStatus()
-    data object Success : SyncStatus()
-    data class Error(val message: String) : SyncStatus()
-    data object Conflict : SyncStatus()
 }

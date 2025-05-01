@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
+package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.personalSyncedRepos
 
 import android.util.Log
 

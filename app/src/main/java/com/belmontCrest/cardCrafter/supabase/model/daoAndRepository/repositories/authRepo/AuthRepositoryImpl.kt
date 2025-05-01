@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
+package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo
 
 import android.content.Intent
 import android.util.Log
@@ -7,9 +7,12 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.Encryption
 import com.belmontCrest.cardCrafter.localDatabase.tables.Pwd
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.GoogleClientResponse
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.GoogleCredentials
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.PwdDao
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.createSharedSupabase
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.createSyncedSupabase
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSharedSBKey
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSharedSBUrl
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSyncedSBUrl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.PwdDao
 import com.belmontCrest.cardCrafter.supabase.model.tables.OwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.UserProfile
 import io.github.jan.supabase.SupabaseClient
@@ -21,6 +24,7 @@ import io.github.jan.supabase.gotrue.handleDeeplinks
 import io.github.jan.supabase.gotrue.providers.Google
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.gotrue.providers.builtin.IDToken
+import io.github.jan.supabase.gotrue.user.UserInfo
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import io.ktor.client.call.body
@@ -37,10 +41,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
-
 class AuthRepositoryImpl(
-    private val sharedSupabase: SupabaseClient,
-    private val syncedSupabase: SupabaseClient,
+    private var sharedSupabase: SupabaseClient,
+    private var syncedSupabase: SupabaseClient,
     private val pwdDao: PwdDao
 ) : AuthRepository {
     companion object {
@@ -52,6 +55,32 @@ class AuthRepositoryImpl(
         private const val TIMEOUT = "timeout"
         private const val AUTH_REPO = "Auth Repository"
         private const val USER_EXISTS = "email address has already been registered"
+    }
+
+    override fun getCurrentUser(): UserInfo? {
+        return sharedSupabase.auth.currentUserOrNull()
+    }
+
+    override suspend fun closeSupabase(): Boolean {
+        try {
+            sharedSupabase.auth.close()
+            syncedSupabase.auth.close()
+            return true
+        } catch (e: Exception) {
+            Log.d(AUTH_REPO, "$e")
+            return false
+        }
+    }
+
+    override fun reCreateSupabase(): Boolean {
+        try {
+            sharedSupabase = createSharedSupabase(getSharedSBUrl(), getSharedSBKey())
+            syncedSupabase = createSyncedSupabase(getSyncedSBUrl(), getSharedSBKey())
+            return true
+        } catch (e: Exception) {
+            Log.d(AUTH_REPO, "$e")
+            return false
+        }
     }
 
     override suspend fun createOwner(username: String, fName: String, lName: String): Boolean {
@@ -78,7 +107,7 @@ class AuthRepositoryImpl(
                 return@withContext null
             }
             val owner = sharedSupabase.from(SB_OWNER_TN)
-                .select(Columns.ALL) {
+                .select(Columns.Companion.ALL) {
                     filter {
                         eq("user_id", user.id)
                     }
@@ -95,7 +124,7 @@ class AuthRepositoryImpl(
                         header(HttpHeaders.Authorization, "Bearer ${getSharedSBKey()}")
                         header(HttpHeaders.ContentType, ContentType.Application.Json)
                     }
-                if (response.status == HttpStatusCode.OK) {
+                if (response.status == HttpStatusCode.Companion.OK) {
                     val googleResponse = response.body<GoogleClientResponse>()
                     GoogleCredentials.Success(googleResponse.google_id)
                 } else {
@@ -148,6 +177,7 @@ class AuthRepositoryImpl(
                     is AuthWeakPasswordException -> {
                         e.message ?: "weak password"
                     }
+
                     is HttpRequestTimeoutException -> {
                         TIMEOUT
                     }
@@ -246,7 +276,7 @@ class AuthRepositoryImpl(
                 }
 
                 val owner = sharedSupabase.from(SB_OWNER_TN)
-                    .select(Columns.ALL) {
+                    .select(Columns.Companion.ALL) {
                         filter {
                             eq("user_id", user.id)
                         }
@@ -285,9 +315,9 @@ class AuthRepositoryImpl(
                     deletePwd(pwd)
                     return@withContext "Sign in to synced DB."
                 }
-                val issuer = Json.decodeFromJsonElement(
-                    String.serializer(),
-                    user?.userMetadata?.get("iss") ?: Json.encodeToJsonElement(
+                val issuer = Json.Default.decodeFromJsonElement(
+                    String.Companion.serializer(),
+                    user?.userMetadata?.get("iss") ?: Json.Default.encodeToJsonElement(
                         String.serializer(),
                         "empty"
                     )
@@ -312,7 +342,7 @@ class AuthRepositoryImpl(
                             """{ "password": "${pwd?.password?.pd}", "user_id": "$userId" } """
                         )
                     }
-                if (response.status == HttpStatusCode.OK) {
+                if (response.status == HttpStatusCode.Companion.OK) {
                     val statusBody = response.bodyAsText()
                     Log.d(AUTH_REPO, "User synced: ${response.status} - $statusBody")
                     // delete the password if it exist
@@ -353,7 +383,7 @@ class AuthRepositoryImpl(
             } else if (syncedUser != null && sharedUser == null) {
                 syncedSupabase.auth.signOut()
             }
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             Log.e(AUTH_REPO, "$e")
         }
     }

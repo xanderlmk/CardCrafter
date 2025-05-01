@@ -143,9 +143,7 @@ class OnlineDatabase(
                 }
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-
+                modifier = Modifier.fillMaxSize()
             ) {
                 Text(
                     text = deck.name,
