@@ -64,3 +64,9 @@ data class SBCoOwnerWithDeck(
     @SerialName("updated_on")
     val updatedOn: String = ""
 )
+
+@Serializable
+data class SBDeckCoOwnerDto(
+    @SerialName("co_owner_id")
+    val coOwnerId: String
+)

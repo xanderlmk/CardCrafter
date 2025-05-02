@@ -30,7 +30,7 @@ data class DeckSignature(
 )
 
 @Dao
-interface SupabaseDao {
+interface ImportFromSBDao {
     @Query(
         """
         SELECT name, uuid 
