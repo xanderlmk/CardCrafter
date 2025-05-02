@@ -7,6 +7,7 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NETWORK_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_USER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UNKNOWN_ERROR
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.USER_NOT_FOUND
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCoOwner
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCoOwnerWithDeck
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
@@ -36,6 +37,8 @@ interface CoOwnerRequestsRepository {
     suspend fun getRequests(): Pair<Flow<List<SBCoOwnerWithDeck>>, Int>
 
     suspend fun acceptRequest(uuid: String): Int
+
+    suspend fun declineRequest(uuid: String): Int
 }
 
 @OptIn(SupabaseExperimental::class, ExperimentalCoroutinesApi::class)
@@ -48,16 +51,10 @@ class CoOwnerRequestsRepositoryImpl(
         private const val COR_REPO = "CoOwnerRequestsRepository"
     }
 
-    private val user = try {
-        sharedSupabase.auth.currentUserOrNull()
-    } catch (e: Exception) {
-        Log.e(COR_REPO, "Couldn't get user info: $e")
-        null
-    }
-
     override suspend fun getRequests(): Pair<Flow<List<SBCoOwnerWithDeck>>, Int> {
         return withContext(Dispatchers.IO) {
             try {
+                val user = sharedSupabase.auth.currentUserOrNull()
                 if (user == null) {
                     return@withContext Pair(flowOf(listOf()), NULL_USER)
                 }
@@ -121,12 +118,53 @@ class CoOwnerRequestsRepositoryImpl(
                 put("deck_uuid", JsonPrimitive(uuid))
             }
             try {
-                sharedSupabase.postgrest.rpc(
+                val response = sharedSupabase.postgrest.rpc(
                     function = "accept_request",
                     parameters = param
                 )
-                SUCCESS
+                if (response.data == "co-owner not found or not requested") {
+                    USER_NOT_FOUND
+                } else {
+                    SUCCESS
+                }
+
             } catch (e: Exception) {
+                when (e) {
+                    is SocketException -> {
+                        Log.e(COR_REPO, "Network Error: $e")
+                        NETWORK_ERROR
+                    }
+
+                    is CancellationException -> {
+                        Log.e(COR_REPO, "Cancelled: $e")
+                        CANCELLED
+                    }
+
+                    else -> {
+                        Log.e(COR_REPO, "Unknown Error: $e")
+                        UNKNOWN_ERROR
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun declineRequest(uuid: String): Int {
+        return withContext(Dispatchers.IO) {
+            val param = buildJsonObject {
+                put("deck_uuid", JsonPrimitive(uuid))
+            }
+            try {
+                val response = sharedSupabase.postgrest.rpc(
+                    function = "decline_request",
+                    parameters = param
+                )
+                if (response.data == "co-owner not found or not requested") {
+                    USER_NOT_FOUND
+                } else {
+                    SUCCESS
+                }
+            } catch (e : Exception) {
                 when (e) {
                     is SocketException -> {
                         Log.e(COR_REPO, "Network Error: $e")

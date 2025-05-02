@@ -14,7 +14,7 @@ import com.belmontCrest.cardCrafter.supabase.model.tables.SBNotationCardDto
 /** Mapping our local CardTypes to the Supabase CardType*/
 fun localCTToSBCT(
     deck: Deck, cts: List<CT>, cardsToDisplay: CardsToDisplay,
-    description: String, userId: String
+    description: String, userId: String, updatedOn : String
 ): SBDeckToExportDto {
     val stringConverter = ListStringConverter()
     return SBDeckToExportDto(
@@ -93,7 +93,6 @@ fun localCTToSBCT(
                 }
             }
         },
-        cardsToDisplay = cardsToDisplay
+        cardsToDisplay = cardsToDisplay, lastUpdatedOn = updatedOn
     )
-
 }

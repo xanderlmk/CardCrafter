@@ -58,6 +58,21 @@ class CoOwnerViewModel(
         }
     }
 
+    fun declineRequest(uuid: String) {
+        viewModelScope.launch {
+            _status.update { RequestStatus.Sent }
+            val result = coOwnerRequestsRepository.declineRequest(uuid)
+            when (result) {
+                SUCCESS -> { _status.update { RequestStatus.Declined }; getRequests() }
+                NETWORK_ERROR -> _status.update { RequestStatus.Error("Network Error") }
+                CANCELLED -> _status.update { RequestStatus.Error("Request was cancelled") }
+                UNKNOWN_ERROR -> {
+                    _status.update { RequestStatus.Error("Unknown Error") }
+                }
+            }
+        }
+    }
+
     fun resetRequestStatus() {
         _status.update { RequestStatus.Idle }
     }

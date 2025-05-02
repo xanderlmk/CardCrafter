@@ -45,6 +45,7 @@ class ImportRepositoryImpl(
     companion object {
         private const val SB_CARD_TN = BuildConfig.SB_CARD_TN
         private const val SB_CTD_TN = BuildConfig.SB_CTD_TN
+        private const val IMPORT_REPO = "Import Repository"
     }
     override suspend fun checkBasicCardList(uuid: String): Pair<List<SBCardColsBasic>, Int> {
         return withContext(Dispatchers.IO) {
@@ -64,7 +65,7 @@ class ImportRepositoryImpl(
                     }.decodeList<SBCardColsBasic>()
                 Pair(data, SUCCESS)
             } catch (e: Exception) {
-                Log.e("BasicCardList", "$e")
+                Log.e(IMPORT_REPO, "Basic CT Error: $e")
                 Pair(listOf(), BASIC_CT_ERROR)
             }
 
@@ -89,7 +90,7 @@ class ImportRepositoryImpl(
                     }.decodeList<SBCardColsHint>()
                 Pair(data, SUCCESS)
             } catch (e: Exception) {
-                Log.e("HintCardList", "$e")
+                Log.e(IMPORT_REPO, "Hint CT Error: $e")
                 Pair(listOf(), HINT_CT_ERROR)
             }
         }
@@ -113,7 +114,7 @@ class ImportRepositoryImpl(
                     }.decodeList<SBCardColsThree>()
                 Pair(data, SUCCESS)
             } catch (e: Exception) {
-                Log.e("HintCardList", "$e")
+                Log.e(IMPORT_REPO, "Three CT Error: $e")
                 Pair(listOf(), THREE_CT_ERROR)
             }
         }
@@ -138,7 +139,7 @@ class ImportRepositoryImpl(
                     }.decodeList<SBCardColsMulti>()
                 Pair(data, SUCCESS)
             } catch (e: Exception) {
-                Log.e("ThreeCardList", "$e")
+                Log.e(IMPORT_REPO, "Multi CT Error: $e")
                 Pair(listOf(), MULTI_CT_ERROR)
             }
         }
@@ -162,7 +163,7 @@ class ImportRepositoryImpl(
                     }.decodeList<SBCardColsNotation>()
                 Pair(data, SUCCESS)
             } catch (e: Exception) {
-                Log.e("NotationCardList", "$e")
+                Log.e(IMPORT_REPO, "Notation CT Error: $e")
                 Pair(listOf(), NOTATION_CT_ERROR)
             }
         }
@@ -179,7 +180,7 @@ class ImportRepositoryImpl(
                     }.decodeSingle<CardsToDisplay>()
                 return@withContext Pair(data, SUCCESS)
             } catch (e: Exception) {
-                Log.e("CardsToDisplay", "$e")
+                Log.e(IMPORT_REPO, "Card To Display Error: $e")
                 Pair(CardsToDisplay(), CTD_ERROR)
             }
         }
@@ -210,7 +211,7 @@ class ImportRepositoryImpl(
                     fourth = sbCTs.getOrNull(3)
                 )
             } catch (e: Exception) {
-                Log.e("ImportRepo", "$e")
+                Log.e(IMPORT_REPO, "Getting cards Error: $e")
                 FourSBCards()
             }
         }

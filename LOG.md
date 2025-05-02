@@ -56,6 +56,11 @@
 - New Composable function pages, update SBNavHost, etc
 - New VM, Repo, View accordingly.
 - That's all (Sourcery AI don't get mad i put this LOL)
+### 5/2/2025 11:17am
+- Allow to decline requests
+- Added a new export repository for better code readability
+- Making sure that the lastUpdatedOn for ImportDeckInfo is updated properly when dealing 
+with exporting/upserting decks
 ## John
 ### 4/8/2025 11:50pm
 - Cute Theme: ADDED for people who like cute stuff

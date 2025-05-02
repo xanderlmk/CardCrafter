@@ -10,10 +10,12 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.Offli
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.ScienceSpecificRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.CoOwnerRequestsRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.CoOwnerRequestsRepositoryImpl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ExportRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.AuthRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.AuthRepositoryImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ImportRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ImportRepositoryImpl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.OfflineExportRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SBTableRepositoryImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SBTablesRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.OfflineSupabaseToRoomRepository
@@ -43,6 +45,7 @@ interface AppContainer {
     val userSyncedInfoRepository: UserSyncedInfoRepository
     val personalDeckSyncRepository: PersonalDeckSyncRepository
     val coOwnerRequestsRepository: CoOwnerRequestsRepository
+    val exportRepository: ExportRepository
 }
 
 class AppDataContainer(
@@ -74,7 +77,7 @@ class AppDataContainer(
     }
     override val supabaseToRoomRepository: SupabaseToRoomRepository by lazy {
         OfflineSupabaseToRoomRepository(
-            FlashCardDatabase.getDatabase(context, scope).supabaseDao()
+            FlashCardDatabase.getDatabase(context, scope).importFromSBDao()
         )
     }
     override val importRepository: ImportRepository by lazy {
@@ -104,4 +107,10 @@ class AppDataContainer(
     override val coOwnerRequestsRepository: CoOwnerRequestsRepository by lazy {
         CoOwnerRequestsRepositoryImpl(sharedSupabase)
     }
+    override val exportRepository: ExportRepository by lazy {
+        OfflineExportRepository(
+            FlashCardDatabase.getDatabase(context,scope).exportToSBDao()
+        )
+    }
+
 }

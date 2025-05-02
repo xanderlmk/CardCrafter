@@ -4,9 +4,11 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -84,7 +91,7 @@ class RequestsView(
                             modifier = Modifier.fillMaxSize()
                         ) {
                             CustomText(cwd.deckName, getUIStyle)
-                            CustomText(cwd.status.name, getUIStyle)
+                            CustomText("Status: ${cwd.status.name}", getUIStyle)
                         }
                     }
                 }
@@ -119,11 +126,13 @@ class RequestsView(
 
                 RequestStatus.Declined -> {
                     showToastMessage(context, "Declined Request")
+                    onPressed(false)
                     corVM.resetRequestStatus()
                 }
 
                 RequestStatus.Accepted -> {
                     showToastMessage(context, "Accepted request")
+                    onPressed(false)
                     corVM.resetRequestStatus()
                 }
             }
@@ -157,10 +166,22 @@ class RequestsView(
                         Status.Accepted -> {
                             AcceptedView(coOwner)
                         }
-                        Status.Declined -> TODO()
-                        Status.Revoked -> TODO()
-                        Status.Cancelled -> TODO()
-                        Status.Expired -> TODO()
+
+                        Status.Declined -> {
+                            DeclinedView(coOwner)
+                        }
+
+                        Status.Revoked -> {
+                            RevokedView(coOwner)
+                        }
+
+                        Status.Cancelled -> {
+                            CancelledView(coOwner)
+                        }
+
+                        Status.Expired -> {
+                            ExpiredView(coOwner)
+                        }
                     }
                 }
             }
@@ -176,19 +197,69 @@ class RequestsView(
             "Become a Co-Owner for ${coOwner.deckName}?",
             getUIStyle, Modifier.fillMaxWidth(), titledTextProp()
         )
-        SubmitButton(
-            onClick = {
-                coroutineScope.launch {
-                    onEnabled(false); corVM.acceptRequest(coOwner.deckUUID)
-                }
-            },
-            enabled, getUIStyle, "Accept Request"
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            SubmitButton(
+                onClick = {
+                    coroutineScope.launch {
+                        onEnabled(false); corVM.declineRequest(coOwner.deckUUID)
+
+                    }
+                }, enabled, getUIStyle, "Decline"
+            )
+            SubmitButton(
+                onClick = {
+                    coroutineScope.launch {
+                        onEnabled(false); corVM.acceptRequest(coOwner.deckUUID)
+                    }
+                }, enabled, getUIStyle, "Accept"
+            )
+        }
         CancelButton(onClick = { onPressed(false) }, enabled, getUIStyle)
     }
 
     @Composable
     private fun AcceptedView(coOwner: SBCoOwnerWithDeck) {
-        CustomText("You are a Co-owner of ${coOwner.deckName}", getUIStyle)
+        val text = buildMsg("You are a co‑owner of ", coOwner.deckName)
+        CustomText(text, getUIStyle)
     }
+
+    @Composable
+    private fun DeclinedView(coOwner: SBCoOwnerWithDeck) {
+        val text = buildMsg("You declined the request for ", coOwner.deckName)
+        CustomText(text, getUIStyle)
+    }
+
+    @Composable
+    private fun RevokedView(coOwner: SBCoOwnerWithDeck) {
+        val text = buildMsg("Your co‑ownership of ", coOwner.deckName, " has been revoked")
+        CustomText(text, getUIStyle)
+    }
+
+    @Composable
+    private fun CancelledView(coOwner: SBCoOwnerWithDeck) {
+        val text = buildMsg("Your co‑ownership of ", coOwner.deckName, " has been cancelled")
+        CustomText(text, getUIStyle)
+    }
+
+    @Composable
+    private fun ExpiredView(coOwner: SBCoOwnerWithDeck) {
+        val text = buildMsg("Your co‑ownership of ", coOwner.deckName, " has expired")
+        CustomText(text, getUIStyle)
+    }
+
+    private fun buildMsg(prefix: String, deck: String, suffix: String = "") =
+        buildAnnotatedString {
+            append(prefix)
+            withStyle(
+                SpanStyle(
+                    fontWeight = FontWeight.Bold,
+                    textDecoration = TextDecoration.Underline
+                )
+            ) { append(deck) }
+            append(suffix)
+        }
 }

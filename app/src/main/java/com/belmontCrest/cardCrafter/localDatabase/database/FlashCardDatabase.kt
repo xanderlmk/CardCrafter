@@ -53,8 +53,9 @@ import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_6_7
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_7_8
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_8_9
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_9_10
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.ExportToSBDao
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.PwdDao
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.SupabaseDao
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.ImportFromSBDao
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.SyncedDeckInfoDao
 import kotlinx.coroutines.CoroutineScope
 
@@ -80,9 +81,10 @@ abstract class FlashCardDatabase : RoomDatabase() {
     abstract fun multiChoiceCardDao(): MultiChoiceCardDao
     abstract fun notationCardDao(): NotationCardDao
     abstract fun savedCardDao(): SavedCardDao
-    abstract fun supabaseDao(): SupabaseDao
+    abstract fun importFromSBDao(): ImportFromSBDao
     abstract fun pwdDao(): PwdDao
     abstract fun syncedDeckInfoDao(): SyncedDeckInfoDao
+    abstract fun exportToSBDao(): ExportToSBDao
 
     companion object {
         @Volatile

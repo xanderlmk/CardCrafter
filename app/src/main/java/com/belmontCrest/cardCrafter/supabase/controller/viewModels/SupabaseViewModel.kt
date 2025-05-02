@@ -8,10 +8,9 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
 import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
 import com.belmontCrest.cardCrafter.supabase.controller.networkConnectivityFlow
 import com.belmontCrest.cardCrafter.supabase.model.tables.FourSelectedCards
@@ -20,6 +19,7 @@ import com.belmontCrest.cardCrafter.supabase.model.createSupabase.GoogleCredenti
 import com.belmontCrest.cardCrafter.supabase.model.tables.OwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_OWNER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ExportRepository
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckListDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.AuthRepository
@@ -54,15 +54,16 @@ import kotlinx.coroutines.withContext
 )
 @RequiresApi(Build.VERSION_CODES.Q)
 class SupabaseViewModel(
-    private val flashCardRepository: FlashCardRepository,
-    private val cardTypeRepository: CardTypeRepository,
+    private val exportRepository: ExportRepository,
     private val sbTableRepository: SBTablesRepository,
     private val authRepository: AuthRepository,
     application: Application
 ) : AndroidViewModel(application) {
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
+        private const val SUPABASE_VM = "SupabaseVM"
     }
+
     private var _googleClientId = MutableStateFlow("")
     val googleClientId = _googleClientId.asStateFlow()
 
@@ -70,36 +71,33 @@ class SupabaseViewModel(
     val currentUser = _currentUser.asStateFlow()
     private var isClientActive = true
 
-    private val privateList = MutableStateFlow(SBDeckListDto())
-    val deckList = privateList.asStateFlow()
+    private val _deckList = MutableStateFlow(SBDeckListDto())
+    val deckList = _deckList.asStateFlow()
     private val uuid = MutableStateFlow("")
     val deck: StateFlow<SBDeckDto?> = uuid.map { currentUUID ->
-        privateList.value.list.find { it.deckUUID == currentUUID }
+        _deckList.value.list.find { it.deckUUID == currentUUID }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = null
     )
     private val deckId = MutableStateFlow(0)
-    private val localDeck: StateFlow<Deck?> = deckId.flatMapLatest { id ->
+    val pickedDeck: StateFlow<Deck?> = deckId.flatMapLatest { id ->
         if (id == 0) {
             flowOf(null)
         } else {
-            flashCardRepository.getDeckStream(id).map {
-                it
-            }
+            exportRepository.getDeckStream(id).map { it }
         }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = null
     )
-    val pickedDeck = localDeck
-    private val _sealedAllCTs = deckId.flatMapLatest { id ->
+    val sealedAllCTs = deckId.flatMapLatest { id ->
         if (id == 0) {
             flowOf(SealedAllCTs())
         } else {
-            cardTypeRepository.getAllCardTypes(id).map {
+            exportRepository.getAllCardTypes(id).map {
                 SealedAllCTs(it.toMutableList())
             }
         }
@@ -108,7 +106,17 @@ class SupabaseViewModel(
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = SealedAllCTs()
     )
-    var sealedAllCTs = _sealedAllCTs
+    private val importedDeckInfo: StateFlow<ImportedDeckInfo?> = deckId.flatMapLatest { id ->
+        if (id == 0) {
+            flowOf(null)
+        } else {
+            exportRepository.getImportedDeckInfo(id).map { it }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = null
+    )
 
     private val _ownerDto: MutableStateFlow<OwnerDto?> = MutableStateFlow(null)
     val owner = _ownerDto.asStateFlow()
@@ -116,7 +124,7 @@ class SupabaseViewModel(
     private val _cardsToDisplay: MutableStateFlow<CardsToDisplay?> = MutableStateFlow(null)
 
     val selectedCards: StateFlow<FourSelectedCards> = combine(
-        _sealedAllCTs, _cardsToDisplay
+        sealedAllCTs, _cardsToDisplay
     ) { sealedAll, cardsTD ->
         if (cardsTD == null) {
             FourSelectedCards()
@@ -190,7 +198,7 @@ class SupabaseViewModel(
                     Log.d("NETWORK", "NETWORK HAS BEEN DISCONNECTED")
                     authRepository.closeSupabase()
                     delay(2000)
-                    privateList.update {
+                    _deckList.update {
                         SBDeckListDto()
                     }
                     _ownerDto.update {
@@ -284,11 +292,11 @@ class SupabaseViewModel(
     }
 
     fun changeDeckId(id: Int) {
-        deckId.value = id
+        deckId.update { id }
     }
 
     fun updateUUID(thisUUID: String) {
-        uuid.value = thisUUID
+        uuid.update { thisUUID }
     }
 
     fun updateStatus() {
@@ -300,7 +308,7 @@ class SupabaseViewModel(
     fun getDeckList() {
         viewModelScope.launch {
             sbTableRepository.getDeckList().collectLatest { list ->
-                privateList.update {
+                _deckList.update {
                     SBDeckListDto(list)
                 }
             }
@@ -336,8 +344,16 @@ class SupabaseViewModel(
             if (ctd == null || ctd.isEmpty()) {
                 return@withContext NULL_CARDS
             }
+            val result =
+                sbTableRepository.exportDeck(deck, description, sealedAllCTs.value.allCTs, ctd)
+
+            if (result.first.isNotBlank()) {
+                exportRepository.insertImportedDeckInfo(
+                    ImportedDeckInfo(uuid = deck.uuid, lastUpdatedOn = result.first)
+                )
+            }
             /** if successful, return 0 */
-            sbTableRepository.exportDeck(deck, description, _sealedAllCTs.value.allCTs, ctd)
+            result.second
         }
     }
 
@@ -349,12 +365,24 @@ class SupabaseViewModel(
             if (_ownerDto.value == null) {
                 return@withContext NULL_OWNER
             }
-            val ctd = _cardsToDisplay.value
-            if (ctd == null) {
+            val ctd = _cardsToDisplay.value ?: return@withContext NULL_CARDS
+            val luo = importedDeckInfo.value?.lastUpdatedOn
+            if (luo == null) {
+                Log.e(SUPABASE_VM, "No import Deck info")
                 return@withContext NULL_CARDS
             }
+
+            val result = sbTableRepository.upsertDeck(
+                deck, description, sealedAllCTs.value.allCTs, ctd, luo
+            )
+
+            if (result.first.isNotBlank()) {
+                exportRepository.insertImportedDeckInfo(
+                    ImportedDeckInfo(uuid = deck.uuid, lastUpdatedOn = result.first)
+                )
+            }
             /** if successful, return 0 */
-            sbTableRepository.upsertDeck(deck, description, _sealedAllCTs.value.allCTs, ctd)
+            result.second
         }
     }
     /** End of export decks */

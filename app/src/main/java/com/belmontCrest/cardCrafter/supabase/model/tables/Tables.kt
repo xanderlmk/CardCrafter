@@ -75,12 +75,13 @@ data class UserProfile(
     val owner: OwnerDto? = null
 )
 
-/** Supabase Deck and it's cards to Export*/
+/** Supabase Deck and it's cards to Export. */
 @Serializable
 data class SBDeckToExportDto(
     val deck: SBDeckDto,
     val cts: List<SBCTToExport>,
-    val cardsToDisplay: CardsToDisplay
+    val cardsToDisplay: CardsToDisplay,
+    val lastUpdatedOn: String,
 )
 
 /** Supabase Card with its respective Card Type to export to supabase. */

@@ -1,7 +1,7 @@
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.DeckSignature
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.SupabaseDao
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.ImportFromSBDao
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCTToImport
 
@@ -26,14 +26,14 @@ interface SupabaseToRoomRepository {
 }
 
 class OfflineSupabaseToRoomRepository(
-    private val supabaseDao: SupabaseDao
+    private val importFromSBDao: ImportFromSBDao
 ) : SupabaseToRoomRepository {
 
     override suspend fun insertDeckList(
         deck: SBDeckDto, cardList: List<SealedCTToImport>,
         name: String, reviewAmount: Int, cardAmount: Int,
         onProgress: (Float) -> Unit, total: Int
-    ) = supabaseDao.insertDeckList(
+    ) = importFromSBDao.insertDeckList(
         deck, cardList, name, reviewAmount, cardAmount,
         onProgress = {
             onProgress(it)
@@ -44,7 +44,7 @@ class OfflineSupabaseToRoomRepository(
         deck: SBDeckDto, cardList: List<SealedCTToImport>,
         reviewAmount: Int, cardAmount: Int, name: String,
         onProgress: (Float) -> Unit, total: Int
-    ) = supabaseDao.replaceDeckList(
+    ) = importFromSBDao.replaceDeckList(
         deck, cardList, reviewAmount, cardAmount, name,
         onProgress = {
             onProgress(it)
@@ -52,12 +52,12 @@ class OfflineSupabaseToRoomRepository(
     )
 
     override suspend fun validateDeckSignature(deckUUID: String) = try {
-        supabaseDao.validateDeckSignature(deckUUID)
+        importFromSBDao.validateDeckSignature(deckUUID)
     } catch (e: Exception) {
         throw e
     }
     override suspend fun validateDeckName(name: String) = try {
-        supabaseDao.validateDeckName(name)
+        importFromSBDao.validateDeckName(name)
     } catch (e: Exception) {
         throw e
     }
