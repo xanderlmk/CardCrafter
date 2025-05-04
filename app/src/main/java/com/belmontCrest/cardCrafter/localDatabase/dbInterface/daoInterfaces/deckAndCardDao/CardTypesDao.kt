@@ -13,6 +13,11 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
+import com.belmontCrest.cardCrafter.model.Type.BASIC
+import com.belmontCrest.cardCrafter.model.Type.HINT
+import com.belmontCrest.cardCrafter.model.Type.MULTI
+import com.belmontCrest.cardCrafter.model.Type.NOTATION
+import com.belmontCrest.cardCrafter.model.Type.THREE
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import kotlinx.coroutines.flow.Flow
 
@@ -93,7 +98,7 @@ interface CardTypesDao {
         deleteCT: CT
     ) {
         when (type) {
-            "basic" -> {
+            BASIC -> {
                 insertBasicCard(
                     BasicCard(
                         cardId = cardId,
@@ -103,7 +108,7 @@ interface CardTypesDao {
                 )
             }
 
-            "three" -> {
+            THREE -> {
                 insertThreeCard(
                     ThreeFieldCard(
                         cardId = cardId,
@@ -115,7 +120,7 @@ interface CardTypesDao {
 
             }
 
-            "hint" -> {
+            HINT -> {
                 insertHintCard(
                     HintCard(
                         cardId = cardId,
@@ -126,7 +131,7 @@ interface CardTypesDao {
                 )
             }
 
-            "multi" -> {
+            MULTI -> {
                 insertMultiChoiceCard(
                     MultiChoiceCard(
                         cardId = cardId,
@@ -139,7 +144,7 @@ interface CardTypesDao {
                     )
                 )
             }
-            "notation" -> {
+            NOTATION -> {
                 insertNotationCard(
                     NotationCard(
                         cardId = cardId,

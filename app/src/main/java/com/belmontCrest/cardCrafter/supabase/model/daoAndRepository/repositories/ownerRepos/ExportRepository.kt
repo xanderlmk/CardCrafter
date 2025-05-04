@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
+package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos
 
 import android.util.Log
 import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
@@ -12,18 +12,15 @@ import kotlinx.coroutines.flow.map
 interface ExportRepository {
     fun getImportedDeckInfo(id: Int): Flow<ImportedDeckInfo>
 
-    fun insertImportedDeckInfo(importedDeckInfo: ImportedDeckInfo)
-
     fun getDeckStream(id: Int): Flow<Deck>
 
     fun getAllCardTypes(deckId: Int): Flow<List<CT>>
+
+    fun updateNewInfo(importedDeckInfo: ImportedDeckInfo, deckId: Int)
 }
 
 class OfflineExportRepository(private val exportToSBDao: ExportToSBDao) : ExportRepository {
     override fun getImportedDeckInfo(id: Int) = exportToSBDao.getImportedDeckInfo(id)
-
-    override fun insertImportedDeckInfo(importedDeckInfo: ImportedDeckInfo) =
-        exportToSBDao.insertImportedDeckInfo(importedDeckInfo)
 
     override fun getDeckStream(id: Int) = exportToSBDao.getDeckFlow(id)
 
@@ -35,4 +32,8 @@ class OfflineExportRepository(private val exportToSBDao: ExportToSBDao) : Export
             listOf<CT>()
         }
     }
+
+    override fun updateNewInfo(importedDeckInfo: ImportedDeckInfo, deckId: Int) =
+        exportToSBDao.updateNewInfo(importedDeckInfo, deckId)
+
 }

@@ -6,12 +6,10 @@ import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.RequiresApi
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import androidx.room.Relation
 import androidx.room.TypeConverter
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
@@ -47,7 +45,7 @@ data class Deck(
     var cardsLeft: Int = 20,
     var cardsDone: Int = 0,
     @Serializable(with = DateAsLong::class)
-    var lastUpdated : Date,
+    var lastUpdated: Date,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
@@ -62,7 +60,7 @@ data class Deck(
         parcel.readInt(),
         parcel.readInt(),
         Date(parcel.readLong())
-        )
+    )
 
     companion object : Parceler<Deck> {
         override fun Deck.write(parcel: Parcel, flags: Int) {
@@ -79,11 +77,13 @@ data class Deck(
             parcel.writeInt(cardsDone)
             parcel.writeLong(lastUpdated.time)
         }
+
         override fun create(parcel: Parcel): Deck {
             return Deck(parcel)
         }
     }
 }
+
 @Serializable
 @Parcelize
 @Entity(
@@ -98,7 +98,8 @@ data class Deck(
     ],
     indices = [
         Index(value = ["deckId"]),
-        Index(value = ["deckUUID", "deckCardNumber"], unique = true)]
+        Index(value = ["deckUUID", "deckCardNumber"], unique = true),
+        Index(value = ["cardIdentifier"], unique = true)]
 )
 data class Card(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
@@ -160,6 +161,7 @@ data class Card(
             parcel.writeInt(deckCardNumber!!)
             parcel.writeString(cardIdentifier)
         }
+
         @RequiresApi(Build.VERSION_CODES.Q)
         override fun create(parcel: Parcel): Card {
             return Card(parcel)
@@ -179,18 +181,10 @@ data class SavedCard(
     var partOfList: Boolean
 ) : Parcelable
 
-// Decks has many cards, one card belongs to a deck
 
-@Parcelize
-data class DeckWithCards(
-    @Embedded val deck: Deck,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "deckId",
-    )
-    val cards: List<Card>
-) : Parcelable
-
+data class CIForID(
+    val cardIdentifier : String
+)
 
 class TimeConverter {
     @TypeConverter
@@ -208,6 +202,7 @@ object DateAsLong : KSerializer<Date> {
     override val descriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
     override fun serialize(encoder: Encoder, value: Date) =
         encoder.encodeLong(value.time)
+
     override fun deserialize(decoder: Decoder) =
         Date(decoder.decodeLong())
 }

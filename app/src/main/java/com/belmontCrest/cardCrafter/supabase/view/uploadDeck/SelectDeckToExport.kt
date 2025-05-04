@@ -12,20 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,13 +28,6 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.mainViewModifier
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
-import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOT_DECK_OWNER
-import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
-import kotlinx.coroutines.launch
-
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
@@ -97,94 +83,5 @@ fun LocalDecks(
                 ) { Text(stringResource(R.string.cancel)) }
             }
         }
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.Q)
-@Composable
-fun FailedUpload(
-    dismiss: MutableState<Boolean>, message: String,
-    code: Int, getUIStyle: GetUIStyle, deck: Deck, description: String,
-    supabaseVM: SupabaseViewModel, onSuccess: () -> Unit
-) {
-    if (dismiss.value) {
-        val coroutineScope = rememberCoroutineScope()
-        var enabled by rememberSaveable { mutableStateOf(true) }
-        val context = LocalContext.current
-        AlertDialog(
-            onDismissRequest = {
-                if (enabled) {
-                    dismiss.value = false
-                }
-            },
-            dismissButton = {
-                Button(
-                    onClick = {
-                        dismiss.value = false
-                    }, enabled = enabled,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = getUIStyle.secondaryButtonColor(),
-                        contentColor = getUIStyle.buttonTextColor()
-                    )
-                ) {
-                    Text("Return")
-                }
-            },
-            confirmButton = {
-                if (code == DECK_EXISTS) {
-                    SubmitButton(
-                        onClick = {
-                            coroutineScope.launch {
-                                enabled = false
-                                supabaseVM.updateExportedDeck(
-                                    deck, description
-                                ).let {
-                                    if (it == SUCCESS) {
-                                        showToastMessage(
-                                            context, "Success!",
-                                            onNavigate = {
-                                                onSuccess()
-                                            }, dismiss
-                                        )
-                                    } else if (it == NOT_DECK_OWNER) {
-                                        showToastMessage(
-                                            context,
-                                            "You are not the owner of this deck.",
-                                            dismiss = dismiss
-                                        )
-                                    } else {
-                                        showToastMessage(
-                                            context,
-                                            "Unable to upload this deck.\n" +
-                                                    "Try again later.",
-                                            dismiss = dismiss
-                                        )
-                                    }
-                                }
-
-                            }
-                        }, enabled, getUIStyle, "Update"
-                    )
-                }
-            },
-            title = {
-                Text("Failed!")
-            },
-            text = {
-                Column {
-                    Text(
-                        text = message,
-                        color = getUIStyle.titleColor()
-                    )
-                    if (code == DECK_EXISTS) {
-                        Text(
-                            text = "If you are the owner, you can update this deck.",
-                            color = getUIStyle.titleColor()
-                        )
-                    }
-                }
-            },
-            modifier = Modifier.fillMaxWidth(0.85f)
-        )
     }
 }

@@ -6,6 +6,7 @@ import android.util.Log
 import com.belmontCrest.cardCrafter.BuildConfig
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.localDatabase.tables.toInstant
 import com.belmontCrest.cardCrafter.supabase.controller.converters.localCTToSBCT
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CC_LESS_THAN_20
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CTD_ERROR
@@ -13,15 +14,18 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_CARD_LIST
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOT_DECK_OWNER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_CARDS
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_UPDATED_ON
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_USER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UNKNOWN_ERROR
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UPDATED_ON_CONFLICT
+import com.belmontCrest.cardCrafter.supabase.model.TimestampTZResult
 import com.belmontCrest.cardCrafter.supabase.model.tables.CardsToDisplay
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckCoOwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckOwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckUUIDDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckUpdatedOnDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.isEmpty
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.annotations.SupabaseExperimental
@@ -48,15 +52,14 @@ interface SBTablesRepository {
 
     suspend fun exportDeck(
         deck: Deck, description: String, cts: List<CT>, cardsToDisplay: CardsToDisplay,
-    ): Pair<String, Int>
+    ): TimestampTZResult
 
     /**suspend fun deleteDeck(uuid: String)*/
     suspend fun upsertDeck(
         deck: Deck, description: String, cts: List<CT>, cardsToDisplay: CardsToDisplay,
         lastUpdatedOn: String
-    ): Pair<String, Int>
+    ): TimestampTZResult
 
-    suspend fun checkCardList(sbDeckDto: SBDeckDto): Pair<List<SBCardDto>, Int>
 
     suspend fun getCardsToDisplay(uuid: String): Pair<CardsToDisplay, Int>
 
@@ -73,7 +76,6 @@ class SBTableRepositoryImpl(
     companion object {
         private const val SB_TABLE_REPO = "SBTableRepository"
         private const val SB_DECK_TN = BuildConfig.SB_DECK_TN
-        private const val SB_CARD_TN = BuildConfig.SB_CARD_TN
         private const val SB_CTD_TN = BuildConfig.SB_CTD_TN
         private const val SB_DACO_TN = BuildConfig.SB_DACO_TN
     }
@@ -135,12 +137,12 @@ class SBTableRepositoryImpl(
 
     override suspend fun exportDeck(
         deck: Deck, description: String, cts: List<CT>, cardsToDisplay: CardsToDisplay
-    ): Pair<String, Int> {
+    ): TimestampTZResult {
         return withContext(Dispatchers.IO) {
             val user = sharedSupabase.auth.currentUserOrNull()
             if (user == null) {
                 Log.e(SB_TABLE_REPO, "User is null!")
-                return@withContext Pair("", NULL_USER)
+                return@withContext TimestampTZResult(NULL_USER)
             }
             val response = sharedSupabase.from(SB_DECK_TN)
                 .select(columns = Columns.type<SBDeckUUIDDto>()) {
@@ -152,13 +154,13 @@ class SBTableRepositoryImpl(
 
             if (response?.deckUUID == deck.uuid) {
                 Log.e(SB_TABLE_REPO, "Deck already Exists!")
-                return@withContext Pair("", DECK_EXISTS)
+                return@withContext TimestampTZResult(DECK_EXISTS)
             }
 
             if (cts.isEmpty()) {
-                return@withContext Pair("", EMPTY_CARD_LIST)
+                return@withContext TimestampTZResult(EMPTY_CARD_LIST)
             } else if (cts.size < 20) {
-                return@withContext Pair("", CC_LESS_THAN_20)
+                return@withContext TimestampTZResult(CC_LESS_THAN_20)
             }
             val deckToExport = localCTToSBCT(
                 deck, cts, cardsToDisplay, description, user.id, ""
@@ -170,10 +172,10 @@ class SBTableRepositoryImpl(
                         put("deck_data", Json.encodeToJsonElement(deckToExport))
                     }
                 )
-                return@withContext Pair(successResponse.data, SUCCESS)
+                return@withContext TimestampTZResult(SUCCESS, successResponse.data)
             } catch (e: Exception) {
                 Log.e(SB_TABLE_REPO, "$e")
-                return@withContext Pair("", UNKNOWN_ERROR)
+                return@withContext TimestampTZResult(UNKNOWN_ERROR)
             }
         }
     }
@@ -181,35 +183,51 @@ class SBTableRepositoryImpl(
     override suspend fun upsertDeck(
         deck: Deck, description: String, cts: List<CT>, cardsToDisplay: CardsToDisplay,
         lastUpdatedOn: String
-    ): Pair<String, Int> {
+    ): TimestampTZResult {
         return withContext(Dispatchers.IO) {
             val user = sharedSupabase.auth.currentUserOrNull()
             if (user == null) {
-                Log.d("SupabaseViewModel", "User is null!")
-                return@withContext Pair("", NULL_USER)
+                Log.d(SB_TABLE_REPO, "User is null!")
+                return@withContext TimestampTZResult(NULL_USER)
             }
             if (!userCanEdit(deck.uuid, user.id)) {
-                Log.d(SB_TABLE_REPO, "Not owner or accepted co-owner")
-                return@withContext Pair("", NOT_DECK_OWNER)
+                Log.e(SB_TABLE_REPO, "Not owner or accepted co-owner")
+                return@withContext TimestampTZResult(NOT_DECK_OWNER)
+            }
+            if (cts.isEmpty()) {
+                Log.e(SB_TABLE_REPO, "Empty card list")
+                return@withContext TimestampTZResult(EMPTY_CARD_LIST)
+            } else if (cts.size < 20) {
+                return@withContext TimestampTZResult(CC_LESS_THAN_20)
             }
 
-            if (cts.isEmpty()) {
-                Log.d(SB_TABLE_REPO, "Empty card list")
-                return@withContext Pair("", EMPTY_CARD_LIST)
-            } else if (cts.size < 20) {
-                return@withContext Pair("", CC_LESS_THAN_20)
+            val currentUpdatedOn = sharedSupabase.from(SB_DECK_TN)
+                .select(Columns.type<SBDeckUpdatedOnDto>()) {
+                    filter {
+                        eq("deckUUID", deck.uuid)
+                    }
+                }.decodeSingleOrNull<SBDeckUpdatedOnDto>()
+
+            if (currentUpdatedOn == null) {
+                return@withContext TimestampTZResult(NULL_UPDATED_ON)
+            }
+            val thisOne = lastUpdatedOn.toInstant()
+            val current = currentUpdatedOn.updatedOn.toInstant()
+
+            if (thisOne != current) {
+                return@withContext TimestampTZResult(UPDATED_ON_CONFLICT)
             }
 
             val deckToUpsert = if (cardsToDisplay.isEmpty()) {
                 val ctd = sharedSupabase.from("cards_to_display")
-                    .select(columns = Columns.ALL) {
+                    .select(Columns.ALL) {
                         filter {
                             eq("deckUUID", deck.uuid)
                         }
                     }.decodeSingleOrNull<CardsToDisplay>()
                 if (ctd == null) {
-                    Log.d(SB_TABLE_REPO, "no cards to display")
-                    return@withContext Pair("", NULL_CARDS)
+                    Log.e(SB_TABLE_REPO, "no cards to display")
+                    return@withContext TimestampTZResult(NULL_CARDS)
                 }
                 localCTToSBCT(deck, cts, ctd, description, user.id, lastUpdatedOn)
             } else {
@@ -222,15 +240,15 @@ class SBTableRepositoryImpl(
                         put("deck_data", Json.encodeToJsonElement(deckToUpsert))
                     }
                 )
-                return@withContext Pair(successResponse.data, SUCCESS)
+                return@withContext TimestampTZResult(SUCCESS, successResponse.data)
             } catch (e: Exception) {
-                Log.d("NEW export", "$e")
+                Log.d(SB_TABLE_REPO, "$e")
             }
-            return@withContext Pair("", UNKNOWN_ERROR)
+            return@withContext TimestampTZResult(UNKNOWN_ERROR)
         }
     }
 
-    override suspend fun checkCardList(sbDeckDto: SBDeckDto): Pair<List<SBCardDto>, Int> {
+    /**override suspend fun checkCardList(sbDeckDto: SBDeckDto): Pair<List<SBCardDto>, Int> {
         return withContext(Dispatchers.IO) {
             val cardList = sharedSupabase.from(SB_CARD_TN)
                 .select(columns = Columns.ALL) {
@@ -245,11 +263,20 @@ class SBTableRepositoryImpl(
                 Pair(cardList, SUCCESS)
             }
         }
-    }
+    }*/
 
     override suspend fun getCardsToDisplay(uuid: String): Pair<CardsToDisplay, Int> {
         return withContext(Dispatchers.IO) {
             try {
+                val user = sharedSupabase.auth.currentUserOrNull()
+                if (user == null) {
+                    Log.e(SB_TABLE_REPO, "User is null!")
+                    return@withContext Pair(CardsToDisplay(), NULL_USER)
+                }
+                if (!userCanEdit(uuid, user.id)) {
+                    Log.e(SB_TABLE_REPO, "Not owner or accepted co-owner")
+                    return@withContext Pair(CardsToDisplay(), NOT_DECK_OWNER)
+                }
                 val data = sharedSupabase.from(SB_CTD_TN)
                     .select(Columns.ALL) {
                         filter {
@@ -258,7 +285,7 @@ class SBTableRepositoryImpl(
                     }.decodeSingle<CardsToDisplay>()
                 return@withContext Pair(data, SUCCESS)
             } catch (e: Exception) {
-                Log.e("CardsToDisplay", "$e")
+                Log.e(SB_TABLE_REPO, "$e")
                 Pair(CardsToDisplay(), CTD_ERROR)
             }
         }

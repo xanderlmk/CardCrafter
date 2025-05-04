@@ -4,18 +4,26 @@ package com.belmontCrest.cardCrafter.supabase.model.tables
 
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
+import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import io.github.jan.supabase.gotrue.user.UserInfo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+
+private val StringToList = ListStringConverter()
+
 @Serializable
 data class SBDeckDto(
     val deckUUID: String,
-    val user_id: String,
+    @SerialName("user_id")
+    val userId: String,
     val name: String,
     val description: String,
-    val updated_on: String = ""
+    @SerialName("updated_on")
+    val updatedOn: String = ""
 )
 
 @Serializable
@@ -38,6 +46,10 @@ data class SBMultiCardDto(
     val correct: Char
 )
 
+fun SBMultiCardDto.toMultiChoiceCard(): MultiChoiceCard = MultiChoiceCard(
+    cardId, question, choiceA, choiceB, choiceC ?: "", choiceD ?: "", correct
+)
+
 @Serializable
 data class SBDeckListDto(
     val list: List<SBDeckDto> = emptyList()
@@ -55,11 +67,21 @@ data class SBNotationCardDto(
     val answer: String
 )
 
+fun SBNotationCardDto.toNotationCard(): NotationCard = NotationCard(
+    cardId, question, StringToList.fromString(steps), answer
+)
+
 @Serializable
 data class SBDeckUUIDDto(val deckUUID: String)
 
 @Serializable
 data class SBDeckOwnerDto(val user_id: String)
+
+@Serializable
+data class SBDeckUpdatedOnDto(
+    @SerialName("updated_on")
+    val updatedOn: String
+)
 
 @Serializable
 data class OwnerDto(

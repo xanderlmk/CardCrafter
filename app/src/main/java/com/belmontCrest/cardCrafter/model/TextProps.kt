@@ -3,14 +3,16 @@
 package com.belmontCrest.cardCrafter.model
 
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 
 
 /** Font size prop */
-enum class FSProp { Font22, Font20, Font18, Font16, Font14, Default }
+enum class FSProp { Font22, Font20, Font18, Font16, Font14, Font12, Font10, Default }
 
 /** Font weight prop */
 enum class FWProp { SemiBold, Bold, Default }
@@ -21,6 +23,8 @@ enum class TAProp { Start, Center, End, Default }
 /** Max lines prop */
 enum class MLProp { One, Two, Three, Default }
 
+enum class TCProp{ Button, Default }
+
 /** Defining our text props */
 data class TextProps(
     /** Font size */
@@ -29,7 +33,10 @@ data class TextProps(
     val fw: FWProp = FWProp.Default,
     /** Text align */
     val ta: TAProp = TAProp.Default,
-    val ml: MLProp = MLProp.Default
+    /** Max lines */
+    val ml: MLProp = MLProp.Default,
+    /** Text Colors */
+    val tc: TCProp = TCProp.Default
 )
 
 fun TAProp.toTextProp(): TextProps = when (this) {
@@ -52,6 +59,8 @@ fun FSProp.toTextProp(): TextProps = when (this) {
     FSProp.Font18 -> TextProps(fs = FSProp.Font18)
     FSProp.Font16 -> TextProps(fs = FSProp.Font16)
     FSProp.Font14 -> TextProps(fs = FSProp.Font14)
+    FSProp.Font12 -> TextProps(fs = FSProp.Font12)
+    FSProp.Font10 -> TextProps(fs = FSProp.Font10)
     FSProp.Default -> TextProps(fs = FSProp.Default)
 }
 
@@ -62,6 +71,8 @@ fun setFontSize(fsProp: FSProp): TextUnit {
         FSProp.Font18 -> 18.sp
         FSProp.Font16 -> 16.sp
         FSProp.Font14 -> 14.sp
+        FSProp.Font12 -> 12.sp
+        FSProp.Font10 -> 10.sp
         FSProp.Default -> TextUnit.Unspecified
     }
 }
@@ -92,6 +103,20 @@ fun setMaxLines(mlProp: MLProp): Int {
     }
 }
 
+fun setTextColor(tcProp: TCProp, getUIStyle : GetUIStyle): Color {
+    return when(tcProp) {
+        TCProp.Button -> getUIStyle.buttonTextColor()
+        TCProp.Default -> getUIStyle.titleColor()
+    }
+}
+
 fun titledTextProp() = TextProps(FSProp.Font22, FWProp.Default, TAProp.Center)
 
+fun cardListTextProp() = TextProps(ml = MLProp.Two, tc = TCProp.Button)
 
+fun FSProp.toTextProp(textUnit: TextUnit): TextProps = when (textUnit) {
+    10.sp -> TextProps(fs = FSProp.Font10)
+    12.sp -> TextProps(fs = FSProp.Font12)
+    14.sp -> TextProps(fs = FSProp.Font14)
+    else -> TextProps(fs = FSProp.Default)
+}

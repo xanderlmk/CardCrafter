@@ -103,12 +103,9 @@ class ImportDeck(
                                         success.intValue = importDeckVM.importDeck(
                                             sbDeckDto = deck,
                                             preferences = preferences,
-                                            onProgress = {
-                                                progress = it
-                                            },
-                                            onError = {
-                                                errorMessage = it
-                                            })
+                                            onProgress = { progress = it },
+                                            onError = { errorMessage = it }
+                                        )
                                         if (success.intValue == SUCCESS) {
                                             Toast.makeText(
                                                 context, "Success!", Toast.LENGTH_SHORT

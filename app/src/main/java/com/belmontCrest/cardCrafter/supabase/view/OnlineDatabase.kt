@@ -30,34 +30,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
-import com.belmontCrest.cardCrafter.supabase.view.authViews.CreateAccount
 import com.belmontCrest.cardCrafter.supabase.view.authViews.SignUp
-import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.LocalDecks
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.uiFunctions.ExportDeckButton
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 class OnlineDatabase(
     private val getUIStyle: GetUIStyle,
     private val supabaseVM: SupabaseViewModel,
-    private val localDeckList: List<Deck>
 ) {
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Composable
     fun SupabaseView(
         onImportDeck: (String) -> Unit,
-        onExportDeck: (String) -> Unit,
         onUseEmail: () -> Unit
     ) {
         val currentUser by supabaseVM.currentUser.collectAsStateWithLifecycle()
         val deckList by supabaseVM.deckList.collectAsStateWithLifecycle()
-        val owner by supabaseVM.owner.collectAsStateWithLifecycle()
-        var pressed = rememberSaveable { mutableStateOf(false) }
 
         var refreshing by rememberSaveable { mutableStateOf(false) }
         LaunchedEffect(refreshing) {
@@ -76,11 +68,6 @@ class OnlineDatabase(
                 supabaseVM.updateStatus()
             }
         }
-        LaunchedEffect(owner) {
-            if (owner == null) {
-                supabaseVM.getOwner()
-            }
-        }
         if (currentUser == null) {
             SignUp(supabaseVM, getUIStyle, onUseEmail) {
                 refreshing = it
@@ -95,16 +82,6 @@ class OnlineDatabase(
                         .boxViewsModifier(getUIStyle.getColorScheme()),
                     contentAlignment = Alignment.TopCenter
                 ) {
-                    if (owner != null) {
-                        LocalDecks(
-                            pressed, localDeckList, getUIStyle,
-                            supabaseVM, onExportDeck
-                        )
-                    } else {
-                        CreateAccount(
-                            supabaseVM, pressed, getUIStyle
-                        )
-                    }
                     LazyColumn(
                         contentPadding = PaddingValues(
                             horizontal = 4.dp,
@@ -116,10 +93,6 @@ class OnlineDatabase(
                             DeckView(deck, onImportDeck)
                         }
                     }
-                    ExportDeckButton(
-                        onClick = { pressed.value = true },
-                        modifier = Modifier.align(Alignment.BottomEnd)
-                    )
                 }
             }
         }

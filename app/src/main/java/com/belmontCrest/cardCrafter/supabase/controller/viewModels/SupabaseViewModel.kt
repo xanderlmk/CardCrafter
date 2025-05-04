@@ -18,8 +18,9 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_CARDS
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.GoogleCredentials
 import com.belmontCrest.cardCrafter.supabase.model.tables.OwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_OWNER
+import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_UPDATED_ON
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ExportRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.ExportRepository
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckListDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.AuthRepository
@@ -218,7 +219,6 @@ class SupabaseViewModel(
         viewModelScope.launch {
             delay(1250)
             getOwner()
-            getDeckList()
         }
     }
 
@@ -347,13 +347,13 @@ class SupabaseViewModel(
             val result =
                 sbTableRepository.exportDeck(deck, description, sealedAllCTs.value.allCTs, ctd)
 
-            if (result.first.isNotBlank()) {
-                exportRepository.insertImportedDeckInfo(
-                    ImportedDeckInfo(uuid = deck.uuid, lastUpdatedOn = result.first)
+            if (result.timestamp.isNotBlank()) {
+                exportRepository.updateNewInfo(
+                    ImportedDeckInfo(uuid = deck.uuid, lastUpdatedOn = result.timestamp), deck.id
                 )
             }
             /** if successful, return 0 */
-            result.second
+            result.returnValue
         }
     }
 
@@ -369,20 +369,20 @@ class SupabaseViewModel(
             val luo = importedDeckInfo.value?.lastUpdatedOn
             if (luo == null) {
                 Log.e(SUPABASE_VM, "No import Deck info")
-                return@withContext NULL_CARDS
+                return@withContext NULL_UPDATED_ON
             }
 
             val result = sbTableRepository.upsertDeck(
                 deck, description, sealedAllCTs.value.allCTs, ctd, luo
             )
 
-            if (result.first.isNotBlank()) {
-                exportRepository.insertImportedDeckInfo(
-                    ImportedDeckInfo(uuid = deck.uuid, lastUpdatedOn = result.first)
+            if (result.timestamp.isNotBlank()) {
+                exportRepository.updateNewInfo(
+                    ImportedDeckInfo(uuid = deck.uuid, lastUpdatedOn = result.timestamp), deck.id
                 )
             }
             /** if successful, return 0 */
-            result.second
+            result.returnValue
         }
     }
     /** End of export decks */

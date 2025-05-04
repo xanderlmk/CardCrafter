@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -22,34 +25,74 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
+import com.belmontCrest.cardCrafter.supabase.view.authViews.CreateAccount
+import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.LocalDecks
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
+import com.belmontCrest.cardCrafter.uiFunctions.ExportDeckButton
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun UserExportedDecks(
     getUIStyle: GetUIStyle, uEDVM: UserExportedDecksViewModel,
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit, onExportDeck: (String) -> Unit,
+    localDeckList: List<Deck>,supabaseVM: SupabaseViewModel
 ) {
-    val deckList by uEDVM.userExportedDecks.collectAsStateWithLifecycle()
-    LaunchedEffect(Unit) { uEDVM.getUserDeckList() }
-    Box(
-        modifier = Modifier
-            .boxViewsModifier(getUIStyle.getColorScheme()),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        LazyColumn(
-            contentPadding = PaddingValues(
-                horizontal = 4.dp,
-                vertical = 8.dp
-            ),
-            horizontalAlignment = Alignment.CenterHorizontally,
+    val deckList by uEDVM.allDecks.collectAsStateWithLifecycle()
+    val isLoading by uEDVM.isLoading.collectAsStateWithLifecycle()
+    var pressed = rememberSaveable { mutableStateOf(false) }
+    val owner by supabaseVM.owner.collectAsStateWithLifecycle()
+
+    LaunchedEffect(owner) {
+        if (owner == null) {
+            supabaseVM.getOwner()
+        }
+    }
+    if (isLoading) {
+        Box(
+            modifier = Modifier.boxViewsModifier(getUIStyle.getColorScheme()),
+            contentAlignment = Alignment.Center
         ) {
-            items(deckList.list) { deck ->
-                DeckView(deck, getUIStyle, onNavigate)
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = getUIStyle.titleColor()
+            )
+        }
+    } else {
+        Box(
+            modifier = Modifier
+                .boxViewsModifier(getUIStyle.getColorScheme()),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            if (owner != null) {
+                LocalDecks(
+                    pressed, localDeckList, getUIStyle,
+                    supabaseVM, onExportDeck
+                )
+            } else {
+                CreateAccount(
+                    supabaseVM, pressed, getUIStyle
+                )
             }
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    horizontal = 4.dp,
+                    vertical = 8.dp
+                ),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                items(deckList.list) { deck ->
+                    DeckView(deck, getUIStyle, onNavigate)
+                }
+            }
+            ExportDeckButton(
+                onClick = { pressed.value = true },
+                modifier = Modifier.align(Alignment.BottomEnd)
+            )
         }
     }
 }

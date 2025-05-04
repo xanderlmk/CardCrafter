@@ -10,6 +10,7 @@ import com.belmontCrest.cardCrafter.model.setFontSize
 import com.belmontCrest.cardCrafter.model.setFontWeight
 import com.belmontCrest.cardCrafter.model.setMaxLines
 import com.belmontCrest.cardCrafter.model.setTextAlign
+import com.belmontCrest.cardCrafter.model.setTextColor
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 
 @Composable
@@ -21,15 +22,12 @@ fun CustomText(
     val fontSize = setFontSize(props.fs)
     val textAlign = setTextAlign(props.ta)
     val maxLines = setMaxLines(props.ml)
+    val textColor = setTextColor(props.tc, getUIStyle)
     Text(
-        text = text,
-        color = getUIStyle.titleColor(),
-        textAlign = textAlign,
-        modifier = modifier,
-        fontSize = fontSize,
-        fontWeight = fontWeight,
-        maxLines = maxLines,
-        overflow = TextOverflow.Ellipsis
+        text = text, color = textColor,
+        textAlign = textAlign, modifier = modifier,
+        fontSize = fontSize, fontWeight = fontWeight,
+        maxLines = maxLines, overflow = TextOverflow.Ellipsis
     )
 }
 
@@ -42,14 +40,12 @@ fun CustomText(
     val fontSize = setFontSize(props.fs)
     val textAlign = setTextAlign(props.ta)
     val maxLines = setMaxLines(props.ml)
+    val textColor = setTextColor(props.tc, getUIStyle)
+
     Text(
-        text = text,
-        color = getUIStyle.titleColor(),
-        textAlign = textAlign,
-        modifier = modifier,
-        fontSize = fontSize,
-        fontWeight = fontWeight,
-        maxLines = maxLines,
-        overflow = TextOverflow.Ellipsis
+        text = text, color = textColor,
+        textAlign = textAlign, modifier = modifier,
+        fontSize = fontSize, fontWeight = fontWeight,
+        maxLines = maxLines, overflow = TextOverflow.Ellipsis
     )
 }

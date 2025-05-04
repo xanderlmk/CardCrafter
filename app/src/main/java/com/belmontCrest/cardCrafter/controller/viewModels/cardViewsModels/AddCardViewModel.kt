@@ -3,16 +3,9 @@ package com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.ScienceSpecificRepository
-import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
+import com.belmontCrest.cardCrafter.views.miscFunctions.details.CDetails
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,9 +15,7 @@ import kotlinx.coroutines.withTimeout
 import java.util.Date
 
 class AddCardViewModel(
-    private val flashCardRepository: FlashCardRepository,
-    private val cardTypeRepository: CardTypeRepository,
-    private val scienceSpecificRepository: ScienceSpecificRepository
+    private val flashCardRepository: FlashCardRepository
 ) : ViewModel() {
     private val privateErrorMessage: MutableStateFlow<String> = MutableStateFlow("")
     val errorMessage = privateErrorMessage.asStateFlow()
@@ -36,14 +27,9 @@ class AddCardViewModel(
     fun addBasicCard(deck: Deck, question: String, answer: String) {
         if (question.isNotBlank() && answer.isNotBlank()) {
             viewModelScope.launch(Dispatchers.IO) {
-                val cardId = createCard("basic", deck)
-                cardTypeRepository.insertBasicCard(
-                    BasicCard(
-                        cardId = cardId.toInt(),
-                        question = question,
-                        answer = answer
-                    )
-                )
+                flashCardRepository.insertBasicCard(
+                    deck, CDetails.BasicCD(question, answer)
+                ).also { updateCardsLeft(deck) }
             }
         }
     }
@@ -56,15 +42,9 @@ class AddCardViewModel(
             && hint.isNotBlank()
         ) {
             viewModelScope.launch(Dispatchers.IO) {
-                val cardId = createCard("hint", deck)
-                cardTypeRepository.insertHintCard(
-                    HintCard(
-                        cardId = cardId.toInt(),
-                        question = question,
-                        hint = hint,
-                        answer = answer
-                    )
-                )
+                flashCardRepository.insertHintCard(
+                    deck, CDetails.ThreeHintCD(question, hint, answer)
+                ).also { updateCardsLeft(deck) }
             }
         }
     }
@@ -77,15 +57,9 @@ class AddCardViewModel(
             && middle.isNotBlank()
         ) {
             viewModelScope.launch(Dispatchers.IO) {
-                val cardId = createCard("three", deck)
-                cardTypeRepository.insertThreeCard(
-                    ThreeFieldCard(
-                        cardId = cardId.toInt(),
-                        question = question,
-                        middle = middle,
-                        answer = answer
-                    )
-                )
+                flashCardRepository.insertThreeCard(
+                    deck, CDetails.ThreeHintCD(question, middle, answer)
+                ).also { updateCardsLeft(deck) }
             }
         }
     }
@@ -103,18 +77,9 @@ class AddCardViewModel(
             choiceB.isNotBlank() && correct in 'a'..'d'
         ) {
             viewModelScope.launch(Dispatchers.IO) {
-                val cardId = createCard("multi", deck)
-                cardTypeRepository.insertMultiChoiceCard(
-                    MultiChoiceCard(
-                        cardId = cardId.toInt(),
-                        question = question,
-                        choiceA = choiceA,
-                        choiceB = choiceB,
-                        choiceC = choiceC,
-                        choiceD = choiceD,
-                        correct = correct
-                    )
-                )
+                flashCardRepository.insertMultiCard(
+                    deck, CDetails.MultiCD(question, choiceA, choiceB, choiceC, choiceD, correct)
+                ).also { updateCardsLeft(deck) }
             }
         }
     }
@@ -129,38 +94,10 @@ class AddCardViewModel(
             steps.all { it.isNotBlank() } && answer.isNotBlank()
         ) {
             viewModelScope.launch(Dispatchers.IO) {
-                val cardId = createCard("notation", deck)
-                scienceSpecificRepository.insertNotationCard(
-                    NotationCard(
-                        cardId = cardId.toInt(),
-                        question = question,
-                        steps = steps,
-                        answer = answer
-                    )
-                )
+                flashCardRepository.insertNotationCard(
+                    deck, CDetails.NotationCD(question, steps, answer)
+                ).also { updateCardsLeft(deck) }
             }
-        }
-    }
-
-
-    suspend fun createCard(type: String, deck: Deck): Long {
-        val currentMax = flashCardRepository.getMaxDCNumber(deck.uuid) ?: 0
-        val newDeckCardNumber = currentMax + 1
-        return flashCardRepository.insertCard(
-            Card(
-                deckId = deck.id,
-                nextReview = Date(),
-                passes = 0,
-                prevSuccess = false,
-                totalPasses = 0,
-                type = type,
-                deckUUID = deck.uuid,
-                deckCardNumber = newDeckCardNumber,
-                cardIdentifier = "${deck.uuid}-$newDeckCardNumber",
-                reviewsLeft = deck.reviewAmount
-            )
-        ).also {
-            updateCardsLeft(deck)
         }
     }
 

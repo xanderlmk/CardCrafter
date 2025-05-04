@@ -82,4 +82,5 @@
     <string name="signed_in">Ha iniciado sesión</string>
     <string name="could_not_sign_in">No se puede iniciar sesión</string>
     <string name="no_credentials_available">No hay credenciales</string>
+    <string name="not_owner_or_co_owner">No es el propietario ni copropietario de este mazo.</string>
 </resources>

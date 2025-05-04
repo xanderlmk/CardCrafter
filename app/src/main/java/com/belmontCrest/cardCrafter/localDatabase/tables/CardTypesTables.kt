@@ -21,7 +21,8 @@ import org.json.JSONArray
             entity = Card::class,
             parentColumns = ["id"],
             childColumns = ["cardId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         )
     ],
     indices = [Index(value = ["cardId"])]
@@ -60,7 +61,8 @@ data class BasicCard(
             entity = Card::class,
             parentColumns = ["id"],
             childColumns = ["cardId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         )
     ],
     indices = [Index(value = ["cardId"])]
@@ -102,7 +104,8 @@ data class ThreeFieldCard(
             entity = Card::class,
             parentColumns = ["id"],
             childColumns = ["cardId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         )
     ],
     indices = [Index(value = ["cardId"])]
@@ -143,7 +146,8 @@ data class HintCard(
             entity = Card::class,
             parentColumns = ["id"],
             childColumns = ["cardId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         )
     ],
     indices = [Index(value = ["cardId"])]
@@ -189,7 +193,8 @@ data class MultiChoiceCard(
             entity = Card::class,
             parentColumns = ["id"],
             childColumns = ["cardId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         )
     ],
     indices = [Index(value = ["cardId"])]

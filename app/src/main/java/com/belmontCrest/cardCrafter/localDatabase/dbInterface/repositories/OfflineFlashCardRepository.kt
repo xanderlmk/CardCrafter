@@ -6,11 +6,9 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deck
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.SavedCardDao
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.DeckWithCards
 import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
-import kotlinx.coroutines.FlowPreview
+import com.belmontCrest.cardCrafter.views.miscFunctions.details.CDetails
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.debounce
 import java.util.Date
 
 class OfflineFlashCardRepository(
@@ -118,10 +116,6 @@ class OfflineFlashCardRepository(
 
     override fun getCardStream(cardId: Int) = cardDao.getCardStream(cardId)
 
-    @OptIn(FlowPreview::class)
-    override fun getDeckWithCards(deckId: Int):
-            Flow<DeckWithCards> = cardDao.getDeckWithCards(deckId).debounce(20)
-
     override suspend fun getDueCards(deckId: Int, currentTime: Long):
             Flow<List<Card>> = cardDao.getDueCards(deckId, currentTime)
 
@@ -155,4 +149,19 @@ class OfflineFlashCardRepository(
         deckDao.updateCardsLeft(deckId, cardsLeft, cardsDone)
 
     override fun getDueDeckDetails(id: Int) = deckDao.getDueDeckDetails(id)
+
+    override suspend fun insertBasicCard(deck: Deck, basicCD: CDetails.BasicCD) =
+        cardDao.insertBasicCard(deck, basicCD)
+
+    override suspend fun insertThreeCard(deck: Deck, threeCD: CDetails.ThreeHintCD) =
+        cardDao.insertThreeCard(deck, threeCD)
+
+    override suspend fun insertHintCard(deck: Deck, hintCD: CDetails.ThreeHintCD) =
+        cardDao.insertHintCard(deck, hintCD)
+
+    override suspend fun insertMultiCard(deck: Deck, multiCD: CDetails.MultiCD) =
+        cardDao.insertMultiCard(deck, multiCD)
+
+    override suspend fun insertNotationCard(deck: Deck, notationCD: CDetails.NotationCD) =
+        cardDao.insertNotationCard(deck, notationCD)
 }

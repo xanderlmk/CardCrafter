@@ -31,12 +31,52 @@ sealed class SBCardColsWithCT {
     }
 }
 
-data class SBCardList (
-    val cts : List<SBCardColsWithCT> = listOf()
+data class SBCardList(
+    val cts: List<SBCardColsWithCT> = listOf()
 )
 
 private const val SB_CARD_TN = BuildConfig.SB_CARD_TN
 
+
+fun List<SBCardColsWithCT>.toListOfSealedCTToImport(): List<SealedCTToImport> =
+    this.map { cardColsWithCT ->
+        when (val ct = cardColsWithCT) {
+            is SBCardColsBasic -> {
+                SealedCTToImport.Basic(
+                    SBCardDto(ct.id, ct.deckUUID, ct.type, ct.cardIdentifier),
+                    ct.basicCard
+                )
+            }
+
+            is SBCardColsHint -> {
+                SealedCTToImport.Hint(
+                    SBCardDto(ct.id, ct.deckUUID, ct.type, ct.cardIdentifier),
+                    ct.hintCard
+                )
+            }
+
+            is SBCardColsMulti -> {
+                SealedCTToImport.Multi(
+                    SBCardDto(ct.id, ct.deckUUID, ct.type, ct.cardIdentifier),
+                    ct.multiCard.toMultiChoiceCard()
+                )
+            }
+
+            is SBCardColsNotation -> {
+                SealedCTToImport.Notation(
+                    SBCardDto(ct.id, ct.deckUUID, ct.type, ct.cardIdentifier),
+                    ct.notationCard.toNotationCard()
+                )
+            }
+
+            is SBCardColsThree -> {
+                SealedCTToImport.Three(
+                    SBCardDto(ct.id, ct.deckUUID, ct.type, ct.cardIdentifier),
+                    ct.threeCard
+                )
+            }
+        }
+    }
 
 suspend fun SBCardDto.toSBCardColsWithCT(
     sharedSupabase: SupabaseClient
@@ -172,29 +212,47 @@ data class SBCardColsNotation(
  *  which will be converted to the local Card
  *  once it's in the transaction phase.
  */
+@Serializable
 sealed class SealedCTToImport {
+    @Serializable
     data class Basic(
         val card: SBCardDto,
         val basicCard: BasicCard
     ) : SealedCTToImport()
 
+    @Serializable
     data class Three(
         val card: SBCardDto,
         val threeCard: ThreeFieldCard,
     ) : SealedCTToImport()
 
+    @Serializable
     data class Hint(
         val card: SBCardDto,
         val hintCard: HintCard
     ) : SealedCTToImport()
 
+    @Serializable
     data class Multi(
         val card: SBCardDto,
         val multiCard: MultiChoiceCard
     ) : SealedCTToImport()
 
+    @Serializable
     data class Notation(
         val card: SBCardDto,
         val notationCard: NotationCard
     ) : SealedCTToImport()
+}
+
+fun SealedCTToImport.toCard(): SBCardDto = when (this) {
+    is SealedCTToImport.Basic -> this.card
+
+    is SealedCTToImport.Three -> this.card
+
+    is SealedCTToImport.Hint -> this.card
+
+    is SealedCTToImport.Multi -> this.card
+
+    is SealedCTToImport.Notation -> this.card
 }

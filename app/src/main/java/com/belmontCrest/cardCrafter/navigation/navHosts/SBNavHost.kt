@@ -63,15 +63,8 @@ fun SupabaseNav(
     LaunchedEffect(Unit) { supabaseVM.signInSyncedDBUser() }
     LaunchedEffect(Unit) { navViewModel.updateSBNav(sbNavController) }
     /** Our Supabase Client and Views. */
-    val onlineDatabase = OnlineDatabase(
-        getUIStyle,
-        supabaseVM,
-        mainViewModel.deckUiState.collectAsStateWithLifecycle().value.deckList,
-    )
-    val importDeck = ImportDeck(
-        getUIStyle,
-        preferences
-    )
+    val onlineDatabase = OnlineDatabase(getUIStyle, supabaseVM)
+    val importDeck = ImportDeck(getUIStyle, preferences)
     val sbDeck by supabaseVM.deck.collectAsStateWithLifecycle()
     val pickedDeck by supabaseVM.pickedDeck.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
@@ -110,11 +103,6 @@ fun SupabaseNav(
                     coroutineScope.launch {
                         supabaseVM.updateUUID(uuid)
                     }
-                },
-                onExportDeck = { uuid ->
-                    navViewModel.updateRoute(ExportSBDestination.route)
-                    sbNavController.navigate(ExportSBDestination.route)
-                    supabaseVM.updateCardsToDisplayUUID(uuid)
                 },
                 onUseEmail = {
                     navViewModel.updateRoute(UseEmailDestination.route)
@@ -180,16 +168,16 @@ fun SupabaseNav(
         }
         composable(ExportSBDestination.route) {
             BackHandler {
-                navViewModel.updateRoute(SupabaseDestination.route)
+                navViewModel.updateRoute(UserEDDestination.route)
                 sbNavController.popBackStack(
-                    SupabaseDestination.route, inclusive = false
+                    UserEDDestination.route, inclusive = false
                 )
             }
             pickedDeck?.let {
                 UploadThisDeck(
                     dismiss = {
-                        navViewModel.updateRoute(SupabaseDestination.route)
-                        sbNavController.navigate(SupabaseDestination.route)
+                        navViewModel.updateRoute(UserEDDestination.route)
+                        sbNavController.navigate(UserEDDestination.route)
                     },
                     it, supabaseVM, getUIStyle
                 )
@@ -219,11 +207,22 @@ fun SupabaseNav(
                     navController, updateCurrentTime(), fields
                 )
             }
-            UserExportedDecks(getUIStyle, uEDVM) { uuid ->
-                uEDVM.updateUUUID(uuid)
-                navViewModel.updateRoute(SBCardListDestination.route)
-                sbNavController.navigate(SBCardListDestination.route)
-            }
+            UserExportedDecks(
+                getUIStyle,
+                uEDVM,
+                onNavigate = { uuid ->
+                    uEDVM.updateUUUID(uuid)
+                    navViewModel.updateRoute(SBCardListDestination.route)
+                    sbNavController.navigate(SBCardListDestination.route)
+                },
+                onExportDeck = { uuid ->
+                    navViewModel.updateRoute(ExportSBDestination.route)
+                    sbNavController.navigate(ExportSBDestination.route)
+                    supabaseVM.updateCardsToDisplayUUID(uuid)
+                },
+                localDeckList = mainViewModel.deckUiState.collectAsStateWithLifecycle().value.deckList,
+                supabaseVM = supabaseVM
+            )
         }
 
         composable(SBCardListDestination.route) {

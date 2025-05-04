@@ -60,9 +60,7 @@ object AppViewModelProvider {
         }
         initializer {
             AddCardViewModel(
-                flashCardApplication().container.flashCardRepository,
-                flashCardApplication().container.cardTypeRepository,
-                flashCardApplication().container.scienceSpecificRepository
+                flashCardApplication().container.flashCardRepository
             )
         }
         initializer {
@@ -109,6 +107,7 @@ object AppViewModelProvider {
             UserExportedDecksViewModel(
                 flashCardApplication().container.sbTablesRepository,
                 flashCardApplication().container.userExportedDecksRepository,
+                flashCardApplication().container.mergeDecksRepository,
                 this.createSavedStateHandle()
             )
         }
