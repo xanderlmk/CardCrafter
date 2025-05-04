@@ -150,18 +150,23 @@ class OfflineFlashCardRepository(
 
     override fun getDueDeckDetails(id: Int) = deckDao.getDueDeckDetails(id)
 
-    override suspend fun insertBasicCard(deck: Deck, basicCD: CDetails.BasicCD) =
-        cardDao.insertBasicCard(deck, basicCD)
+    override suspend fun insertBasicCard(
+        deck: Deck, basicCD: CDetails.BasicCD, isOwnerOrCoOwner: Boolean
+    ) = cardDao.insertBasicCard(deck, basicCD, isOwnerOrCoOwner)
 
-    override suspend fun insertThreeCard(deck: Deck, threeCD: CDetails.ThreeHintCD) =
-        cardDao.insertThreeCard(deck, threeCD)
+    override suspend fun insertThreeCard(
+        deck: Deck, threeCD: CDetails.ThreeHintCD, isOwnerOrCoOwner: Boolean
+    ) = cardDao.insertThreeCard(deck, threeCD, isOwnerOrCoOwner)
 
-    override suspend fun insertHintCard(deck: Deck, hintCD: CDetails.ThreeHintCD) =
-        cardDao.insertHintCard(deck, hintCD)
+    override suspend fun insertHintCard(
+        deck: Deck, hintCD: CDetails.ThreeHintCD, isOwnerOrCoOwner: Boolean
+    ) = cardDao.insertHintCard(deck, hintCD, isOwnerOrCoOwner)
 
-    override suspend fun insertMultiCard(deck: Deck, multiCD: CDetails.MultiCD) =
-        cardDao.insertMultiCard(deck, multiCD)
+    override suspend fun insertMultiCard(
+        deck: Deck, multiCD: CDetails.MultiCD, isOwnerOrCoOwner: Boolean
+    ) = cardDao.insertMultiCard(deck, multiCD, isOwnerOrCoOwner)
 
-    override suspend fun insertNotationCard(deck: Deck, notationCD: CDetails.NotationCD) =
-        cardDao.insertNotationCard(deck, notationCD)
+    override suspend fun insertNotationCard(
+        deck: Deck, notationCD: CDetails.NotationCD, isOwnerOrCoOwner: Boolean
+    ) = cardDao.insertNotationCard(deck, notationCD, isOwnerOrCoOwner)
 }

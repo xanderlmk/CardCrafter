@@ -21,6 +21,8 @@ import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.OfflineSupabaseToRoomRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.personalSyncedRepos.OfflineUserSyncedInfoRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SupabaseToRoomRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.IsOwnerOrCoOwnerRepo
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.IsOwnerOrCoOwnerRepoImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.MergeDecksRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.OfflineMergeDecksRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.UserExportDecksRepositoryImpl
@@ -49,6 +51,7 @@ interface AppContainer {
     val coOwnerRequestsRepository: CoOwnerRequestsRepository
     val exportRepository: ExportRepository
     val mergeDecksRepository: MergeDecksRepository
+    val isOwnerOrCoOwnerRepo : IsOwnerOrCoOwnerRepo
 }
 
 class AppDataContainer(
@@ -120,6 +123,10 @@ class AppDataContainer(
         OfflineMergeDecksRepository(
             FlashCardDatabase.getDatabase(context, scope).mergeDecksDao()
         )
+    }
+
+    override val isOwnerOrCoOwnerRepo: IsOwnerOrCoOwnerRepo by lazy {
+        IsOwnerOrCoOwnerRepoImpl(sharedSupabase)
     }
 
 }

@@ -17,6 +17,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
+import com.belmontCrest.cardCrafter.model.InsertOrAbortDao
 import com.belmontCrest.cardCrafter.model.Type.BASIC
 import com.belmontCrest.cardCrafter.model.Type.HINT
 import com.belmontCrest.cardCrafter.model.Type.MULTI
@@ -27,27 +28,11 @@ import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 @Dao
-interface CardDao {
-    @Insert(onConflict = OnConflictStrategy.Companion.ABORT)
-    suspend fun insertCard(card: Card): Long
+interface CardDao : InsertOrAbortDao {
 
     @Query("SELECT MAX(deckCardNumber) FROM cards WHERE deckUUID = :deckUUID")
     fun getMaxDCNumber(deckUUID: String): Int?
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertBasicCard(basicCard: BasicCard): Long
-
-    @Insert(onConflict = OnConflictStrategy.Companion.ABORT)
-    suspend fun insertHintCard(hintCard: HintCard): Long
-
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertMultiChoiceCard(multiChoiceCard: MultiChoiceCard): Long
-
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertNotationCard(notationCard: NotationCard): Long
-
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertThreeCard(threeFieldCard: ThreeFieldCard): Long
 
     @Query("""SELECT * FROM importedDeckInfo WHERE uuid = :uuid""")
     fun getDeckInfo(uuid: String): ImportedDeckInfo?
@@ -59,7 +44,9 @@ interface CardDao {
     fun getCardIdentifier(cardId: Int): CIForID
 
     @Transaction
-    suspend fun insertBasicCard(deck: Deck, basicCD: CDetails.BasicCD) {
+    suspend fun insertBasicCard(
+        deck: Deck, basicCD: CDetails.BasicCD, isOwnerOrCoOwner: Boolean
+    ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
         val cardId = returnCard(deck, newDeckCardNumber, BASIC)
         insertBasicCard(
@@ -69,11 +56,15 @@ interface CardDao {
                 answer = basicCD.answer
             )
         )
-        checkCardInfo(deck.uuid, cardId.toInt())
+        if (isOwnerOrCoOwner) {
+            checkCardInfo(deck.uuid, cardId.toInt())
+        }
     }
 
     @Transaction
-    suspend fun insertThreeCard(deck: Deck, threeCD: CDetails.ThreeHintCD) {
+    suspend fun insertThreeCard(
+        deck: Deck, threeCD: CDetails.ThreeHintCD, isOwnerOrCoOwner: Boolean
+    ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
         val cardId = returnCard(deck, newDeckCardNumber, THREE)
         insertThreeCard(
@@ -84,11 +75,16 @@ interface CardDao {
                 answer = threeCD.answer
             )
         )
-        checkCardInfo(deck.uuid, cardId.toInt())
+
+        if (isOwnerOrCoOwner) {
+            checkCardInfo(deck.uuid, cardId.toInt())
+        }
     }
 
     @Transaction
-    suspend fun insertHintCard(deck: Deck, hintCD: CDetails.ThreeHintCD) {
+    suspend fun insertHintCard(
+        deck: Deck, hintCD: CDetails.ThreeHintCD, isOwnerOrCoOwner: Boolean
+    ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
         val cardId = returnCard(deck, newDeckCardNumber, HINT)
         insertHintCard(
@@ -99,11 +95,15 @@ interface CardDao {
                 answer = hintCD.answer
             )
         )
-        checkCardInfo(deck.uuid, cardId.toInt())
+        if (isOwnerOrCoOwner) {
+            checkCardInfo(deck.uuid, cardId.toInt())
+        }
     }
 
     @Transaction
-    suspend fun insertMultiCard(deck: Deck, multiCD: CDetails.MultiCD) {
+    suspend fun insertMultiCard(
+        deck: Deck, multiCD: CDetails.MultiCD, isOwnerOrCoOwner: Boolean
+    ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
         val cardId = returnCard(deck, newDeckCardNumber, MULTI)
         insertMultiChoiceCard(
@@ -117,12 +117,15 @@ interface CardDao {
                 correct = multiCD.correct
             )
         )
-        checkCardInfo(deck.uuid, cardId.toInt())
-
+        if (isOwnerOrCoOwner) {
+            checkCardInfo(deck.uuid, cardId.toInt())
+        }
     }
 
     @Transaction
-    suspend fun insertNotationCard(deck: Deck, notationCD: CDetails.NotationCD) {
+    suspend fun insertNotationCard(
+        deck: Deck, notationCD: CDetails.NotationCD, isOwnerOrCoOwner: Boolean
+    ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
         val cardId = returnCard(deck, newDeckCardNumber, NOTATION)
         insertNotationCard(
@@ -133,7 +136,9 @@ interface CardDao {
                 answer = notationCD.answer,
             )
         )
-        checkCardInfo(deck.uuid, cardId.toInt())
+        if (isOwnerOrCoOwner) {
+            checkCardInfo(deck.uuid, cardId.toInt())
+        }
     }
 
     @Update

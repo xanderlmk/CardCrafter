@@ -51,7 +51,7 @@ class DeckView(
     @Composable
     fun ViewEditDeck(
         deck: Deck,
-        goToAddCard: (Int) -> Unit,
+        goToAddCard: (Int, String) -> Unit,
         goToDueCards: (Int) -> Unit,
     ) {
         val deckVM: DeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -142,7 +142,7 @@ class DeckView(
                             onClick = {
                                 if (!fields.inDeckClicked.value) {
                                     fields.inDeckClicked.value = true
-                                    goToAddCard(deck.id)
+                                    goToAddCard(deck.id, deck.uuid)
                                 }
                             }
                         )
