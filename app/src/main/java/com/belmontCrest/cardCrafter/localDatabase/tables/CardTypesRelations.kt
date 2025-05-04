@@ -6,7 +6,6 @@ import android.os.Parcelable
 import androidx.annotation.RequiresApi
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable

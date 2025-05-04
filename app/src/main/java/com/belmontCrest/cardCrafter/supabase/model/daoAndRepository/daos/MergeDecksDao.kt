@@ -172,7 +172,7 @@ interface MergeDecksDao {
         duplicateCIToInsert.forEachIndexed { index, it ->
             insertCardInfo(it)
             onProgress((current + (index + 1).toFloat()) / total)
-            if (index == remoteCL.lastIndex) {
+            if (index == duplicateCIToInsert.lastIndex) {
                 current += index + 1
             }
         }
