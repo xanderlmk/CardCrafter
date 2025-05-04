@@ -6,8 +6,6 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 class OfflineScienceRepository(
     private val notationCardDao: NotationCardDao
 ) : ScienceSpecificRepository {
-    override suspend fun insertNotationCard(notationCard: NotationCard) =
-        notationCardDao.insertNotationCard(notationCard)
 
     override suspend fun deleteNotationCard(notationCard: NotationCard) =
         notationCardDao.deleteNotationCard(notationCard)

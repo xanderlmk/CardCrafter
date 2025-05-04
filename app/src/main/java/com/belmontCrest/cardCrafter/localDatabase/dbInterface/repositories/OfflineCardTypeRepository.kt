@@ -24,18 +24,6 @@ class OfflineCardTypeRepository(
     private val multiChoiceCardDao: MultiChoiceCardDao
 ) : CardTypeRepository {
 
-    override suspend fun insertBasicCard(basicCard: BasicCard) =
-        basicCardDao.insertBasicCard(basicCard)
-
-    override suspend fun insertThreeCard(threeFieldCard: ThreeFieldCard) =
-        threeCardDao.insertThreeCard(threeFieldCard)
-
-    override suspend fun insertHintCard(hintCard: HintCard) =
-        hintCardDao.insertHintCard(hintCard)
-
-    override suspend fun insertMultiChoiceCard(multiChoiceCard: MultiChoiceCard) =
-        multiChoiceCardDao.insertMultiChoiceCard(multiChoiceCard)
-
     override suspend fun deleteBasicCard(basicCard: BasicCard) =
         basicCardDao.deleteBasicCard(basicCard)
 

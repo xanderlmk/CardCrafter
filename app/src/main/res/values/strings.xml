@@ -82,4 +82,5 @@
     <string name="signed_in">You are signed in</string>
     <string name="could_not_sign_in">Couldn\'t sign in.</string>
     <string name="no_credentials_available">No credentials available</string>
+    <string name="not_owner_or_co_owner">You are not the owner or a co-owner of this deck.</string>
 </resources>

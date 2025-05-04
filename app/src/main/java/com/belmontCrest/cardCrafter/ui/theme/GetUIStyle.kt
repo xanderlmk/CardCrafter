@@ -15,8 +15,24 @@ class GetUIStyle(
     fun getIsDarkTheme(): Boolean {
         return isDarkTheme
     }
+
     fun getIsCuteTheme(): Boolean {
         return isCuteTheme
+    }
+
+    /** if (isDarkTheme && isCuteTheme) return true */
+    fun ifDarkAndCute(): Boolean {
+        return isDarkTheme && isCuteTheme
+    }
+
+    /** if (isDarkTheme && !isCuteTheme) return true */
+    fun ifDarkAndNotCute(): Boolean {
+        return isDarkTheme && !isCuteTheme
+    }
+
+    /** if (!isDarkTheme && isCuteTheme) return true */
+    fun ifNotDarkAndCute(): Boolean {
+        return !isDarkTheme && isCuteTheme
     }
 
     fun getColorScheme(): ColorScheme {
@@ -25,6 +41,15 @@ class GetUIStyle(
 
     fun buttonColor(): Color {
         return cS.colorScheme.primaryContainer
+    }
+
+    fun semiTransButtonColor(): Color {
+        return when {
+            ifDarkAndCute() -> semiTransDarkCuteButton
+            ifDarkAndNotCute() -> semiTransDarkButton
+            ifNotDarkAndCute() -> semiTransCuteButton
+            else -> semiTransButtonColor
+        }
     }
 
     fun iconColor(): Color {
@@ -81,54 +106,26 @@ class GetUIStyle(
 
     fun pickedChoice(): Color {
         return when {
-            isDarkTheme -> {
-                if (isCuteTheme) {
-                    darkCutePickedChoice
-                } else {
-                    darkPickedChoice
-                }
-            }
-
-            else -> {
-                if (isCuteTheme) {
-                    cutePickedChoice
-                } else {
-                    pickedChoice
-                }
-            }
+            ifDarkAndCute() -> darkCutePickedChoice
+            ifDarkAndNotCute() -> darkPickedChoice
+            ifNotDarkAndCute() -> cutePickedChoice
+            else -> pickedChoice
         }
     }
 
     fun correctChoice(): Color {
         return when {
-            isDarkTheme -> {
-                if (isCuteTheme) {
-                    darkCuteCorrectChoice
-                } else {
-                    darkCorrectChoice
-                }
-            }
-
-            else -> {
-                if (isCuteTheme) {
-                    cuteCorrectChoice
-                } else {
-                    correctChoice
-                }
-            }
+            ifDarkAndCute() -> darkCuteCorrectChoice
+            ifDarkAndNotCute() -> darkCorrectChoice
+            ifNotDarkAndCute() -> cuteCorrectChoice
+            else -> correctChoice
         }
     }
 
     fun onCorrectChoice(): Color {
         return when {
-            isCuteTheme -> {
-                if (isDarkTheme) {
-                    onDarkCuteCorrectChoice
-                } else {
-                    onCuteCorrectChoice
-                }
-            }
-
+            ifDarkAndCute() -> onDarkCuteCorrectChoice
+            ifNotDarkAndCute() ->onCuteCorrectChoice
             else -> cS.colorScheme.onSurfaceVariant
         }
     }

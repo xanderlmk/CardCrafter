@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -27,20 +29,22 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.model.FSProp
 import com.belmontCrest.cardCrafter.model.FWProp
-import com.belmontCrest.cardCrafter.model.MLProp
 import com.belmontCrest.cardCrafter.model.TAProp
 import com.belmontCrest.cardCrafter.model.TextProps
 import com.belmontCrest.cardCrafter.model.Type
+import com.belmontCrest.cardCrafter.model.cardListTextProp
 import com.belmontCrest.cardCrafter.model.toTextProp
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.tables.CoOwnerWithUsername
 import com.belmontCrest.cardCrafter.supabase.model.tables.toList
+import com.belmontCrest.cardCrafter.supabase.view.importDeck.ImportingDeck
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.borderedModifier
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CustomText
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
+import com.belmontCrest.cardCrafter.uiFunctions.PullDeck
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.CardDetails
@@ -59,50 +63,83 @@ class CardListView(
         val coOwners by uEDVM.coOwners.collectAsStateWithLifecycle()
         var showCards by rememberSaveable { mutableStateOf(false) }
         val scrollState = rememberLazyListState()
+        var progress by rememberSaveable { mutableFloatStateOf(0f) }
         var enabled by rememberSaveable { mutableStateOf(true) }
+        val isCoOwner by uEDVM.isCoOwner.collectAsStateWithLifecycle()
+        val coroutineScope = rememberCoroutineScope()
+        val context = LocalContext.current
         val modifier = Modifier
             .padding(vertical = 10.dp, horizontal = 4.dp)
             .fillMaxWidth()
         val ctdModifier = Modifier
             .padding(4.dp)
             .fillMaxWidth()
-        Column(
+        Box(
             modifier = Modifier
                 .boxViewsModifier(getUIStyle.getColorScheme()),
-            verticalArrangement = Arrangement.Top
+            contentAlignment = Alignment.TopCenter
         ) {
-            if (showCards) {
-                SubmitButton(
-                    onClick = { showCards = !showCards }, true, getUIStyle,
-                    "Hide cards", modifier
-                )
-                HorizontalDivider(thickness = 2.dp)
-                LazyColumn(
-                    contentPadding = PaddingValues(
-                        horizontal = 4.dp,
-                        vertical = 10.dp
-                    ),
-                    state = scrollState,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    items(cardList.cts) { card ->
-                        val cd = card.toCardDetails()
-                        CardView(cd, card.type)
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Top
+            ) {
+                if (showCards) {
+                    SubmitButton(
+                        onClick = { showCards = !showCards }, true, getUIStyle,
+                        "Hide cards", modifier
+                    )
+                    HorizontalDivider(thickness = 2.dp)
+                    LazyColumn(
+                        contentPadding = PaddingValues(
+                            horizontal = 4.dp,
+                            vertical = 10.dp
+                        ),
+                        state = scrollState,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        items(cardList.cts) { card ->
+                            val cd = card.toCardDetails()
+                            CardView(cd, card.type)
+                        }
+                    }
+                } else {
+                    SubmitButton(
+                        onClick = { showCards = !showCards }, enabled, getUIStyle,
+                        "Show all cards", modifier
+                    )
+                    HorizontalDivider(thickness = 2.dp)
+                    CustomText(
+                        "Cards To Display",
+                        getUIStyle,
+                        ctdModifier,
+                        TAProp.Center.toTextProp()
+                    )
+                    cardsToDisplay.toList().map {
+                        val cd = it.toCardDetails()
+                        CardView(cd, it.type)
+                    }
+                    if (isCoOwner) {
+                        ListOfOwners(coOwners, enabled) {
+                            enabled = it
+                        }
                     }
                 }
-            } else {
-                SubmitButton(
-                    onClick = { showCards = !showCards }, enabled, getUIStyle,
-                    "Show all cards", modifier
-                )
-                HorizontalDivider(thickness = 2.dp)
-                CustomText("Cards To Display", getUIStyle, ctdModifier, TAProp.Center.toTextProp())
-                cardsToDisplay.toList().map {
-                    val cd = it.toCardDetails()
-                    CardView(cd, it.type)
-                }
-                ListOfOwners(coOwners, enabled) {
-                    enabled = it
+            }
+            if (!enabled) {
+                ImportingDeck(progress, getUIStyle)
+            }
+            PullDeck(Modifier.align(Alignment.BottomEnd), getUIStyle) {
+                coroutineScope.launch {
+                    enabled = false
+                    val result = uEDVM.mergeRemoteWithLocal { progress = it }
+
+                    if (result != SUCCESS) {
+                        showToastMessage(context, "No success.")
+                        enabled = true
+                    } else {
+                        showToastMessage(context, "Success!")
+                        enabled = true
+                    }
                 }
             }
         }
@@ -191,23 +228,23 @@ class CardListView(
         ) {
             when (type) {
                 Type.BASIC -> {
-                    CustomText(cd.question.value, getUIStyle, modifier, MLProp.Two.toTextProp())
+                    CustomText(cd.question.value, getUIStyle, modifier, cardListTextProp())
                 }
 
                 Type.THREE -> {
-                    CustomText(cd.question.value, getUIStyle, modifier, MLProp.Two.toTextProp())
+                    CustomText(cd.question.value, getUIStyle, modifier, cardListTextProp())
                 }
 
                 Type.HINT -> {
-                    CustomText(cd.question.value, getUIStyle, modifier, MLProp.Two.toTextProp())
+                    CustomText(cd.question.value, getUIStyle, modifier, cardListTextProp())
                 }
 
                 Type.MULTI -> {
-                    CustomText(cd.question.value, getUIStyle, modifier, MLProp.Two.toTextProp())
+                    CustomText(cd.question.value, getUIStyle, modifier, cardListTextProp())
                 }
 
                 Type.NOTATION -> {
-                    CustomText(cd.question.value, getUIStyle, modifier, MLProp.Two.toTextProp())
+                    CustomText(cd.question.value, getUIStyle, modifier, cardListTextProp())
                 }
             }
         }

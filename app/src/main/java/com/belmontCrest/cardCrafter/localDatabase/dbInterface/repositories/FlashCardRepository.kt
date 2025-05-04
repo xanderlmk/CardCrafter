@@ -2,9 +2,9 @@ package com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories
 
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.DeckWithCards
 import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
 import com.belmontCrest.cardCrafter.model.uiModels.DueDeckDetails
+import com.belmontCrest.cardCrafter.views.miscFunctions.details.CDetails
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
@@ -18,17 +18,17 @@ interface FlashCardRepository {
 
     suspend fun updateDeckName(newName: String, deckId: Int): Int
 
-    fun updateDeckGoodMultiplier(newMultiplier : Double, deckId: Int): Int
+    fun updateDeckGoodMultiplier(newMultiplier: Double, deckId: Int): Int
 
-    fun updateDeckBadMultiplier(newMultiplier : Double, deckId: Int): Int
+    fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int): Int
 
-    fun updateDeckReviewAmount(newReviewAmount : Int, deckId: Int): Int
+    fun updateDeckReviewAmount(newReviewAmount: Int, deckId: Int): Int
 
     suspend fun updateNextReview(nextReview: Date, deckId: Int)
 
-    fun updateCardReviewAmount(newReviewAmount : Int, deckId: Int): Int
+    fun updateCardReviewAmount(newReviewAmount: Int, deckId: Int): Int
 
-    fun updateCardAmount(cardAmount : Int, deckId: Int) : Int
+    fun updateCardAmount(cardAmount: Int, deckId: Int): Int
 
     fun getAllDecksStream(): Flow<List<Deck>>
 
@@ -36,21 +36,21 @@ interface FlashCardRepository {
 
     fun getDeck(id: Int): Deck
 
-    fun getDeckName(id: Int) : Flow<String?>
+    fun getDeckName(id: Int): Flow<String?>
 
     fun getCardCount(currentTime: Long): Flow<List<Int>>
 
     fun resetCardLefts()
 
-    suspend fun insertDeck(deck: Deck) : Long
+    suspend fun insertDeck(deck: Deck): Long
 
     suspend fun deleteDeck(deck: Deck)
 
-    suspend fun deleteDeckById(id : Int)
+    suspend fun deleteDeckById(id: Int)
 
     suspend fun updateDeck(deck: Deck)
 
-    suspend fun insertCard(card: Card) : Long
+    suspend fun insertCard(card: Card): Long
 
     suspend fun getMaxDCNumber(deckUUID: String): Int?
 
@@ -58,18 +58,18 @@ interface FlashCardRepository {
 
     suspend fun deleteCard(card: Card)
 
-    fun getCardStream(cardId: Int) : Flow<Card>
+    fun getCardStream(cardId: Int): Flow<Card>
 
-    fun getDeckWithCards(deckId: Int): Flow<DeckWithCards>
-
-    suspend fun getDueCards(deckId: Int,
-                            currentTime: Long = Date().time): Flow<List<Card>>
+    suspend fun getDueCards(
+        deckId: Int,
+        currentTime: Long = Date().time
+    ): Flow<List<Card>>
 
     suspend fun deleteAllCards(deckId: Int)
 
-    fun getCardById(cardId : Int) : Card
+    fun getCardById(cardId: Int): Card
 
-    suspend fun getBackupDueCards(deckId: Int, cardAmount : Int) : List<Card>
+    suspend fun getBackupDueCards(deckId: Int, cardAmount: Int): List<Card>
 
     fun updateSavedCards(
         cardId: Int,
@@ -78,15 +78,22 @@ interface FlashCardRepository {
         passes: Int,
         prevSuccess: Boolean,
         totalPasses: Int,
-        partOfList : Boolean
+        partOfList: Boolean
     )
+
     fun deleteSavedCards()
     fun insertSavedCard(savedCard: SavedCard)
     fun getAllSavedCards(): Flow<List<SavedCard>>
 
     suspend fun becomePartOfList(id: Int)
 
-    fun updateCardsLeft(deckId: Int, cardsLeft : Int, cardsDone: Int)
+    fun updateCardsLeft(deckId: Int, cardsLeft: Int, cardsDone: Int)
 
     fun getDueDeckDetails(id: Int): Flow<DueDeckDetails?>
+
+    suspend fun insertBasicCard(deck: Deck, basicCD: CDetails.BasicCD)
+    suspend fun insertThreeCard(deck: Deck, threeCD: CDetails.ThreeHintCD)
+    suspend fun insertHintCard(deck: Deck, hintCD: CDetails.ThreeHintCD)
+    suspend fun insertMultiCard(deck: Deck, multiCD: CDetails.MultiCD)
+    suspend fun insertNotationCard(deck: Deck, notationCD: CDetails.NotationCD)
 }

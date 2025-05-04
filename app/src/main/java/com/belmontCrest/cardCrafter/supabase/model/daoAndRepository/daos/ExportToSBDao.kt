@@ -32,4 +32,20 @@ interface ExportToSBDao {
     )
     fun getAllCardTypes(deckId: Int): Flow<List<AllCardTypes>>
 
+    @Query(
+        """
+        DELETE FROM card_info WHERE card_identifier = (
+            SELECT cardIdentifier FROM cards WHERE
+            deckId = :deckId
+        ) AND is_local = 1
+        """
+    )
+    fun deleteCardInfo(deckId: Int)
+
+    @Transaction
+    fun updateNewInfo(importedDeckInfo: ImportedDeckInfo, deckId: Int) {
+        insertImportedDeckInfo(importedDeckInfo)
+        deleteCardInfo(deckId)
+    }
+
 }

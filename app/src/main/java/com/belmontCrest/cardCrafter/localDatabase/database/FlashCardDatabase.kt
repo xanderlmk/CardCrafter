@@ -17,6 +17,7 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deck
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.SavedCardDao
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
+import com.belmontCrest.cardCrafter.localDatabase.tables.CardInfo
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.EncryptionConverter
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
@@ -47,6 +48,8 @@ import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_24_25
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_25_26
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_26_27
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_27_28
+import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_28_29
+import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_29_30
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_3_5
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_5_6
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_6_7
@@ -56,6 +59,7 @@ import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_9_10
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.ExportToSBDao
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.PwdDao
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.ImportFromSBDao
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.MergeDecksDao
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.SyncedDeckInfoDao
 import kotlinx.coroutines.CoroutineScope
 
@@ -64,9 +68,9 @@ import kotlinx.coroutines.CoroutineScope
     entities = [
         Deck::class, Card::class, BasicCard::class, ThreeFieldCard::class,
         HintCard::class, MultiChoiceCard::class, NotationCard::class, SavedCard::class,
-        ImportedDeckInfo::class, SyncedDeckInfo::class, Pwd::class
+        ImportedDeckInfo::class, SyncedDeckInfo::class, Pwd::class, CardInfo::class
     ],
-    version = 28, exportSchema = true
+    version = 30, exportSchema = true
 )
 @TypeConverters(
     TimeConverter::class, ListStringConverter::class, EncryptionConverter::class
@@ -85,6 +89,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
     abstract fun pwdDao(): PwdDao
     abstract fun syncedDeckInfoDao(): SyncedDeckInfoDao
     abstract fun exportToSBDao(): ExportToSBDao
+    abstract fun mergeDecksDao(): MergeDecksDao
 
     companion object {
         @Volatile
@@ -101,7 +106,8 @@ abstract class FlashCardDatabase : RoomDatabase() {
                             MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16,
                             MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20,
                             MIGRATION_20_21, MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24,
-                            MIGRATION_24_25, MIGRATION_25_26, MIGRATION_26_27, MIGRATION_27_28
+                            MIGRATION_24_25, MIGRATION_25_26, MIGRATION_26_27, MIGRATION_27_28,
+                            MIGRATION_28_29, MIGRATION_29_30
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(FlashCardDatabaseCallback(scope))

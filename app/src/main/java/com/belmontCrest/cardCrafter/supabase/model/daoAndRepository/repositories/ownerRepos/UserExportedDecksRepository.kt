@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
+package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos
 
 import android.util.Log
 import com.belmontCrest.cardCrafter.BuildConfig
@@ -15,6 +15,7 @@ import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsThree
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsWithCT
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardList
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
+import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckUUIDDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.gotrue.auth
@@ -38,11 +39,15 @@ import java.net.SocketException
 interface UserExportedDecksRepository {
     suspend fun userExportedDecks(): Flow<List<SBDeckDto>>
 
+    suspend fun userCoOwnedDecks(): Flow<List<SBDeckDto>>
+
     suspend fun userDeckCards(uuids: List<String>): SBCardList
 
     suspend fun coOwners(deckUUID: String): Pair<List<CoOwnerWithUsername>, Int>
 
     suspend fun insertCoOwner(deckUUID: String, username: String): Int
+
+    fun userId(): String
 }
 
 @OptIn(SupabaseExperimental::class)
@@ -73,6 +78,41 @@ class UserExportDecksRepositoryImpl(
                         )
                     )
                 result
+            } catch (e: Exception) {
+                Log.e(UED_REPO, "Something went wrong: $e")
+                flowOf(emptyList())
+            }
+        }
+    }
+
+    override suspend fun userCoOwnedDecks(): Flow<List<SBDeckDto>> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val user = sharedSupabase.auth.currentUserOrNull()
+                if (user == null) {
+                    throw IllegalAccessException("User is not authenticated.")
+                }
+                val coOwnedDeckUUIDS = sharedSupabase.from(SB_DACO_TN)
+                    .select(Columns.type<SBDeckUUIDDto>()) {
+                        filter {
+                            eq("status", "accepted")
+                            eq("co_owner_id", user.id)
+
+                        }
+                    }.decodeList<SBDeckUUIDDto>().map { it.deckUUID }
+
+                val coOwnerDecksFlow: Flow<List<SBDeckDto>> =
+                    if (coOwnedDeckUUIDS.isEmpty()) {
+                        flowOf(emptyList())
+                    } else {
+                        val idString = coOwnedDeckUUIDS.joinToString(",", "(", ")")
+                        sharedSupabase.from(SB_DECK_TN)
+                            .selectAsFlow(
+                                SBDeckDto::deckUUID,
+                                filter = FilterOperation("deckUUID", FilterOperator.IN, idString)
+                            )
+                    }
+                coOwnerDecksFlow
             } catch (e: Exception) {
                 Log.e(UED_REPO, "Something went wrong: $e")
                 flowOf(emptyList())
@@ -235,6 +275,7 @@ class UserExportDecksRepositoryImpl(
                         Log.e(UED_REPO, "Cancelled: $e")
                         CANCELLED
                     }
+
                     else -> {
                         Log.e(UED_REPO, "Unknown Error: $e")
                         UNKNOWN_ERROR
@@ -242,6 +283,12 @@ class UserExportDecksRepositoryImpl(
                 }
             }
         }
+    }
+
+    override fun userId(): String {
+        val user = sharedSupabase.auth.currentUserOrNull()
+        if (user == null) return ""
+        return user.id
     }
 }
 

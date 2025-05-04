@@ -15,3 +15,8 @@ sealed class RequestStatus {
     data object Accepted : RequestStatus()
     data class Error(val message: String) : RequestStatus()
 }
+
+data class TimestampTZResult(
+    val returnValue: Int,
+    val timestamp: String = ""
+)

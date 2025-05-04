@@ -30,16 +30,19 @@ fun SBCardColsWithCT.toCardDetails(): CardDetails = when (this) {
         question = mutableStateOf(basicCard.question),
         answer = mutableStateOf(basicCard.answer)
     )
+
     is SBCardColsThree -> CardDetails(
         question = mutableStateOf(threeCard.question),
         middleField = mutableStateOf(threeCard.middle),
         answer = mutableStateOf(threeCard.answer)
     )
+
     is SBCardColsHint -> CardDetails(
         question = mutableStateOf(hintCard.question),
         middleField = mutableStateOf(hintCard.hint),
         answer = mutableStateOf(hintCard.answer)
     )
+
     is SBCardColsMulti -> CardDetails(
         question = mutableStateOf(multiCard.question),
         choices = mutableListOf(
@@ -50,6 +53,7 @@ fun SBCardColsWithCT.toCardDetails(): CardDetails = when (this) {
         ),
         correct = mutableStateOf(multiCard.correct)
     )
+
     is SBCardColsNotation -> CardDetails(
         question = mutableStateOf(notationCard.question),
         answer = mutableStateOf(notationCard.answer),
@@ -145,4 +149,25 @@ fun createNotationCardDetails(
         }.toMutableList(),
         answer = mutableStateOf(answer)
     )
+}
+
+
+sealed class CDetails {
+    data class BasicCD(val question: String, val answer: String) : CDetails()
+
+    data class ThreeHintCD(
+        val question: String, val middle: String, val answer: String
+    ) : CDetails()
+
+    data class MultiCD(
+        val question: String, val choiceA: String,
+        val choiceB: String, val choiceC: String = "",
+        val choiceD: String = "", val correct: Char
+    ) : CDetails()
+
+    data class NotationCD(
+        val question: String, val steps: List<String>, val answer: String
+    ) : CDetails()
+
+
 }

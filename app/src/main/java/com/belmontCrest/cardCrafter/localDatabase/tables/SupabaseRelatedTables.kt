@@ -3,6 +3,7 @@ package com.belmontCrest.cardCrafter.localDatabase.tables
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Log
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
@@ -42,6 +43,26 @@ data class ImportedDeckInfo(
 data class SyncedDeckInfo(
     @PrimaryKey val uuid: String,
     val lastUpdatedOn: String
+)
+
+@Entity(
+    tableName = "card_info",
+    foreignKeys = [
+        ForeignKey(
+            entity = Card::class,
+            parentColumns = ["cardIdentifier"],
+            childColumns = ["card_identifier"],
+            onDelete = CASCADE,
+            onUpdate = CASCADE
+        )
+    ],
+    indices = [Index(value = ["card_identifier"])]
+)
+data class CardInfo(
+    @ColumnInfo(name = "card_identifier")
+    @PrimaryKey val cardIdentifier: String,
+    @ColumnInfo(name = "is_local")
+    val isLocal: Boolean
 )
 
 @Entity(tableName = "pwd")

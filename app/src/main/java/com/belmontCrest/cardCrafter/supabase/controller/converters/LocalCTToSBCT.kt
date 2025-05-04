@@ -20,7 +20,7 @@ fun localCTToSBCT(
     return SBDeckToExportDto(
         deck = SBDeckDto(
             deckUUID = deck.uuid,
-            user_id = userId,
+            userId = userId,
             name = deck.name,
             description = description
         ),

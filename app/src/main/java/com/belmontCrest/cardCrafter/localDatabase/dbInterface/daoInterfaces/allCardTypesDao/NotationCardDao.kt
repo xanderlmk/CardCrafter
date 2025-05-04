@@ -2,15 +2,11 @@ package com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.all
 
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 
 @Dao
 interface NotationCardDao {
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertNotationCard(notationCard: NotationCard): Long
 
     @Delete
     suspend fun deleteNotationCard(notationCard: NotationCard)

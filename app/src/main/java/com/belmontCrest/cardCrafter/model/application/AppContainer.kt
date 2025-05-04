@@ -10,19 +10,21 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.Offli
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.ScienceSpecificRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.CoOwnerRequestsRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.CoOwnerRequestsRepositoryImpl
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ExportRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.ExportRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.AuthRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.AuthRepositoryImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ImportRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ImportRepositoryImpl
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.OfflineExportRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.OfflineExportRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SBTableRepositoryImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SBTablesRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.OfflineSupabaseToRoomRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.personalSyncedRepos.OfflineUserSyncedInfoRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SupabaseToRoomRepository
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserExportDecksRepositoryImpl
-import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.UserExportedDecksRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.MergeDecksRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.OfflineMergeDecksRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.UserExportDecksRepositoryImpl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.UserExportedDecksRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.personalSyncedRepos.UserSyncedInfoRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.personalSyncedRepos.PersonalDeckSyncRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.personalSyncedRepos.PersonalDeckSyncRepositoryImpl
@@ -46,6 +48,7 @@ interface AppContainer {
     val personalDeckSyncRepository: PersonalDeckSyncRepository
     val coOwnerRequestsRepository: CoOwnerRequestsRepository
     val exportRepository: ExportRepository
+    val mergeDecksRepository: MergeDecksRepository
 }
 
 class AppDataContainer(
@@ -109,7 +112,13 @@ class AppDataContainer(
     }
     override val exportRepository: ExportRepository by lazy {
         OfflineExportRepository(
-            FlashCardDatabase.getDatabase(context,scope).exportToSBDao()
+            FlashCardDatabase.getDatabase(context, scope).exportToSBDao()
+        )
+    }
+
+    override val mergeDecksRepository: MergeDecksRepository by lazy {
+        OfflineMergeDecksRepository(
+            FlashCardDatabase.getDatabase(context, scope).mergeDecksDao()
         )
     }
 

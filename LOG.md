@@ -88,6 +88,20 @@ with exporting/upserting decks
 - I want to die 
 - make sure that the last updated on, is locally saved for future comparisons to make sure there 
 is no syncing conflicts
+### 5/3/2025
+- Implement deck merging functionality and refactor code to support more robust deck synchronization
+- #### New Features:
+- Added merge functionality for remote and local decks
+- Introduced card info tracking for local and remote cards
+- Enhanced deck synchronization process
+- #### Enhancements:
+- Refactored repositories and data access objects
+- Improved error handling in deck import and export
+- Added more flexible card management during synchronization
+- #### Chores:
+- Updated database migrations
+- Reorganized package structure
+- Removed redundant code
 ## Gus
 ### 4/20/2025 4:05pm
 - Katex mapping

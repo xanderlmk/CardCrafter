@@ -14,9 +14,14 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
-import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardDto
+import com.belmontCrest.cardCrafter.model.Type.BASIC
+import com.belmontCrest.cardCrafter.model.Type.HINT
+import com.belmontCrest.cardCrafter.model.Type.MULTI
+import com.belmontCrest.cardCrafter.model.Type.NOTATION
+import com.belmontCrest.cardCrafter.model.Type.THREE
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCTToImport
+import com.belmontCrest.cardCrafter.supabase.model.tables.toCard
 
 import java.util.Date
 
@@ -104,7 +109,7 @@ interface ImportFromSBDao {
         insertImportedDeckInfo(
             ImportedDeckInfo(
                 uuid = sbDeckDto.deckUUID,
-                lastUpdatedOn = sbDeckDto.updated_on
+                lastUpdatedOn = sbDeckDto.updatedOn
             )
         )
         cardList.forEachIndexed { index, ct ->
@@ -137,7 +142,7 @@ interface ImportFromSBDao {
         insertImportedDeckInfo(
             ImportedDeckInfo(
                 uuid = sbDeckDto.deckUUID,
-                lastUpdatedOn = sbDeckDto.updated_on
+                lastUpdatedOn = sbDeckDto.updatedOn
             )
         )
         cardList.forEachIndexed { index, ct ->
@@ -154,23 +159,12 @@ interface ImportFromSBDao {
         ct: SealedCTToImport, deckId: Long, sbDeckDto: SBDeckDto,
         reviewAmount: Int
     ) {
-        val cardIdentifier = returnCard(ct).cardIdentifier
+        val cardIdentifier = ct.toCard().cardIdentifier
         val deckCardNumber = cardIdentifier.substringAfterLast("-").toInt()
         when (ct) {
             is SealedCTToImport.Basic -> {
-                val cardId = insertCard(
-                    Card(
-                        deckId = deckId.toInt(),
-                        deckUUID = sbDeckDto.deckUUID,
-                        deckCardNumber = deckCardNumber,
-                        cardIdentifier = "${sbDeckDto.deckUUID}-$deckCardNumber",
-                        nextReview = Date(),
-                        reviewsLeft = reviewAmount,
-                        passes = 0,
-                        prevSuccess = false,
-                        totalPasses = 0,
-                        type = "basic",
-                    )
+                val cardId = returnCard(
+                    deckId.toInt(), deckCardNumber, BASIC, sbDeckDto.deckUUID, reviewAmount
                 )
                 insertBasicCard(
                     BasicCard(
@@ -179,23 +173,11 @@ interface ImportFromSBDao {
                         answer = ct.basicCard.answer
                     )
                 )
-
             }
 
             is SealedCTToImport.Three -> {
-                val cardId = insertCard(
-                    Card(
-                        deckId = deckId.toInt(),
-                        deckUUID = sbDeckDto.deckUUID,
-                        deckCardNumber = deckCardNumber,
-                        cardIdentifier = "${sbDeckDto.deckUUID}-$deckCardNumber",
-                        nextReview = Date(),
-                        reviewsLeft = reviewAmount,
-                        passes = 0,
-                        prevSuccess = false,
-                        totalPasses = 0,
-                        type = "three",
-                    )
+                val cardId = returnCard(
+                    deckId.toInt(), deckCardNumber, THREE, sbDeckDto.deckUUID, reviewAmount
                 )
                 insertThreeCard(
                     ThreeFieldCard(
@@ -208,19 +190,8 @@ interface ImportFromSBDao {
             }
 
             is SealedCTToImport.Hint -> {
-                val cardId = insertCard(
-                    Card(
-                        deckId = deckId.toInt(),
-                        deckUUID = sbDeckDto.deckUUID,
-                        deckCardNumber = deckCardNumber,
-                        cardIdentifier = "${sbDeckDto.deckUUID}-$deckCardNumber",
-                        nextReview = Date(),
-                        reviewsLeft = reviewAmount,
-                        passes = 0,
-                        prevSuccess = false,
-                        totalPasses = 0,
-                        type = "hint",
-                    )
+                val cardId = returnCard(
+                    deckId.toInt(), deckCardNumber, HINT, sbDeckDto.deckUUID, reviewAmount
                 )
                 insertHintCard(
                     HintCard(
@@ -233,19 +204,8 @@ interface ImportFromSBDao {
             }
 
             is SealedCTToImport.Multi -> {
-                val cardId = insertCard(
-                    Card(
-                        deckId = deckId.toInt(),
-                        deckUUID = sbDeckDto.deckUUID,
-                        deckCardNumber = deckCardNumber,
-                        cardIdentifier = "${sbDeckDto.deckUUID}-$deckCardNumber",
-                        nextReview = Date(),
-                        reviewsLeft = reviewAmount,
-                        passes = 0,
-                        prevSuccess = false,
-                        totalPasses = 0,
-                        type = "multi",
-                    )
+                val cardId = returnCard(
+                    deckId.toInt(), deckCardNumber, MULTI, sbDeckDto.deckUUID, reviewAmount
                 )
                 insertMultiChoiceCard(
                     MultiChoiceCard(
@@ -261,19 +221,8 @@ interface ImportFromSBDao {
             }
 
             is SealedCTToImport.Notation -> {
-                val cardId = insertCard(
-                    Card(
-                        deckId = deckId.toInt(),
-                        deckUUID = sbDeckDto.deckUUID,
-                        deckCardNumber = deckCardNumber,
-                        cardIdentifier = "${sbDeckDto.deckUUID}-$deckCardNumber",
-                        nextReview = Date(),
-                        reviewsLeft = reviewAmount,
-                        passes = 0,
-                        prevSuccess = false,
-                        totalPasses = 0,
-                        type = "notation",
-                    )
+                val cardId = returnCard(
+                    deckId.toInt(), deckCardNumber, NOTATION, sbDeckDto.deckUUID, reviewAmount
                 )
                 insertNotationCard(
                     NotationCard(
@@ -286,18 +235,23 @@ interface ImportFromSBDao {
             }
         }
     }
-}
 
-private fun returnCard(ct: SealedCTToImport): SBCardDto {
-    return when (ct) {
-        is SealedCTToImport.Basic -> ct.card
-
-        is SealedCTToImport.Three -> ct.card
-
-        is SealedCTToImport.Hint -> ct.card
-
-        is SealedCTToImport.Multi -> ct.card
-
-        is SealedCTToImport.Notation -> ct.card
+    private fun returnCard(
+        deckId: Int, newDeckCardNumber: Int, type: String, uuid: String, reviewAmount: Int
+    ): Long {
+        return insertCard(
+            Card(
+                deckId = deckId,
+                nextReview = Date(),
+                passes = 0,
+                prevSuccess = false,
+                totalPasses = 0,
+                type = type,
+                deckUUID = uuid,
+                deckCardNumber = newDeckCardNumber,
+                cardIdentifier = "${uuid}-$newDeckCardNumber",
+                reviewsLeft = reviewAmount,
+            )
+        )
     }
 }

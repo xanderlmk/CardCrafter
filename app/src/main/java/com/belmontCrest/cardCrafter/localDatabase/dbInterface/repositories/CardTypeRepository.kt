@@ -10,10 +10,6 @@ import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 interface CardTypeRepository {
-    suspend fun insertBasicCard(basicCard: BasicCard): Long
-    suspend fun insertThreeCard(threeFieldCard: ThreeFieldCard): Long
-    suspend fun insertHintCard(hintCard: HintCard): Long
-    suspend fun insertMultiChoiceCard(multiChoiceCard: MultiChoiceCard): Long
 
     suspend fun deleteBasicCard(basicCard: BasicCard)
     suspend fun deleteThreeCard(threeFieldCard: ThreeFieldCard)

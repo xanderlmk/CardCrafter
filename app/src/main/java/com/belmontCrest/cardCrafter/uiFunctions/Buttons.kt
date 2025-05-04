@@ -20,6 +20,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,12 +48,30 @@ import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.views.miscFunctions.delayNavigate
 
+
+@Composable
+fun PullDeck(modifier: Modifier, getUIStyle: GetUIStyle, onClick: () -> Unit) {
+    ExtendedFloatingActionButton(
+        onClick = {
+            onClick()
+        }, modifier = modifier
+            .padding(8.dp),
+        containerColor = getUIStyle.semiTransButtonColor(),
+        contentColor = getUIStyle.titleColor(),
+        elevation = FloatingActionButtonDefaults.elevation((Int.MAX_VALUE/2).dp)
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.merge),
+            contentDescription = "Merge remote deck",
+        )
+        Text("Merge remote deck")
+    }
+}
+
 @Composable
 fun SmallAddButton(
-    onClick: () -> Unit,
-    iconSize: Int = 45,
-    getUIStyle: GetUIStyle,
-    modifier: Modifier
+    onClick: () -> Unit, iconSize: Int = 45,
+    getUIStyle: GetUIStyle, modifier: Modifier
 ) {
     FloatingActionButton(
         onClick = {
@@ -61,7 +80,6 @@ fun SmallAddButton(
         modifier = modifier
             .padding(16.dp),
         containerColor = getUIStyle.buttonColor()
-
     ) {
         Icon(
             Icons.Outlined.Add,

@@ -11,6 +11,7 @@ val editingBackGroundColor = Color(190, 240, 255)
 
 val borderColor = Color(106, 154, 176)
 val buttonColor = Color(180, 220, 255)
+val semiTransButtonColor = Color(180, 220, 255, 128)
 val textColor = Color(28, 100, 161, 255)
 val deleteTextColor = Color.Red
 val iconColor = Color(5, 66, 126, 255)
@@ -33,6 +34,7 @@ val darkNavBar = Color(1, 29, 70, 255)
 
 val darkBorder = Color(72, 72, 72)
 val darkButton = Color(18, 52, 150)
+val semiTransDarkButton = Color(18, 52, 150, 128)
 val darkText = Color(220, 220, 200)
 
 val darkIcon = Color(175, 175, 245)
@@ -53,6 +55,7 @@ val cuteEditingBackground = Color(255, 240, 245)
 
 val cuteBorder = Color(255, 153, 204)
 val cuteButton = Color(255, 192, 203)
+val semiTransCuteButton = Color(255, 192, 203, 128)
 val cuteText = Color(199, 21, 133)
 
 val cuteIcon = Color(219, 112, 147)
@@ -72,6 +75,7 @@ val darkCuteEditingBackground = Color(80, 30, 60)
 
 val darkCuteBorder = Color(170, 80, 130)
 val darkCuteButton = Color(140, 60, 100)
+val semiTransDarkCuteButton = Color(140, 60, 100, 128)
 val darkCuteText = Color(255, 200, 230)
 
 val darkCuteIcon = Color(255, 150, 180)
