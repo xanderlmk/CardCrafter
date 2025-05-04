@@ -20,6 +20,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
+import com.belmontCrest.cardCrafter.model.InsertAndReplaceDao
 import com.belmontCrest.cardCrafter.model.Type.BASIC
 import com.belmontCrest.cardCrafter.model.Type.HINT
 import com.belmontCrest.cardCrafter.model.Type.MULTI
@@ -31,30 +32,13 @@ import com.belmontCrest.cardCrafter.supabase.model.tables.toCard
 import java.util.Date
 
 @Dao
-interface MergeDecksDao {
+interface MergeDecksDao : InsertAndReplaceDao {
+
     @Query("SELECT * from decks where uuid = :uuid")
     suspend fun getDeck(uuid: String): Deck
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertImportedDeckInfo(importedDeckInfo: ImportedDeckInfo)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCard(card: Card): Long
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertBasicCard(basicCard: BasicCard)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertThreeCard(threeFieldCard: ThreeFieldCard)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertHintCard(hintCard: HintCard)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMultiChoiceCard(multiCard: MultiChoiceCard)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertNotationCard(notationCard: NotationCard)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCardInfo(cardInfo: CardInfo)

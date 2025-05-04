@@ -20,9 +20,9 @@ object DeckViewDestination : NavigationDestination {
 }
 @Serializable
 object AddCardDestination : NavigationDestination{
-    override val route = "AddCard/{deckId}"
-    fun createRoute(deckId: Int): String {
-        return "AddCard/$deckId"
+    override val route = "AddCard/{deckId}/{deckUUID}"
+    fun createRoute(deckId: Int, deckUUID : String): String {
+        return "AddCard/$deckId/$deckUUID"
     }
 }
 @Serializable

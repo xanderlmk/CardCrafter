@@ -61,6 +61,31 @@
 - Added a new export repository for better code readability
 - Making sure that the lastUpdatedOn for ImportDeckInfo is updated properly when dealing 
 with exporting/upserting decks
+### 5/3/2025
+- Implement deck merging functionality and refactor code to support more robust deck synchronization
+- #### New Features:
+- - Added merge functionality for remote and local decks
+- - Introduced card info tracking for local and remote cards
+- - Enhanced deck synchronization process
+- #### Enhancements:
+- - Refactored repositories and data access objects
+- - Improved error handling in deck import and export
+- - Added more flexible card management during synchronization
+- #### Chores:
+- - Updated database migrations
+- - Reorganized package structure
+- - Removed redundant code
+### 5/4/2025 1:42pm
+- Add ownership and co-ownership checks for card insertion in decks
+- #### New Features:
+- - Implement ownership verification for card insertion
+- - Add ability to check if user is owner or co-owner of a deck
+- #### Enhancements:
+- - Refactor card insertion methods to include ownership parameter
+- - Create new repository and DAO interfaces for flexible insert strategies
+- #### Chores:
+- - Modify navigation and view model to support deck UUID passing
+- - Update multiple interfaces to support new ownership check mechanism
 ## John
 ### 4/8/2025 11:50pm
 - Cute Theme: ADDED for people who like cute stuff
@@ -88,20 +113,6 @@ with exporting/upserting decks
 - I want to die 
 - make sure that the last updated on, is locally saved for future comparisons to make sure there 
 is no syncing conflicts
-### 5/3/2025
-- Implement deck merging functionality and refactor code to support more robust deck synchronization
-- #### New Features:
-- Added merge functionality for remote and local decks
-- Introduced card info tracking for local and remote cards
-- Enhanced deck synchronization process
-- #### Enhancements:
-- Refactored repositories and data access objects
-- Improved error handling in deck import and export
-- Added more flexible card management during synchronization
-- #### Chores:
-- Updated database migrations
-- Reorganized package structure
-- Removed redundant code
 ## Gus
 ### 4/20/2025 4:05pm
 - Katex mapping

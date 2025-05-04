@@ -10,9 +10,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.belmontCrest.cardCrafter.controller.cardHandlers.updateDecksCardList
 import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckListDestination
@@ -114,11 +116,11 @@ fun DeckNavHost(
             wd.deck?.let {
                 deckView.ViewEditDeck(
                     deck = it,
-                    goToAddCard = { id ->
+                    goToAddCard = { id, uuid ->
                         fields.inDeckClicked.value = true
                         fields.mainClicked.value = false
                         navViewModel.updateRoute(AddCardDestination.route)
-                        deckNavController.navigate(AddCardDestination.createRoute(id))
+                        deckNavController.navigate(AddCardDestination.createRoute(id, uuid))
                     },
                     goToDueCards = { id ->
                         fields.navigateToDueCards()
@@ -129,7 +131,13 @@ fun DeckNavHost(
                 )
             }
         }
-        composable(AddCardDestination.route) {
+        composable(
+            AddCardDestination.route,
+            arguments = listOf(
+                navArgument("deckId") { type = NavType.IntType },
+                navArgument("deckUUID") { type = NavType.StringType }
+            )
+        ) {
             BackHandler {
                 fields.inDeckClicked.value = false
                 fields.resetFields()

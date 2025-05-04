@@ -14,6 +14,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
+import com.belmontCrest.cardCrafter.model.InsertOrAbortDao
 import com.belmontCrest.cardCrafter.model.Type.BASIC
 import com.belmontCrest.cardCrafter.model.Type.HINT
 import com.belmontCrest.cardCrafter.model.Type.MULTI
@@ -35,7 +36,7 @@ data class DeckSignature(
 )
 
 @Dao
-interface ImportFromSBDao {
+interface ImportFromSBDao : InsertOrAbortDao {
     @Query(
         """
         SELECT name, uuid 
@@ -57,24 +58,6 @@ interface ImportFromSBDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertImportedDeckInfo(importedDeckInfo: ImportedDeckInfo)
-
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertCard(card: Card): Long
-
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertBasicCard(basicCard: BasicCard)
-
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertThreeCard(threeFieldCard: ThreeFieldCard)
-
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertHintCard(hintCard: HintCard)
-
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertMultiChoiceCard(multiCard: MultiChoiceCard)
-
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertNotationCard(notationCard: NotationCard)
 
     @Delete(entity = Deck::class)
     fun deleteDeck(vararg uuid: DeckUUID)
@@ -155,7 +138,7 @@ interface ImportFromSBDao {
         }
     }
 
-    private fun insertTransactionCT(
+    private suspend fun insertTransactionCT(
         ct: SealedCTToImport, deckId: Long, sbDeckDto: SBDeckDto,
         reviewAmount: Int
     ) {
@@ -236,7 +219,7 @@ interface ImportFromSBDao {
         }
     }
 
-    private fun returnCard(
+    private suspend fun returnCard(
         deckId: Int, newDeckCardNumber: Int, type: String, uuid: String, reviewAmount: Int
     ): Long {
         return insertCard(

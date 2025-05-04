@@ -44,8 +44,7 @@ class AddCardView(
     @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     fun AddCard(deck: Deck) {
-        val addCardVM: AddCardViewModel =
-            viewModel(factory = AppViewModelProvider.Factory)
+        val addCardVM: AddCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         val helpForNotation = rememberSaveable { mutableStateOf(false) }
         fields = getSavableFields(fields)
         val type by navViewModel.type.collectAsStateWithLifecycle()

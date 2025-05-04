@@ -91,9 +91,23 @@ interface FlashCardRepository {
 
     fun getDueDeckDetails(id: Int): Flow<DueDeckDetails?>
 
-    suspend fun insertBasicCard(deck: Deck, basicCD: CDetails.BasicCD)
-    suspend fun insertThreeCard(deck: Deck, threeCD: CDetails.ThreeHintCD)
-    suspend fun insertHintCard(deck: Deck, hintCD: CDetails.ThreeHintCD)
-    suspend fun insertMultiCard(deck: Deck, multiCD: CDetails.MultiCD)
-    suspend fun insertNotationCard(deck: Deck, notationCD: CDetails.NotationCD)
+    suspend fun insertBasicCard(
+        deck: Deck, basicCD: CDetails.BasicCD, isOwnerOrCoOwner: Boolean
+    )
+
+    suspend fun insertThreeCard(
+        deck: Deck, threeCD: CDetails.ThreeHintCD, isOwnerOrCoOwner: Boolean
+    )
+
+    suspend fun insertHintCard(
+        deck: Deck, hintCD: CDetails.ThreeHintCD, isOwnerOrCoOwner: Boolean
+    )
+
+    suspend fun insertMultiCard(
+        deck: Deck, multiCD: CDetails.MultiCD, isOwnerOrCoOwner: Boolean
+    )
+
+    suspend fun insertNotationCard(
+        deck: Deck, notationCD: CDetails.NotationCD, isOwnerOrCoOwner: Boolean
+    )
 }

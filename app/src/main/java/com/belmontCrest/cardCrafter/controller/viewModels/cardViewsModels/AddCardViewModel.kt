@@ -5,30 +5,42 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.IsOwnerOrCoOwnerRepo
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.CDetails
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import java.util.Date
 
 class AddCardViewModel(
-    private val flashCardRepository: FlashCardRepository
+    private val flashCardRepository: FlashCardRepository,
+    private val isOwnerOrCoOwnerRepo: IsOwnerOrCoOwnerRepo,
+    private val deckUUID: String
 ) : ViewModel() {
     private val privateErrorMessage: MutableStateFlow<String> = MutableStateFlow("")
     val errorMessage = privateErrorMessage.asStateFlow()
+    private val isOwner = MutableStateFlow(false)
 
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
     }
 
+    init {
+        viewModelScope.launch {
+            isOwner.update { isOwnerOrCoOwnerRepo.isCoOwnerOrCoOwner(deckUUID) }
+        }
+    }
+
     fun addBasicCard(deck: Deck, question: String, answer: String) {
         if (question.isNotBlank() && answer.isNotBlank()) {
+            println("Is Owner: ${isOwner.value}")
             viewModelScope.launch(Dispatchers.IO) {
                 flashCardRepository.insertBasicCard(
-                    deck, CDetails.BasicCD(question, answer)
+                    deck, CDetails.BasicCD(question, answer), isOwner.value
                 ).also { updateCardsLeft(deck) }
             }
         }
@@ -43,7 +55,7 @@ class AddCardViewModel(
         ) {
             viewModelScope.launch(Dispatchers.IO) {
                 flashCardRepository.insertHintCard(
-                    deck, CDetails.ThreeHintCD(question, hint, answer)
+                    deck, CDetails.ThreeHintCD(question, hint, answer), isOwner.value
                 ).also { updateCardsLeft(deck) }
             }
         }
@@ -58,8 +70,10 @@ class AddCardViewModel(
         ) {
             viewModelScope.launch(Dispatchers.IO) {
                 flashCardRepository.insertThreeCard(
-                    deck, CDetails.ThreeHintCD(question, middle, answer)
-                ).also { updateCardsLeft(deck) }
+                    deck, CDetails.ThreeHintCD(question, middle, answer), isOwner.value
+                ).also {
+                    updateCardsLeft(deck)
+                }
             }
         }
     }
@@ -78,7 +92,8 @@ class AddCardViewModel(
         ) {
             viewModelScope.launch(Dispatchers.IO) {
                 flashCardRepository.insertMultiCard(
-                    deck, CDetails.MultiCD(question, choiceA, choiceB, choiceC, choiceD, correct)
+                    deck, CDetails.MultiCD(question, choiceA, choiceB, choiceC, choiceD, correct),
+                    isOwner.value
                 ).also { updateCardsLeft(deck) }
             }
         }
@@ -95,7 +110,7 @@ class AddCardViewModel(
         ) {
             viewModelScope.launch(Dispatchers.IO) {
                 flashCardRepository.insertNotationCard(
-                    deck, CDetails.NotationCD(question, steps, answer)
+                    deck, CDetails.NotationCD(question, steps, answer), isOwner.value
                 ).also { updateCardsLeft(deck) }
             }
         }
