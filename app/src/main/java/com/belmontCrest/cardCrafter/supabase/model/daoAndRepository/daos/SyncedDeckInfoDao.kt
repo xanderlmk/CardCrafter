@@ -35,6 +35,7 @@ interface SyncedDeckInfoDao {
     @Query("""SELECT * FROM decks """)
     suspend fun getAllDecks(): List<Deck>
 
+    @Transaction
     @Query(
         """
         SELECT * FROM cards

@@ -43,6 +43,7 @@ interface MergeDecksDao : InsertAndReplaceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCardInfo(cardInfo: CardInfo)
 
+    @Transaction
     @Query(
         """
         SELECT * FROM cards AS c
