@@ -179,9 +179,7 @@ fun DeckRouteContent(
             if (!fields.inDeckClicked.value) {
                 fields.inDeckClicked.value = true
                 fields.mainClicked.value = false
-                navViewModel.updateRoute(
-                    EditDeckDestination.createRoute(deck.name)
-                )
+                navViewModel.updateRoute(EditDeckDestination.route)
                 deckNavController?.navigate(
                     EditDeckDestination.createRoute(deck.name)
                 )

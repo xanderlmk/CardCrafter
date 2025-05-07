@@ -34,10 +34,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.AddDeckViewModel
-import com.belmontCrest.cardCrafter.uiFunctions.BackButton
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
 import com.belmontCrest.cardCrafter.uiFunctions.EditIntField
 
@@ -67,13 +65,6 @@ class AddDeckView(
             modifier = Modifier
                 .scrollableBoxViewModifier(scrollState, getUIStyle.getColorScheme())
         ) {
-            BackButton(
-                onBackClick = {
-                    onNavigate()
-                },
-                modifier = Modifier.backButtonModifier(),
-                getUIStyle = getUIStyle
-            )
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -85,12 +76,10 @@ class AddDeckView(
                     text = stringResource(R.string.add_deck),
                     fontSize = 35.sp,
                     textAlign = TextAlign.Center,
-                    lineHeight = 100.sp,
+                    lineHeight = 50.sp,
                     color = getUIStyle.titleColor(),
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .padding(top = 20.dp)
-                )
+                    )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

@@ -86,6 +86,8 @@ with exporting/upserting decks
 - #### Chores:
 - - Modify navigation and view model to support deck UUID passing
 - - Update multiple interfaces to support new ownership check mechanism
+### 5/6/2025 9.37pm
+- Update Schema images, and update back buttons to be on the top bar.
 ## John
 ### 4/8/2025 11:50pm
 - Cute Theme: ADDED for people who like cute stuff
