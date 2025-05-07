@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckNavDestination
@@ -29,8 +30,10 @@ import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestinat
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.navigation.destinations.AddDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.CoOwnerRequestsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckListDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.EditDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
@@ -53,7 +56,8 @@ fun ActionIconButton(
     cardDeckVM: CardDeckViewModel,
     fields: Fields,
     navViewModel: NavViewModel,
-    supabaseVM: SupabaseViewModel
+    supabaseVM: SupabaseViewModel,
+    mainNavController: NavHostController
 ) {
     val deckNavController by navViewModel.deckNav.collectAsStateWithLifecycle()
     val sbNavController by navViewModel.sbNav.collectAsStateWithLifecycle()
@@ -80,6 +84,20 @@ fun ActionIconButton(
             MainDLRouteContent(getUIStyle, coroutineScope, navViewModel)
         }
 
+        AddDeckDestination.route -> {
+            BackButton(
+                onBackClick = {
+                    fields.mainClicked.value = false
+                    navViewModel.updateRoute(DeckListDestination.route)
+                    mainNavController.navigate(DeckListDestination.route)
+                },
+                modifier = Modifier
+                    .padding(horizontal = 10.dp)
+                    .backButtonModifier(),
+                getUIStyle = getUIStyle
+            )
+        }
+
         DeckNavDestination.route -> {
             wd.deck?.let {
                 DeckRouteContent(fields, navViewModel, it, deckNavController, getUIStyle)
@@ -92,6 +110,21 @@ fun ActionIconButton(
             }
         }
 
+        EditDeckDestination.route -> {
+            BackButton(
+                onBackClick = {
+                    cardDeckVM.updateWhichDeck(0)
+                    fields.inDeckClicked.value = false
+                    navViewModel.updateRoute(DeckViewDestination.route)
+                    deckNavController?.navigate(DeckViewDestination.route)
+                },
+                modifier = Modifier
+                    .padding(horizontal = 10.dp)
+                    .backButtonModifier(),
+                getUIStyle = getUIStyle
+            )
+        }
+
         ViewAllCardsDestination.route -> {
             BackButton(
                 onBackClick = {
@@ -99,10 +132,10 @@ fun ActionIconButton(
                     navViewModel.updateRoute(DeckViewDestination.route)
                     deckNavController?.navigate(DeckViewDestination.route)
                 },
-                getUIStyle = getUIStyle,
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
-                    .backButtonModifier()
+                    .backButtonModifier(),
+                getUIStyle = getUIStyle,
             )
         }
 

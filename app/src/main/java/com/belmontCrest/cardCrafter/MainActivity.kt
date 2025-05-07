@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
                 cuteTheme = preferences.cuteTheme.value
             ) {
                 AppNavHost(
-                    navController = navController,
+                    mainNavController = navController,
                     mainViewModel = mainViewModel,
                     editingCardListVM = editingCardListViewModel,
                     preferences = preferences,

@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CustomNavigationDrawer(
     modifier: Modifier = Modifier,
-    navController: NavHostController,
+    mainNavController: NavHostController,
     fields: Fields,
     getUIStyle: GetUIStyle,
     navViewModel: NavViewModel,
@@ -70,7 +70,7 @@ fun CustomNavigationDrawer(
 
 
     val modalContent = ModalContent(
-        navController = navController, fields = fields,
+        navController = mainNavController, fields = fields,
         getUIStyle = getUIStyle, navViewModel = navViewModel,
         cardDeckVM = cardDeckVM, supabaseVM = supabaseVM,
         cr = navViewModel.route.collectAsStateWithLifecycle().value,
@@ -169,8 +169,8 @@ fun CustomNavigationDrawer(
                     },
                     actions = {
                         ActionIconButton(
-                            getUIStyle, cardDeckVM,
-                            fields, navViewModel, supabaseVM
+                            getUIStyle, cardDeckVM, fields, navViewModel,
+                            supabaseVM, mainNavController
                         )
                     }
                 )

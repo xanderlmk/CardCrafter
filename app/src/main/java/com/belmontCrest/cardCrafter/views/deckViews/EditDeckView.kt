@@ -42,11 +42,9 @@ import com.belmontCrest.cardCrafter.controller.onClickActions.updateReviewAmount
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.EditDeckViewModel
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.uiFunctions.BackButton
 import com.belmontCrest.cardCrafter.uiFunctions.EditDoubleField
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
 import com.belmontCrest.cardCrafter.uiFunctions.EditIntField
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.createDeckDetails
@@ -97,13 +95,6 @@ class EditDeckView(
             modifier = Modifier
                 .scrollableBoxViewModifier(scrollState, getUIStyle.getColorScheme())
         ) {
-            BackButton(
-                onBackClick = {
-                    onNavigate()
-                },
-                modifier = Modifier.backButtonModifier(),
-                getUIStyle = getUIStyle
-            )
             Column(
                 modifier = Modifier
                     .padding(top = 20.dp, start = 15.dp, end = 15.dp)

@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun AppNavHost(
-    navController: NavHostController,
+    mainNavController: NavHostController,
     mainViewModel: MainViewModel,
     editingCardListVM: EditingCardListViewModel,
     navViewModel: NavViewModel,
@@ -77,7 +77,7 @@ fun AppNavHost(
     val generalSettings = GeneralSettings(getUIStyle, preferences)
     val coroutineScope = rememberCoroutineScope()
     CustomNavigationDrawer(
-        navController = navController,
+        mainNavController = mainNavController,
         fields = fields,
         getUIStyle = getUIStyle,
         navViewModel = navViewModel,
@@ -85,7 +85,7 @@ fun AppNavHost(
         supabaseVM = supabaseVM
     ) {
         NavHost(
-            navController = navController,
+            navController = mainNavController,
             startDestination = DeckListDestination.route,
             route = MainNavDestination.route,
             modifier = Modifier
@@ -93,7 +93,7 @@ fun AppNavHost(
             composable(DeckListDestination.route) {
                 BackHandler {
                     // Exit the app when back is pressed on the main screen
-                    (navController.context as? Activity)?.finish()
+                    (mainNavController.context as? Activity)?.finish()
                 }
                 val context = LocalContext.current
                 mainView.DeckList(
@@ -110,11 +110,11 @@ fun AppNavHost(
                         onDeckView = true
                         navViewModel.updateStartingDeckRoute(DeckViewDestination.route)
                         navViewModel.updateRoute(DeckNavDestination.route)
-                        navController.navigate(DeckNavDestination.route)
+                        mainNavController.navigate(DeckNavDestination.route)
                     },
                     onNavigateToAddDeck = {
                         navViewModel.updateRoute(AddDeckDestination.route)
-                        navController.navigate(AddDeckDestination.route)
+                        mainNavController.navigate(AddDeckDestination.route)
                     },
                     onNavigateToSBDeckList = {
                         coroutineScope.launch {
@@ -129,7 +129,7 @@ fun AppNavHost(
                         }
                         navViewModel.updateStartingSBRoute(SupabaseDestination.route)
                         navViewModel.updateRoute(SBNavDestination.route)
-                        navController.navigate(SBNavDestination.route)
+                        mainNavController.navigate(SBNavDestination.route)
                     },
                     goToDueCards = { id ->
                         coroutineScope.launch {
@@ -142,7 +142,7 @@ fun AppNavHost(
                         cardDeckVM.updateWhichDeck(id)
                         navViewModel.updateStartingDeckRoute(ViewDueCardsDestination.route)
                         navViewModel.updateRoute(ViewDueCardsDestination.route)
-                        navController.navigate(DeckNavDestination.route)
+                        mainNavController.navigate(DeckNavDestination.route)
                     }
                 )
             }
@@ -150,7 +150,7 @@ fun AppNavHost(
             composable(SBNavDestination.route) {
                 SupabaseNav(
                     fields, mainViewModel, supabaseVM, getUIStyle,
-                    preferences, navController, navViewModel
+                    preferences, mainNavController, navViewModel
                 )
             }
             composable(
@@ -160,7 +160,7 @@ fun AppNavHost(
                 BackHandler {
                     fields.mainClicked.value = false
                     navViewModel.updateRoute(DeckListDestination.route)
-                    navController.popBackStack(
+                    mainNavController.popBackStack(
                         DeckListDestination.route, inclusive = false
                     )
                 }
@@ -173,7 +173,7 @@ fun AppNavHost(
                 BackHandler {
                     fields.mainClicked.value = false
                     navViewModel.updateRoute(DeckListDestination.route)
-                    navController.popBackStack(
+                    mainNavController.popBackStack(
                         DeckListDestination.route,
                         inclusive = false
                     )
@@ -182,7 +182,7 @@ fun AppNavHost(
                     onNavigate = {
                         fields.mainClicked.value = false
                         navViewModel.updateRoute(DeckListDestination.route)
-                        navController.navigate(DeckListDestination.route)
+                        mainNavController.navigate(DeckListDestination.route)
                     },
                     reviewAmount = preferences.reviewAmount.intValue.toString(),
                     cardAmount = preferences.cardAmount.intValue.toString()
@@ -191,7 +191,7 @@ fun AppNavHost(
             /** Our Deck Nav Controller to call*/
             composable(DeckNavDestination.route) {
                 DeckNavHost(
-                    navController, cardDeckVM, fields, onDeckView,
+                    mainNavController, cardDeckVM, fields, onDeckView,
                     navViewModel, getUIStyle, editingCardListVM,
                 )
             }
