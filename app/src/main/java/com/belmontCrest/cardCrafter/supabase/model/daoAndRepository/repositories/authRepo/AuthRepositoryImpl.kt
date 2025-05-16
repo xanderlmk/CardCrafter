@@ -1,10 +1,10 @@
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo
 
-import android.content.Intent
 import android.util.Log
-import com.belmontCrest.cardCrafter.BuildConfig
 import com.belmontCrest.cardCrafter.localDatabase.tables.Encryption
 import com.belmontCrest.cardCrafter.localDatabase.tables.Pwd
+import com.belmontCrest.cardCrafter.supabase.model.AuthRepoVals
+import com.belmontCrest.cardCrafter.supabase.model.MergedUserInfo
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.GoogleClientResponse
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.GoogleCredentials
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.createSharedSupabase
@@ -20,7 +20,6 @@ import io.github.jan.supabase.exceptions.HttpRequestException
 import io.github.jan.supabase.exceptions.UnauthorizedRestException
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.exception.AuthWeakPasswordException
-import io.github.jan.supabase.gotrue.handleDeeplinks
 import io.github.jan.supabase.gotrue.providers.Google
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.gotrue.providers.builtin.IDToken
@@ -47,18 +46,18 @@ class AuthRepositoryImpl(
     private val pwdDao: PwdDao
 ) : AuthRepository {
     companion object {
-        private const val SB_OWNER_TN = BuildConfig.SB_OWNER_TN
-        private const val POST_FUNCTION_STRING = "functions/v1/getKeys"
-        private const val POST_FUNCTION_JTW = "functions/v1/jwt-checker"
-        private const val GOOGLE_ISSUER = "https://accounts.google.com"
-        private const val SUCCESS = "yay"
-        private const val TIMEOUT = "timeout"
-        private const val AUTH_REPO = "Auth Repository"
-        private const val USER_EXISTS = "email address has already been registered"
+        private val VS = AuthRepoVals
     }
 
-    override fun getCurrentUser(): UserInfo? {
-        return sharedSupabase.auth.currentUserOrNull()
+    override fun getCurrentUser(): MergedUserInfo? {
+        val syncedInfo = syncedSupabase.auth.currentUserOrNull()
+        val sharedInfo = sharedSupabase.auth.currentUserOrNull()
+
+        return if (syncedInfo == null || sharedInfo == null) {
+            null
+        } else {
+            MergedUserInfo(syncedInfo = syncedInfo, sharedInfo = sharedInfo)
+        }
     }
 
     override suspend fun closeSupabase(): Boolean {
@@ -67,7 +66,7 @@ class AuthRepositoryImpl(
             syncedSupabase.auth.close()
             return true
         } catch (e: Exception) {
-            Log.d(AUTH_REPO, "$e")
+            Log.d(VS.AUTH_REPO, "$e")
             return false
         }
     }
@@ -78,23 +77,20 @@ class AuthRepositoryImpl(
             syncedSupabase = createSyncedSupabase(getSyncedSBUrl(), getSharedSBKey())
             return true
         } catch (e: Exception) {
-            Log.d(AUTH_REPO, "$e")
+            Log.d(VS.AUTH_REPO, "$e")
             return false
         }
     }
 
     override suspend fun createOwner(username: String, fName: String, lName: String): Boolean {
         return withContext(Dispatchers.IO) {
-            val user = sharedSupabase.auth.currentUserOrNull()
-            if (user == null) {
-                return@withContext false
-            }
+            val user = sharedSupabase.auth.currentUserOrNull() ?: return@withContext false
             try {
-                sharedSupabase.from(SB_OWNER_TN)
+                sharedSupabase.from(VS.SB_OWNER_TN)
                     .insert(OwnerDto(user.id, username, fName, lName))
                 return@withContext true
             } catch (e: Exception) {
-                Log.d("SupabaseViewModel", "$e")
+                Log.d(VS.AUTH_REPO, "$e")
                 return@withContext false
             }
         }
@@ -102,11 +98,8 @@ class AuthRepositoryImpl(
 
     override suspend fun getOwner(): OwnerDto? {
         return withContext(Dispatchers.IO) {
-            val user = sharedSupabase.auth.currentUserOrNull()
-            if (user == null) {
-                return@withContext null
-            }
-            val owner = sharedSupabase.from(SB_OWNER_TN)
+            val user = sharedSupabase.auth.currentUserOrNull() ?: return@withContext null
+            val owner = sharedSupabase.from(VS.SB_OWNER_TN)
                 .select(Columns.Companion.ALL) {
                     filter {
                         eq("user_id", user.id)
@@ -120,7 +113,7 @@ class AuthRepositoryImpl(
         return withContext(Dispatchers.IO) {
             try {
                 val response: HttpResponse =
-                    sharedSupabase.httpClient.post("${getSharedSBUrl()}/$POST_FUNCTION_STRING") {
+                    sharedSupabase.httpClient.post("${getSharedSBUrl()}/${VS.POST_FUNCTION_STRING}") {
                         header(HttpHeaders.Authorization, "Bearer ${getSharedSBKey()}")
                         header(HttpHeaders.ContentType, ContentType.Application.Json)
                     }
@@ -171,7 +164,7 @@ class AuthRepositoryImpl(
                     password = inputPassword
                 }
                 pwdDao.insertPwd(Pwd(password = Encryption(inputPassword)))
-                SUCCESS
+                VS.SUCCESS
             } catch (e: Exception) {
                 when (e) {
                     is AuthWeakPasswordException -> {
@@ -179,41 +172,7 @@ class AuthRepositoryImpl(
                     }
 
                     is HttpRequestTimeoutException -> {
-                        TIMEOUT
-                    }
-
-                    is HttpRequestException -> {
-                        "network"
-                    }
-
-                    else -> {
-                        "unknown"
-                    }
-                }
-            }
-        }
-    }
-
-    override suspend fun deepLinker(
-        intent: Intent,
-        callback: (String, String) -> Unit
-    ): String {
-        return withContext(Dispatchers.IO) {
-            try {
-                sharedSupabase.handleDeeplinks(
-                    intent = intent,
-                    onSessionSuccess = { session ->
-                        Log.d("LOGIN", "Log in successfully with user info: ${session.user}")
-                        session.user?.apply {
-                            callback(email ?: "", createdAt.toString())
-                        }
-                    }
-                )
-                SUCCESS
-            } catch (e: Exception) {
-                when (e) {
-                    is HttpRequestTimeoutException -> {
-                        "timeout"
+                        VS.TIMEOUT
                     }
 
                     is HttpRequestException -> {
@@ -269,13 +228,9 @@ class AuthRepositoryImpl(
     override suspend fun getUserProfile(): UserProfile? {
         return withContext(Dispatchers.IO) {
             try {
-                val user = sharedSupabase.auth.currentUserOrNull()
+                val user = sharedSupabase.auth.currentUserOrNull() ?: return@withContext null
 
-                if (user == null) {
-                    return@withContext null
-                }
-
-                val owner = sharedSupabase.from(SB_OWNER_TN)
+                val owner = sharedSupabase.from(VS.SB_OWNER_TN)
                     .select(Columns.Companion.ALL) {
                         filter {
                             eq("user_id", user.id)
@@ -283,7 +238,7 @@ class AuthRepositoryImpl(
                     }.decodeSingleOrNull<OwnerDto>()
                 UserProfile(user, owner)
             } catch (e: Exception) {
-                Log.e(AUTH_REPO, "Something went wrong: $e")
+                Log.e(VS.AUTH_REPO, "Something went wrong: $e")
                 null
             }
         }
@@ -296,7 +251,7 @@ class AuthRepositoryImpl(
                 syncedSupabase.auth.signOut()
                 true
             } catch (e: Exception) {
-                Log.e("SupabaseVM", "Couldn't sign out: $e")
+                Log.e(VS.AUTH_REPO, "Couldn't sign out: $e")
                 false
             }
         }
@@ -311,7 +266,7 @@ class AuthRepositoryImpl(
                 val userId = syncedSupabase.auth.currentUserOrNull()?.id
                 // if the user already exist no need to do anything.
                 if (syncedSupabase.auth.currentUserOrNull() != null) {
-                    Log.d(AUTH_REPO, "Synced is fine.")
+                    Log.d(VS.AUTH_REPO, "Synced is fine.")
                     deletePwd(pwd)
                     return@withContext "Sign in to synced DB."
                 }
@@ -323,19 +278,19 @@ class AuthRepositoryImpl(
                     )
                 )
                 // if the user already exist with google it's okay, but don't sign in.
-                if (issuer == GOOGLE_ISSUER) {
-                    Log.d(AUTH_REPO, "Google provider checked")
+                if (issuer == VS.GOOGLE_ISSUER) {
+                    Log.d(VS.AUTH_REPO, "Google provider checked")
                     return@withContext "Already signed in with google"
                 }
 
                 // now get the jwt token
                 val jwt = sharedSupabase.auth.currentSessionOrNull()?.accessToken
                 if (jwt == null) {
-                    Log.e(AUTH_REPO, "No JWT after sign-in")
+                    Log.e(VS.AUTH_REPO, "No JWT after sign-in")
                     return@withContext "No token"
                 }
                 val response =
-                    sharedSupabase.httpClient.post("${getSharedSBUrl()}/$POST_FUNCTION_JTW") {
+                    sharedSupabase.httpClient.post("${getSharedSBUrl()}/${VS.POST_FUNCTION_JTW}") {
                         header(HttpHeaders.Authorization, "Bearer $jwt")
                         header(HttpHeaders.ContentType, "application/json")
                         setBody(
@@ -344,21 +299,35 @@ class AuthRepositoryImpl(
                     }
                 if (response.status == HttpStatusCode.Companion.OK) {
                     val statusBody = response.bodyAsText()
-                    Log.d(AUTH_REPO, "User synced: ${response.status} - $statusBody")
+                    Log.d(VS.AUTH_REPO, "User synced: ${response.status} - $statusBody")
                     // delete the password if it exist
                     deletePwd(pwd)
                     return@withContext "Sign in to synced DB."
                 } else {
                     val errorBody = response.bodyAsText()
-                    Log.e(AUTH_REPO, "Failed: ${response.status} - $errorBody")
-                    if (errorBody.contains(USER_EXISTS)) {
+                    Log.e(VS.AUTH_REPO, "Failed: ${response.status} - $errorBody")
+                    if (errorBody.contains(VS.USER_EXISTS)) {
                         deletePwd(pwd)
                     }
                     return@withContext "Couldn't sign in to the synced DB."
                 }
             } catch (e: Exception) {
-                Log.e(AUTH_REPO, "$e")
+                Log.e(VS.AUTH_REPO, "$e")
                 return@withContext "Something went wrong"
+            }
+        }
+    }
+
+    override suspend fun forgotPassword(inputEmail: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                sharedSupabase.auth.resetPasswordForEmail(
+                    email = inputEmail, redirectUrl = "reset://supabase.com"
+                )
+                true
+            } catch (e: Exception) {
+                Log.e(VS.AUTH_REPO, "$e")
+                false
             }
         }
     }
@@ -384,7 +353,7 @@ class AuthRepositoryImpl(
                 syncedSupabase.auth.signOut()
             }
         } catch (e: Exception) {
-            Log.e(AUTH_REPO, "$e")
+            Log.e(VS.AUTH_REPO, "$e")
         }
     }
 }

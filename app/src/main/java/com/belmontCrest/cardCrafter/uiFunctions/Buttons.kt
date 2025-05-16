@@ -58,13 +58,13 @@ fun PullDeck(modifier: Modifier, getUIStyle: GetUIStyle, onClick: () -> Unit) {
             .padding(8.dp),
         containerColor = getUIStyle.semiTransButtonColor(),
         contentColor = getUIStyle.titleColor(),
-        elevation = FloatingActionButtonDefaults.elevation((Int.MAX_VALUE/2).dp)
+        elevation = FloatingActionButtonDefaults.elevation((Int.MAX_VALUE / 2).dp)
     ) {
         Icon(
             painter = painterResource(R.drawable.merge),
-            contentDescription = "Merge remote deck",
+            contentDescription = "Merge deck",
         )
-        Text("Merge remote deck")
+        Text("Merge deck")
     }
 }
 
@@ -358,7 +358,8 @@ fun CancelButton(
 fun SubmitButton(
     onClick: () -> Unit, enabled: Boolean,
     getUIStyle: GetUIStyle, string: String,
-    modifier: Modifier = Modifier, fontSize: TextUnit = TextUnit.Unspecified
+    modifier: Modifier = Modifier, fontSize: TextUnit = TextUnit.Unspecified,
+    innerModifier: Modifier = Modifier
 ) {
     Button(
         onClick = {
@@ -369,7 +370,7 @@ fun SubmitButton(
             contentColor = getUIStyle.buttonTextColor()
         ), modifier = modifier
     ) {
-        Text(text = string, fontSize = fontSize)
+        Text(text = string, fontSize = fontSize, modifier = innerModifier)
     }
 }
 

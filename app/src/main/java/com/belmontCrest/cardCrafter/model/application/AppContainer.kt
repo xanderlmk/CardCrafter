@@ -21,6 +21,8 @@ import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.OfflineSupabaseToRoomRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.personalSyncedRepos.OfflineUserSyncedInfoRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SupabaseToRoomRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.DeepLinkerRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.DeepLinkerRepositoryImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.IsOwnerOrCoOwnerRepo
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.IsOwnerOrCoOwnerRepoImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.MergeDecksRepository
@@ -52,6 +54,7 @@ interface AppContainer {
     val exportRepository: ExportRepository
     val mergeDecksRepository: MergeDecksRepository
     val isOwnerOrCoOwnerRepo : IsOwnerOrCoOwnerRepo
+    val deepLinkerRepo : DeepLinkerRepository
 }
 
 class AppDataContainer(
@@ -128,5 +131,7 @@ class AppDataContainer(
     override val isOwnerOrCoOwnerRepo: IsOwnerOrCoOwnerRepo by lazy {
         IsOwnerOrCoOwnerRepoImpl(sharedSupabase)
     }
-
+    override val deepLinkerRepo: DeepLinkerRepository by lazy {
+        DeepLinkerRepositoryImpl(sharedSupabase)
+    }
 }

@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.DeepLinksViewModel
 import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -35,23 +35,20 @@ import kotlin.getValue
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class DeepLinkerActivity : ComponentActivity() {
-    private val supabaseVM: SupabaseViewModel by viewModels {
+    private val deepLinksVM: DeepLinksViewModel by viewModels {
         AppViewModelProvider.Factory
     }
 
     private lateinit var callback: (String, String) -> Unit
     private lateinit var preferences: PreferencesManager
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
-            supabaseVM.deepLinker(
+            deepLinksVM.deepLinker(
                 intent, callback = { email, createdAt ->
                     callback(email, createdAt.toString())
-                }).also {
-                supabaseVM.updateStatus()
-            }
+                })
         }
         setContent {
             val emailState = remember { mutableStateOf("") }

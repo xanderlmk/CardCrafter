@@ -30,6 +30,8 @@ slf4jNop = "1.7.30"
 supabase = "2.5.2"
 coilCompose = "2.6.0"
 bcrypt = "0.9.0"
+material = "1.10.0"
+activity = "1.8.0"
 
 # ** For sdk of ~34, here all the older versions
 # ** appCompatVersion was the only one to give issues
@@ -119,6 +121,8 @@ realtime-kt = { module = "io.github.jan-tennert.supabase:realtime-kt" }
 slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4jNop" }
 supabase-bom = { group = "io.github.jan-tennert.supabase", name = "bom", version.ref = "supabase" }
 postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

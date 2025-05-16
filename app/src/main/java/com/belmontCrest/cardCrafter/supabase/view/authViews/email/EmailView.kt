@@ -132,10 +132,12 @@ private fun SignUpWithEmail(
                 showToastMessage(context, "Passwords don't match")
                 enabled.value = true
                 return@launch
+            } else if (!isValidPassword(inputPassword.value)) {
+                showToastMessage(context, "Not a valid password")
+                enabled.value = true
+                return@launch
             }
-            supabaseVM.signUpWithEmail(
-                inputEmail.value, inputPassword.value
-            ).let {
+            supabaseVM.signUpWithEmail(inputEmail.value, inputPassword.value).let {
                 if (it != "yay") {
                     showToastMessage(context, it)
                 } else {
@@ -245,4 +247,13 @@ private fun SignInWithEmail(
         Text(errorMessage)
     }
 
+}
+
+private fun isValidPassword(password: String): Boolean {
+    val hasLowercase = password.any { it.isLowerCase() }
+    val hasUppercase = password.any { it.isUpperCase() }
+    val hasDigit = password.any { it.isDigit() }
+    val hasSymbol = password.any { !it.isLetterOrDigit() }
+
+    return hasLowercase && hasUppercase && hasDigit && hasSymbol
 }

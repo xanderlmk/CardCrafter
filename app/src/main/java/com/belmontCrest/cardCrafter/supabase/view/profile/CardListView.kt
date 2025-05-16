@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -26,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.model.FSProp
 import com.belmontCrest.cardCrafter.model.FWProp
@@ -49,6 +52,7 @@ import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.CardDetails
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.toCardDetails
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -153,7 +157,6 @@ class CardListView(
         var clicked by rememberSaveable { mutableStateOf(false) }
         var username by rememberSaveable { mutableStateOf("") }
         val coroutineScope = rememberCoroutineScope()
-        val context = LocalContext.current
         if (coOwners.isNotEmpty()) {
             LazyColumn(
                 modifier = Modifier
@@ -184,32 +187,71 @@ class CardListView(
                     .padding(8.dp),
                 TextProps(FSProp.Font20, FWProp.Bold, TAProp.Center)
             )
-            if (clicked) {
-                EditTextField(
-                    value = username,
-                    onValueChanged = { username = it },
-                    labelStr = "Username", Modifier.fillMaxWidth()
-                )
-                SubmitButton(onClick = {
-                    coroutineScope.launch {
-                        onEnable(false)
-                        if (username.isBlank()) {
-                            showToastMessage(context, "Username is blank")
-                            onEnable(true)
-                            return@launch
-                        }
-                        uEDVM.insertCoOwner(username).let {
-                            if (it == SUCCESS) {
-                                showToastMessage(context, "Successfully requested User!")
-                                username = ""
-                                uEDVM.getAllCoOwners()
-                            } else {
-                                showToastMessage(context, "Error")
-                            }
-                            onEnable(true)
-                        }
+            AddCoOwner(
+                clicked, onClicked = { clicked = it }, username, onUsername = { username = it },
+                coroutineScope, onEnable, enabled
+            )
+        }
+    }
+
+    @Composable
+    private fun AddCoOwner(
+        clicked: Boolean, onClicked: (Boolean) -> Unit, username: String,
+        onUsername: (String) -> Unit, coroutineScope: CoroutineScope,
+        onEnable: (Boolean) -> Unit, enabled: Boolean
+    ) {
+        val context = LocalContext.current
+        if (clicked) {
+            Dialog(
+                onDismissRequest = {
+                    if (enabled) {
+                        onClicked(false)
                     }
-                }, enabled, getUIStyle, "Add")
+                }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .size(height = 275.dp, width = 10.dp)
+                        .background(
+                            color = getUIStyle.altBackground(), shape = RoundedCornerShape(20.dp)
+                        )
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CustomText("Enter Username", getUIStyle)
+                    EditTextField(
+                        value = username,
+                        onValueChanged = { onUsername(it) },
+                        labelStr = "Username", Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    )
+                    SubmitButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                onEnable(false)
+                                if (username.isBlank()) {
+                                    showToastMessage(context, "Username is blank")
+                                    onEnable(true)
+                                    return@launch
+                                }
+                                uEDVM.insertCoOwner(username).let {
+                                    if (it == SUCCESS) {
+                                        showToastMessage(context, "Successfully requested User!")
+                                        onUsername("")
+                                        uEDVM.getAllCoOwners()
+                                    } else {
+                                        showToastMessage(context, "Error")
+                                    }
+                                    onEnable(true)
+                                }
+                            }
+                        }, enabled, getUIStyle, "Add",
+                        innerModifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
             }
         }
     }

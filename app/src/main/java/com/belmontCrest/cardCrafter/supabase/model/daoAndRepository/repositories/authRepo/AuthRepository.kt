@@ -1,14 +1,13 @@
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo
 
-import android.content.Intent
+import com.belmontCrest.cardCrafter.supabase.model.MergedUserInfo
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.GoogleCredentials
 import com.belmontCrest.cardCrafter.supabase.model.tables.OwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.UserProfile
-import io.github.jan.supabase.gotrue.user.UserInfo
 
 interface AuthRepository {
 
-    fun getCurrentUser() : UserInfo?
+    fun getCurrentUser() : MergedUserInfo?
 
     suspend fun closeSupabase() : Boolean
 
@@ -26,8 +25,6 @@ interface AuthRepository {
 
     suspend fun signUpWithEmail(inputEmail: String, inputPassword: String): String
 
-    suspend fun deepLinker(intent: Intent, callback: (String, String) -> Unit): String
-
     suspend fun signInWithEmail(inputEmail: String, inputPassword: String): String
 
     suspend fun getUserProfile(): UserProfile?
@@ -35,4 +32,6 @@ interface AuthRepository {
     suspend fun signOut(): Boolean
 
     suspend fun signInSyncedDBUser(): String
+
+    suspend fun forgotPassword(inputEmail: String): Boolean
 }

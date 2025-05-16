@@ -1,7 +1,6 @@
 package com.belmontCrest.cardCrafter.supabase.controller.viewModels
 
 import android.app.Application
-import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -217,6 +216,7 @@ class SupabaseViewModel(
             }
         }
         viewModelScope.launch {
+            updateStatus()
             delay(1250)
             getOwner()
         }
@@ -262,14 +262,6 @@ class SupabaseViewModel(
     suspend fun signUpWithEmail(email: String, password: String): String {
         return withContext(Dispatchers.IO) {
             authRepository.signUpWithEmail(email, password)
-        }
-    }
-
-    suspend fun deepLinker(intent: Intent, callback: (String, String) -> Unit): String {
-        return withContext(Dispatchers.IO) {
-            authRepository.deepLinker(intent) { email, createdAt ->
-                callback(email, createdAt)
-            }
         }
     }
 
