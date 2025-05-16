@@ -8,13 +8,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
@@ -33,6 +35,7 @@ import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
+import com.belmontCrest.cardCrafter.uiFunctions.CustomText
 import com.belmontCrest.cardCrafter.uiFunctions.PasswordTextField
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
@@ -40,7 +43,7 @@ import kotlinx.coroutines.launch
 import kotlin.getValue
 
 @RequiresApi(Build.VERSION_CODES.Q)
-class ForgotPasswordActivity : ComponentActivity() {
+class ResetPasswordActivity : ComponentActivity() {
 
     private lateinit var preferences: PreferencesManager
     private lateinit var callback: (String, String) -> Unit
@@ -50,12 +53,7 @@ class ForgotPasswordActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycleScope.launch {
-            deepLinksVM.deepLinker(
-                intent, callback = { email, createdAt ->
-                    callback(email, createdAt.toString())
-                })
-        }
+        handleDeepLink(intent)
         enableEdgeToEdge()
         setContent {
             val emailState = remember { mutableStateOf("") }
@@ -86,16 +84,19 @@ class ForgotPasswordActivity : ComponentActivity() {
                 dynamicColor = preferences.customScheme.value,
                 cuteTheme = preferences.cuteTheme.value
             ) {
-                Surface(
+                Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+                ) { padding ->
                     Column(
-                        modifier = Modifier.scrollableBoxViewModifier(
-                            rememberScrollState(), getUIStyle.getColorScheme()
-                        )
+                        modifier = Modifier
+                            .scrollableBoxViewModifier(
+                                rememberScrollState(), getUIStyle.getColorScheme()
+                            )
+                            .padding(padding),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Reset password")
+                        CustomText("Reset password", getUIStyle)
                         PasswordTextField(
                             label = "New Password", password = password,
                             onPasswordChange = { password = it },
@@ -139,6 +140,19 @@ class ForgotPasswordActivity : ComponentActivity() {
                         }, enabled, getUIStyle, "Reset", Modifier.fillMaxWidth())
                     }
                 }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleDeepLink(intent)
+    }
+
+    private fun handleDeepLink(intent: Intent) {
+        lifecycleScope.launch {
+            deepLinksVM.deepLinker(intent) { email, createdAt ->
+                callback(email, createdAt.toString())
             }
         }
     }

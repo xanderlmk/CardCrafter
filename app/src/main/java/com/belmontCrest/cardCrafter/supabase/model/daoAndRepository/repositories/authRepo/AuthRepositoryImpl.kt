@@ -23,7 +23,6 @@ import io.github.jan.supabase.gotrue.exception.AuthWeakPasswordException
 import io.github.jan.supabase.gotrue.providers.Google
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.gotrue.providers.builtin.IDToken
-import io.github.jan.supabase.gotrue.user.UserInfo
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import io.ktor.client.call.body
@@ -158,7 +157,7 @@ class AuthRepositoryImpl(
             try {
                 sharedSupabase.auth.signUpWith(
                     provider = Email,
-                    redirectUrl = "app://supabase.com"
+                    redirectUrl = "app://supabase.com/auth-callback"
                 ) {
                     email = inputEmail
                     password = inputPassword
@@ -314,20 +313,6 @@ class AuthRepositoryImpl(
             } catch (e: Exception) {
                 Log.e(VS.AUTH_REPO, "$e")
                 return@withContext "Something went wrong"
-            }
-        }
-    }
-
-    override suspend fun forgotPassword(inputEmail: String): Boolean {
-        return withContext(Dispatchers.IO) {
-            try {
-                sharedSupabase.auth.resetPasswordForEmail(
-                    email = inputEmail, redirectUrl = "reset://supabase.com"
-                )
-                true
-            } catch (e: Exception) {
-                Log.e(VS.AUTH_REPO, "$e")
-                false
             }
         }
     }

@@ -10,32 +10,28 @@ import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCardList
 import com.belmontCrest.cardCrafter.localDatabase.tables.AllCardTypes
-import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.CardInfo
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
-import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
-import com.belmontCrest.cardCrafter.model.InsertAndReplaceDao
-import com.belmontCrest.cardCrafter.model.Type.BASIC
-import com.belmontCrest.cardCrafter.model.Type.HINT
-import com.belmontCrest.cardCrafter.model.Type.MULTI
-import com.belmontCrest.cardCrafter.model.Type.NOTATION
-import com.belmontCrest.cardCrafter.model.Type.THREE
+import com.belmontCrest.cardCrafter.model.TransactionCT
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCTToImport
 import com.belmontCrest.cardCrafter.supabase.model.tables.toCard
 import java.util.Date
 
 @Dao
-interface MergeDecksDao : InsertAndReplaceDao {
+interface MergeDecksDao : TransactionCT {
 
     @Query("SELECT * from decks where uuid = :uuid")
     suspend fun getDeck(uuid: String): Deck
+
+    @Query("SELECT * from decks where uuid = :uuid")
+    suspend fun doesDeckExist(uuid: String) : Deck?
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    fun insertDeck(deck: Deck): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertImportedDeckInfo(importedDeckInfo: ImportedDeckInfo)
@@ -86,6 +82,43 @@ interface MergeDecksDao : InsertAndReplaceDao {
     """
     )
     suspend fun dropCardsNotIn(deckId: Int, keepIds: List<String>)
+
+    @Transaction
+    suspend fun insertDeckList(
+        sbDeckDto: SBDeckDto, cardList: List<SealedCTToImport>,
+        reviewAmount: Int, cardAmount: Int,
+        onProgress: (Float) -> Unit
+    ) {
+        var current = 0
+        var total = cardList.size + 2
+        val deckId = insertDeck(
+            Deck(
+                name = sbDeckDto.name,
+                uuid = sbDeckDto.deckUUID,
+                nextReview = Date(),
+                lastUpdated = Date(),
+                reviewAmount = reviewAmount,
+                cardAmount = cardAmount
+            )
+        )
+        current += 1
+        onProgress((current).toFloat() / total)
+        insertImportedDeckInfo(
+            ImportedDeckInfo(
+                uuid = sbDeckDto.deckUUID,
+                lastUpdatedOn = sbDeckDto.updatedOn
+            )
+        )
+        current += 1
+        onProgress((current).toFloat() / total)
+        cardList.forEachIndexed { index, ct ->
+            insertTransactionCT(
+                ct, deckId.toInt(), sbDeckDto, reviewAmount
+            )
+            current += 1
+            onProgress((current).toFloat() / total)
+        }
+    }
 
     @Transaction
     suspend fun mergeDeck(
@@ -209,86 +242,6 @@ interface MergeDecksDao : InsertAndReplaceDao {
                     ct.card.type, sbDeckDto.deckUUID, reviewAmount
                 )
                 insertNotationCard(ct.notationCard.copy(cardId = cardId.toInt()))
-            }
-        }
-    }
-
-    private suspend fun insertTransactionCT(
-        ct: SealedCTToImport, deckId: Int, sbDeckDto: SBDeckDto, reviewAmount: Int
-    ) {
-        val cardIdentifier = ct.toCard().cardIdentifier
-        val deckCardNumber = cardIdentifier.substringAfterLast("-").toInt()
-        when (ct) {
-            is SealedCTToImport.Basic -> {
-                val cardId = returnCard(
-                    deckId.toInt(), deckCardNumber, BASIC, sbDeckDto.deckUUID, reviewAmount
-                )
-                insertBasicCard(
-                    BasicCard(
-                        cardId = cardId.toInt(),
-                        question = ct.basicCard.question,
-                        answer = ct.basicCard.answer
-                    )
-                )
-            }
-
-            is SealedCTToImport.Three -> {
-                val cardId = returnCard(
-                    deckId.toInt(), deckCardNumber, THREE, sbDeckDto.deckUUID, reviewAmount
-                )
-                insertThreeCard(
-                    ThreeFieldCard(
-                        cardId = cardId.toInt(),
-                        question = ct.threeCard.question,
-                        middle = ct.threeCard.middle,
-                        answer = ct.threeCard.answer
-                    )
-                )
-            }
-
-            is SealedCTToImport.Hint -> {
-                val cardId = returnCard(
-                    deckId.toInt(), deckCardNumber, HINT, sbDeckDto.deckUUID, reviewAmount
-                )
-                insertHintCard(
-                    HintCard(
-                        cardId = cardId.toInt(),
-                        question = ct.hintCard.question,
-                        hint = ct.hintCard.hint,
-                        answer = ct.hintCard.answer
-                    )
-                )
-            }
-
-            is SealedCTToImport.Multi -> {
-                val cardId = returnCard(
-                    deckId.toInt(), deckCardNumber, MULTI, sbDeckDto.deckUUID, reviewAmount
-                )
-                insertMultiChoiceCard(
-                    MultiChoiceCard(
-                        cardId = cardId.toInt(),
-                        question = ct.multiCard.question,
-                        choiceA = ct.multiCard.choiceA,
-                        choiceB = ct.multiCard.choiceB,
-                        choiceC = ct.multiCard.choiceC,
-                        choiceD = ct.multiCard.choiceD,
-                        correct = ct.multiCard.correct
-                    )
-                )
-            }
-
-            is SealedCTToImport.Notation -> {
-                val cardId = returnCard(
-                    deckId.toInt(), deckCardNumber, NOTATION, sbDeckDto.deckUUID, reviewAmount
-                )
-                insertNotationCard(
-                    NotationCard(
-                        cardId = cardId.toInt(),
-                        question = ct.notationCard.question,
-                        steps = ct.notationCard.steps,
-                        answer = ct.notationCard.answer
-                    )
-                )
             }
         }
     }

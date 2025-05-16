@@ -13,7 +13,7 @@ import io.ktor.client.plugins.websocket.WebSockets
 
 private object AuthConfig {
     val FLOW_TYPE = FlowType.PKCE
-    const val SCHEME = "app"
+    const val APP_SCHEME = "app"
     const val HOST = "supabase.com"
 }
 /** Creating our supabase client for the user to use if they sign in/up. */
@@ -30,7 +30,7 @@ fun createSharedSupabase(
         install(Postgrest)
         install(Auth) {
             flowType = AuthConfig.FLOW_TYPE
-            scheme = AuthConfig.SCHEME
+            scheme = AuthConfig.APP_SCHEME
             host = AuthConfig.HOST
         }
         httpConfig {

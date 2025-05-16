@@ -6,8 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.cardHandlers.callError
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnError
-import com.belmontCrest.cardCrafter.controller.cardHandlers.returnSavedCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toSavedCard
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
@@ -45,6 +45,8 @@ class CardDeckViewModel(
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
+        private const val DECK_ID = "CardDeckVMDeckId"
+        private const val INDEX = "CardDeckVMIndex"
     }
 
     private val thisErrorState = MutableStateFlow<CardUpdateError?>(null)
@@ -59,10 +61,10 @@ class CardDeckViewModel(
      * deck.cardAmount change it'll be reflected on the cardsLeft,
      * which should reflect on the state too.
      */
-    private val deckId = MutableStateFlow(savedStateHandle["deckId"] ?: 0)
+    private val _deckId = MutableStateFlow(savedStateHandle[DECK_ID] ?: 0)
 
     private val state =
-        deckId.flatMapLatest { id ->
+        _deckId.flatMapLatest { id ->
             flashCardRepository.getDueDeckDetails(id)
         }.flatMapLatest { dueDetails ->
             if (dueDetails == null) {
@@ -98,18 +100,18 @@ class CardDeckViewModel(
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = 0
     )
-    private val thisIndex = MutableStateFlow(savedStateHandle["index"] ?: 0)
-    val stateIndex = thisIndex.asStateFlow()
+    private val _stateIndex = MutableStateFlow(savedStateHandle[INDEX] ?: 0)
+    val stateIndex = _stateIndex.asStateFlow()
 
     /** This will change almost constantly. */
     fun updateWhichDeck(id: Int) {
-        deckId.value = id
-        savedStateHandle["deckId"] = id
+        _deckId.update { id }
+        savedStateHandle[DECK_ID] = id
     }
 
     fun updateIndex(index: Int) {
-        thisIndex.update { index }
-        savedStateHandle["index"] = index
+        _stateIndex.update { index }
+        savedStateHandle[INDEX] = index
     }
 
     /** For when a user wants to redo a card */
@@ -139,7 +141,7 @@ class CardDeckViewModel(
     /** Adding/Replacing the savedCard in the DB*/
     fun addCardToUpdate(card: Card) {
         viewModelScope.launch(Dispatchers.IO) {
-            flashCardRepository.insertSavedCard(returnSavedCard(card))
+            flashCardRepository.insertSavedCard(card.toSavedCard())
         }
     }
 
@@ -301,9 +303,9 @@ class CardDeckViewModel(
     }
 
     /** CardDeckView UI Variables */
-    private val privateClicked: MutableStateFlow<Boolean?> =
+    private val _redoClicked: MutableStateFlow<Boolean?> =
         MutableStateFlow(savedStateHandle["clickedChoice"])
-    val redoClicked = privateClicked.map {
+    val redoClicked = _redoClicked.map {
         it == true
     }.stateIn(
         scope = viewModelScope,
@@ -312,9 +314,7 @@ class CardDeckViewModel(
     )
 
     fun updateRedoClicked(clicked: Boolean) {
-        privateClicked.update {
-            clicked
-        }
+        _redoClicked.update { clicked }
         savedStateHandle["clickedChoice"] = clicked
     }
 

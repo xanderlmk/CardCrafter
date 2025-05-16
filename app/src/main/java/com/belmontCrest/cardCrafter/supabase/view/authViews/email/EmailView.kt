@@ -42,7 +42,8 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun EmailView(
-    supabaseVM: SupabaseViewModel, getUIStyle: GetUIStyle, onNavigate: () -> Unit,
+    supabaseVM: SupabaseViewModel, getUIStyle: GetUIStyle,
+    onNavigate: () -> Unit, onForgotPassword: () -> Unit
 ) {
     val context = LocalContext.current
     var inputEmail = rememberSaveable { mutableStateOf("") }
@@ -75,7 +76,8 @@ fun EmailView(
                     inputEmail = inputEmail, inputPassword = inputPassword,
                     enabled = enabled, coroutineScope = coroutineScope,
                     supabaseVM = supabaseVM, context = context, signIn = signIn,
-                    getUIStyle = getUIStyle, onNavigate = onNavigate
+                    getUIStyle = getUIStyle, onNavigate = onNavigate,
+                    onForgotPassword = onForgotPassword
                 )
             }
         }
@@ -182,7 +184,7 @@ private fun SignInWithEmail(
     inputEmail: MutableState<String>, inputPassword: MutableState<String>,
     enabled: MutableState<Boolean>, coroutineScope: CoroutineScope, getUIStyle: GetUIStyle,
     supabaseVM: SupabaseViewModel, context: Context, signIn: MutableState<Boolean>,
-    onNavigate: () -> Unit
+    onNavigate: () -> Unit, onForgotPassword: () -> Unit
 ) {
     var errorMessage by rememberSaveable { mutableStateOf("") }
     val success = stringResource(R.string.signed_in)
@@ -194,15 +196,32 @@ private fun SignInWithEmail(
         labelStr = "Email",
         modifier = Modifier.fillMaxWidth(),
     )
-    PasswordTextField(
-        password = inputPassword.value,
-        onPasswordChange = {
-            inputPassword.value = it
-        },
-        label = "Password",
-        modifier = Modifier.fillMaxWidth(),
-        getUIStyle = getUIStyle
-    )
+    Column(
+        modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        PasswordTextField(
+            password = inputPassword.value,
+            onPasswordChange = {
+                inputPassword.value = it
+            },
+            label = "Password",
+            modifier = Modifier.fillMaxWidth(),
+            getUIStyle = getUIStyle
+        )
+        Text(
+            text = "Forgot password",
+            color = Color.Red,
+            modifier = Modifier
+                .padding(4.dp)
+                .clickable {
+                    if (enabled.value) {
+                        onForgotPassword()
+                    }
+                }
+                .align(Alignment.End),
+            fontSize = 13.sp
+        )
+    }
     Spacer(Modifier.padding(vertical = 20.dp))
     SubmitButton(
         onClick = {
