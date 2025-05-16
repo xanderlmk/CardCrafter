@@ -32,6 +32,4 @@ interface AuthRepository {
     suspend fun signOut(): Boolean
 
     suspend fun signInSyncedDBUser(): String
-
-    suspend fun forgotPassword(inputEmail: String): Boolean
 }

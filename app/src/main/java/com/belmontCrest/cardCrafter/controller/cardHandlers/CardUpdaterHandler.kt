@@ -106,14 +106,12 @@ suspend fun updateDecksCardList(
     return cardDeckViewModel.updateCards(deck)
 }
 
-fun returnSavedCard(card: Card) : SavedCard {
-    return SavedCard(
-        id = card.id,
-        reviewsLeft = card.reviewsLeft,
-        nextReview = card.nextReview,
-        prevSuccess = card.prevSuccess,
-        passes = card.passes,
-        totalPasses = card.totalPasses,
-        partOfList = card.partOfList
-    )
-}
+fun Card.toSavedCard(): SavedCard = SavedCard(
+    id = this.id,
+    reviewsLeft = this.reviewsLeft,
+    nextReview = this.nextReview,
+    prevSuccess = this.prevSuccess,
+    passes = this.passes,
+    totalPasses = this.totalPasses,
+    partOfList = this.partOfList
+)

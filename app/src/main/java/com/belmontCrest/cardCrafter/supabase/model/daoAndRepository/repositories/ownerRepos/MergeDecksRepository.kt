@@ -8,6 +8,14 @@ interface MergeDecksRepository {
     suspend fun mergeDeck(
         sbDeckDto: SBDeckDto, remoteCL: List<SealedCTToImport>, onProgress: (Float) -> Unit
     )
+
+    suspend fun doesDeckExist(uuid: String): Boolean
+
+    suspend fun insertDeckList(
+        sbDeckDto: SBDeckDto, cardList: List<SealedCTToImport>,
+        reviewAmount: Int, cardAmount: Int,
+        onProgress: (Float) -> Unit
+    )
 }
 
 class OfflineMergeDecksRepository(
@@ -17,5 +25,15 @@ class OfflineMergeDecksRepository(
         sbDeckDto: SBDeckDto, remoteCL: List<SealedCTToImport>, onProgress: (Float) -> Unit
     ) = mergeDecksDao.mergeDeck(
         sbDeckDto, remoteCL
+    ) { onProgress(it) }
+
+    override suspend fun doesDeckExist(uuid: String): Boolean =
+        mergeDecksDao.doesDeckExist(uuid) != null
+
+    override suspend fun insertDeckList(
+        sbDeckDto: SBDeckDto, cardList: List<SealedCTToImport>,
+        reviewAmount: Int, cardAmount: Int, onProgress: (Float) -> Unit
+    ) = mergeDecksDao.insertDeckList(
+        sbDeckDto, cardList,reviewAmount, cardAmount
     ) { onProgress(it) }
 }

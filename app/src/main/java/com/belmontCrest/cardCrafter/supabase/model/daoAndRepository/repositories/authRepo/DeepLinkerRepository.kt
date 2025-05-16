@@ -12,7 +12,6 @@ import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.header
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -66,15 +65,15 @@ class DeepLinkerRepositoryImpl(
     override suspend fun resetPassword(inputPassword: String): String {
         return withContext(Dispatchers.IO) {
             try {
-                sharedSupabase.auth.updateUser { password = inputPassword }
                 // now get the jwt token
                 val jwt = sharedSupabase.auth.currentSessionOrNull()?.accessToken
                 val userId = sharedSupabase.auth.currentUserOrNull()?.id
 
-                if (jwt == null) {
+                if (jwt == null || userId == null) {
                     Log.e(VS.AUTH_REPO, "No JWT after sign-in")
                     return@withContext "No token"
                 }
+                sharedSupabase.auth.updateUser { password = inputPassword }
                 val response =
                     sharedSupabase.httpClient.post("${getSharedSBUrl()}/${VS.POST_FUNCTION_RESET}") {
                         header(HttpHeaders.Authorization, "Bearer $jwt")
@@ -83,10 +82,7 @@ class DeepLinkerRepositoryImpl(
                             """{ "password": "$inputPassword", "user_id": "$userId" } """
                         )
                     }
-
-                if (response.status !== HttpStatusCode.OK) {
-                    return@withContext "Error"
-                }
+                Log.i(VS.AUTH_REPO, "${response.status.value}: ${response.status.description}")
                 VS.SUCCESS
             } catch (e: Exception) {
                 Log.e(VS.AUTH_REPO, "$e")

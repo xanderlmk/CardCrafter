@@ -31,6 +31,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.update
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.navigation.destinations.CoOwnerRequestsDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.ForgotPasswordDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SBCardListDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UseEmailDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.CoOwnerViewModel
@@ -43,6 +44,7 @@ import com.belmontCrest.cardCrafter.supabase.view.importDeck.ImportDeck
 import com.belmontCrest.cardCrafter.supabase.view.OnlineDatabase
 import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.UploadThisDeck
 import com.belmontCrest.cardCrafter.supabase.view.authViews.email.EmailView
+import com.belmontCrest.cardCrafter.supabase.view.authViews.email.ForgotPassword
 import com.belmontCrest.cardCrafter.supabase.view.profile.CardListView
 import com.belmontCrest.cardCrafter.supabase.view.profile.RequestsView
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -78,7 +80,7 @@ fun SupabaseNav(
         UserEDDestination.route
     }
     val uEDVM: UserExportedDecksViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    val clv = CardListView(uEDVM, getUIStyle)
+    val clv = CardListView(uEDVM, getUIStyle, preferences)
     NavHost(
         navController = sbNavController,
         startDestination = startDestination,
@@ -138,8 +140,22 @@ fun SupabaseNav(
                             SupabaseDestination.route, inclusive = false
                         )
                     }
+                },
+                onForgotPassword = {
+                    navViewModel.updateRoute(ForgotPasswordDestination.route)
+                    sbNavController.navigate(ForgotPasswordDestination.route)
                 }
             )
+        }
+
+        composable(ForgotPasswordDestination.route) {
+            BackHandler {
+                navViewModel.updateRoute(UseEmailDestination.route)
+                sbNavController.popBackStack(
+                    UseEmailDestination.route, inclusive = false
+                )
+            }
+            ForgotPassword(getUIStyle)
         }
         composable(
             ImportSBDestination.route,

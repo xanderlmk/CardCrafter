@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
@@ -29,6 +28,7 @@ import com.belmontCrest.cardCrafter.supabase.controller.viewModels.DeepLinksView
 import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 import kotlinx.coroutines.launch
 import kotlin.getValue
@@ -82,12 +82,13 @@ class DeepLinkerActivity : ComponentActivity() {
                 dynamicColor = preferences.customScheme.value,
                 cuteTheme = preferences.cuteTheme.value
             ) {
-                Surface(
+                Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+                ) { padding ->
                     SignInSuccessScreen(
-                        modifier = Modifier.padding(20.dp),
+                        modifier = Modifier
+                            .boxViewsModifier(getUIStyle.getColorScheme())
+                            .padding(padding),
                         getUIStyle = getUIStyle,
                         email = emailState.value,
                         createdAt = createdAtState.value,

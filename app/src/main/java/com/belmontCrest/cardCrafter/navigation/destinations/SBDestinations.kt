@@ -43,3 +43,8 @@ object SBCardListDestination : NavigationDestination {
 object CoOwnerRequestsDestination : NavigationDestination {
     override val route = "CoOwnerRequests"
 }
+
+@Serializable
+object ForgotPasswordDestination : NavigationDestination {
+    override val route = "ForgotPassword"
+}

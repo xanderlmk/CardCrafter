@@ -23,6 +23,8 @@ import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SupabaseToRoomRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.DeepLinkerRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.DeepLinkerRepositoryImpl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.ForgotPasswordRepoImpl
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.ForgotPasswordRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.IsOwnerOrCoOwnerRepo
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.IsOwnerOrCoOwnerRepoImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.MergeDecksRepository
@@ -55,6 +57,7 @@ interface AppContainer {
     val mergeDecksRepository: MergeDecksRepository
     val isOwnerOrCoOwnerRepo : IsOwnerOrCoOwnerRepo
     val deepLinkerRepo : DeepLinkerRepository
+    val fpRepository : ForgotPasswordRepository
 }
 
 class AppDataContainer(
@@ -133,5 +136,9 @@ class AppDataContainer(
     }
     override val deepLinkerRepo: DeepLinkerRepository by lazy {
         DeepLinkerRepositoryImpl(sharedSupabase)
+    }
+
+    override val fpRepository: ForgotPasswordRepository by lazy {
+        ForgotPasswordRepoImpl(sharedSupabase)
     }
 }

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,6 +36,7 @@ import com.belmontCrest.cardCrafter.model.TextProps
 import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.cardListTextProp
 import com.belmontCrest.cardCrafter.model.toTextProp
+import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.tables.CoOwnerWithUsername
@@ -58,7 +58,8 @@ import kotlinx.coroutines.launch
 
 class CardListView(
     private val uEDVM: UserExportedDecksViewModel,
-    private val getUIStyle: GetUIStyle
+    private val getUIStyle: GetUIStyle,
+    private val preferences: PreferencesManager
 ) {
     @Composable
     fun AllCards() {
@@ -135,7 +136,9 @@ class CardListView(
             PullDeck(Modifier.align(Alignment.BottomEnd), getUIStyle) {
                 coroutineScope.launch {
                     enabled = false
-                    val result = uEDVM.mergeRemoteWithLocal { progress = it }
+                    val result = uEDVM.mergeRemoteWithLocal(
+                        preferences.reviewAmount.intValue, preferences.cardAmount.intValue
+                    ) { progress = it }
 
                     if (result != SUCCESS) {
                         showToastMessage(context, "No success.")

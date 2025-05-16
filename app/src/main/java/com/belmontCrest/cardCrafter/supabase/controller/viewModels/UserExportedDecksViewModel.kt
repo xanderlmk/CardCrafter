@@ -61,7 +61,6 @@ class UserExportedDecksViewModel(
     private val _uuid = MutableStateFlow(savedStateHandle["_uuid"] ?: "")
     val userCards = combine(_userCards, _uuid) { cards, uuid ->
         val filtered = cards.cts.filter { it.deckUUID == uuid }
-        Log.i(UEDVM, "Size of deck: ${filtered.size}")
         SBCardList(filtered)
     }.stateIn(
         initialValue = SBCardList(),
@@ -127,7 +126,7 @@ class UserExportedDecksViewModel(
 
 
     suspend fun mergeRemoteWithLocal(
-        onProgress: (Float) -> Unit,
+        reviewAmount: Int, cardAmount: Int, onProgress: (Float) -> Unit
     ): Int {
         return withContext(Dispatchers.IO) {
             try {
@@ -137,9 +136,16 @@ class UserExportedDecksViewModel(
                     return@withContext NULL_DECK
                 }
                 val cts = userCards.value.cts.toListOfSealedCTToImport()
-                mergeDecksRepository.mergeDeck(
-                    deck, cts,
-                ) { onProgress(it) }
+                val deckExists = mergeDecksRepository.doesDeckExist(deck.deckUUID)
+                if (deckExists) {
+                    mergeDecksRepository.mergeDeck(
+                        deck, cts,
+                    ) { onProgress(it) }
+                } else {
+                    mergeDecksRepository.insertDeckList(
+                        deck, cts, reviewAmount, cardAmount
+                    ) { onProgress(it) }
+                }
                 SUCCESS
             } catch (e: Exception) {
                 Log.e(UEDVM, "$e")

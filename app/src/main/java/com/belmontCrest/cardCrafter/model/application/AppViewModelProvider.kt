@@ -19,6 +19,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.DeckVi
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.EditDeckViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.CoOwnerViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.DeepLinksViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ForgotPasswordViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.PersonalDeckSyncViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
@@ -128,6 +129,11 @@ object AppViewModelProvider {
         initializer {
             DeepLinksViewModel(
                 flashCardApplication().container.deepLinkerRepo
+            )
+        }
+        initializer {
+            ForgotPasswordViewModel(
+                flashCardApplication().container.fpRepository
             )
         }
     }
