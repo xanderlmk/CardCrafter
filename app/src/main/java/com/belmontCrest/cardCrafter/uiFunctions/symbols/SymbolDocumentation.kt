@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.views.miscFunctions.symbols
+package com.belmontCrest.cardCrafter.uiFunctions.symbols
 
 
 import androidx.compose.foundation.clickable
@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,14 +24,15 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.sp
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 
 @Composable
 fun SymbolDocumentation(
     pressed: MutableState<Boolean>,
     getUIStyle: GetUIStyle
 ) {
-    val introduction = """
-        Mapping text to an equation/notation correctly is important.
+    val introduction =
+        """Mapping text to an equation/notation correctly is important.
         |To see examples on how to map more complex symbols:
     """.trimMargin()
     val clickHere = "Click here"
@@ -56,6 +55,8 @@ fun SymbolDocumentation(
             |$$\\frac{4\\pi}{3} r^{3}$$
             |This should give you the following:
         """.trimMargin()
+
+    val result = "$$\\\\frac{4\\\\pi}{3}r^{3}$$"
 
     val returnToTop = "\nReturn to top"
 
@@ -111,6 +112,7 @@ fun SymbolDocumentation(
                         fontSize = 20.sp,
                         lineHeight = 30.sp
                     )
+                    KaTeXWebView(result, getUIStyle)
                     Text(
                         text = returnToTop,
                         color = Color.Blue,
@@ -125,15 +127,7 @@ fun SymbolDocumentation(
             },
             confirmButton = { },
             dismissButton = {
-                Button(
-                    onClick = { pressed.value = false },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = getUIStyle.secondaryButtonColor(),
-                        contentColor = getUIStyle.buttonTextColor()
-                    )
-                ) {
-                    Text("OK")
-                }
+                SubmitButton(onClick = { pressed.value = false }, true, getUIStyle, "OK")
             },
             modifier = Modifier
                 .fillMaxWidth(.975f)

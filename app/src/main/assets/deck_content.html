@@ -25,9 +25,16 @@
        }
 
        .card-render {
+           box-sizing: border-box;
            margin: auto;
            font-size: 22px;
            text-align: start;
+           width: 100%;
+           border-style: outset;
+           border-width: 2px;
+           padding: 0px 2px 0px 2px;
+           margin-top: 4px;
+           margin-bottom: 2px;
         }
     </style>
 </head>
@@ -55,26 +62,15 @@
       });
     }
 
-    function setDeckTitle(text) {
-      document.getElementById('deckTitle').innerHTML = text;
-    }
-
-    function setDescription(text) {
-        const slot = document.getElementById('description');
-        slot.innerHTML = text;
-        renderNotation(slot)
-
-    }
-
-    function setCard(index, text) {
-      const slot = document.getElementById(`card${index}`);
-      slot.innerHTML = text;
-      renderNotation(slot);
-    }
-
     function setTheme(bg, fg) {
       document.body.style.backgroundColor = bg;
       document.body.style.color = fg;
+    }
+    function setBorderColor(bc) {
+      // grab every element with class="card-render"
+      document.querySelectorAll('.card-render').forEach(el => {
+            el.style.borderColor = bc;
+      });
     }
 </script>
 </body>

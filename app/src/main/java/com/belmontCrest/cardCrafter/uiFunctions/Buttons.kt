@@ -179,7 +179,6 @@ fun SettingsButton(
     fields: Fields
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
     IconButton(
         onClick = {
             if (!fields.inDeckClicked.value) {
@@ -204,11 +203,8 @@ fun SettingsButton(
             DropdownMenuItem(
                 onClick = {
                     expanded = false
-                    coroutineScope.launch {
-                        fields.mainClicked.value = true
-                        delayNavigate()
-                        onNavigateToEditDeck()
-                    }
+                    fields.mainClicked.value = true
+                    onNavigateToEditDeck()
                 },
                 text = { Text(stringResource(R.string.edit_deck)) })
             DropdownMenuItem(

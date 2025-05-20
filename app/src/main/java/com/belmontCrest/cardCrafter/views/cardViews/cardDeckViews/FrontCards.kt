@@ -32,7 +32,7 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
-import com.belmontCrest.cardCrafter.views.miscFunctions.symbols.KaTeXWebView
+import com.belmontCrest.cardCrafter.uiFunctions.symbols.KaTeXWebView
 
 @Composable
 fun FrontCard(
