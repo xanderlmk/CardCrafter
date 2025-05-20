@@ -15,7 +15,8 @@ import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.CardDetails
-import com.belmontCrest.cardCrafter.views.miscFunctions.symbols.toShortHex
+import com.belmontCrest.cardCrafter.uiFunctions.symbols.toShortHex
+
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
@@ -27,6 +28,7 @@ fun DisplayCardDetails(
     val webView = remember { WebView(context) }
     val backgroundToHex = getUIStyle.background().toShortHex()
     val textToHex = getUIStyle.titleColor().toShortHex()
+    val borderColor = getUIStyle.defaultIconColor().toShortHex()
     AndroidView(
         factory = {
             webView.apply {
@@ -37,24 +39,28 @@ fun DisplayCardDetails(
                 this.webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView, url: String) {
                         super.onPageFinished(view, url)
-                        val allCardJs = allCardDetails.mapIndexed { index, it ->
-                            """
-                                |setCard('$index','${it.first.toHTML(it.second)}');
-                            """.trimMargin()
-                        }
-                        val cardJs = buildString {
-                            allCardJs.map {
-                                append(it)
-                            }
-                        }
+                        view.evaluateJavascript("setTheme('$backgroundToHex','$textToHex');", null)
 
-                        val allJs = """
-                            |setTheme('$backgroundToHex','$textToHex');
-                            |setDeckTitle('${deck.name}');
-                            |setDescription('<p>${deck.description}</p>');
-                            |$cardJs
-                        """.trimMargin()
-                        view.evaluateJavascript(allJs, null)
+                        // deck title
+                        view.evaluateJavascript("""
+                        |document.getElementById('deckTitle').innerText = `${deck.name}`;
+                        """.trimMargin(), null)
+
+                        // description
+                        view.evaluateJavascript("""
+                        |document.getElementById('description').innerHTML = `${deck.description}`;
+                        |renderNotation(document.getElementById('description'));
+                        """.trimMargin(), null)
+
+                        // up to four cards
+                        allCardDetails.forEachIndexed { i, (cd, type) ->
+                            val html = cd.toHTML(type)
+                            view.evaluateJavascript("""
+                            |document.getElementById('card$i').innerHTML = `$html`;
+                            |renderNotation(document.getElementById('card$i'));
+                            """.trimMargin(), null)
+                        }
+                        view.evaluateJavascript("setBorderColor('$borderColor');", null)
                         onLoading(false)
                     }
                 }
@@ -69,8 +75,7 @@ fun DisplayCardDetails(
     )
 }
 
-private const val line = "$$\\\\text{---}\\\\text{---}\\\\text{---}\\\\text{---}\\\\text{---}" +
-        "\\\\text{---}\\\\text{---}\\\\text{---}$$"
+private const val line = "$$\\\\text{---------------------------}$$"
 
 fun CardDetails.toHTML(type: String): String {
     val cd = this

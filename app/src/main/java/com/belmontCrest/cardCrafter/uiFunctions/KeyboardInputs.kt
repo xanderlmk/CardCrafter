@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.textColor
-import com.belmontCrest.cardCrafter.views.miscFunctions.symbols.katexMapper
+import com.belmontCrest.cardCrafter.uiFunctions.symbols.katexMapper
 
 /** This more for the MultiChoiceCard Choice inputs */
 @Composable

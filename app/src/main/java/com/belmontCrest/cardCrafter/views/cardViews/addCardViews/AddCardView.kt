@@ -33,7 +33,7 @@ import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.views.miscFunctions.getSavableFields
-import com.belmontCrest.cardCrafter.views.miscFunctions.symbols.SymbolDocumentation
+import com.belmontCrest.cardCrafter.uiFunctions.symbols.SymbolDocumentation
 
 
 class AddCardView(

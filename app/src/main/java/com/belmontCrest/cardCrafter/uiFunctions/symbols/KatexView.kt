@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.views.miscFunctions.symbols
+package com.belmontCrest.cardCrafter.uiFunctions.symbols
 
 import android.annotation.SuppressLint
 import android.webkit.WebView
@@ -32,7 +32,7 @@ fun KaTeXWebView(latexExpression: String, getUIStyle: GetUIStyle) {
             }
         }, modifier = Modifier
             .fillMaxWidth()
-            .zIndex(-1f)
+            .zIndex(-1f),
     ) { view ->
         view.loadUrl("file:///android_asset/katex.html")
         view.webViewClient = object : WebViewClient() {

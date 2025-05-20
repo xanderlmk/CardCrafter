@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.views.miscFunctions.symbols
+package com.belmontCrest.cardCrafter.uiFunctions.symbols
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
