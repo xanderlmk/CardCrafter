@@ -43,10 +43,8 @@ import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import kotlinx.coroutines.launch
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
-import com.belmontCrest.cardCrafter.views.miscFunctions.delayNavigate
 
 
 @Composable
@@ -262,7 +260,7 @@ fun CardOptionsButton(
                 text = { Text(stringResource(R.string.multi_choice_card)) })
             DropdownMenuItem(
                 onClick = { fields.newType.value = "notation" },
-                text = { Text("Notation") }
+                text = { Text("Notation Card") }
             )
             HorizontalDivider()
             DropdownMenuItem(
@@ -327,7 +325,7 @@ fun CardTypesButton(getUIStyle: GetUIStyle, navViewModel: NavViewModel) {
             )
             DropdownMenuItem(
                 onClick = { navViewModel.updateType("notation") },
-                text = { Text("Notation") }
+                text = { Text("Notation Card") }
             )
         }
     }

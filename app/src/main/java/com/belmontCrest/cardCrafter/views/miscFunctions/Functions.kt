@@ -245,7 +245,3 @@ fun getSavableFields(fields: Fields): Fields {
         newType = fields.newType
     )
 }
-
-suspend fun delayNavigate() {
-    delay(85)
-}
