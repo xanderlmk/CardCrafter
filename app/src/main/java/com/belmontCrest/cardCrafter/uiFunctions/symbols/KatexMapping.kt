@@ -32,29 +32,9 @@ fun katexMapper(
             ),
             replaced
         )
-    } else if (
-        newText.startsWith("frac", (newValue.selection.start - 4)) &&
-        !newText.startsWith("\\\\frac", (newValue.selection.start - 4)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\frac"
-        val startIndex = newValue.selection.start - 4
-        // Replace frac with \\frac
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
+    } else if (wordChecker("frac", textFieldValue, newValue, newText)) {
+        return katexWord("frac", newValue, newText)
 
-        val insertionPoint = startIndex + replacement.length
-
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
     } else if (
         newText.startsWith("..", (newValue.selection.start - 2)) &&
         isInside(newText, newText.length, textFieldValue.selection)
@@ -74,1212 +54,173 @@ fun katexMapper(
             ),
             replaced
         )
+    } else if (wordChecker("alpha", textFieldValue, newValue, newText)) {
+        return katexWord("alpha", newValue, newText)
 
-    } else if (
-        newText.startsWith("alpha", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\alpha", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\alpha"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("beta", (newValue.selection.start - 4)) &&
-        !newText.startsWith("\\\\beta", (newValue.selection.start - 6)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\beta"
-        val startIndex = newValue.selection.start - 4
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("gamma", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\gamma", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\gamma"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("delta", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\delta", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\delta"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("epsilon", (newValue.selection.start - 7)) &&
-        !newText.startsWith("\\\\epsilon", (newValue.selection.start - 9)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\epsilon"
-        val startIndex = newValue.selection.start - 7
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("zeta", (newValue.selection.start - 4)) &&
-        !newText.startsWith("\\\\zeta", (newValue.selection.start - 6)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\zeta"
-        val startIndex = newValue.selection.start - 4
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("eta", (newValue.selection.start - 3)) &&
-        !newText.startsWith("\\\\eta", (newValue.selection.start - 5)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\eta"
-        val startIndex = newValue.selection.start - 3
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("theta", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\theta", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\theta"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("iota", (newValue.selection.start - 4)) &&
-        !newText.startsWith("\\\\iota", (newValue.selection.start - 6)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\iota"
-        val startIndex = newValue.selection.start - 4
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("kappa", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\kappa", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\kappa"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("lambda", (newValue.selection.start - 6)) &&
-        !newText.startsWith("\\\\lambda", (newValue.selection.start - 8)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\lambda"
-        val startIndex = newValue.selection.start - 6
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("mu", (newValue.selection.start - 2)) &&
-        !newText.startsWith("\\\\mu", (newValue.selection.start - 4)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\mu"
-        val startIndex = newValue.selection.start - 2
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("nu", (newValue.selection.start - 2)) &&
-        !newText.startsWith("\\\\nu", (newValue.selection.start - 4)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\nu"
-        val startIndex = newValue.selection.start - 2
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("xi", (newValue.selection.start - 2)) &&
-        !newText.startsWith("\\\\xi", (newValue.selection.start - 4)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\xi"
-        val startIndex = newValue.selection.start - 2
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("omicron", (newValue.selection.start - 7)) &&
-        !newText.startsWith("\\\\omicron", (newValue.selection.start - 9)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\omicron"
-        val startIndex = newValue.selection.start - 7
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("pi", (newValue.selection.start - 2)) &&
-        !newText.startsWith("\\\\pi", (newValue.selection.start - 4)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\pi"
-        val startIndex = newValue.selection.start - 2
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("rho", (newValue.selection.start - 3)) &&
-        !newText.startsWith("\\\\rho", (newValue.selection.start - 5)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\rho"
-        val startIndex = newValue.selection.start - 3
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("sigma", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\sigma", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\sigma"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("tau", (newValue.selection.start - 3)) &&
-        !newText.startsWith("\\\\tau", (newValue.selection.start - 5)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\tau"
-        val startIndex = newValue.selection.start - 3
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("upsilon", (newValue.selection.start - 7)) &&
-        !newText.startsWith("\\\\upsilon", (newValue.selection.start - 9)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\upsilon"
-        val startIndex = newValue.selection.start - 7
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("phi", (newValue.selection.start - 3)) &&
-        !newText.startsWith("\\\\phi", (newValue.selection.start - 5)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\phi"
-        val startIndex = newValue.selection.start - 3
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("chi", (newValue.selection.start - 3)) &&
-        !newText.startsWith("\\\\chi", (newValue.selection.start - 5)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\chi"
-        val startIndex = newValue.selection.start - 3
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("psi", (newValue.selection.start - 3)) &&
-        !newText.startsWith("\\\\psi", (newValue.selection.start - 5)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\psi"
-        val startIndex = newValue.selection.start - 3
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("omega", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\omega", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\omega"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("varepsilon", (newValue.selection.start - 10)) &&
-        !newText.startsWith("\\\\varepsilon", (newValue.selection.start - 12)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\varepsilon"
-        val startIndex = newValue.selection.start - 10
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("varkappa", (newValue.selection.start - 8)) &&
-        !newText.startsWith("\\\\varkappa", (newValue.selection.start - 10)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\varkappa"
-        val startIndex = newValue.selection.start - 8
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("vartheta", (newValue.selection.start - 8)) &&
-        !newText.startsWith("\\\\vartheta", (newValue.selection.start - 10)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\vartheta"
-        val startIndex = newValue.selection.start - 8
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("thetasym", (newValue.selection.start - 8)) &&
-        !newText.startsWith("\\\\thetasym", (newValue.selection.start - 10)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\thetasym"
-        val startIndex = newValue.selection.start - 8
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("varpi", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\varpi", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\varpi"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("varrho", (newValue.selection.start - 6)) &&
-        !newText.startsWith("\\\\varrho", (newValue.selection.start - 8)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\varrho"
-        val startIndex = newValue.selection.start - 6
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("varsigma", (newValue.selection.start - 8)) &&
-        !newText.startsWith("\\\\varsigma", (newValue.selection.start - 10)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\varsigma"
-        val startIndex = newValue.selection.start - 8
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("varphi", (newValue.selection.start - 6)) &&
-        !newText.startsWith("\\\\varphi", (newValue.selection.start - 8)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\varphi"
-        val startIndex = newValue.selection.start - 6
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Alpha", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\Alpha", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Alpha"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Beta", (newValue.selection.start - 4)) &&
-        !newText.startsWith("\\\\Beta", (newValue.selection.start - 6)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Beta"
-        val startIndex = newValue.selection.start - 4
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Gamma", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\Gamma", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Gamma"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-    } else if (
-        newText.startsWith("Delta", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\Delta", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Delta"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-    } else if (
-        newText.startsWith("Epsilon", (newValue.selection.start - 7)) &&
-        !newText.startsWith("\\\\Epsilon", (newValue.selection.start - 9)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Epsilon"
-        val startIndex = newValue.selection.start - 7
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Zeta", (newValue.selection.start - 4)) &&
-        !newText.startsWith("\\\\Zeta", (newValue.selection.start - 6)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Zeta"
-        val startIndex = newValue.selection.start - 4
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Eta", (newValue.selection.start - 3)) &&
-        !newText.startsWith("\\\\Eta", (newValue.selection.start - 5)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Eta"
-        val startIndex = newValue.selection.start - 3
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Theta", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\Theta", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Theta"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Iota", (newValue.selection.start - 4)) &&
-        !newText.startsWith("\\\\Iota", (newValue.selection.start - 6)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Iota"
-        val startIndex = newValue.selection.start - 4
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Kappa", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\Kappa", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Kappa"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Lambda", (newValue.selection.start - 6)) &&
-        !newText.startsWith("\\\\Lambda", (newValue.selection.start - 8)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Lambda"
-        val startIndex = newValue.selection.start - 6
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Mu", (newValue.selection.start - 2)) &&
-        !newText.startsWith("\\\\Mu", (newValue.selection.start - 4)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Mu"
-        val startIndex = newValue.selection.start - 2
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Nu", (newValue.selection.start - 2)) &&
-        !newText.startsWith("\\\\Nu", (newValue.selection.start - 4)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Nu"
-        val startIndex = newValue.selection.start - 2
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Xi", (newValue.selection.start - 2)) &&
-        !newText.startsWith("\\\\Xi", (newValue.selection.start - 4)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Xi"
-        val startIndex = newValue.selection.start - 2
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-
-    } else if (
-        newText.startsWith("Omicron", (newValue.selection.start - 7)) &&
-        !newText.startsWith("\\\\Omicron", (newValue.selection.start - 9)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Omicron"
-        val startIndex = newValue.selection.start - 7
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Pi", (newValue.selection.start - 2)) &&
-        !newText.startsWith("\\\\Pi", (newValue.selection.start - 4)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Pi"
-        val startIndex = newValue.selection.start - 2
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Rho", (newValue.selection.start - 3)) &&
-        !newText.startsWith("\\\\Rho", (newValue.selection.start - 5)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Rho"
-        val startIndex = newValue.selection.start - 3
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Sigma", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\Sigma", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Sigma"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Tau", (newValue.selection.start - 3)) &&
-        !newText.startsWith("\\\\Tau", (newValue.selection.start - 5)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Tau"
-        val startIndex = newValue.selection.start - 3
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Upsilon", (newValue.selection.start - 7)) &&
-        !newText.startsWith("\\\\Upsilon", (newValue.selection.start - 9)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Upsilon"
-        val startIndex = newValue.selection.start - 7
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Phi", (newValue.selection.start - 3)) &&
-        !newText.startsWith("\\\\Phi", (newValue.selection.start - 5)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Phi"
-        val startIndex = newValue.selection.start - 3
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Chi", (newValue.selection.start - 3)) &&
-        !newText.startsWith("\\\\Chi", (newValue.selection.start - 5)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Chi"
-        val startIndex = newValue.selection.start - 3
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Psi", (newValue.selection.start - 3)) &&
-        !newText.startsWith("\\\\Psi", (newValue.selection.start - 5)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Psi"
-        val startIndex = newValue.selection.start - 3
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
-
-    } else if (
-        newText.startsWith("Omega", (newValue.selection.start - 5)) &&
-        !newText.startsWith("\\\\Omega", (newValue.selection.start - 7)) &&
-        isInside(newText, newText.length, textFieldValue.selection)
-    ) {
-        val replacement = "\\\\Omega"
-        val startIndex = newValue.selection.start - 5
-        val replaced = buildString {
-            append(newText.substring(0, startIndex))
-            append(replacement)
-            append(newText.substring(newValue.selection.start))
-        }
-        val insertionPoint = startIndex + replacement.length
-        return Pair(
-            TextFieldValue(
-                text = replaced,
-                selection = TextRange(insertionPoint)
-            ),
-            replaced
-        )
+    } else if (wordChecker("beta", textFieldValue, newValue, newText)) {
+        return katexWord("beta", newValue, newText)
+
+    } else if (wordChecker("gamma", textFieldValue, newValue, newText)) {
+        return katexWord("gamma", newValue, newText)
+
+    } else if (wordChecker("delta", textFieldValue, newValue, newText)) {
+        return katexWord("delta", newValue, newText)
+
+    } else if (wordChecker("epsilon", textFieldValue, newValue, newText)) {
+        return katexWord("epsilon", newValue, newText)
+
+    } else if (wordChecker("zeta", textFieldValue, newValue, newText)) {
+        return katexWord("zeta", newValue, newText)
+
+    } else if (wordChecker("eta", textFieldValue, newValue, newText)) {
+        return katexWord("eta", newValue, newText)
+
+    } else if (wordChecker("theta", textFieldValue, newValue, newText)) {
+        return katexWord("theta", newValue, newText)
+
+    } else if (wordChecker("iota", textFieldValue, newValue, newText)) {
+        return katexWord("iota", newValue, newText)
+
+    } else if (wordChecker("kappa", textFieldValue, newValue, newText)) {
+        return katexWord("kappa", newValue, newText)
+
+    } else if (wordChecker("lambda", textFieldValue, newValue, newText)) {
+        return katexWord("lambda", newValue, newText)
+
+    } else if (wordChecker("mu", textFieldValue, newValue, newText)) {
+        return katexWord("mu", newValue, newText)
+
+    } else if (wordChecker("nu", textFieldValue, newValue, newText)) {
+        return katexWord("nu", newValue, newText)
+
+    } else if (wordChecker("xi", textFieldValue, newValue, newText)) {
+        return katexWord("xi", newValue, newText)
+
+    } else if (wordChecker("omicron", textFieldValue, newValue, newText)) {
+        return katexWord("omicron", newValue, newText)
+
+    } else if (wordChecker("pi", textFieldValue, newValue, newText)) {
+        return katexWord("pi", newValue, newText)
+
+    } else if (wordChecker("rho", textFieldValue, newValue, newText)) {
+        return katexWord("rho", newValue, newText)
+
+    } else if (wordChecker("sigma", textFieldValue, newValue, newText)) {
+        return katexWord("sigma", newValue, newText)
+
+    } else if (wordChecker("tau", textFieldValue, newValue, newText)) {
+        return katexWord("tau", newValue, newText)
+
+    } else if (wordChecker("upsilon", textFieldValue, newValue, newText)) {
+        return katexWord("upsilon", newValue, newText)
+
+    } else if (wordChecker("phi", textFieldValue, newValue, newText)) {
+        return katexWord("phi", newValue, newText)
+
+    } else if (wordChecker("chi", textFieldValue, newValue, newText)) {
+        return katexWord("chi", newValue, newText)
+
+    } else if (wordChecker("psi", textFieldValue, newValue, newText)) {
+        return katexWord("psi", newValue, newText)
+
+    } else if (wordChecker("omega", textFieldValue, newValue, newText)) {
+        return katexWord("omega", newValue, newText)
+
+    } else if (wordChecker("varepsilon", textFieldValue, newValue, newText)) {
+        return katexWord("varepsilon", newValue, newText)
+
+    } else if (wordChecker("varkappa", textFieldValue, newValue, newText)) {
+        return katexWord("varkappa", newValue, newText)
+
+    } else if (wordChecker("vartheta", textFieldValue, newValue, newText)) {
+        return katexWord("vartheta", newValue, newText)
+
+    } else if (wordChecker("thetasym", textFieldValue, newValue, newText)) {
+        return katexWord("thetasym", newValue, newText)
+
+    } else if (wordChecker("varpi", textFieldValue, newValue, newText)) {
+        return katexWord("varpi", newValue, newText)
+
+    } else if (wordChecker("varrho", textFieldValue, newValue, newText)) {
+        return katexWord("varrho", newValue, newText)
+
+    } else if (wordChecker("varsigma", textFieldValue, newValue, newText)) {
+        return katexWord("varsigma", newValue, newText)
+
+    } else if (wordChecker("varphi", textFieldValue, newValue, newText)) {
+        return katexWord("varphi", newValue, newText)
+
+    } else if (wordChecker("Alpha", textFieldValue, newValue, newText)) {
+        return katexWord("Alpha", newValue, newText)
+
+    } else if (wordChecker("Beta", textFieldValue, newValue, newText)) {
+        return katexWord("Beta", newValue, newText)
+
+    } else if (wordChecker("Gamma", textFieldValue, newValue, newText)) {
+        return katexWord("Gamma", newValue, newText)
+
+    } else if (wordChecker("Delta", textFieldValue, newValue, newText)) {
+        return katexWord("Delta", newValue, newText)
+
+    } else if (wordChecker("Epsilon", textFieldValue, newValue, newText)) {
+        return katexWord("Epsilon", newValue, newText)
+
+    } else if (wordChecker("Zeta", textFieldValue, newValue, newText)) {
+        return katexWord("Zeta", newValue, newText)
+
+    } else if (wordChecker("Eta", textFieldValue, newValue, newText)) {
+        return katexWord("Eta", newValue, newText)
+
+    } else if (wordChecker("Theta", textFieldValue, newValue, newText)) {
+        return katexWord("Theta", newValue, newText)
+
+    } else if (wordChecker("Iota", textFieldValue, newValue, newText)) {
+        return katexWord("Iota", newValue, newText)
+
+    } else if (wordChecker("Kappa", textFieldValue, newValue, newText)) {
+        return katexWord("Kappa", newValue, newText)
+
+    } else if (wordChecker("Lambda", textFieldValue, newValue, newText)) {
+        return katexWord("Lambda", newValue, newText)
+
+    } else if (wordChecker("Mu", textFieldValue, newValue, newText)) {
+        return katexWord("Mu", newValue, newText)
+
+    } else if (wordChecker("Nu", textFieldValue, newValue, newText)) {
+        return katexWord("Nu", newValue, newText)
+
+    } else if (wordChecker("Xi", textFieldValue, newValue, newText)) {
+        return katexWord("Xi", newValue, newText)
+
+    } else if (wordChecker("Omicron", textFieldValue, newValue, newText)) {
+        return katexWord("Omicron", newValue, newText)
+
+    } else if (wordChecker("Pi", textFieldValue, newValue, newText)) {
+        return katexWord("Pi", newValue, newText)
+
+    } else if (wordChecker("Rho", textFieldValue, newValue, newText)) {
+        return katexWord("Rho", newValue, newText)
+
+    } else if (wordChecker("Sigma", textFieldValue, newValue, newText)) {
+        return katexWord("Sigma", newValue, newText)
+
+    } else if (wordChecker("Tau", textFieldValue, newValue, newText)) {
+        return katexWord("Tau", newValue, newText)
+
+    } else if (wordChecker("Upsilon", textFieldValue, newValue, newText)) {
+        return katexWord("Upsilon", newValue, newText)
+
+    } else if (wordChecker("Phi", textFieldValue, newValue, newText)) {
+        return katexWord("Phi", newValue, newText)
+
+    } else if (wordChecker("Chi", textFieldValue, newValue, newText)) {
+        return katexWord("Chi", newValue, newText)
+
+    } else if (wordChecker("Psi", textFieldValue, newValue, newText)) {
+        return katexWord("Psi", newValue, newText)
+
+    } else if (wordChecker("Omega", textFieldValue, newValue, newText)) {
+        return katexWord("Omega", newValue, newText)
 
     } else if (newText.startsWith("INLINE", (newValue.selection.start - 6)) &&
         !isInsideDoubleDollars(newText, newText.length, textFieldValue.selection)
@@ -1390,15 +331,15 @@ fun isInsideInline(text: String, position: Int, textRange: TextRange): Boolean {
     return found
 }
 
-
+/** Check if the cursor is inside either the `$$ $$` or `\\( \\)` */
 fun isInside(text: String, position: Int, textRange: TextRange): Boolean {
     return isInsideInline(text, position, textRange) ||
             isInsideDoubleDollars(text, position, textRange)
 }
 
 /**
- * If there's an even amount of '$$' and the user tries to add
- * either the one on the start or end of the '$$", it will not be added because
+ * If there's an even amount of `$$` and the user tries to add
+ * either the one on the start or end of the `$$`, it will not be added because
  * an equation expression already exist.
  */
 fun isThereEvenDD(text: String, position: Int): Boolean {
@@ -1419,4 +360,36 @@ fun isThereEvenDD(text: String, position: Int): Boolean {
     }
 
     return isEven
+}
+
+
+fun wordChecker(
+    string: String, textFieldValue: TextFieldValue,
+    newValue: TextFieldValue, newText: String
+): Boolean {
+    return newText.startsWith(string, (newValue.selection.start - string.length)) &&
+            !newText.startsWith(
+                "\\\\$string", (newValue.selection.start - string.length + 2)
+            ) &&
+            isInside(newText, newText.length, textFieldValue.selection)
+}
+
+fun katexWord(
+    string: String, newValue: TextFieldValue, newText: String
+): Pair<TextFieldValue, String> {
+    val replacement = "\\\\$string"
+    val startIndex = newValue.selection.start - string.length
+    val replaced = buildString {
+        append(newText.substring(0, startIndex))
+        append(replacement)
+        append(newText.substring(newValue.selection.start))
+    }
+    val insertionPoint = startIndex + replacement.length
+    return Pair(
+        TextFieldValue(
+            text = replaced,
+            selection = TextRange(insertionPoint)
+        ),
+        replaced
+    )
 }

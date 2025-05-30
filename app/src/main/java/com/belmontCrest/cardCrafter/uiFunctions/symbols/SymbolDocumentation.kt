@@ -32,31 +32,47 @@ fun SymbolDocumentation(
     getUIStyle: GetUIStyle
 ) {
     val introduction =
-        """Mapping text to an equation/notation correctly is important.
+        """|Mapping text to an equation/notation correctly is important.
         |To see examples on how to map more complex symbols:
     """.trimMargin()
     val clickHere = "Click here"
     val symbols =
-        """$$ your equation here $$
+        """|$$ your equation here $$
         | \\int 
         | \\frac{x}{y} is a fraction where x is the numerator 
     """.trimMargin()
 
     val exampleHeader = "EXAMPLE:"
 
-    val examples =
-        """Suppose you want to create a fraction with the following content:
+    val example1 =
+        """|Suppose you want to create a fraction with the following content:
             |4pi/3 r^3
             |But how do you do that?
             |Well let me help you out a little :)
             |First make sure to always put your expressions in between
-            |$$ here $$
+            |$$ here $$ 
+            |or
+            |\\( here \\)
             |Now we have:
             |$$\\frac{4\\pi}{3} r^{3}$$
             |This should give you the following:
         """.trimMargin()
 
+
     val result = "$$\\\\frac{4\\\\pi}{3}r^{3}$$"
+
+    val explanation = """
+        $$$$ is to make a new line and isolate the notation/function, but
+        \\(\\) is for making inline content. let's see the difference.
+    """.trimIndent()
+
+    val example2 = """
+        Hey look at this alpha symbol! $$\\alpha$$
+        Pretty cool right?<br>
+        Now look at this sentence:<br> Hey look at this majestic pi symbol! \\(\\pi\\)
+        Pretty cool right?
+    """.trimIndent()
+
 
     val returnToTop = "\nReturn to top"
 
@@ -73,32 +89,24 @@ fun SymbolDocumentation(
                     Modifier.verticalScroll(scrollState)
                 ) {
                     Text(
-                        text = introduction,
-                        color = getUIStyle.titleColor(),
-                        fontSize = 20.sp,
-                        lineHeight = 21.sp
+                        text = introduction, color = getUIStyle.titleColor(),
+                        fontSize = 20.sp, lineHeight = 21.sp
                     )
                     Text(
-                        text = clickHere,
-                        color = Color.Blue,
-                        fontSize = 20.sp,
-                        lineHeight = 21.sp,
+                        text = clickHere, color = Color.Blue,
+                        fontSize = 20.sp, lineHeight = 21.sp,
                         modifier = Modifier
                             .clickable {
                                 goToExample = true
                             }
                     )
                     Text(
-                        text = symbols,
-                        color = getUIStyle.titleColor(),
-                        fontSize = 20.sp,
-                        lineHeight = 30.sp
+                        text = symbols, color = getUIStyle.titleColor(),
+                        fontSize = 20.sp, lineHeight = 30.sp
                     )
                     Text(
-                        text = exampleHeader,
-                        fontStyle = FontStyle.Italic,
-                        color = getUIStyle.titleColor(),
-                        fontSize = 22.sp,
+                        text = exampleHeader, fontStyle = FontStyle.Italic,
+                        color = getUIStyle.titleColor(), fontSize = 22.sp,
                         lineHeight = 22.sp,
                         modifier = Modifier
                             .onGloballyPositioned { coordinates ->
@@ -107,12 +115,15 @@ fun SymbolDocumentation(
                             }
                     )
                     Text(
-                        text = examples,
-                        color = getUIStyle.titleColor(),
-                        fontSize = 20.sp,
-                        lineHeight = 30.sp
+                        text = example1, color = getUIStyle.titleColor(),
+                        fontSize = 20.sp, lineHeight = 30.sp
                     )
                     KaTeXWebView(result, getUIStyle)
+                    Text(
+                        text = explanation, color = getUIStyle.titleColor(),
+                        fontSize = 20.sp, lineHeight = 30.sp
+                    )
+                    KaTeXWebView(example2, getUIStyle)
                     Text(
                         text = returnToTop,
                         color = Color.Blue,
