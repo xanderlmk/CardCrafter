@@ -21,17 +21,17 @@ class GetUIStyle(
     }
 
     /** if (isDarkTheme && isCuteTheme) return true */
-    fun ifDarkAndCute(): Boolean {
+    private fun ifDarkAndCute(): Boolean {
         return isDarkTheme && isCuteTheme
     }
 
     /** if (isDarkTheme && !isCuteTheme) return true */
-    fun ifDarkAndNotCute(): Boolean {
+    private fun ifDarkAndNotCute(): Boolean {
         return isDarkTheme && !isCuteTheme
     }
 
     /** if (!isDarkTheme && isCuteTheme) return true */
-    fun ifNotDarkAndCute(): Boolean {
+    private fun ifNotDarkAndCute(): Boolean {
         return !isDarkTheme && isCuteTheme
     }
 
@@ -125,7 +125,7 @@ class GetUIStyle(
     fun onCorrectChoice(): Color {
         return when {
             ifDarkAndCute() -> onDarkCuteCorrectChoice
-            ifNotDarkAndCute() ->onCuteCorrectChoice
+            ifNotDarkAndCute() -> onCuteCorrectChoice
             else -> cS.colorScheme.onSurfaceVariant
         }
     }
@@ -188,21 +188,10 @@ class GetUIStyle(
 
     fun dialogColor(): Color {
         return when {
-            isDarkTheme -> {
-                if (isCuteTheme) {
-                    Color(70, 20, 50, 240)
-                } else {
-                    dialogDarkBackground
-                }
-            }
-
-            else -> {
-                if (isCuteTheme) {
-                    Color(255, 230, 240, 240)
-                } else {
-                    dialogLightBackground
-                }
-            }
+            ifDarkAndCute() -> Color(70, 20, 50, 240)
+            ifDarkAndNotCute() -> dialogDarkBackground
+            ifNotDarkAndCute() -> Color(255, 230, 240, 240)
+            else -> dialogLightBackground
         }
     }
 
@@ -231,6 +220,22 @@ class GetUIStyle(
             Color.White
         } else {
             Color.Black
+        }
+    }
+    fun katexMenuBGColor(): Color {
+        return when {
+            ifDarkAndCute() -> darkCuteSTBG
+            ifDarkAndNotCute() -> darkSTBG
+            ifNotDarkAndCute() -> cuteSTBG
+            else -> semiTransBG
+        }
+    }
+    fun katexMenuHeaderColor(): Color {
+        return when {
+            ifDarkAndCute() -> darkCuteSTHeader
+            ifDarkAndNotCute() -> darkSTHeader
+            ifNotDarkAndCute() -> cuteSTHeader
+            else -> semiTransHeader
         }
     }
 

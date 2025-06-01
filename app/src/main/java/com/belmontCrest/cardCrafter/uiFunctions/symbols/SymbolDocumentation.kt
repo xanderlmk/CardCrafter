@@ -62,9 +62,9 @@ fun SymbolDocumentation(
     val result = "$$\\\\frac{4\\\\pi}{3}r^{3}$$"
 
     val explanation = """
-        $$$$ is to make a new line and isolate the notation/function, but
-        \\(\\) is for making inline content. let's see the difference.
-    """.trimIndent()
+        |$$$$ is to make a new line and isolate the notation/function, but
+        |\\(\\) is for making inline content. let's see the difference.
+    """.trimMargin()
 
     val example2 = """
         Hey look at this alpha symbol! $$\\alpha$$

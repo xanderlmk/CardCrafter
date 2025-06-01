@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="katex.min.js"></script>
+    <script src="auto-render.min.js"></script>
+    <link rel="stylesheet" href="katex.min.css">
+    <title>Notation Card</title>
+    <style>
+        .section {
+            border-top: 1px solid #ccc;
+            padding: 8px 16px;
+        }
+        .section-header {
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-header:after {
+            content: "▸";
+            font-size: 0.9em;
+            transition: transform 0.2s;
+        }
+        .section-header.expanded:after {
+            transform: rotate(90deg);
+        }
+        .symbols-container {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 4px 8px;
+            padding: 0;
+            height: auto;
+            overflow: hidden;
+        }
+        .symbols-container.expanded {
+            display: grid;
+        }
+        .symbol-item {
+            min-width: 20px;      /* give each a bit of room */
+            padding: 8px;
+            white-space: nowrap;
+            text-align: center;
+            cursor: pointer;
+    }
+    </style>
+</head>
+<body>
+<div id="list"></div>
+
+<script>
+    function setTheme(textColor) {
+        document.body.style.color = textColor;
+    }
+    function toggleSection(id) {
+        const cont = document.getElementById(id);
+        const header = cont.previousElementSibling; // the .section-header div
+        const expanded = cont.classList.toggle("expanded");
+        header.classList.toggle("expanded", expanded);
+
+        if (expanded) {
+            renderMathInElement(cont, {
+                delimiters: [
+                    { left: "$$", right: "$$", display: true },
+                    { left: "$", right: "$", display: false },
+                    { left: "\\(", right: "\\)", display: false }
+                ]
+            });
+        }
+    }
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
+      ]
+    });
+</script>
+</body>
+</html>
