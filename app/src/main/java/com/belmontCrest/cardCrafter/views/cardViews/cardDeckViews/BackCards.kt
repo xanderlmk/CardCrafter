@@ -25,7 +25,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.symbols.KaTeXWebView
+import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXWebView
 
 private const val line = "$$\\\\text{---}\\\\text{---}\\\\text{---}\\\\text{---}\\\\text{---}" +
         "\\\\text{---}\\\\text{---}\\\\text{---}$$"

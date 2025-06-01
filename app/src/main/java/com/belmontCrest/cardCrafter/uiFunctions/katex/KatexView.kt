@@ -1,10 +1,12 @@
-package com.belmontCrest.cardCrafter.uiFunctions.symbols
+package com.belmontCrest.cardCrafter.uiFunctions.katex
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +25,17 @@ fun KaTeXWebView(latexExpression: String, getUIStyle: GetUIStyle) {
 
     val backgroundToHex = getUIStyle.background().toShortHex()
     val textToHex = getUIStyle.titleColor().toShortHex()
+
+    DisposableEffect(webView) {
+        onDispose {
+            try {
+                webView.destroy()
+            } catch (e: Exception) {
+                Log.w("KatexMenu", "Failed to destroy WebView: $e")
+            }
+        }
+    }
+
     AndroidView(
         factory = {
             webView.apply {
@@ -30,7 +43,8 @@ fun KaTeXWebView(latexExpression: String, getUIStyle: GetUIStyle) {
                 setBackgroundColor(getUIStyle.background().toArgb())
 
             }
-        }, modifier = Modifier
+        },
+        modifier = Modifier
             .fillMaxWidth()
             .zIndex(-1f),
     ) { view ->

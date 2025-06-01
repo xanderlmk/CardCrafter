@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.supabase.view.uploadDeck
+package com.belmontCrest.cardCrafter.supabase.view.exportDeck
 
 import android.os.Build
 import androidx.annotation.RequiresApi

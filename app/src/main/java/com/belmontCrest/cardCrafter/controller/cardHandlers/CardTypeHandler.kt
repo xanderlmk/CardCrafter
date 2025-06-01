@@ -5,6 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
+import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditBasicCard
@@ -21,20 +23,16 @@ import com.belmontCrest.cardCrafter.views.miscFunctions.details.createThreeOrHin
 interface CardTypeHandler {
     @Composable
     fun HandleCardEdit(
-        fields: Fields,
-        ct : CT,
-        changed : Boolean,
-        getUIStyle: GetUIStyle
+        fields: Fields, ct: CT, vm: EditCardViewModel,
+        changed: Boolean, getUIStyle: GetUIStyle, modifier: Modifier
     )
 }
 
 class BasicCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        fields: Fields,
-        ct : CT,
-        changed : Boolean,
-        getUIStyle: GetUIStyle
+        fields: Fields, ct: CT, vm: EditCardViewModel,
+        changed: Boolean, getUIStyle: GetUIStyle, modifier: Modifier
     ) {
 
         if (ct is CT.Basic) {
@@ -65,12 +63,10 @@ class BasicCardTypeHandler : CardTypeHandler {
 class ThreeCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        fields: Fields,
-        ct : CT,
-        changed : Boolean,
-        getUIStyle: GetUIStyle
+        fields: Fields, ct: CT, vm: EditCardViewModel,
+        changed: Boolean, getUIStyle: GetUIStyle, modifier: Modifier
     ) {
-        if (ct is CT.ThreeField){
+        if (ct is CT.ThreeField) {
             if (!changed) {
                 val cardDetails by remember {
                     mutableStateOf(
@@ -82,11 +78,14 @@ class ThreeCardTypeHandler : CardTypeHandler {
                     )
                 }
                 fields.question = rememberSaveable {
-                    mutableStateOf(cardDetails.question.value) }
+                    mutableStateOf(cardDetails.question.value)
+                }
                 fields.middleField = rememberSaveable {
-                    mutableStateOf(cardDetails.middleField.value) }
+                    mutableStateOf(cardDetails.middleField.value)
+                }
                 fields.answer = rememberSaveable {
-                    mutableStateOf(cardDetails.answer.value) }
+                    mutableStateOf(cardDetails.answer.value)
+                }
             }
             EditThreeCard(fields)
         } else {
@@ -106,13 +105,11 @@ class ThreeCardTypeHandler : CardTypeHandler {
 class HintCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        fields: Fields,
-        ct : CT,
-        changed : Boolean,
-        getUIStyle: GetUIStyle
+        fields: Fields, ct: CT, vm: EditCardViewModel,
+        changed: Boolean, getUIStyle: GetUIStyle, modifier: Modifier
     ) {
         if (ct is CT.Hint) {
-            if (!changed){
+            if (!changed) {
                 val cardDetails by remember {
                     mutableStateOf(
                         createThreeOrHintCardDetails(
@@ -121,11 +118,14 @@ class HintCardTypeHandler : CardTypeHandler {
                     )
                 }
                 fields.question = rememberSaveable {
-                    mutableStateOf(cardDetails.question.value) }
+                    mutableStateOf(cardDetails.question.value)
+                }
                 fields.middleField = rememberSaveable {
-                    mutableStateOf(cardDetails.middleField.value) }
+                    mutableStateOf(cardDetails.middleField.value)
+                }
                 fields.answer = rememberSaveable {
-                    mutableStateOf(cardDetails.answer.value) }
+                    mutableStateOf(cardDetails.answer.value)
+                }
             }
             EditHintCard(fields)
         } else {
@@ -145,13 +145,11 @@ class HintCardTypeHandler : CardTypeHandler {
 class ChoiceCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        fields: Fields,
-        ct : CT,
-        changed : Boolean,
-        getUIStyle: GetUIStyle
+        fields: Fields, ct: CT, vm: EditCardViewModel,
+        changed: Boolean, getUIStyle: GetUIStyle, modifier: Modifier
     ) {
         if (ct is CT.MultiChoice) {
-            if (!changed){
+            if (!changed) {
                 val cardDetails by remember {
                     mutableStateOf(
                         createChoiceCardDetails(ct.multiChoiceCard)
@@ -159,13 +157,17 @@ class ChoiceCardTypeHandler : CardTypeHandler {
                 }
                 fields.question = rememberSaveable { mutableStateOf(cardDetails.question.value) }
                 fields.choices[0].value = rememberSaveable {
-                    cardDetails.choices[0].value }
+                    cardDetails.choices[0].value
+                }
                 fields.choices[1].value = rememberSaveable {
-                   cardDetails.choices[1].value }
+                    cardDetails.choices[1].value
+                }
                 fields.choices[2].value = rememberSaveable {
-                    cardDetails.choices[2].value }
+                    cardDetails.choices[2].value
+                }
                 fields.choices[3].value = rememberSaveable {
-                    cardDetails.choices[3].value }
+                    cardDetails.choices[3].value
+                }
                 fields.correct = rememberSaveable { mutableStateOf(cardDetails.correct.value) }
             }
             EditChoiceCard(fields, getUIStyle)
@@ -186,13 +188,11 @@ class ChoiceCardTypeHandler : CardTypeHandler {
 class NotationCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        fields: Fields,
-        ct: CT,
-        changed : Boolean,
-        getUIStyle: GetUIStyle
+        fields: Fields, ct: CT, vm: EditCardViewModel,
+        changed: Boolean, getUIStyle: GetUIStyle, modifier : Modifier
     ) {
-        if (ct is CT.Notation){
-            if (!changed){
+        if (ct is CT.Notation) {
+            if (!changed) {
                 val cardDetails by remember {
                     mutableStateOf(
                         createNotationCardDetails(
@@ -206,39 +206,44 @@ class NotationCardTypeHandler : CardTypeHandler {
                 fields.stringList = rememberSaveable { cardDetails.stringList }
                 fields.answer = rememberSaveable { mutableStateOf(cardDetails.answer.value) }
             }
-            EditNotationCard(fields, getUIStyle)
+            EditNotationCard(fields, vm, getUIStyle, modifier)
         } else {
             if (ct is CT.Basic) {
-                EditNotationCard(fields, getUIStyle)
+                EditNotationCard(fields, vm, getUIStyle, modifier)
             } else if (ct is CT.ThreeField) {
-                EditNotationCard(fields, getUIStyle)
+                EditNotationCard(fields, vm, getUIStyle, modifier)
             } else if (ct is CT.Hint) {
-                EditNotationCard(fields, getUIStyle)
+                EditNotationCard(fields, vm, getUIStyle, modifier)
             } else if (ct is CT.MultiChoice) {
-                EditNotationCard(fields, getUIStyle)
+                EditNotationCard(fields, vm, getUIStyle, modifier)
             }
         }
     }
 }
 
-fun returnCardTypeHandler(newType : String, currentType : String) : CardTypeHandler? {
+fun returnCardTypeHandler(newType: String, currentType: String): CardTypeHandler? {
     return if (newType == currentType) {
         when (currentType) {
             "basic" -> {
                 BasicCardTypeHandler()
             }
+
             "three" -> {
                 ThreeCardTypeHandler()
             }
+
             "hint" -> {
                 HintCardTypeHandler()
             }
+
             "multi" -> {
                 ChoiceCardTypeHandler()
             }
+
             "notation" -> {
                 NotationCardTypeHandler()
             }
+
             else -> {
                 null
             }
@@ -248,18 +253,23 @@ fun returnCardTypeHandler(newType : String, currentType : String) : CardTypeHand
             "basic" -> {
                 BasicCardTypeHandler()
             }
+
             "three" -> {
                 ThreeCardTypeHandler()
             }
+
             "hint" -> {
                 HintCardTypeHandler()
             }
+
             "multi" -> {
                 ChoiceCardTypeHandler()
             }
+
             "notation" -> {
                 NotationCardTypeHandler()
             }
+
             else -> {
                 null
             }

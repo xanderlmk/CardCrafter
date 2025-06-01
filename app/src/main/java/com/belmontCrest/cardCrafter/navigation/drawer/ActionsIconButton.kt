@@ -38,7 +38,7 @@ import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.CardPickerDropdown
+import com.belmontCrest.cardCrafter.supabase.view.exportDeck.CardPickerDropdown
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.redoButtonModifier

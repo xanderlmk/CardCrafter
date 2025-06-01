@@ -1,7 +1,6 @@
 package com.belmontCrest.cardCrafter.views.cardViews.addCardViews
 
 import android.util.Log
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,7 +31,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -44,8 +42,9 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.KaTeXMenu
+import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXMenu
 import com.belmontCrest.cardCrafter.uiFunctions.LatexKeyboard
+import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -66,15 +65,27 @@ fun AddNotationCard(
     fields.stringList = rememberSaveable { mutableListOf() }
     val showKB by vm.showKatexKeyboard.collectAsStateWithLifecycle()
     val selectedKB by vm.selectedKB.collectAsStateWithLifecycle()
+    //var lastSelectedKB by rememberSaveable { mutableStateOf<SelectedKeyboard?>(null) }
     val focusRequester = remember { FocusRequester() }
     var selectedQSymbol by rememberSaveable { mutableStateOf<String?>(null) }
     var selectedASymbol by rememberSaveable { mutableStateOf<String?>(null) }
     var selectedSLSymbols = rememberSaveable { mutableListOf<String?>() }
     var offset by remember { mutableStateOf(Offset.Zero) }
     val context = LocalContext.current
+    var enabled by rememberSaveable { mutableStateOf(true) }
+    val resetOffset by vm.resetOffset.collectAsStateWithLifecycle()
+    LaunchedEffect(resetOffset) {
+        if (resetOffset) {
+            offset = Offset(0f, 0f)
+            vm.resetDone()
+        }
+    }
     Box {
         if (showKB) {
-            KaTeXMenu(modifier, offset, onOffset = { offset += it }, getUIStyle) { symbol ->
+            KaTeXMenu(
+                modifier.fillMaxSize(), offset, onDismiss = { vm.toggleKeyboard() },
+                onOffset = { offset += it }, getUIStyle
+            ) { symbol ->
                 when (val sel = selectedKB) {
                     is SelectedKeyboard.Question -> {
                         selectedQSymbol = symbol
@@ -124,11 +135,12 @@ fun AddNotationCard(
                     },
                     labelStr = stringResource(R.string.question),
                     modifier = Modifier
-                        .weight(1f)
+                        .fillMaxWidth()
                         .focusRequester(focusRequester)
                         .onFocusChanged { focusState ->
                             if (focusState.hasFocus) {
                                 vm.updateSelectedKB(SelectedKeyboard.Question)
+                                //lastSelectedKB = SelectedKeyboard.Question
                                 Log.d("AddCardVM", "Focused on Question")
                             }
                         }
@@ -153,21 +165,25 @@ fun AddNotationCard(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (steps == 0) {
-                    Text(
-                        text = "Add a step",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clickable {
-                                selectedSLSymbols.add(null)
-                                fields.stringList.add(mutableStateOf(""))
-                                steps = 1
-                            }
+                    Button(
+                        onClick = {
+                            fields.stringList.add(mutableStateOf(""))
+                            selectedSLSymbols.add(null)
+                            steps += 1
+                        }, modifier = Modifier
                             .padding(8.dp),
-                        textAlign = TextAlign.Center,
-                        fontSize = 18.sp
-                    )
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = getUIStyle.secondaryButtonColor(),
+                            contentColor = getUIStyle.buttonTextColor()
+                        ), enabled = enabled
+                    ) {
+                        Text(
+                            text = "Add a step",
+                            textAlign = TextAlign.Center,
+                        )
+                    }
                 } else {
-                    fields.stringList.forEachIndexed { index, it ->
+                    fields.stringList.mapIndexed { index, it ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -180,12 +196,13 @@ fun AddNotationCard(
                                 },
                                 labelStr = "Step: ${index + 1}",
                                 modifier = Modifier
-                                    .weight(1f)
+                                    .fillMaxWidth()
                                     .padding(1.dp)
                                     .focusRequester(focusRequester)
                                     .onFocusChanged { focusState ->
                                         if (focusState.hasFocus) {
                                             vm.updateSelectedKB(SelectedKeyboard.Step(index))
+                                            //lastSelectedKB = SelectedKeyboard.Step(index)
                                             Log.d("AddCardVM", "Focused on Step #${index + 1}")
                                         }
                                     }
@@ -196,26 +213,30 @@ fun AddNotationCard(
                             )
                         }
                     }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
+
+                    Button(
+                        onClick = {
+                            fields.stringList.add(mutableStateOf(""))
+                            selectedSLSymbols.add(null)
+                            steps += 1
+                            /*val last = lastSelectedKB
+                            if (last != null) {
+                                vm.updateSelectedKB(last)
+                                Log.d("AddCardView", "updated.")
+                            }*/
+                        }, modifier = Modifier
+                            .padding(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = getUIStyle.secondaryButtonColor(),
+                            contentColor = getUIStyle.buttonTextColor()
+                        ), enabled = enabled
                     ) {
                         Text(
                             text = "Add a step",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clickable {
-                                    fields.stringList.add(mutableStateOf(""))
-                                    selectedSLSymbols.add(null)
-                                    steps += 1
-                                }
-                                .padding(8.dp)
-                                .align(Alignment.CenterVertically),
                             textAlign = TextAlign.Center,
-                            fontSize = 18.sp
                         )
                     }
+
                     Button(
                         onClick = {
                             if (steps > 0) {
@@ -271,7 +292,11 @@ fun AddNotationCard(
                         .onFocusChanged { focusState ->
                             if (focusState.hasFocus) {
                                 vm.updateSelectedKB(SelectedKeyboard.Answer)
+                                //lastSelectedKB = SelectedKeyboard.Answer
                                 Log.d("AddCardVM", "Focused on Answer")
+                            } else {
+                                vm.resetSelectedKB()
+                                Log.d("AddCardVM", "Answer lost focus.")
                             }
                         }
                         .focusable(),
@@ -286,7 +311,7 @@ fun AddNotationCard(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Button(
+                SubmitButton(
                     onClick = {
                         if (
                             fields.question.value.isBlank() ||
@@ -302,6 +327,7 @@ fun AddNotationCard(
                             successMessage = ""
                         } else {
                             coroutineScope.launch {
+                                enabled = false
                                 vm.addNotationCard(
                                     deck, fields.question.value,
                                     fields.stringList.map { it.value }, fields.answer.value
@@ -311,17 +337,13 @@ fun AddNotationCard(
                                 steps = 0
                                 fields.answer.value = ""
                                 successMessage = cardAdded
+                                enabled = true
                             }
                         }
                     },
-                    modifier = Modifier.padding(top = 4.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = getUIStyle.secondaryButtonColor(),
-                        contentColor = getUIStyle.buttonTextColor()
-                    )
-                ) {
-                    Text(stringResource(R.string.submit))
-                }
+                    enabled = enabled, string = stringResource(R.string.submit),
+                    modifier = Modifier.padding(top = 4.dp), getUIStyle = getUIStyle
+                )
             }
             if (errorMessage.isNotEmpty()) {
                 Text(
