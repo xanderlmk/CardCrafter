@@ -1,5 +1,6 @@
 package com.belmontCrest.cardCrafter.uiFunctions
 
+import android.util.Log
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
@@ -16,7 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
@@ -32,7 +35,12 @@ import androidx.compose.ui.unit.sp
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.textColor
+import com.belmontCrest.cardCrafter.uiFunctions.symbols.isInside
 import com.belmontCrest.cardCrafter.uiFunctions.symbols.katexMapper
+
+private object KeyboardInputs {
+    const val KK = "KatexKeyBoard"
+}
 
 /** This more for the MultiChoiceCard Choice inputs */
 @Composable
@@ -63,7 +71,7 @@ fun EditTextField(
         label = { Text(labelStr, color = textColor) },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Done
+            imeAction = ImeAction.Done,
         ),
         keyboardActions = KeyboardActions(
             onDone = {
@@ -103,22 +111,27 @@ fun EditTextFieldNonDone(
             keyboardType = KeyboardType.Text
         ),
         keyboardActions = KeyboardActions(
-            onDone = {
-                focusManager.clearFocus()
-            }
+            onDone = { focusManager.clearFocus() }
         ),
         textStyle = TextStyle.Default
 
     )
 }
 
+/** Special Keyboard which auto corrects special words in their latex form to
+ *  be able to display on the screen. Accounts for the custom KaTeXMenu.kt
+ */
 @Composable
 fun LatexKeyboard(
     value: String,
     onValueChanged: (String) -> Unit,
     labelStr: String,
     modifier: Modifier,
+    symbol: String?,
+    onSymbol: () -> Unit,
+    focusRequester: FocusRequester
 ) {
+    val kk = KeyboardInputs.KK
     var textFieldValue by remember {
         mutableStateOf(
             TextFieldValue(
@@ -126,12 +139,41 @@ fun LatexKeyboard(
             )
         )
     }
+    val context = LocalContext.current
+
     LaunchedEffect(value) {
         if (value.isEmpty()) {
             textFieldValue = textFieldValue.copy(text = value)
         }
     }
-
+    LaunchedEffect(symbol) {
+        val text = textFieldValue.text
+        if (!textFieldValue.selection.collapsed) {
+            Log.w(kk, "text field not collapsed.")
+            return@LaunchedEffect
+        }
+        if (!isInside(text, text.length, textFieldValue.selection)) {
+            if (symbol != null) {
+                showToastMessage(context, "Make sure the symbol is between the delimiters.")
+            }
+            return@LaunchedEffect
+        }
+        if (!symbol.isNullOrEmpty()) {
+            Log.d(kk, "insertionPoint: ${textFieldValue.selection.start}")
+            val startIndex =
+                (textFieldValue.selection.start).coerceAtLeast(0)
+            val replaced = buildString {
+                append(text.substring(0, startIndex))
+                append(symbol)
+                append(text.substring(textFieldValue.selection.start))
+            }
+            val insertionPoint = startIndex + symbol.length
+            Log.d(kk, "insertionPoint: $insertionPoint")
+            onValueChanged(replaced)
+            textFieldValue = TextFieldValue(replaced, TextRange(insertionPoint))
+            onSymbol()
+        }
+    }
     TextField(
         value = textFieldValue,
         onValueChange = { newValue ->
@@ -166,8 +208,10 @@ fun LatexKeyboard(
             }
         }, singleLine = false,
         label = { Text(labelStr, color = textColor) },
+        keyboardActions = KeyboardActions(
+            onDone = { focusRequester.freeFocus() }
+        ),
         modifier = modifier, textStyle = TextStyle.Default
-
     )
 }
 
@@ -224,7 +268,7 @@ fun PasswordTextField(
         value = password,
         onValueChange = onPasswordChange,
         label = {
-            Text(label,color = textColor,maxLines = 1)
+            Text(label, color = textColor, maxLines = 1)
         },
         singleLine = true,
         modifier = modifier,
@@ -235,7 +279,11 @@ fun PasswordTextField(
             else painterResource(R.drawable.visibility_off)
             val desc = if (passwordVisible) "Hide password" else "Show password"
             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                Icon(painter = icon, contentDescription = desc, tint = getUIStyle.defaultIconColor())
+                Icon(
+                    painter = icon,
+                    contentDescription = desc,
+                    tint = getUIStyle.defaultIconColor()
+                )
             }
         }, textStyle = TextStyle.Default
     )

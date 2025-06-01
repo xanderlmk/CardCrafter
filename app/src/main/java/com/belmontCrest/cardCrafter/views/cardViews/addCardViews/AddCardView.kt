@@ -9,18 +9,24 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
@@ -48,11 +54,34 @@ class AddCardView(
         val helpForNotation = rememberSaveable { mutableStateOf(false) }
         fields = getSavableFields(fields)
         val type by navViewModel.type.collectAsStateWithLifecycle()
+        val selectedKB by addCardVM.selectedKB.collectAsStateWithLifecycle()
+        val showKB by addCardVM.showKatexKeyboard.collectAsStateWithLifecycle()
+
         Box(
             modifier = Modifier
                 .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
             SymbolDocumentation(helpForNotation, getUIStyle)
+            if (type == Type.NOTATION && selectedKB != null) {
+                IconButton(
+                    onClick = { addCardVM.toggleKeyboard() },
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .size(30.dp)
+                ) {
+                    if (!showKB) {
+                        Icon(
+                            painterResource(R.drawable.twotone_keyboard),
+                            contentDescription = "Keyboard"
+                        )
+                    } else {
+                        Icon(
+                            painterResource(R.drawable.twotone_keyboard_hide),
+                            contentDescription = "Hide Keyboard"
+                        )
+                    }
+                }
+            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -93,13 +122,13 @@ class AddCardView(
                         color = getUIStyle.titleColor(),
                         fontWeight = FontWeight.Bold,
                         modifier =
-                            if (type == "notation") {
+                            if (type == Type.NOTATION) {
                                 Modifier.padding(start = 8.dp)
                             } else {
                                 Modifier
                             }
                     )
-                    if (type == "notation") {
+                    if (type == Type.NOTATION) {
                         Text(
                             text = "?", fontSize = 35.sp,
                             textAlign = TextAlign.Right,
@@ -112,6 +141,7 @@ class AddCardView(
                                     helpForNotation.value = true
                                 }
                         )
+
                     }
                 }
                 when (type) {
@@ -137,7 +167,10 @@ class AddCardView(
 
                     Type.NOTATION -> AddNotationCard(
                         addCardVM, deck,
-                        fields, getUIStyle
+                        fields, getUIStyle, Modifier
+                            .zIndex(2f)
+                            .align(AbsoluteAlignment.Left)
+                            .padding(6.dp)
                     )
 
                     else -> AddBasicCard(

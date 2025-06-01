@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.IsOwnerOrCoOwnerRepo
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.CDetails
 import kotlinx.coroutines.Dispatchers
@@ -21,9 +22,13 @@ class AddCardViewModel(
     private val isOwnerOrCoOwnerRepo: IsOwnerOrCoOwnerRepo,
     private val deckUUID: String
 ) : ViewModel() {
-    private val privateErrorMessage: MutableStateFlow<String> = MutableStateFlow("")
-    val errorMessage = privateErrorMessage.asStateFlow()
+    private val _errorMessage: MutableStateFlow<String> = MutableStateFlow("")
+    val errorMessage = _errorMessage.asStateFlow()
     private val isOwner = MutableStateFlow(false)
+    private val _showKatexKeyboard = MutableStateFlow(false)
+    val showKatexKeyboard = _showKatexKeyboard.asStateFlow()
+    private val _selectedKB : MutableStateFlow<SelectedKeyboard?> = MutableStateFlow(null)
+    val selectedKB = _selectedKB.asStateFlow()
 
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
@@ -158,11 +163,23 @@ class AddCardViewModel(
         }
     }
 
+    fun updateSelectedKB(selectedKeyboard: SelectedKeyboard) {
+            _selectedKB.update { selectedKeyboard }
+    }
+
+    fun resetSelectedKB() {
+        _selectedKB.update { null }
+    }
+
+    fun toggleKeyboard() {
+        _showKatexKeyboard.update { !it }
+    }
+
     fun setErrorMessage(message: String) {
-        privateErrorMessage.value = message
+        _errorMessage.update { message }
     }
 
     fun clearErrorMessage() {
-        privateErrorMessage.value = ""
+        _errorMessage.update { "" }
     }
 }

@@ -1,7 +1,26 @@
 package com.belmontCrest.cardCrafter.uiFunctions.symbols
 
+import android.util.Log
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+
+private val SPECIAL_WORDS = listOf(
+    "frac", "Alpha", "Beta", "Epsilon",
+    "Zeta", "Eta", "Iota", "Kappa", "Mu",
+    "Nu", "Omicron", "Rho", "digamma", "Tau",
+    "Chi", "varGamma", "varDelta", "varTheta",
+    "varLambda", "varXi", "varPi", "varSigma",
+    "varUpsilon", "varPhi", "varPsi", "varOmega",
+    "alpha", "beta", "gamma", "delta", "zeta",
+    "iota", "lambda", "mu", "nu", "xi",
+    "omicron", "tau", "upsilon", "chi", "psi",
+    "omega", "varepsilon", "varkappa", "vartheta",
+    "varpi", "varrho", "varsigma", "varphi",
+    "Gamma", "Delta", "Theta", "Lambda", "Xi", "Pi",
+    "Sigma", "Upsilon", "Phi", "Psi", "Omega", "kappa",
+    "epsilon", "theta", "pi", "rho", "sigma", "phi", "eta",
+)
+
 
 fun katexMapper(
     newText: String, newValue: TextFieldValue,
@@ -32,9 +51,6 @@ fun katexMapper(
             ),
             replaced
         )
-    } else if (wordChecker("frac", textFieldValue, newValue, newText)) {
-        return katexWord("frac", newValue, newText)
-
     } else if (
         newText.startsWith("..", (newValue.selection.start - 2)) &&
         isInside(newText, newText.length, textFieldValue.selection)
@@ -54,173 +70,14 @@ fun katexMapper(
             ),
             replaced
         )
-    } else if (wordChecker("alpha", textFieldValue, newValue, newText)) {
-        return katexWord("alpha", newValue, newText)
+    } else if (checkForSpecialWord(textFieldValue, newValue, newText)) {
+        val result = findSpecialWord(newValue, newText)
+        if (result === null) {
+            Log.e("KaTeXMapper", "Something went wrong trying to get the special word.")
+            return Pair(newValue, newText)
 
-    } else if (wordChecker("beta", textFieldValue, newValue, newText)) {
-        return katexWord("beta", newValue, newText)
-
-    } else if (wordChecker("gamma", textFieldValue, newValue, newText)) {
-        return katexWord("gamma", newValue, newText)
-
-    } else if (wordChecker("delta", textFieldValue, newValue, newText)) {
-        return katexWord("delta", newValue, newText)
-
-    } else if (wordChecker("epsilon", textFieldValue, newValue, newText)) {
-        return katexWord("epsilon", newValue, newText)
-
-    } else if (wordChecker("zeta", textFieldValue, newValue, newText)) {
-        return katexWord("zeta", newValue, newText)
-
-    } else if (wordChecker("eta", textFieldValue, newValue, newText)) {
-        return katexWord("eta", newValue, newText)
-
-    } else if (wordChecker("theta", textFieldValue, newValue, newText)) {
-        return katexWord("theta", newValue, newText)
-
-    } else if (wordChecker("iota", textFieldValue, newValue, newText)) {
-        return katexWord("iota", newValue, newText)
-
-    } else if (wordChecker("kappa", textFieldValue, newValue, newText)) {
-        return katexWord("kappa", newValue, newText)
-
-    } else if (wordChecker("lambda", textFieldValue, newValue, newText)) {
-        return katexWord("lambda", newValue, newText)
-
-    } else if (wordChecker("mu", textFieldValue, newValue, newText)) {
-        return katexWord("mu", newValue, newText)
-
-    } else if (wordChecker("nu", textFieldValue, newValue, newText)) {
-        return katexWord("nu", newValue, newText)
-
-    } else if (wordChecker("xi", textFieldValue, newValue, newText)) {
-        return katexWord("xi", newValue, newText)
-
-    } else if (wordChecker("omicron", textFieldValue, newValue, newText)) {
-        return katexWord("omicron", newValue, newText)
-
-    } else if (wordChecker("pi", textFieldValue, newValue, newText)) {
-        return katexWord("pi", newValue, newText)
-
-    } else if (wordChecker("rho", textFieldValue, newValue, newText)) {
-        return katexWord("rho", newValue, newText)
-
-    } else if (wordChecker("sigma", textFieldValue, newValue, newText)) {
-        return katexWord("sigma", newValue, newText)
-
-    } else if (wordChecker("tau", textFieldValue, newValue, newText)) {
-        return katexWord("tau", newValue, newText)
-
-    } else if (wordChecker("upsilon", textFieldValue, newValue, newText)) {
-        return katexWord("upsilon", newValue, newText)
-
-    } else if (wordChecker("phi", textFieldValue, newValue, newText)) {
-        return katexWord("phi", newValue, newText)
-
-    } else if (wordChecker("chi", textFieldValue, newValue, newText)) {
-        return katexWord("chi", newValue, newText)
-
-    } else if (wordChecker("psi", textFieldValue, newValue, newText)) {
-        return katexWord("psi", newValue, newText)
-
-    } else if (wordChecker("omega", textFieldValue, newValue, newText)) {
-        return katexWord("omega", newValue, newText)
-
-    } else if (wordChecker("varepsilon", textFieldValue, newValue, newText)) {
-        return katexWord("varepsilon", newValue, newText)
-
-    } else if (wordChecker("varkappa", textFieldValue, newValue, newText)) {
-        return katexWord("varkappa", newValue, newText)
-
-    } else if (wordChecker("vartheta", textFieldValue, newValue, newText)) {
-        return katexWord("vartheta", newValue, newText)
-
-    } else if (wordChecker("thetasym", textFieldValue, newValue, newText)) {
-        return katexWord("thetasym", newValue, newText)
-
-    } else if (wordChecker("varpi", textFieldValue, newValue, newText)) {
-        return katexWord("varpi", newValue, newText)
-
-    } else if (wordChecker("varrho", textFieldValue, newValue, newText)) {
-        return katexWord("varrho", newValue, newText)
-
-    } else if (wordChecker("varsigma", textFieldValue, newValue, newText)) {
-        return katexWord("varsigma", newValue, newText)
-
-    } else if (wordChecker("varphi", textFieldValue, newValue, newText)) {
-        return katexWord("varphi", newValue, newText)
-
-    } else if (wordChecker("Alpha", textFieldValue, newValue, newText)) {
-        return katexWord("Alpha", newValue, newText)
-
-    } else if (wordChecker("Beta", textFieldValue, newValue, newText)) {
-        return katexWord("Beta", newValue, newText)
-
-    } else if (wordChecker("Gamma", textFieldValue, newValue, newText)) {
-        return katexWord("Gamma", newValue, newText)
-
-    } else if (wordChecker("Delta", textFieldValue, newValue, newText)) {
-        return katexWord("Delta", newValue, newText)
-
-    } else if (wordChecker("Epsilon", textFieldValue, newValue, newText)) {
-        return katexWord("Epsilon", newValue, newText)
-
-    } else if (wordChecker("Zeta", textFieldValue, newValue, newText)) {
-        return katexWord("Zeta", newValue, newText)
-
-    } else if (wordChecker("Eta", textFieldValue, newValue, newText)) {
-        return katexWord("Eta", newValue, newText)
-
-    } else if (wordChecker("Theta", textFieldValue, newValue, newText)) {
-        return katexWord("Theta", newValue, newText)
-
-    } else if (wordChecker("Iota", textFieldValue, newValue, newText)) {
-        return katexWord("Iota", newValue, newText)
-
-    } else if (wordChecker("Kappa", textFieldValue, newValue, newText)) {
-        return katexWord("Kappa", newValue, newText)
-
-    } else if (wordChecker("Lambda", textFieldValue, newValue, newText)) {
-        return katexWord("Lambda", newValue, newText)
-
-    } else if (wordChecker("Mu", textFieldValue, newValue, newText)) {
-        return katexWord("Mu", newValue, newText)
-
-    } else if (wordChecker("Nu", textFieldValue, newValue, newText)) {
-        return katexWord("Nu", newValue, newText)
-
-    } else if (wordChecker("Xi", textFieldValue, newValue, newText)) {
-        return katexWord("Xi", newValue, newText)
-
-    } else if (wordChecker("Omicron", textFieldValue, newValue, newText)) {
-        return katexWord("Omicron", newValue, newText)
-
-    } else if (wordChecker("Pi", textFieldValue, newValue, newText)) {
-        return katexWord("Pi", newValue, newText)
-
-    } else if (wordChecker("Rho", textFieldValue, newValue, newText)) {
-        return katexWord("Rho", newValue, newText)
-
-    } else if (wordChecker("Sigma", textFieldValue, newValue, newText)) {
-        return katexWord("Sigma", newValue, newText)
-
-    } else if (wordChecker("Tau", textFieldValue, newValue, newText)) {
-        return katexWord("Tau", newValue, newText)
-
-    } else if (wordChecker("Upsilon", textFieldValue, newValue, newText)) {
-        return katexWord("Upsilon", newValue, newText)
-
-    } else if (wordChecker("Phi", textFieldValue, newValue, newText)) {
-        return katexWord("Phi", newValue, newText)
-
-    } else if (wordChecker("Chi", textFieldValue, newValue, newText)) {
-        return katexWord("Chi", newValue, newText)
-
-    } else if (wordChecker("Psi", textFieldValue, newValue, newText)) {
-        return katexWord("Psi", newValue, newText)
-
-    } else if (wordChecker("Omega", textFieldValue, newValue, newText)) {
-        return katexWord("Omega", newValue, newText)
+        }
+        return katexWord(result, newValue, newText)
 
     } else if (newText.startsWith("INLINE", (newValue.selection.start - 6)) &&
         !isInsideDoubleDollars(newText, newText.length, textFieldValue.selection)
@@ -362,19 +219,7 @@ fun isThereEvenDD(text: String, position: Int): Boolean {
     return isEven
 }
 
-
-fun wordChecker(
-    string: String, textFieldValue: TextFieldValue,
-    newValue: TextFieldValue, newText: String
-): Boolean {
-    return newText.startsWith(string, (newValue.selection.start - string.length)) &&
-            !newText.startsWith(
-                "\\\\$string", (newValue.selection.start - string.length + 2)
-            ) &&
-            isInside(newText, newText.length, textFieldValue.selection)
-}
-
-fun katexWord(
+private fun katexWord(
     string: String, newValue: TextFieldValue, newText: String
 ): Pair<TextFieldValue, String> {
     val replacement = "\\\\$string"
@@ -384,6 +229,8 @@ fun katexWord(
         append(replacement)
         append(newText.substring(newValue.selection.start))
     }
+    Log.d("KatexMapping", replacement.length.toString())
+
     val insertionPoint = startIndex + replacement.length
     return Pair(
         TextFieldValue(
@@ -392,4 +239,33 @@ fun katexWord(
         ),
         replaced
     )
+}
+
+private fun checkForSpecialWord(
+    textFieldValue: TextFieldValue,
+    newValue: TextFieldValue, newText: String
+): Boolean {
+    for (word in SPECIAL_WORDS) {
+        if (newText.startsWith(word, (newValue.selection.start - word.length)) &&
+            !newText.startsWith(
+                "\\\\$word", (newValue.selection.start - word.length + 2)
+            ) &&
+            isInside(newText, newText.length, textFieldValue.selection)
+        ) {
+            return true
+        }
+    }
+    return false
+}
+
+private fun findSpecialWord(
+    newValue: TextFieldValue,
+    newText: String
+): String? {
+    return SPECIAL_WORDS.firstOrNull { word ->
+        // where in the string would this word have to start?
+        val start = newValue.selection.start - word.length
+        // sanity check
+        start >= 0 && newText.startsWith(word, start)
+    }
 }

@@ -14,6 +14,7 @@ import java.util.Date
 data class DeckUiState(
     val deckList: List<Deck> = listOf()
 ) : Parcelable
+
 @Serializable
 @Parcelize
 data class CardListUiCount(
@@ -24,28 +25,32 @@ data class CardListUiCount(
 data class SealedAllCTs(
     var allCTs: MutableList<CT> = mutableListOf()
 ) : Parcelable
+
 @Serializable
 
 /** NavViewModel States */
 @Parcelize
 data class StringVar(
-    val name : String = ""
+    val name: String = ""
 ) : Parcelable
+
 @Parcelize
 data class WhichDeck(
-    val deck : Deck? = null
+    val deck: Deck? = null
 ) : Parcelable
+
 @Parcelize
 data class SelectedCard(
-    val ct : CT?
+    val ct: CT?
 ) : Parcelable
- /** DueCards States */
+
+/** DueCards States */
 data class DueDeckDetails(
     val id: Int = 0,
     var cardsLeft: Int = 0,
     val cardAmount: Int = 0,
     val reviewAmount: Int = 0,
-    val nextReview : Date = Date()
+    val nextReview: Date = Date()
 )
 
 /** For CardDeckVM */
@@ -54,19 +59,40 @@ data class SealedDueCTs(
     var allCTs: MutableList<CT> = mutableListOf(),
     var savedCTs: MutableList<CT> = mutableListOf()
 ) : Parcelable
+
 /** Also for our OnCreate MA */
 data class SavedCardUiState(
     var savedCards: List<SavedCard> = emptyList()
 )
+
 @Serializable
 @Parcelize
 sealed class CardState : Parcelable {
+    @Serializable
+    @Parcelize
     data object Idle : CardState()
+
+    @Serializable
+    @Parcelize
     data object Loading : CardState()
+
+    @Serializable
+    @Parcelize
     data object Finished : CardState()
 }
 
+/** Selected keyboard which is tied to AddCardVM */
+@Parcelize
+sealed class SelectedKeyboard : Parcelable {
+    @Parcelize
+    data object Question : SelectedKeyboard()
 
+    /** The pertaining step on the steps from stringList. */
+    @Parcelize
+    data class Step(val index: Int) : SelectedKeyboard()
 
+    @Parcelize
+    data object Answer : SelectedKeyboard()
+}
 
 
