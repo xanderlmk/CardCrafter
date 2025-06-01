@@ -3,6 +3,7 @@ package com.belmontCrest.cardCrafter.views.cardViews.addCardViews
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,15 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,7 +39,7 @@ import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.views.miscFunctions.getSavableFields
-import com.belmontCrest.cardCrafter.uiFunctions.symbols.SymbolDocumentation
+import com.belmontCrest.cardCrafter.uiFunctions.katex.SymbolDocumentation
 
 
 class AddCardView(
@@ -63,11 +63,16 @@ class AddCardView(
         ) {
             SymbolDocumentation(helpForNotation, getUIStyle)
             if (type == Type.NOTATION && selectedKB != null) {
-                IconButton(
-                    onClick = { addCardVM.toggleKeyboard() },
+                Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .size(30.dp)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = { addCardVM.toggleKeyboard() },
+                                onLongPress = { addCardVM.resetOffset() }
+                            )
+                        }
                 ) {
                     if (!showKB) {
                         Icon(
@@ -169,7 +174,7 @@ class AddCardView(
                         addCardVM, deck,
                         fields, getUIStyle, Modifier
                             .zIndex(2f)
-                            .align(AbsoluteAlignment.Left)
+                            .align(Alignment.Start)
                             .padding(6.dp)
                     )
 

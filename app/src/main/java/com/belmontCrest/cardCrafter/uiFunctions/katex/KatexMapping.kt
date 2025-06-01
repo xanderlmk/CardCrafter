@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.uiFunctions.symbols
+package com.belmontCrest.cardCrafter.uiFunctions.katex
 
 import android.util.Log
 import androidx.compose.ui.text.TextRange

@@ -1,8 +1,9 @@
-package com.belmontCrest.cardCrafter.uiFunctions
+package com.belmontCrest.cardCrafter.uiFunctions.katex
 
 import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -17,7 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,12 +31,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.symbols.toShortHex
 import kotlin.math.roundToInt
 
 
@@ -63,7 +69,7 @@ private val OTHER_LETTERS = listOf(
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun KaTeXMenu(
-    modifier: Modifier, offset: Offset,
+    modifier: Modifier, offset: Offset, onDismiss: () -> Unit,
     onOffset: (Offset) -> Unit, getUIStyle: GetUIStyle,
     onSelectNotation: (String) -> Unit
 ) {
@@ -71,6 +77,8 @@ fun KaTeXMenu(
     val textToHex = getUIStyle.titleColor().toShortHex()
     val webView = remember {
         WebView(context).apply {
+            isFocusable = false
+            isFocusableInTouchMode = false
             setBackgroundColor(getUIStyle.katexMenuBGColor().toArgb())
             settings.javaScriptEnabled = true
             // expose a Kotlin callback under “Android” in JS
@@ -149,6 +157,15 @@ fun KaTeXMenu(
         }
     }
 
+    DisposableEffect(webView) {
+        onDispose {
+            try {
+                webView.destroy()
+            } catch (e: Exception) {
+                Log.w("KatexMenu", "Failed to destroy WebView: $e")
+            }
+        }
+    }
 
     Box(
         modifier = modifier
@@ -171,9 +188,20 @@ fun KaTeXMenu(
             Text(
                 text = "Drag here",
                 modifier = Modifier.align(Alignment.Center),
+                textAlign = TextAlign.Center,
                 fontSize = 16.sp,
                 color = getUIStyle.titleColor()
             )
+            IconButton(
+                onClick = { onDismiss() },
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+                Icon(
+                    Icons.Filled.Close,
+                    contentDescription = null
+                )
+            }
+
         }
         AndroidView(
             factory = { webView },

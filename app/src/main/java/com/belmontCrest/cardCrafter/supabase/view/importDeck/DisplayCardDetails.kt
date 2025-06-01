@@ -1,10 +1,12 @@
 package com.belmontCrest.cardCrafter.supabase.view.importDeck
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -15,7 +17,7 @@ import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.CardDetails
-import com.belmontCrest.cardCrafter.uiFunctions.symbols.toShortHex
+import com.belmontCrest.cardCrafter.uiFunctions.katex.toShortHex
 
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -29,6 +31,15 @@ fun DisplayCardDetails(
     val backgroundToHex = getUIStyle.background().toShortHex()
     val textToHex = getUIStyle.titleColor().toShortHex()
     val borderColor = getUIStyle.defaultIconColor().toShortHex()
+    DisposableEffect(webView) {
+        onDispose {
+            try {
+                webView.destroy()
+            } catch (e: Exception) {
+                Log.w("KatexMenu", "Failed to destroy WebView: $e")
+            }
+        }
+    }
     AndroidView(
         factory = {
             webView.apply {
@@ -42,23 +53,29 @@ fun DisplayCardDetails(
                         view.evaluateJavascript("setTheme('$backgroundToHex','$textToHex');", null)
 
                         // deck title
-                        view.evaluateJavascript("""
+                        view.evaluateJavascript(
+                            """
                         |document.getElementById('deckTitle').innerText = `${deck.name}`;
-                        """.trimMargin(), null)
+                        """.trimMargin(), null
+                        )
 
                         // description
-                        view.evaluateJavascript("""
+                        view.evaluateJavascript(
+                            """
                         |document.getElementById('description').innerHTML = `${deck.description}`;
                         |renderNotation(document.getElementById('description'));
-                        """.trimMargin(), null)
+                        """.trimMargin(), null
+                        )
 
                         // up to four cards
                         allCardDetails.forEachIndexed { i, (cd, type) ->
                             val html = cd.toHTML(type)
-                            view.evaluateJavascript("""
+                            view.evaluateJavascript(
+                                """
                             |document.getElementById('card$i').innerHTML = `$html`;
                             |renderNotation(document.getElementById('card$i'));
-                            """.trimMargin(), null)
+                            """.trimMargin(), null
+                            )
                         }
                         view.evaluateJavascript("setBorderColor('$borderColor');", null)
                         onLoading(false)

@@ -35,8 +35,8 @@ import androidx.compose.ui.unit.sp
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.textColor
-import com.belmontCrest.cardCrafter.uiFunctions.symbols.isInside
-import com.belmontCrest.cardCrafter.uiFunctions.symbols.katexMapper
+import com.belmontCrest.cardCrafter.uiFunctions.katex.isInside
+import com.belmontCrest.cardCrafter.uiFunctions.katex.katexMapper
 
 private object KeyboardInputs {
     const val KK = "KatexKeyBoard"

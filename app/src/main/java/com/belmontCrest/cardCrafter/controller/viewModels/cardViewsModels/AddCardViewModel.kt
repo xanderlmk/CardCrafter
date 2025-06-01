@@ -29,6 +29,8 @@ class AddCardViewModel(
     val showKatexKeyboard = _showKatexKeyboard.asStateFlow()
     private val _selectedKB : MutableStateFlow<SelectedKeyboard?> = MutableStateFlow(null)
     val selectedKB = _selectedKB.asStateFlow()
+    private val _resetOffset = MutableStateFlow(false)
+    val resetOffset = _resetOffset.asStateFlow()
 
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
@@ -173,6 +175,14 @@ class AddCardViewModel(
 
     fun toggleKeyboard() {
         _showKatexKeyboard.update { !it }
+    }
+
+    fun resetOffset() {
+        _resetOffset.update { true }
+    }
+
+    fun resetDone() {
+        _resetOffset.update { false }
     }
 
     fun setErrorMessage(message: String) {

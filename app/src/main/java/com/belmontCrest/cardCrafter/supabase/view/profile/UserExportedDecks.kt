@@ -30,7 +30,7 @@ import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewM
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.view.authViews.CreateAccount
-import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.LocalDecks
+import com.belmontCrest.cardCrafter.supabase.view.exportDeck.LocalDecks
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.ExportDeckButton

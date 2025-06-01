@@ -42,7 +42,7 @@ import com.belmontCrest.cardCrafter.supabase.view.profile.UserExportedDecks
 import com.belmontCrest.cardCrafter.supabase.view.profile.MyProfile
 import com.belmontCrest.cardCrafter.supabase.view.importDeck.ImportDeck
 import com.belmontCrest.cardCrafter.supabase.view.OnlineDatabase
-import com.belmontCrest.cardCrafter.supabase.view.uploadDeck.UploadThisDeck
+import com.belmontCrest.cardCrafter.supabase.view.exportDeck.UploadThisDeck
 import com.belmontCrest.cardCrafter.supabase.view.authViews.email.EmailView
 import com.belmontCrest.cardCrafter.supabase.view.authViews.email.ForgotPassword
 import com.belmontCrest.cardCrafter.supabase.view.profile.CardListView
