@@ -51,7 +51,7 @@ class EditCardsList(
         val sealedCardsList by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
         val searchQuery by editingCardListVM.searchQuery.collectAsStateWithLifecycle()
         val middleCard = rememberSaveable { mutableIntStateOf(0) }
-        var clicked by remember { mutableStateOf(false) }
+        var enabled by remember { mutableStateOf(true) }
 
         val filtered = sealedCardsList.allCTs.filter { ct ->
             if (searchQuery.isBlank()) {
@@ -105,13 +105,12 @@ class EditCardsList(
                 items(filtered.size) { index ->
                     Button(
                         onClick = {
-                            if (!clicked) {
+                                enabled = false
                                 fields.scrollPosition.value = index
                                 fields.isEditing.value = true
-                                clicked = true
                                 goToEditCard(filtered[index].getCardId())
-                            }
-                        },
+                                enabled = true
+                        }, enabled = enabled,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = getUIStyle.secondaryButtonColor(),
                             contentColor = getUIStyle.buttonTextColor()
@@ -120,10 +119,7 @@ class EditCardsList(
                             .fillMaxWidth()
                             .padding(8.dp)
                     ) {
-                        CardSelector(
-                            filtered,
-                            index
-                        )
+                        CardSelector(filtered, index)
                     }
                 }
             }

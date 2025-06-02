@@ -5,14 +5,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditBasicCard
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditHintCard
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditThreeCard
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXMenu
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditChoiceCard
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditNotationCard
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.createBasicCardDetails
@@ -23,16 +23,16 @@ import com.belmontCrest.cardCrafter.views.miscFunctions.details.createThreeOrHin
 interface CardTypeHandler {
     @Composable
     fun HandleCardEdit(
-        fields: Fields, ct: CT, vm: EditCardViewModel,
-        changed: Boolean, getUIStyle: GetUIStyle, modifier: Modifier
+        fields: Fields, ct: CT, vm: NavViewModel,
+        changed: Boolean, getUIStyle: GetUIStyle, onUpdate: () -> KaTeXMenu
     )
 }
 
 class BasicCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        fields: Fields, ct: CT, vm: EditCardViewModel,
-        changed: Boolean, getUIStyle: GetUIStyle, modifier: Modifier
+        fields: Fields, ct: CT, vm: NavViewModel,
+        changed: Boolean, getUIStyle: GetUIStyle, onUpdate: () -> KaTeXMenu
     ) {
 
         if (ct is CT.Basic) {
@@ -63,8 +63,8 @@ class BasicCardTypeHandler : CardTypeHandler {
 class ThreeCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        fields: Fields, ct: CT, vm: EditCardViewModel,
-        changed: Boolean, getUIStyle: GetUIStyle, modifier: Modifier
+        fields: Fields, ct: CT, vm: NavViewModel,
+        changed: Boolean, getUIStyle: GetUIStyle, onUpdate: () -> KaTeXMenu
     ) {
         if (ct is CT.ThreeField) {
             if (!changed) {
@@ -105,8 +105,8 @@ class ThreeCardTypeHandler : CardTypeHandler {
 class HintCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        fields: Fields, ct: CT, vm: EditCardViewModel,
-        changed: Boolean, getUIStyle: GetUIStyle, modifier: Modifier
+        fields: Fields, ct: CT, vm: NavViewModel,
+        changed: Boolean, getUIStyle: GetUIStyle, onUpdate: () -> KaTeXMenu
     ) {
         if (ct is CT.Hint) {
             if (!changed) {
@@ -145,8 +145,8 @@ class HintCardTypeHandler : CardTypeHandler {
 class ChoiceCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        fields: Fields, ct: CT, vm: EditCardViewModel,
-        changed: Boolean, getUIStyle: GetUIStyle, modifier: Modifier
+        fields: Fields, ct: CT, vm: NavViewModel,
+        changed: Boolean, getUIStyle: GetUIStyle, onUpdate: () -> KaTeXMenu
     ) {
         if (ct is CT.MultiChoice) {
             if (!changed) {
@@ -188,8 +188,8 @@ class ChoiceCardTypeHandler : CardTypeHandler {
 class NotationCardTypeHandler : CardTypeHandler {
     @Composable
     override fun HandleCardEdit(
-        fields: Fields, ct: CT, vm: EditCardViewModel,
-        changed: Boolean, getUIStyle: GetUIStyle, modifier : Modifier
+        fields: Fields, ct: CT, vm: NavViewModel,
+        changed: Boolean, getUIStyle: GetUIStyle, onUpdate: () -> KaTeXMenu
     ) {
         if (ct is CT.Notation) {
             if (!changed) {
@@ -206,16 +206,16 @@ class NotationCardTypeHandler : CardTypeHandler {
                 fields.stringList = rememberSaveable { cardDetails.stringList }
                 fields.answer = rememberSaveable { mutableStateOf(cardDetails.answer.value) }
             }
-            EditNotationCard(fields, vm, getUIStyle, modifier)
+            EditNotationCard(fields, vm, getUIStyle, onUpdate)
         } else {
             if (ct is CT.Basic) {
-                EditNotationCard(fields, vm, getUIStyle, modifier)
+                EditNotationCard(fields, vm, getUIStyle, onUpdate)
             } else if (ct is CT.ThreeField) {
-                EditNotationCard(fields, vm, getUIStyle, modifier)
+                EditNotationCard(fields, vm, getUIStyle, onUpdate)
             } else if (ct is CT.Hint) {
-                EditNotationCard(fields, vm, getUIStyle, modifier)
+                EditNotationCard(fields, vm, getUIStyle, onUpdate)
             } else if (ct is CT.MultiChoice) {
-                EditNotationCard(fields, vm, getUIStyle, modifier)
+                EditNotationCard(fields, vm, getUIStyle, onUpdate)
             }
         }
     }

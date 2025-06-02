@@ -54,39 +54,12 @@ class AddCardView(
         val helpForNotation = rememberSaveable { mutableStateOf(false) }
         fields = getSavableFields(fields)
         val type by navViewModel.type.collectAsStateWithLifecycle()
-        val selectedKB by addCardVM.selectedKB.collectAsStateWithLifecycle()
-        val showKB by addCardVM.showKatexKeyboard.collectAsStateWithLifecycle()
 
         Box(
             modifier = Modifier
                 .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
             SymbolDocumentation(helpForNotation, getUIStyle)
-            if (type == Type.NOTATION && selectedKB != null) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .size(30.dp)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { addCardVM.toggleKeyboard() },
-                                onLongPress = { addCardVM.resetOffset() }
-                            )
-                        }
-                ) {
-                    if (!showKB) {
-                        Icon(
-                            painterResource(R.drawable.twotone_keyboard),
-                            contentDescription = "Keyboard"
-                        )
-                    } else {
-                        Icon(
-                            painterResource(R.drawable.twotone_keyboard_hide),
-                            contentDescription = "Hide Keyboard"
-                        )
-                    }
-                }
-            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -171,7 +144,7 @@ class AddCardView(
                     )
 
                     Type.NOTATION -> AddNotationCard(
-                        addCardVM, deck,
+                        addCardVM, deck, navViewModel,
                         fields, getUIStyle, Modifier
                             .zIndex(2f)
                             .align(Alignment.Start)
