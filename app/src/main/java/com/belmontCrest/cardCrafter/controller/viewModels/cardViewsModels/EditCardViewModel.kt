@@ -7,7 +7,6 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.Scien
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
-import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,12 +21,6 @@ class EditCardViewModel(
     private val listStringConverter = ListStringConverter()
     private val privateErrMessage = MutableStateFlow("")
     val errorMessage = privateErrMessage.asStateFlow()
-    private val _showKatexKeyboard = MutableStateFlow(false)
-    val showKatexKeyboard = _showKatexKeyboard.asStateFlow()
-    private val _selectedKB : MutableStateFlow<SelectedKeyboard?> = MutableStateFlow(null)
-    val selectedKB = _selectedKB.asStateFlow()
-    private val _resetOffset = MutableStateFlow(false)
-    val resetOffset = _resetOffset.asStateFlow()
 
     fun updateBasicCard(cardId: Int, question: String, answer: String) {
         viewModelScope.launch {
@@ -85,26 +78,6 @@ class EditCardViewModel(
         viewModelScope.launch {
             cardTypeRepository.updateCT(cardId, type, fields, deleteCT)
         }.join()
-    }
-
-    fun updateSelectedKB(selectedKeyboard: SelectedKeyboard) {
-        _selectedKB.update { selectedKeyboard }
-    }
-
-    fun resetSelectedKB() {
-        _selectedKB.update { null }
-    }
-
-    fun toggleKeyboard() {
-        _showKatexKeyboard.update { !it }
-    }
-
-    fun resetOffset() {
-        _resetOffset.update { true }
-    }
-
-    fun resetDone() {
-        _resetOffset.update { false }
     }
 
     fun setErrorMessage(message: String) {

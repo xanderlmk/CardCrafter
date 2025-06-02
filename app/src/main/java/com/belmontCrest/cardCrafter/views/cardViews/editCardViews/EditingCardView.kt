@@ -2,7 +2,6 @@ package com.belmontCrest.cardCrafter.views.cardViews.editCardViews
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,20 +9,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -39,24 +38,24 @@ import com.belmontCrest.cardCrafter.controller.onClickActions.saveCard
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateCardType
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
-import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.editCardModifier
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
+import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXMenu
+import com.belmontCrest.cardCrafter.uiFunctions.katex.SelectedAnnotation
 import kotlinx.coroutines.launch
 
 class EditingCardView(
-    private var getUIStyle: GetUIStyle
+    private var getUIStyle: GetUIStyle, private val navVM: NavViewModel
 ) {
     @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     fun EditFlashCardView(
-        ct: CT,
-        fields: Fields,
-        onNavigateBack: () -> Unit
+        ct: CT, fields: Fields, onNavigateBack: () -> Unit
     ) {
         val editCardVM: EditCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
         fields.newType = rememberSaveable { mutableStateOf(ct.getCardType()) }
@@ -64,38 +63,33 @@ class EditingCardView(
         val errorMessage by editCardVM.errorMessage.collectAsStateWithLifecycle()
         val coroutineScope = rememberCoroutineScope()
         val cardTypeChanged = rememberSaveable { mutableStateOf(false) }
-        val showKB by editCardVM.showKatexKeyboard.collectAsStateWithLifecycle()
-        val selectedKB by editCardVM.selectedKB.collectAsStateWithLifecycle()
+        val showKB by navVM.showKatexKeyboard.collectAsStateWithLifecycle()
+        var offset by remember { mutableStateOf(Offset.Zero) }
+        val resetOffset by navVM.resetOffset.collectAsStateWithLifecycle()
+        var ktm by rememberSaveable { mutableStateOf(KaTeXMenu(null, SelectedAnnotation.Idle)) }
 
+        LaunchedEffect(resetOffset) {
+            if (resetOffset) {
+                offset = Offset.Zero
+                navVM.resetDone()
+            }
+        }
+
+        if (showKB) {
+            KaTeXMenu(
+                Modifier
+                    .fillMaxSize()
+                    .zIndex(2f)
+                    .padding(6.dp), offset, onDismiss = { navVM.toggleKeyboard() },
+                onOffset = { offset += it }, getUIStyle
+            ) { notation, sa ->
+                ktm = KaTeXMenu(notation, sa)
+            }
+        }
         Box(
             modifier = Modifier
                 .scrollableBoxViewModifier(rememberScrollState(), getUIStyle.getColorScheme())
         ) {
-            if (fields.newType.value == Type.NOTATION && selectedKB != null) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .size(30.dp)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = { editCardVM.toggleKeyboard() },
-                                onLongPress = { editCardVM.resetOffset() }
-                            )
-                        }
-                ) {
-                    if (!showKB) {
-                        Icon(
-                            painterResource(R.drawable.twotone_keyboard),
-                            contentDescription = "Keyboard"
-                        )
-                    } else {
-                        Icon(
-                            painterResource(R.drawable.twotone_keyboard_hide),
-                            contentDescription = "Hide Keyboard"
-                        )
-                    }
-                }
-            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -121,12 +115,9 @@ class EditingCardView(
                 cardTypeHandler?.HandleCardEdit(
                     ct = ct, fields = fields,
                     changed = cardTypeChanged.value,
-                    vm = editCardVM,
+                    vm = navVM,
                     getUIStyle = getUIStyle,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .zIndex(2f)
-                        .padding(6.dp)
+                    onUpdate = { ktm }
                 )
                 Row(
                     modifier = Modifier

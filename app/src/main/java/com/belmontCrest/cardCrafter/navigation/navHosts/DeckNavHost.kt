@@ -58,7 +58,7 @@ fun DeckNavHost(
         cardDeckVM, getUIStyle, fields
     )
     val editDeckView = EditDeckView(fields, getUIStyle)
-    val editingCardView = EditingCardView(getUIStyle)
+    val editingCardView = EditingCardView(getUIStyle, navViewModel)
     val editCardsList =
         EditCardsList(
             editingCardListVM,
@@ -141,6 +141,7 @@ fun DeckNavHost(
             BackHandler {
                 fields.inDeckClicked.value = false
                 fields.resetFields()
+                navViewModel.resetKeyboardStuff()
                 navViewModel.updateRoute(DeckViewDestination.route)
                 deckNavController.popBackStack(
                     DeckViewDestination.route,
@@ -256,6 +257,7 @@ fun DeckNavHost(
             BackHandler {
                 fields.navigateToCardList()
                 navViewModel.resetCard()
+                navViewModel.resetKeyboardStuff()
                 navViewModel.updateRoute(ViewAllCardsDestination.route)
                 deckNavController.popBackStack(
                     ViewAllCardsDestination.route,
@@ -267,6 +269,7 @@ fun DeckNavHost(
                     ct = it,
                     fields = fields,
                     onNavigateBack = {
+                        navViewModel.resetKeyboardStuff()
                         fields.navigateToCardList()
                         navViewModel.resetCard()
                         navViewModel.updateRoute(ViewAllCardsDestination.route)

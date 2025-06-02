@@ -13,6 +13,7 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.Flash
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.model.uiModels.StringVar
 import com.belmontCrest.cardCrafter.model.uiModels.SelectedCard
+import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard
 import com.belmontCrest.cardCrafter.model.uiModels.WhichDeck
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -77,21 +78,17 @@ class NavViewModel(
 
     fun updateRoute(newRoute: String) {
         savedStateHandle["route"] = newRoute
-        _route.update {
-            StringVar(newRoute)
-        }
+        _route.update { StringVar(newRoute) }
     }
 
     private val _startingDeckRoute = MutableStateFlow(
         StringVar(savedStateHandle["startDeckRoute"] ?: DeckViewDestination.route)
     )
-
     val startingDeckRoute = _startingDeckRoute.asStateFlow()
+
     fun updateStartingDeckRoute(newRoute: String) {
         savedStateHandle["startDeckRoute"] = newRoute
-        _startingDeckRoute.update {
-            StringVar(newRoute)
-        }
+        _startingDeckRoute.update { StringVar(newRoute) }
     }
 
     private val _startingSBRoute = MutableStateFlow(
@@ -106,32 +103,28 @@ class NavViewModel(
         }
     }
 
-    private val _wd: StateFlow<WhichDeck> = deckId
-        .flatMapLatest { id ->
-            if (id == 0) {
-                flowOf(WhichDeck())
-            } else {
-                flashCardRepository.getDeckStream(id).map {
-                    WhichDeck(it)
-                }
+    val wd: StateFlow<WhichDeck> = deckId.flatMapLatest { id ->
+        if (id == 0) {
+            flowOf(WhichDeck())
+        } else {
+            flashCardRepository.getDeckStream(id).map {
+                WhichDeck(it)
             }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = WhichDeck()
-        )
-    val wd = _wd
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = WhichDeck()
+    )
 
-    private val thisType = MutableStateFlow(savedStateHandle["type"] ?: "basic")
-    val type = thisType.asStateFlow()
+    private val _type = MutableStateFlow(savedStateHandle["type"] ?: "basic")
+    val type = _type.asStateFlow()
     fun updateType(newType: String) {
         savedStateHandle["type"] = newType
-        thisType.update {
-            newType
-        }
+        _type.update { newType }
     }
 
-    private val thisCard = cardId.flatMapLatest { id ->
+    val card = cardId.flatMapLatest { id ->
         if (id == 0) {
             flowOf(SelectedCard(null))
         } else {
@@ -150,13 +143,16 @@ class NavViewModel(
                 SelectedCard(cardTypeRepository.getACardType(cardId.value))
             }
     )
+    private val _showKatexKeyboard = MutableStateFlow(false)
+    val showKatexKeyboard = _showKatexKeyboard.asStateFlow()
+    private val _selectedKB: MutableStateFlow<SelectedKeyboard?> = MutableStateFlow(null)
+    val selectedKB = _selectedKB.asStateFlow()
+    private val _resetOffset = MutableStateFlow(false)
+    val resetOffset = _resetOffset.asStateFlow()
 
-    val card = thisCard
     fun getDeckById(id: Int) {
         savedStateHandle["id"] = id
-        deckId.update {
-            id
-        }
+        deckId.update { id }
 
     }
 
@@ -167,10 +163,8 @@ class NavViewModel(
     }
 
     fun getCardById(id: Int) {
-        savedStateHandle["cardId"] = 0
-        cardId.update {
-            id
-        }
+        savedStateHandle["cardId"] = id
+        cardId.update { id }
     }
 
     fun resetCard() {
@@ -182,14 +176,35 @@ class NavViewModel(
     private val _isBlocking = MutableStateFlow(false)
     val isBlocking = _isBlocking.asStateFlow()
     fun updateIsBlocking() {
-        _isBlocking.update {
-            true
-        }
+        _isBlocking.update { true }
     }
 
     fun resetIsBlocking() {
-        _isBlocking.update {
-            false
-        }
+        _isBlocking.update { false }
+    }
+
+    fun updateSelectedKB(selectedKeyboard: SelectedKeyboard) {
+        _selectedKB.update { selectedKeyboard }
+    }
+
+    fun resetSelectedKB() {
+        _selectedKB.update { null }
+    }
+
+    fun toggleKeyboard() {
+        _showKatexKeyboard.update { !it }
+    }
+
+    fun resetOffset() {
+        _resetOffset.update { true }
+    }
+
+    fun resetDone() {
+        _resetOffset.update { false }
+    }
+
+    fun resetKeyboardStuff() {
+        resetSelectedKB()
+        _showKatexKeyboard.update { false }
     }
 }

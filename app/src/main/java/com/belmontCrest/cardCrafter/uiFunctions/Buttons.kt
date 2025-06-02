@@ -1,6 +1,7 @@
 package com.belmontCrest.cardCrafter.uiFunctions
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,15 +36,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.R
+import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 
 
@@ -229,6 +233,7 @@ fun CardOptionsButton(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(false) }
+    ToggleKeyBoard(navVM, getUIStyle, fields.newType.value)
     Box(
         modifier = modifier
             .wrapContentSize(Alignment.TopEnd)
@@ -247,19 +252,31 @@ fun CardOptionsButton(
         }
         DropdownMenu(expanded = expanded.value, onDismissRequest = { expanded.value = false }) {
             DropdownMenuItem(
-                onClick = { fields.newType.value = "basic" },
+                onClick = {
+                    resetKeyboardStuff(navVM, fields.newType.value)
+                    fields.newType.value = Type.BASIC
+                },
                 text = { Text(stringResource(R.string.basic_card)) })
             DropdownMenuItem(
-                onClick = { fields.newType.value = "three" },
+                onClick = {
+                    resetKeyboardStuff(navVM, fields.newType.value)
+                    fields.newType.value = Type.THREE
+                },
                 text = { Text(stringResource(R.string.three_field_card)) })
             DropdownMenuItem(
-                onClick = { fields.newType.value = "hint" },
+                onClick = {
+                    resetKeyboardStuff(navVM, fields.newType.value)
+                    fields.newType.value = Type.HINT
+                },
                 text = { Text(stringResource(R.string.hint_card)) })
             DropdownMenuItem(
-                onClick = { fields.newType.value = "multi" },
+                onClick = {
+                    resetKeyboardStuff(navVM, fields.newType.value)
+                    fields.newType.value = Type.MULTI
+                },
                 text = { Text(stringResource(R.string.multi_choice_card)) })
             DropdownMenuItem(
-                onClick = { fields.newType.value = "notation" },
+                onClick = { fields.newType.value = Type.NOTATION },
                 text = { Text("Notation Card") }
             )
             HorizontalDivider()
@@ -287,9 +304,17 @@ fun CardOptionsButton(
     }
 }
 
+private fun resetKeyboardStuff(navVM: NavViewModel, type: String) {
+    if (type == Type.NOTATION) {
+        navVM.resetKeyboardStuff()
+    }
+}
+
 @Composable
-fun CardTypesButton(getUIStyle: GetUIStyle, navViewModel: NavViewModel) {
+fun CardTypesButton(getUIStyle: GetUIStyle, navVM: NavViewModel) {
     var expanded by rememberSaveable { mutableStateOf(false) }
+    val type by navVM.type.collectAsStateWithLifecycle()
+    ToggleKeyBoard(navVM, getUIStyle, type)
     Box(
         Modifier
             .wrapContentSize(Alignment.TopEnd)
@@ -308,25 +333,59 @@ fun CardTypesButton(getUIStyle: GetUIStyle, navViewModel: NavViewModel) {
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(
-                onClick = { navViewModel.updateType("basic") },
+                onClick = { navVM.updateType("basic") },
                 text = { Text(stringResource(R.string.basic_card)) }
             )
             DropdownMenuItem(
-                onClick = { navViewModel.updateType("three") },
+                onClick = { navVM.updateType("three") },
                 text = { Text(stringResource(R.string.three_field_card)) }
             )
             DropdownMenuItem(
-                onClick = { navViewModel.updateType("hint") },
+                onClick = { navVM.updateType("hint") },
                 text = { Text(stringResource(R.string.hint_card)) }
             )
             DropdownMenuItem(
-                onClick = { navViewModel.updateType("multi") },
+                onClick = { navVM.updateType("multi") },
                 text = { Text(stringResource(R.string.multi_choice_card)) }
             )
             DropdownMenuItem(
-                onClick = { navViewModel.updateType("notation") },
+                onClick = { navVM.updateType("notation") },
                 text = { Text("Notation Card") }
             )
+        }
+    }
+}
+
+@Composable
+fun ToggleKeyBoard(
+    navVM: NavViewModel, getUIStyle: GetUIStyle, type: String
+) {
+    val showKB by navVM.showKatexKeyboard.collectAsStateWithLifecycle()
+    val selectedKB by navVM.selectedKB.collectAsStateWithLifecycle()
+    if (type == Type.NOTATION && selectedKB != null) {
+        Box(
+            modifier = Modifier
+                .size(30.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = { navVM.toggleKeyboard() },
+                        onLongPress = { navVM.resetOffset() }
+                    )
+                }
+        ) {
+            if (!showKB) {
+                Icon(
+                    painterResource(R.drawable.twotone_keyboard),
+                    contentDescription = "Keyboard",
+                    tint = getUIStyle.titleColor()
+                )
+            } else {
+                Icon(
+                    painterResource(R.drawable.twotone_keyboard_hide),
+                    contentDescription = "Hide Keyboard",
+                    tint = getUIStyle.titleColor()
+                )
+            }
         }
     }
 }

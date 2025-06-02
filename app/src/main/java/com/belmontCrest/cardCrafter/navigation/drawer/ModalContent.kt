@@ -37,6 +37,8 @@ import com.belmontCrest.cardCrafter.model.toTextProp
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.StringVar
 import com.belmontCrest.cardCrafter.model.uiModels.WhichDeck
+import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.EditingCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
@@ -67,6 +69,7 @@ class ModalContent(
         )
         .zIndex(2f)
     private val ci = ContentIcons(getUIStyle)
+
     @Composable
     fun Home(coroutineScope: CoroutineScope) {
         val fontSize = returnFontSizeBasedOnDp()
@@ -74,9 +77,8 @@ class ModalContent(
             onClick = {
                 updateCards(coroutineScope)
                 fields.mainClicked.value = false
-                launchHome(
-                    coroutineScope, navViewModel, cardDeckVM, fields
-                )
+                resetKeyboardStuff()
+                launchHome(coroutineScope, navViewModel, cardDeckVM, fields)
                 navViewModel.updateRoute(DeckListDestination.route)
                 navController.navigate(DeckListDestination.route)
             })
@@ -90,6 +92,7 @@ class ModalContent(
     fun ExportDecks() {
         val fontSize = returnFontSizeBasedOnDp()
         CustomRow(onClick = {
+            resetKeyboardStuff()
             navViewModel.updateRoute(UserEDDestination.route)
             navViewModel.updateStartingSBRoute(UserEDDestination.route)
             navController.navigate(SBNavDestination.route)
@@ -107,11 +110,13 @@ class ModalContent(
         val fontSize = returnFontSizeBasedOnDp()
         CustomRow(
             onClick = {
+                resetKeyboardStuff()
                 updateCards(coroutineScope)
                 cardDeckVM.updateIndex(0)
                 navViewModel.updateRoute(SettingsDestination.route)
                 navController.navigate(SettingsDestination.route)
-            })
+            }
+        )
         {
             CustomText("Settings", getUIStyle, props = FSProp.Default.toTextProp(fontSize))
             ci.ContentIcon("Main Settings", Icons.Default.Settings, mdModifier)
@@ -125,6 +130,7 @@ class ModalContent(
         val context = LocalContext.current
         CustomRow(
             onClick = {
+                resetKeyboardStuff()
                 if (cr.name != UserProfileDestination.route) {
                     updateCards(coroutineScope)
                     navViewModel.updateStartingSBRoute(UserProfileDestination.route)
@@ -156,6 +162,13 @@ class ModalContent(
                     updateDecksCardList(it, cardDeckVM)
                 }
             }
+        }
+    }
+
+    /** Reset the offset, which keyboard is selected and if it should show. */
+    private fun resetKeyboardStuff() {
+        if (cr.name == AddCardDestination.route || cr.name == EditingCardDestination.route) {
+            navViewModel.resetKeyboardStuff()
         }
     }
 
