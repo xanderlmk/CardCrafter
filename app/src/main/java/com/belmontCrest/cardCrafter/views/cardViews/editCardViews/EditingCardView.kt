@@ -1,6 +1,7 @@
 package com.belmontCrest.cardCrafter.views.cardViews.editCardViews
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -67,6 +69,7 @@ class EditingCardView(
         var offset by remember { mutableStateOf(Offset.Zero) }
         val resetOffset by navVM.resetOffset.collectAsStateWithLifecycle()
         var ktm by rememberSaveable { mutableStateOf(KaTeXMenu(null, SelectedAnnotation.Idle)) }
+        var initialPos by remember { mutableStateOf<Offset?>(null) }
 
         LaunchedEffect(resetOffset) {
             if (resetOffset) {
@@ -78,10 +81,16 @@ class EditingCardView(
         if (showKB) {
             KaTeXMenu(
                 Modifier
-                    .fillMaxSize()
+                    .onGloballyPositioned { coordinates ->
+                        if (initialPos == null) {
+                            initialPos = coordinates.localToWindow(Offset.Zero)
+                            Log.i("KatexMenu", "$initialPos")
+                            // Measure the menu’s total size (header + WebView):
+                        }
+                    }
                     .zIndex(2f)
-                    .padding(6.dp), offset, onDismiss = { navVM.toggleKeyboard() },
-                onOffset = { offset += it }, getUIStyle
+                    .padding(6.dp), { offset }, onDismiss = { navVM.toggleKeyboard() },
+                onOffset = { offset += it }, getUIStyle, initialPos
             ) { notation, sa ->
                 ktm = KaTeXMenu(notation, sa)
             }

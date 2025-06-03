@@ -5,9 +5,7 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -41,7 +39,7 @@ import java.util.UUID
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 
-@RequiresApi(Build.VERSION_CODES.Q)
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun SignUp(
     supabaseVM: SupabaseViewModel,
@@ -50,41 +48,35 @@ fun SignUp(
     onRefresh: (Boolean) -> Unit
 ) {
     val clientId by supabaseVM.googleClientId.collectAsStateWithLifecycle()
-    Box(
-        contentAlignment = Alignment.TopCenter,
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .boxViewsModifier(getUIStyle.getColorScheme())
+            .padding(4.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(4.dp)
-        ) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                Text(
-                    text = "Use Google to Sign In/Sign Up",
-                    color = getUIStyle.titleColor(),
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    fontSize = 22.sp
-                )
-                GoogleSignInButton(supabaseVM, clientId, getUIStyle) {
-                    onRefresh(it)
-                }
-            }
-            Text(
-                text = "Sign in with email",
-                color = getUIStyle.titleColor(),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                fontSize = 22.sp
-            )
-            SubmitButton(onClick = {
-                onUseEmail()
-            }, enabled = true, getUIStyle, "Sign up/Sign up with email")
+        Text(
+            text = "Use Google to Sign In/Sign Up",
+            color = getUIStyle.titleColor(),
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            fontSize = 22.sp
+        )
+        GoogleSignInButton(supabaseVM, clientId, getUIStyle) {
+            onRefresh(it)
         }
+
+        Text(
+            text = "Sign in with email",
+            color = getUIStyle.titleColor(),
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            fontSize = 22.sp
+        )
+        SubmitButton(onClick = {
+            onUseEmail()
+        }, enabled = true, getUIStyle, "Sign up/Sign up with email")
     }
 }
 

@@ -30,6 +30,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -82,6 +83,8 @@ fun AddNotationCard(
     val context = LocalContext.current
     var enabled by rememberSaveable { mutableStateOf(true) }
     val resetOffset by navVM.resetOffset.collectAsStateWithLifecycle()
+    var initialPos by remember { mutableStateOf<Offset?>(null) }
+
     LaunchedEffect(resetOffset) {
         if (resetOffset) {
             offset = Offset.Zero
@@ -91,8 +94,14 @@ fun AddNotationCard(
     Box {
         if (showKB) {
             KaTeXMenu(
-                modifier.fillMaxSize(), offset, onDismiss = { navVM.toggleKeyboard() },
-                onOffset = { offset += it }, getUIStyle
+                modifier.onGloballyPositioned { coordinates ->
+                    if (initialPos == null) {
+                        initialPos = coordinates.localToWindow(Offset.Zero)
+                        Log.i("KatexMenu", "$initialPos")
+                        // Measure the menu’s total size (header + WebView):
+                    }
+                }, { offset }, onDismiss = { navVM.toggleKeyboard() },
+                onOffset = { offset += it }, getUIStyle, initialPos
             ) { notation, sa ->
                 when (val sel = selectedKB) {
                     is SelectedKeyboard.Question -> {
@@ -147,7 +156,7 @@ fun AddNotationCard(
                         .focusRequester(focusRequester)
                         .onFocusChanged { focusState ->
                             if (focusState.hasFocus) {
-                                    navVM.updateSelectedKB(SelectedKeyboard.Question)
+                                navVM.updateSelectedKB(SelectedKeyboard.Question)
                                 //lastSelectedKB = SelectedKeyboard.Question
                                 Log.d("AddCardVM", "Focused on Question")
                             }

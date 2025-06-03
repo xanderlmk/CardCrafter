@@ -157,6 +157,8 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
      */
 
+    implementation(libs.androidx.foundation.android)
+
     implementation(libs.accompanist.swiperefresh)
 
     implementation(libs.slf4j.nop)

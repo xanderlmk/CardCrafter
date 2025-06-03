@@ -159,9 +159,7 @@ fun AddThreeCard(
                     containerColor = getUIStyle.secondaryButtonColor(),
                     contentColor = getUIStyle.buttonTextColor()
                 )
-            ) {
-                Text(stringResource(R.string.submit))
-            }
+            ) { Text(stringResource(R.string.submit)) }
         }
         if (errorMessage.isNotEmpty()) {
             Text(
