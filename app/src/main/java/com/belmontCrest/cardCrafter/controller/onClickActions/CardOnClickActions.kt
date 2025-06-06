@@ -46,7 +46,8 @@ fun saveCard(
                     ct.card.id,
                     fields.question.value,
                     fields.middleField.value,
-                    fields.answer.value
+                    fields.answer.value,
+                    fields.isQOrA.value
                 )
                 return true
             } else {

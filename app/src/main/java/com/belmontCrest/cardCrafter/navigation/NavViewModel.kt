@@ -203,6 +203,7 @@ class NavViewModel(
         _resetOffset.update { false }
     }
 
+    /** Reset the selected keyboard to null and don't show the keyboard */
     fun resetKeyboardStuff() {
         resetSelectedKB()
         _showKatexKeyboard.update { false }

@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         applicationId = "com.belmontCrest.cardCrafter"
-        minSdk = 26
+        minSdk = 28
         targetSdk = 35
         versionCode = 12
         versionName = "1.0.5"
@@ -156,6 +156,8 @@ dependencies {
     annotationProcessor (libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
      */
+
+    implementation(libs.androidx.foundation.android)
 
     implementation(libs.accompanist.swiperefresh)
 

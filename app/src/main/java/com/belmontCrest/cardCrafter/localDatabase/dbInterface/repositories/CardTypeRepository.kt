@@ -4,6 +4,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +21,7 @@ interface CardTypeRepository {
 
     suspend fun updateThreeCard(
         id: Int, question: String, middle: String,
-        answer: String
+        answer: String, isQOrA : PartOfQorA
     )
 
     suspend fun updateHintCard(

@@ -4,8 +4,11 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
+import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsBasic
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsHint
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsMulti
@@ -19,7 +22,8 @@ data class CardDetails(
     val answer: MutableState<String> = mutableStateOf(""),
     val choices: MutableList<MutableState<String>> = MutableList(4) { mutableStateOf("") },
     val correct: MutableState<Char> = mutableStateOf('?'),
-    val stringList: MutableList<MutableState<String>> = mutableListOf()
+    val stringList: MutableList<MutableState<String>> = mutableListOf(),
+    val isQorA: MutableState<PartOfQorA> = mutableStateOf(PartOfQorA.Q)
 )
 
 private val listStringC = ListStringConverter()
@@ -79,7 +83,8 @@ fun CT.toCardDetails(): CardDetails = when (this) {
     is CT.ThreeField -> CardDetails(
         question = mutableStateOf(threeFieldCard.question),
         middleField = mutableStateOf(threeFieldCard.middle),
-        answer = mutableStateOf(threeFieldCard.answer)
+        answer = mutableStateOf(threeFieldCard.answer),
+        isQorA = mutableStateOf(threeFieldCard.field)
     )
 
     is CT.MultiChoice -> CardDetails(
@@ -104,58 +109,14 @@ fun CT.toCardDetails(): CardDetails = when (this) {
     )
 }
 
-fun createChoiceCardDetails(multiChoiceCard: MultiChoiceCard): CardDetails {
-    return CardDetails(
-        question = mutableStateOf(multiChoiceCard.question),
-        choices = mutableListOf(
-            mutableStateOf(multiChoiceCard.choiceA),
-            mutableStateOf(multiChoiceCard.choiceB),
-            mutableStateOf(multiChoiceCard.choiceC),
-            mutableStateOf(multiChoiceCard.choiceD),
-        ),
-        correct = mutableStateOf(multiChoiceCard.correct)
-    )
-}
-
-fun createBasicCardDetails(basicCard: BasicCard): CardDetails {
-    return CardDetails(
-        question = mutableStateOf(basicCard.question),
-        answer = mutableStateOf(basicCard.answer)
-    )
-}
-
-fun createThreeOrHintCardDetails(
-    question: String,
-    middleField: String,
-    answer: String
-): CardDetails {
-    return CardDetails(
-        question = mutableStateOf(question),
-        middleField = mutableStateOf(middleField),
-        answer = mutableStateOf(answer)
-    )
-}
-
-fun createNotationCardDetails(
-    question: String,
-    stringList: List<String>,
-    answer: String
-): CardDetails {
-    return CardDetails(
-        question = mutableStateOf(question),
-        stringList = stringList.map {
-            val thisString = mutableStateOf(it)
-            thisString
-        }.toMutableList(),
-        answer = mutableStateOf(answer)
-    )
-}
-
-
 sealed class CDetails {
     data class BasicCD(val question: String, val answer: String) : CDetails()
 
-    data class ThreeHintCD(
+    data class ThreeCD(
+        val question: String, val middle: String, val answer: String, val isQOrA: PartOfQorA
+    ) : CDetails()
+
+    data class HintCD(
         val question: String, val middle: String, val answer: String
     ) : CDetails()
 

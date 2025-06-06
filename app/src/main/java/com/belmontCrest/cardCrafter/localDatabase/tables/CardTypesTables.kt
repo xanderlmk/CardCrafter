@@ -6,11 +6,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
-import org.json.JSONArray
 
 @Serializable
 @Parcelize
@@ -72,12 +70,14 @@ data class ThreeFieldCard(
     val question: String,
     val middle: String,
     val answer: String,
+    val field: PartOfQorA = PartOfQorA.A
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readString()!!,
         parcel.readString()!!,
-        parcel.readString()!!
+        parcel.readString()!!,
+        if (parcel.readByte() != 0.toByte()) PartOfQorA.Q else PartOfQorA.A
     )
 
     companion object : Parceler<ThreeFieldCard> {
@@ -87,6 +87,8 @@ data class ThreeFieldCard(
             parcel.writeString(question)
             parcel.writeString(middle)
             parcel.writeString(answer)
+            val byteValue: Byte = if (field is PartOfQorA.Q) 1 else 0
+            parcel.writeByte(byteValue)
         }
 
         override fun create(parcel: Parcel): ThreeFieldCard {
@@ -115,12 +117,12 @@ data class HintCard(
     val question: String,
     val hint: String,
     val answer: String,
-) : Parcelable  {
+) : Parcelable {
     constructor(parcel: Parcel) : this(
-    parcel.readInt(),
-    parcel.readString()!!,
-    parcel.readString()!!,
-    parcel.readString()!!
+        parcel.readInt(),
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!
     )
 
     companion object : Parceler<HintCard> {
@@ -131,6 +133,7 @@ data class HintCard(
             parcel.writeString(hint)
             parcel.writeString(answer)
         }
+
         override fun create(parcel: Parcel): HintCard {
             return HintCard(parcel)
         }
@@ -170,6 +173,7 @@ data class MultiChoiceCard(
         parcel.readString()!!,
         parcel.readString()!![0]
     )
+
     companion object : Parceler<MultiChoiceCard> {
 
         override fun MultiChoiceCard.write(parcel: Parcel, flags: Int) {
@@ -181,11 +185,13 @@ data class MultiChoiceCard(
             parcel.writeString(choiceD)
             parcel.writeString(correct.toString())
         }
+
         override fun create(parcel: Parcel): MultiChoiceCard {
             return MultiChoiceCard(parcel)
         }
     }
 }
+
 @Entity(
     tableName = "notationCard",
     foreignKeys = [
@@ -208,12 +214,13 @@ data class NotationCard(
     val steps: List<String> = emptyList(),
     val answer: String
 ) : Parcelable {
-    constructor(parcel: Parcel) : this (
+    constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readString()!!,
         listOf(parcel.readString()!!),
         parcel.readString()!!
     )
+
     companion object : Parceler<NotationCard> {
         override fun NotationCard.write(parcel: Parcel, flags: Int) {
             parcel.writeInt(cardId)
@@ -221,27 +228,9 @@ data class NotationCard(
             parcel.writeList(steps)
             parcel.writeString(answer)
         }
+
         override fun create(parcel: Parcel): NotationCard {
             return NotationCard(parcel)
         }
-    }
-}
-
-class ListStringConverter {
-    @TypeConverter
-    fun fromString(value: String): List<String> {
-
-        if (value == "none"){ return emptyList() }
-        val jsonArray = JSONArray(value)
-        val list = mutableListOf<String>()
-        for (i in 0 until jsonArray.length()) {
-            list.add(jsonArray.getString(i))
-        }
-        return list
-    }
-    @TypeConverter
-    fun listToString(listOfStrings: List<String>): String {
-        if (listOfStrings.isEmpty()) { return "none" }
-        return JSONArray(listOfStrings).toString()
     }
 }

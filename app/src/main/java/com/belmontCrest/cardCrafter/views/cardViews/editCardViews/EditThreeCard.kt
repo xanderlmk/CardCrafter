@@ -6,12 +6,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.belmontCrest.cardCrafter.R
+import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
+import com.belmontCrest.cardCrafter.uiFunctions.IsPartOfQOrA
 
 @Composable
 fun EditThreeCard(
-    fields: Fields
+    fields: Fields, getUIStyle: GetUIStyle
 ) {
     EditTextFieldNonDone(
         value = fields.question.value,
@@ -19,6 +22,10 @@ fun EditThreeCard(
         labelStr = stringResource(R.string.question),
         modifier = Modifier.fillMaxWidth()
     )
+    IsPartOfQOrA(getUIStyle, fields.isQOrA.value is PartOfQorA.Q) {
+        fields.isQOrA.value =
+            if (fields.isQOrA.value is PartOfQorA.Q) PartOfQorA.A else PartOfQorA.Q
+    }
     EditTextFieldNonDone(
         value = fields.middleField.value,
         onValueChanged = { fields.middleField.value = it },

@@ -6,6 +6,7 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardT
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.ScienceSpecificRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
+import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,9 +35,12 @@ class EditCardViewModel(
         }
     }
 
-    fun updateThreeCard(cardId: Int, question: String, middle: String, answer: String) {
+    fun updateThreeCard(
+        cardId: Int, question: String, middle: String,
+        answer: String, isQOrA : PartOfQorA
+    ) {
         viewModelScope.launch {
-            cardTypeRepository.updateThreeCard(cardId, question, middle, answer)
+            cardTypeRepository.updateThreeCard(cardId, question, middle, answer, isQOrA)
         }
     }
 

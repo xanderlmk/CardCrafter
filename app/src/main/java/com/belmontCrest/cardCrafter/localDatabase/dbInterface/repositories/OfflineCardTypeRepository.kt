@@ -12,6 +12,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import kotlinx.coroutines.flow.map
@@ -43,8 +44,9 @@ class OfflineCardTypeRepository(
         id: Int,
         question: String,
         middle: String,
-        answer: String
-    ) = threeCardDao.updateThreeCard(id, question, middle, answer)
+        answer: String,
+        isQOrA: PartOfQorA
+    ) = threeCardDao.updateThreeCard(id, question, middle, answer, isQOrA)
 
     override suspend fun updateHintCard(
         id: Int,
@@ -107,7 +109,7 @@ class OfflineCardTypeRepository(
         throw e
     }
 
-    override fun getACardTypeStream(id: Int)  = try {
+    override fun getACardTypeStream(id: Int) = try {
         cardTypesDao.getACardTypeStream(id).map {
             mapACardTypeToCT(it)
         }

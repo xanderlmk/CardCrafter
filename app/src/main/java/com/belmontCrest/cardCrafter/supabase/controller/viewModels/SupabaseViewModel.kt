@@ -198,12 +198,8 @@ class SupabaseViewModel(
                     Log.d("NETWORK", "NETWORK HAS BEEN DISCONNECTED")
                     authRepository.closeSupabase()
                     delay(2000)
-                    _deckList.update {
-                        SBDeckListDto()
-                    }
-                    _ownerDto.update {
-                        null
-                    }
+                    _deckList.update { SBDeckListDto() }
+                    _ownerDto.update { null }
                     isClientActive = false
                 } else if (isConnected && !isClientActive) {
                     // Reinitialize the client only if it's not active
@@ -215,11 +211,7 @@ class SupabaseViewModel(
                 }
             }
         }
-        viewModelScope.launch {
-            updateStatus()
-            delay(1250)
-            getOwner()
-        }
+        viewModelScope.launch { delay(1500); updateStatus(); getOwner() }
     }
 
     /** Google Oauth */

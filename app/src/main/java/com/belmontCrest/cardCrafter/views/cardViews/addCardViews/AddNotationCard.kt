@@ -1,6 +1,7 @@
 package com.belmontCrest.cardCrafter.views.cardViews.addCardViews
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -82,6 +83,8 @@ fun AddNotationCard(
     val context = LocalContext.current
     var enabled by rememberSaveable { mutableStateOf(true) }
     val resetOffset by navVM.resetOffset.collectAsStateWithLifecycle()
+   // var initialPos by remember { mutableStateOf<Offset?>(null) }
+
     LaunchedEffect(resetOffset) {
         if (resetOffset) {
             offset = Offset.Zero
@@ -90,9 +93,19 @@ fun AddNotationCard(
     }
     Box {
         if (showKB) {
+            BackHandler {
+                navVM.toggleKeyboard()
+                navVM.resetOffset()
+            }
             KaTeXMenu(
-                modifier.fillMaxSize(), offset, onDismiss = { navVM.toggleKeyboard() },
-                onOffset = { offset += it }, getUIStyle
+                modifier
+                    .fillMaxSize(),
+                /**.onGloballyPositioned { coordinates ->
+                initialPos = coordinates.localToWindow(Offset.Zero)
+
+                }*/ { offset },
+                onDismiss = { navVM.toggleKeyboard() },
+                onOffset = { offset += it }, getUIStyle, //initialPos
             ) { notation, sa ->
                 when (val sel = selectedKB) {
                     is SelectedKeyboard.Question -> {
@@ -147,7 +160,7 @@ fun AddNotationCard(
                         .focusRequester(focusRequester)
                         .onFocusChanged { focusState ->
                             if (focusState.hasFocus) {
-                                    navVM.updateSelectedKB(SelectedKeyboard.Question)
+                                navVM.updateSelectedKB(SelectedKeyboard.Question)
                                 //lastSelectedKB = SelectedKeyboard.Question
                                 Log.d("AddCardVM", "Focused on Question")
                             }

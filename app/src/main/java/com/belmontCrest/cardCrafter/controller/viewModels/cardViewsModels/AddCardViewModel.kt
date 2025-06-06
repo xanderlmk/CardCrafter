@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard
+import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.IsOwnerOrCoOwnerRepo
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.CDetails
 import kotlinx.coroutines.Dispatchers
@@ -56,7 +56,7 @@ class AddCardViewModel(
         ) {
             viewModelScope.launch(Dispatchers.IO) {
                 flashCardRepository.insertHintCard(
-                    deck, CDetails.ThreeHintCD(question, hint, answer), isOwner.value
+                    deck, CDetails.HintCD(question, hint, answer), isOwner.value
                 ).also { updateCardsLeft(deck) }
             }
         }
@@ -64,14 +64,14 @@ class AddCardViewModel(
 
     fun addThreeCard(
         deck: Deck, question: String,
-        middle: String, answer: String
+        middle: String, answer: String, isQOrA : PartOfQorA
     ) {
         if (question.isNotBlank() && answer.isNotBlank()
             && middle.isNotBlank()
         ) {
             viewModelScope.launch(Dispatchers.IO) {
                 flashCardRepository.insertThreeCard(
-                    deck, CDetails.ThreeHintCD(question, middle, answer), isOwner.value
+                    deck, CDetails.ThreeCD(question, middle, answer, isQOrA), isOwner.value
                 ).also {
                     updateCardsLeft(deck)
                 }

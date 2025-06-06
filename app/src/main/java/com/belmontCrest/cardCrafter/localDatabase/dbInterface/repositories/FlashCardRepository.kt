@@ -96,11 +96,11 @@ interface FlashCardRepository {
     )
 
     suspend fun insertThreeCard(
-        deck: Deck, threeCD: CDetails.ThreeHintCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, threeCD: CDetails.ThreeCD, isOwnerOrCoOwner: Boolean
     )
 
     suspend fun insertHintCard(
-        deck: Deck, hintCD: CDetails.ThreeHintCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, hintCD: CDetails.HintCD, isOwnerOrCoOwner: Boolean
     )
 
     suspend fun insertMultiCard(

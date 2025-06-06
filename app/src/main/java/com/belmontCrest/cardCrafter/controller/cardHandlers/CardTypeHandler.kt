@@ -15,10 +15,7 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXMenu
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditChoiceCard
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditNotationCard
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.createBasicCardDetails
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.createChoiceCardDetails
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.createNotationCardDetails
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.createThreeOrHintCardDetails
+import com.belmontCrest.cardCrafter.views.miscFunctions.details.toCardDetails
 
 interface CardTypeHandler {
     @Composable
@@ -37,25 +34,13 @@ class BasicCardTypeHandler : CardTypeHandler {
 
         if (ct is CT.Basic) {
             if (!changed) {
-                val cardDetails by remember {
-                    mutableStateOf(
-                        createBasicCardDetails(ct.basicCard)
-                    )
-                }
+                val cardDetails by remember { mutableStateOf(ct.toCardDetails()) }
                 fields.question = rememberSaveable { mutableStateOf(cardDetails.question.value) }
                 fields.answer = rememberSaveable { mutableStateOf(cardDetails.answer.value) }
             }
             EditBasicCard(fields)
         } else {
-            if (ct is CT.ThreeField) {
-                EditBasicCard(fields)
-            } else if (ct is CT.Hint) {
-                EditBasicCard(fields)
-            } else if (ct is CT.MultiChoice) {
-                EditBasicCard(fields)
-            } else if (ct is CT.Notation) {
-                EditBasicCard(fields)
-            }
+            EditBasicCard(fields)
         }
     }
 }
@@ -68,15 +53,7 @@ class ThreeCardTypeHandler : CardTypeHandler {
     ) {
         if (ct is CT.ThreeField) {
             if (!changed) {
-                val cardDetails by remember {
-                    mutableStateOf(
-                        createThreeOrHintCardDetails(
-                            ct.threeFieldCard.question,
-                            ct.threeFieldCard.middle,
-                            ct.threeFieldCard.answer
-                        )
-                    )
-                }
+                val cardDetails by remember { mutableStateOf(ct.toCardDetails()) }
                 fields.question = rememberSaveable {
                     mutableStateOf(cardDetails.question.value)
                 }
@@ -86,18 +63,13 @@ class ThreeCardTypeHandler : CardTypeHandler {
                 fields.answer = rememberSaveable {
                     mutableStateOf(cardDetails.answer.value)
                 }
+                fields.isQOrA = rememberSaveable {
+                    mutableStateOf(cardDetails.isQorA.value)
+                }
             }
-            EditThreeCard(fields)
+            EditThreeCard(fields, getUIStyle)
         } else {
-            if (ct is CT.Basic) {
-                EditThreeCard(fields)
-            } else if (ct is CT.Hint) {
-                EditThreeCard(fields)
-            } else if (ct is CT.MultiChoice) {
-                EditThreeCard(fields)
-            } else if (ct is CT.Notation) {
-                EditThreeCard(fields)
-            }
+            EditThreeCard(fields, getUIStyle)
         }
     }
 }
@@ -110,13 +82,7 @@ class HintCardTypeHandler : CardTypeHandler {
     ) {
         if (ct is CT.Hint) {
             if (!changed) {
-                val cardDetails by remember {
-                    mutableStateOf(
-                        createThreeOrHintCardDetails(
-                            ct.hintCard.question, ct.hintCard.hint, ct.hintCard.answer
-                        )
-                    )
-                }
+                val cardDetails by remember { mutableStateOf(ct.toCardDetails()) }
                 fields.question = rememberSaveable {
                     mutableStateOf(cardDetails.question.value)
                 }
@@ -129,15 +95,7 @@ class HintCardTypeHandler : CardTypeHandler {
             }
             EditHintCard(fields)
         } else {
-            if (ct is CT.Basic) {
-                EditHintCard(fields)
-            } else if (ct is CT.ThreeField) {
-                EditHintCard(fields)
-            } else if (ct is CT.MultiChoice) {
-                EditHintCard(fields)
-            } else if (ct is CT.Notation) {
-                EditHintCard(fields)
-            }
+            EditHintCard(fields)
         }
     }
 }
@@ -150,11 +108,7 @@ class ChoiceCardTypeHandler : CardTypeHandler {
     ) {
         if (ct is CT.MultiChoice) {
             if (!changed) {
-                val cardDetails by remember {
-                    mutableStateOf(
-                        createChoiceCardDetails(ct.multiChoiceCard)
-                    )
-                }
+                val cardDetails by remember { mutableStateOf(ct.toCardDetails()) }
                 fields.question = rememberSaveable { mutableStateOf(cardDetails.question.value) }
                 fields.choices[0].value = rememberSaveable {
                     cardDetails.choices[0].value
@@ -172,15 +126,7 @@ class ChoiceCardTypeHandler : CardTypeHandler {
             }
             EditChoiceCard(fields, getUIStyle)
         } else {
-            if (ct is CT.Basic) {
-                EditChoiceCard(fields, getUIStyle)
-            } else if (ct is CT.ThreeField) {
-                EditChoiceCard(fields, getUIStyle)
-            } else if (ct is CT.Hint) {
-                EditChoiceCard(fields, getUIStyle)
-            } else if (ct is CT.Notation) {
-                EditChoiceCard(fields, getUIStyle)
-            }
+            EditChoiceCard(fields, getUIStyle)
         }
     }
 }
@@ -193,31 +139,16 @@ class NotationCardTypeHandler : CardTypeHandler {
     ) {
         if (ct is CT.Notation) {
             if (!changed) {
-                val cardDetails by remember {
-                    mutableStateOf(
-                        createNotationCardDetails(
-                            ct.notationCard.question,
-                            ct.notationCard.steps,
-                            ct.notationCard.answer
-                        )
-                    )
-                }
+                val cardDetails by remember { mutableStateOf(ct.toCardDetails()) }
                 fields.question = rememberSaveable { mutableStateOf(cardDetails.question.value) }
                 fields.stringList = rememberSaveable { cardDetails.stringList }
                 fields.answer = rememberSaveable { mutableStateOf(cardDetails.answer.value) }
             }
             EditNotationCard(fields, vm, getUIStyle, onUpdate)
         } else {
-            if (ct is CT.Basic) {
-                EditNotationCard(fields, vm, getUIStyle, onUpdate)
-            } else if (ct is CT.ThreeField) {
-                EditNotationCard(fields, vm, getUIStyle, onUpdate)
-            } else if (ct is CT.Hint) {
-                EditNotationCard(fields, vm, getUIStyle, onUpdate)
-            } else if (ct is CT.MultiChoice) {
-                EditNotationCard(fields, vm, getUIStyle, onUpdate)
-            }
+            EditNotationCard(fields, vm, getUIStyle, onUpdate)
         }
+
     }
 }
 

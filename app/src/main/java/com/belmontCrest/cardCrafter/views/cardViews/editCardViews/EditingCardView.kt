@@ -1,6 +1,7 @@
 package com.belmontCrest.cardCrafter.views.cardViews.editCardViews
 
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,8 +43,8 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.editCardModifier
-import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXMenu
@@ -67,6 +69,7 @@ class EditingCardView(
         var offset by remember { mutableStateOf(Offset.Zero) }
         val resetOffset by navVM.resetOffset.collectAsStateWithLifecycle()
         var ktm by rememberSaveable { mutableStateOf(KaTeXMenu(null, SelectedAnnotation.Idle)) }
+        //var initialPos by remember { mutableStateOf<Offset?>(null) }
 
         LaunchedEffect(resetOffset) {
             if (resetOffset) {
@@ -75,25 +78,35 @@ class EditingCardView(
             }
         }
 
-        if (showKB) {
-            KaTeXMenu(
-                Modifier
-                    .fillMaxSize()
-                    .zIndex(2f)
-                    .padding(6.dp), offset, onDismiss = { navVM.toggleKeyboard() },
-                onOffset = { offset += it }, getUIStyle
-            ) { notation, sa ->
-                ktm = KaTeXMenu(notation, sa)
-            }
-        }
         Box(
             modifier = Modifier
-                .scrollableBoxViewModifier(rememberScrollState(), getUIStyle.getColorScheme())
+                .boxViewsModifier(getUIStyle.getColorScheme())
+                .padding(top = 10.dp)
         ) {
+            if (showKB) {
+                BackHandler {
+                    navVM.toggleKeyboard()
+                }
+                KaTeXMenu(
+                    Modifier
+                        .fillMaxSize()
+                        /** .onGloballyPositioned { coordinates ->
+                        initialPos = coordinates.localToWindow(Offset.Zero)
+                        Log.i("KatexMenu", "$initialPos")
+                        // Measure the menu’s total size (header + WebView):
+                        }*/
+                        .zIndex(2f)
+                        .padding(6.dp),
+                    { offset }, onDismiss = { navVM.toggleKeyboard() },
+                    onOffset = { offset += it }, getUIStyle, //initialPos
+                ) { notation, sa ->
+                    ktm = KaTeXMenu(notation, sa)
+                }
+            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 10.dp),
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {

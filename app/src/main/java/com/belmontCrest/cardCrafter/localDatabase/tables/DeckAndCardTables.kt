@@ -10,7 +10,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.KSerializer
@@ -182,21 +181,7 @@ data class SavedCard(
 ) : Parcelable
 
 
-data class CIForID(
-    val cardIdentifier : String
-)
-
-class TimeConverter {
-    @TypeConverter
-    fun fromTimestamp(value: Long): Date {
-        return Date(value)
-    }
-
-    @TypeConverter
-    fun dateToTimestamp(date: Date): Long {
-        return date.time
-    }
-}
+data class CIForID(val cardIdentifier : String)
 
 object DateAsLong : KSerializer<Date> {
     override val descriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)

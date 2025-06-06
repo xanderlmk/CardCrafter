@@ -144,10 +144,8 @@ fun LatexKeyboard(
     }
     val context = LocalContext.current
 
-    LaunchedEffect(value) {
-        if (value.isEmpty()) {
-            textFieldValue = textFieldValue.copy(text = value)
-        }
+    if (value.isEmpty()) {
+        textFieldValue = textFieldValue.copy(text = value)
     }
     LaunchedEffect(kt) {
         val text = textFieldValue.text
