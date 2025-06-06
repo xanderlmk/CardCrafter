@@ -31,6 +31,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnReviewsLeft
+import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.SealedDueCTs
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -45,25 +46,27 @@ fun AgainText(getUIStyle: GetUIStyle) {
         lineHeight = 14.sp
     )
 }
+
 @Composable
 fun HardText(
-    updatedDueCards : SealedDueCTs,
+    updatedDueCards: SealedDueCTs,
     index: Int, hard: Int,
     getUIStyle: GetUIStyle
 ) {
     Text(
         text =
-        if (returnReviewsLeft(updatedDueCards.allCTs[index]) == 1) {
-            "$hard " + stringResource(R.string.days)
-        } else {
-            "${returnReviewsLeft(updatedDueCards.allCTs[index])} " + "reviews left"
-        },
+            if (returnReviewsLeft(updatedDueCards.allCTs[index]) == 1) {
+                "$hard " + stringResource(R.string.days)
+            } else {
+                "${returnReviewsLeft(updatedDueCards.allCTs[index])} " + "reviews left"
+            },
         color = getUIStyle.titleColor(),
         fontSize = 12.sp,
         lineHeight = 14.sp
     )
 
 }
+
 @Composable
 fun GoodText(
     updatedDueCards: SealedDueCTs,
@@ -72,13 +75,13 @@ fun GoodText(
 ) {
     Text(
         text =
-        if (returnReviewsLeft(updatedDueCards.allCTs[index]) == 1) {
-            "$good " + stringResource(R.string.days)
-        } else {
-            "${
-                returnReviewsLeft(updatedDueCards.allCTs[index]) - 1
-            } " + "reviews left"
-        },
+            if (returnReviewsLeft(updatedDueCards.allCTs[index]) == 1) {
+                "$good " + stringResource(R.string.days)
+            } else {
+                "${
+                    returnReviewsLeft(updatedDueCards.allCTs[index]) - 1
+                } " + "reviews left"
+            },
         color = getUIStyle.titleColor(),
         fontSize = 12.sp,
         lineHeight = 14.sp
@@ -221,7 +224,7 @@ fun returnDeckError(): List<String> {
 }
 
 @Composable
-fun returnCardAmountError() : List<String> {
+fun returnCardAmountError(): List<String> {
     return listOf(
         stringResource(R.string.card_amount_under_5).toString(),
         stringResource(R.string.card_amount_over_1k).toString(),
@@ -239,9 +242,11 @@ fun getSavableFields(fields: Fields): Fields {
         choices = rememberSaveable { MutableList(4) { mutableStateOf("") } },
         correct = rememberSaveable { mutableStateOf('?') },
         scrollPosition = fields.scrollPosition,
+        isQOrA = rememberSaveable { mutableStateOf(PartOfQorA.A) },
         inDeckClicked = fields.inDeckClicked,
+        isEditing = fields.isEditing,
         mainClicked = fields.mainClicked,
         leftDueCardView = fields.leftDueCardView,
-        newType = fields.newType
+        newType = fields.newType,
     )
 }

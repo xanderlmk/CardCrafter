@@ -63,7 +63,7 @@ interface CardDao : InsertOrAbortDao {
 
     @Transaction
     suspend fun insertThreeCard(
-        deck: Deck, threeCD: CDetails.ThreeHintCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, threeCD: CDetails.ThreeCD, isOwnerOrCoOwner: Boolean
     ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
         val cardId = returnCard(deck, newDeckCardNumber, THREE)
@@ -72,7 +72,8 @@ interface CardDao : InsertOrAbortDao {
                 cardId = cardId.toInt(),
                 question = threeCD.question,
                 middle = threeCD.middle,
-                answer = threeCD.answer
+                answer = threeCD.answer,
+                field = threeCD.isQOrA
             )
         )
 
@@ -83,7 +84,7 @@ interface CardDao : InsertOrAbortDao {
 
     @Transaction
     suspend fun insertHintCard(
-        deck: Deck, hintCD: CDetails.ThreeHintCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, hintCD: CDetails.HintCD, isOwnerOrCoOwner: Boolean
     ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
         val cardId = returnCard(deck, newDeckCardNumber, HINT)

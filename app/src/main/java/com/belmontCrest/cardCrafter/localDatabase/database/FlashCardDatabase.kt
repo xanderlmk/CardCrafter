@@ -26,6 +26,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Pwd
+import com.belmontCrest.cardCrafter.localDatabase.tables.QOrAConverter
 import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.SyncedDeckInfo
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
@@ -50,6 +51,7 @@ import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_26_27
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_27_28
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_28_29
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_29_30
+import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_30_31
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_3_5
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_5_6
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_6_7
@@ -64,16 +66,18 @@ import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.SyncedD
 import kotlinx.coroutines.CoroutineScope
 
 /** The database instance. */
+@Suppress("unused")
 @Database(
     entities = [
         Deck::class, Card::class, BasicCard::class, ThreeFieldCard::class,
         HintCard::class, MultiChoiceCard::class, NotationCard::class, SavedCard::class,
         ImportedDeckInfo::class, SyncedDeckInfo::class, Pwd::class, CardInfo::class
     ],
-    version = 30, exportSchema = true
+    version = 31, exportSchema = true
 )
 @TypeConverters(
-    TimeConverter::class, ListStringConverter::class, EncryptionConverter::class
+    TimeConverter::class, ListStringConverter::class, EncryptionConverter::class,
+    QOrAConverter::class
 )
 abstract class FlashCardDatabase : RoomDatabase() {
     abstract fun deckDao(): DeckDao
@@ -107,7 +111,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
                             MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20,
                             MIGRATION_20_21, MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24,
                             MIGRATION_24_25, MIGRATION_25_26, MIGRATION_26_27, MIGRATION_27_28,
-                            MIGRATION_28_29, MIGRATION_29_30
+                            MIGRATION_28_29, MIGRATION_29_30, MIGRATION_30_31
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(FlashCardDatabaseCallback(scope))

@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
@@ -39,7 +40,7 @@ import java.util.UUID
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun SignUp(
     supabaseVM: SupabaseViewModel,
@@ -56,15 +57,18 @@ fun SignUp(
             .boxViewsModifier(getUIStyle.getColorScheme())
             .padding(4.dp)
     ) {
-        Text(
-            text = "Use Google to Sign In/Sign Up",
-            color = getUIStyle.titleColor(),
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            fontSize = 22.sp
-        )
-        GoogleSignInButton(supabaseVM, clientId, getUIStyle) {
-            onRefresh(it)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            Text(
+                text = "Use Google to Sign In/Sign Up",
+                color = getUIStyle.titleColor(),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontSize = 22.sp
+            )
+            GoogleSignInButton(supabaseVM, clientId, getUIStyle) {
+                onRefresh(it)
+            }
         }
 
         Text(
@@ -74,9 +78,9 @@ fun SignUp(
             textAlign = TextAlign.Center,
             fontSize = 22.sp
         )
-        SubmitButton(onClick = {
-            onUseEmail()
-        }, enabled = true, getUIStyle, "Sign up/Sign up with email")
+        SubmitButton(
+            onClick = { onUseEmail() }, enabled = true, getUIStyle, "Sign up/Sign up with email"
+        )
     }
 }
 
@@ -135,7 +139,6 @@ fun GoogleSignInButton(
                         googleIdToken = googleIdToken,
                         rawNonce = rawNonce
                     )
-                    enabled = true
                     if (success) {
                         showToastMessage(context, signedIn)
                         onRefresh(true)
@@ -143,21 +146,24 @@ fun GoogleSignInButton(
                         showToastMessage(context, couldNotSignIn)
                     }
                 } catch (e: GetCredentialException) {
-                    showToastMessage(context, "$e")
+                    showToastMessage(context, "Invalid Credentials.")
                     Log.d("GOOGLE SIGN IN", "$e")
                     //showGoogleOneTap()
-                    enabled = true
                 } catch (e: GoogleIdTokenParsingException) {
-                    showToastMessage(context, "$e")
+                    showToastMessage(context, "Couldn't parse Google ID Token correctly.")
                     Log.d("GOOGLE SIGN IN", "$e")
-                    enabled = true
                 } catch (e: RestException) {
-                    showToastMessage(context, "$e")
+                    showToastMessage(
+                        context, e.message ?: "Rest Exception. Error Code: ${e.statusCode}"
+                    )
                     Log.d("GOOGLE SIGN IN", "$e")
-                    enabled = true
+                } catch (e: GetCredentialCancellationException) {
+                    showToastMessage(context, "Sign in was canceled.")
+                    Log.e("GOOGLE SIGN IN", "GetCredentialCancellationException: $e")
                 } catch (e: Exception) {
-                    showToastMessage(context, "$e")
-                    Log.d("GOOGLE SIGN IN", "$e")
+                    showToastMessage(context, "An unknown error occurred.")
+                    Log.d("GOOGLE SIGN IN", "Exception: $e")
+                } finally {
                     enabled = true
                 }
             }

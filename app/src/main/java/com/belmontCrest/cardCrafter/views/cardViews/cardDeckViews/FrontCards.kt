@@ -32,6 +32,7 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXWebView
 
 @Composable
@@ -107,24 +108,41 @@ fun ThreeFrontCard(
     getUIStyle: GetUIStyle
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
-    Box {
+    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
         SelectionContainer(
             modifier = Modifier.clickable(
                 interactionSource = null,
                 indication = null
             ) { focusManager.clearFocus() }
         ) {
-            Text(
-                text = threeCard.question,
-                fontSize = 20.sp,
-                lineHeight = 22.sp,
-                color = getUIStyle.titleColor(),
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .fillMaxWidth()
-            )
+            Column {
+                Text(
+                    text = threeCard.question,
+                    fontSize = 20.sp,
+                    lineHeight = 22.sp,
+                    color = getUIStyle.titleColor(),
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+
+                )
+                if (threeCard.field is PartOfQorA.Q) {
+                    Text(
+                        text = threeCard.middle,
+                        fontSize = 20.sp,
+                        lineHeight = 22.sp,
+                        color = getUIStyle.titleColor(),
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally)
+                    )
+                }
+            }
         }
     }
 }
@@ -136,9 +154,7 @@ fun HintFrontCard(
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
     var isHintRevealed by rememberSaveable { mutableStateOf(false) }
-    Box(
-        contentAlignment = Alignment.TopCenter,
-    ) {
+    Box(contentAlignment = Alignment.TopCenter) {
         SelectionContainer(
             modifier = Modifier
                 .clickable(
@@ -159,8 +175,7 @@ fun HintFrontCard(
                         .fillMaxWidth()
                 )
                 Text(
-                    text =
-                    if (isHintRevealed) {
+                    text = if (isHintRevealed) {
                         hintCard.hint
                     } else {
                         stringResource(R.string.hint_field)
@@ -195,9 +210,7 @@ fun ChoiceFrontCard(
     clickedChoice: MutableState<Char>
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
-    Box(
-        contentAlignment = Alignment.TopCenter,
-    ) {
+    Box(contentAlignment = Alignment.TopCenter) {
         SelectionContainer(
             modifier = Modifier
                 .clickable(

@@ -1,8 +1,9 @@
+@file:Suppress("unused")
+
 package com.belmontCrest.cardCrafter.model
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -65,68 +66,61 @@ fun Modifier.paddingForModal(): Modifier {
 @Composable
 fun getMaxWidth(): Dp {
     val config = LocalWindowInfo.current.containerSize
-    return config.width.dp
+    return LocalDensity.current.run { config.width.toDp() }
 }
 
 @Composable
 fun getMaxHeight(): Dp {
     val config = LocalWindowInfo.current.containerSize
-    return config.height.dp
+    return LocalDensity.current.run { config.height.toDp() }
 }
 
 @Composable
 fun getKatexMenuWidth(): Dp {
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-
+    val config = LocalWindowInfo.current.containerSize
+    val width = LocalDensity.current.run { config.width.toDp() }
     if (isLandscape) {
-        val config = LocalWindowInfo.current.containerSize
-        val width = config.width
         return when (width) {
-            in 200..250 -> {
+            in 200.dp..250.dp -> {
                 100.dp
             }
 
-            in 251..350 -> {
+            in 251.dp..350.dp -> {
                 150.dp
             }
 
-            in 351..500 -> {
+            in 351.dp..500.dp -> {
                 250.dp
             }
 
-            in 501..700 -> {
+            in 501.dp..700.dp -> {
                 300.dp
             }
 
-            in 701..900 -> {
-                400.dp
-            }
-
             else -> {
-                450.dp
+                400.dp
             }
         }
     } else {
-        val config = LocalWindowInfo.current.containerSize
-        val width = config.width
         return when (width) {
-            in 200..250 -> {
+            in 200.dp..250.dp -> {
                 200.dp
             }
 
-            in 251..350 -> {
+            in 251.dp..350.dp -> {
                 250.dp
             }
 
-            in 351..500 -> {
+            in 351.dp..500.dp -> {
                 350.dp
             }
 
-            in 501..700 -> {
+            in 501.dp..700.dp -> {
                 500.dp
             }
 
-            in 701..900 -> {
+            in 701.dp..900.dp -> {
                 700.dp
             }
 

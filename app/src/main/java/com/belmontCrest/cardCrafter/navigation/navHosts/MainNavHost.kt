@@ -17,6 +17,7 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -95,7 +96,6 @@ fun AppNavHost(
                     // Exit the app when back is pressed on the main screen
                     (mainNavController.context as? Activity)?.finish()
                 }
-                val context = LocalContext.current
                 mainView.DeckList(
                     mainViewModel,
                     // In DeckList Composable
@@ -117,16 +117,6 @@ fun AppNavHost(
                         mainNavController.navigate(AddDeckDestination.route)
                     },
                     onNavigateToSBDeckList = {
-                        coroutineScope.launch {
-                            supabaseVM.updateStatus()
-                            supabaseVM.getOwner()
-                        }
-                        coroutineScope.launch {
-                            val result = supabaseVM.getGoogleId()
-                            if (!result.first) {
-                                showToastMessage(context, result.second)
-                            }
-                        }
                         navViewModel.updateStartingSBRoute(SupabaseDestination.route)
                         navViewModel.updateRoute(SBNavDestination.route)
                         mainNavController.navigate(SBNavDestination.route)
@@ -148,6 +138,19 @@ fun AppNavHost(
             }
             /** Our Supabase Nav Controller to call*/
             composable(SBNavDestination.route) {
+                val context = LocalContext.current
+                LaunchedEffect(Unit) {
+                    coroutineScope.launch {
+                        supabaseVM.updateStatus()
+                        supabaseVM.getOwner()
+                    }
+                    coroutineScope.launch {
+                        val result = supabaseVM.getGoogleId()
+                        if (!result.first) {
+                            showToastMessage(context, result.second)
+                        }
+                    }
+                }
                 SupabaseNav(
                     fields, mainViewModel, supabaseVM, getUIStyle,
                     preferences, mainNavController, navViewModel

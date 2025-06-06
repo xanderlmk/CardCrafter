@@ -35,6 +35,9 @@ import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.navigation.destinations.EditDeckDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.SBNavDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.PersonalDeckSyncViewModel
 import com.belmontCrest.cardCrafter.supabase.model.SyncStatus
@@ -52,7 +55,8 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun MainDLRouteContent(
-    getUIStyle: GetUIStyle, coroutineScope: CoroutineScope, navViewModel: NavViewModel
+    getUIStyle: GetUIStyle, coroutineScope: CoroutineScope,
+    navViewModel: NavViewModel, navController: NavHostController
 ) {
     val ci = ContentIcons(getUIStyle)
     val pdsVM: PersonalDeckSyncViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -66,7 +70,19 @@ fun MainDLRouteContent(
                 },
                 title = { Text("Error") },
                 text = { CustomText(status.message, getUIStyle) },
-                confirmButton = {},
+                confirmButton = {
+                    if (status.message == "Null user") {
+                        SubmitButton(
+                            onClick = {
+                                pdsVM.resetSyncStatus()
+                                navViewModel.resetIsBlocking()
+                                navViewModel.updateStartingSBRoute(UserProfileDestination.route)
+                                navViewModel.updateRoute(UserProfileDestination.route)
+                                navController.navigate(SBNavDestination.route)
+                            }, enabled = true, getUIStyle, "Sign In"
+                        )
+                    }
+                },
                 dismissButton = {},
             )
         }

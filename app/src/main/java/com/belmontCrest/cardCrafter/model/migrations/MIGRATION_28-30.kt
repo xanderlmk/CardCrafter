@@ -291,3 +291,48 @@ val MIGRATION_29_30 = object : Migration(29, 30) {
         }
     }
 }
+
+val MIGRATION_30_31 = object : Migration(30, 31) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        try {
+            db.execSQL("PRAGMA foreign_keys=OFF;")
+            db.beginTransaction()
+            db.execSQL("""
+                CREATE TABLE IF NOT EXISTS threeFieldCard_temp(
+                    cardId INTEGER NOT NULL,
+                    question TEXT NOT NULL,
+                    middle TEXT NOT NULL,
+                    answer TEXT NOT NULL,
+                    field INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY(cardId),
+                    FOREIGN KEY(cardId) REFERENCES cards(id) ON DELETE CASCADE 
+                    ON UPDATE CASCADE
+                )
+            """.trimIndent())
+
+            db.execSQL(
+                """
+                INSERT INTO threeFieldCard_temp (cardId, question, middle, answer) 
+                        SELECT cardId, question, middle, answer FROM threeFieldCard
+                        """
+            )
+
+            // Drop old table
+            db.execSQL("DROP TABLE threeFieldCard")
+
+            // Rename temporary table
+            db.execSQL("ALTER TABLE threeFieldCard_temp RENAME TO threeFieldCard")
+            // Create index
+            db.execSQL("CREATE INDEX index_threeFieldCard_cardId ON threeFieldCard (cardId)")
+
+            db.execSQL("PRAGMA foreign_keys=ON;")
+            db.setTransactionSuccessful()
+        } catch (e: Exception) {
+            // Log the error for debugging
+            Log.e("Migration", "Migration 30 to 31 failed", e)
+            throw RuntimeException("Migration 30 to 31 failed: ${e.message}")
+        } finally {
+            db.endTransaction()
+        }
+    }
+}

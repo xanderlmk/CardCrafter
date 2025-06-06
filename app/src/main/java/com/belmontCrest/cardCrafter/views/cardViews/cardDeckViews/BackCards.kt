@@ -23,6 +23,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXWebView
@@ -105,7 +106,7 @@ fun ThreeBackCard(
     getUIStyle: GetUIStyle
 ) {
     val focusManager = LocalFocusManager.current // Get focus manager
-    Box {
+    Box(Modifier.fillMaxWidth()) {
         SelectionContainer(
             modifier = Modifier
                 .clickable(
@@ -122,6 +123,7 @@ fun ThreeBackCard(
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
+                        .fillMaxWidth()
                         .align(Alignment.CenterHorizontally)
                 )
                 Text(
@@ -132,6 +134,7 @@ fun ThreeBackCard(
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
+                        .fillMaxWidth()
                         .padding(vertical = 8.dp)
                         .align(Alignment.CenterHorizontally)
                 )
@@ -143,6 +146,7 @@ fun ThreeBackCard(
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
+                        .fillMaxWidth()
                         .padding(vertical = 8.dp)
                         .align(Alignment.CenterHorizontally)
                 )

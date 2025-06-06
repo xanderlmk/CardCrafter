@@ -25,7 +25,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,10 +37,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.belmontCrest.cardCrafter.model.getIsLandScape
 import com.belmontCrest.cardCrafter.model.getKatexMenuWidth
-import com.belmontCrest.cardCrafter.model.getMaxHeight
-import com.belmontCrest.cardCrafter.model.getMaxWidth
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.parcelize.Parcelize
 import kotlin.math.roundToInt
@@ -62,14 +58,14 @@ sealed class SelectedAnnotation : Parcelable {
     data object Idle : SelectedAnnotation()
 }
 
-private const val KATEX_MENU = "KatexMenu"
+//private const val KATEX_MENU = "KatexMenu"
 
 @OptIn(ExperimentalStdlibApi::class)
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun KaTeXMenu(
-    modifier: Modifier, offset: () -> Offset, onDismiss: () -> Unit,
-    onOffset: (Offset) -> Unit, getUIStyle: GetUIStyle, initialPos: Offset?,
+    modifier: Modifier, offsetProvider: () -> Offset, onDismiss: () -> Unit,
+    onOffset: (Offset) -> Unit, getUIStyle: GetUIStyle, //initialPos: Offset?,
     onSelectNotation: (String, SelectedAnnotation) -> Unit,
 ) {
     val context = LocalContext.current
@@ -124,20 +120,21 @@ fun KaTeXMenu(
             }
         }
     }
+    /*
+        val maxY = getMaxHeight().value
+        val maxX = getMaxWidth().value
+        val isLandscape = getIsLandScape()
+        val midXPoint = getKatexMenuWidth().value / 2
 
-    val maxY = getMaxHeight().value
-    val maxX = getMaxWidth().value
-    val isLandscape = getIsLandScape()
-    val midXPoint = getKatexMenuWidth().value
+        LaunchedEffect(Unit) {
+            Log.i(KATEX_MENU, "max width: $maxX")
+            Log.i(KATEX_MENU, "max height: $maxY")
+        }*/
 
-    LaunchedEffect(Unit) {
-        Log.i(KATEX_MENU, "max width: $maxX")
-        Log.i(KATEX_MENU, "max height: $maxY")
-    }
 
     Box(
         modifier = modifier
-            .offset { IntOffset(offset().x.roundToInt(), offset().y.roundToInt()) }
+            .offset { IntOffset(offsetProvider().x.roundToInt(), offsetProvider().y.roundToInt()) }
     ) {
         Box(
             modifier = Modifier
@@ -148,21 +145,22 @@ fun KaTeXMenu(
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
-                        val pos = initialPos
-                        if (pos != null) {
-                            val currentY = offset().y - pos.y + dragAmount.y
-                            val currentX = offset().x - pos.x + dragAmount.x
-                            if (getDetection(
-                                    isLandscape, pos = pos, midXPoint = midXPoint,
-                                    maxY = maxY, maxX = maxX,
-                                    currentY = currentY, currentX = currentX
-                                )
-                            ) {
-                                Log.w(KATEX_MENU, "Out of bounds")
-                                return@detectDragGestures
-                            }
-                            onOffset(dragAmount)
-                        }
+                        /* val pos = initialPos
+                         if (pos != null) {
+                             val currentY = offsetProvider().y - pos.y + dragAmount.y
+                             val currentX = offsetProvider().x - pos.x + dragAmount.x
+                             if (isOutsideOfBounds(
+                                     isLandscape, pos = pos, midXPoint = midXPoint,
+                                     maxY = maxY, maxX = maxX,
+                                     currentY = currentY, currentX = currentX
+                                 )
+                             ) {
+                                 Log.w(KATEX_MENU, "Out of bounds")
+                                 return@detectDragGestures
+                             }
+                             onOffset(dragAmount)
+                         }*/
+                        onOffset(dragAmount)
                     }
                 }
                 .border(1.5.dp, getUIStyle.defaultIconColor())
@@ -204,18 +202,18 @@ fun KaTeXMenu(
  * @param currentX Current X value of the offset in the Katex Menu
  * @param midXPoint Midpoint of the width in the Katex Menu
  */
-private fun getDetection(
+@Suppress("unused")
+private fun isOutsideOfBounds(
     isLandScape: Boolean,
     pos: Offset, maxY: Float, maxX: Float,
     currentY: Float, currentX: Float,
     midXPoint: Float
 ): Boolean {
     return if (!isLandScape) {
-
         val bottom = -pos.y - 26.dp.value - (pos.y / 3)
-        val top = maxY - (226.dp.value * 2) - (pos.y * 2)
+        val top = maxY - (200.dp.value)
         val right = maxX - midXPoint
-        val left = -(midXPoint / 4) + pos.x + 12.dp.value
+        val left = -(pos.x * 2) - 6.dp.value
         /*Log.i(
             KATEX_MENU,
             "PositionY: $currentY :: LowerBoundY: $bottom :: HigherBoundY: $top"
@@ -226,10 +224,10 @@ private fun getDetection(
                 currentX <= left // ✅
 
     } else {
-        val bottom = -pos.y - 26.dp.value - (pos.y / 3)
-        val top = maxY + 26.dp.value - (200.dp.value * 2) - pos.y * 2
-        val right = maxX - (midXPoint * 2)
-        val left = -(midXPoint / 3) + (pos.x * 1.5) + 12.dp.value
+        val bottom = -pos.y - (pos.y / 2)
+        val top = maxY - (200.dp.value) - pos.y
+        val right = maxX - pos.x
+        val left = -(pos.x * 2) - 6.dp.value
         /*Log.i(
             KATEX_MENU,
             "PositionY: $currentY :: LowerBoundY: $bottom :: HigherBoundY: $top"

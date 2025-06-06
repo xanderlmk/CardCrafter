@@ -57,7 +57,7 @@ interface CardTypesDao {
 
     @Transaction
     @Query("""SELECT * FROM cards where id = :id""")
-    fun getACardTypeStream(id: Int) : Flow<AllCardTypes>
+    fun getACardTypeStream(id: Int): Flow<AllCardTypes>
 
     @Insert(onConflict = OnConflictStrategy.Companion.ABORT)
     suspend fun insertBasicCard(basicCard: BasicCard)
@@ -114,7 +114,8 @@ interface CardTypesDao {
                         cardId = cardId,
                         question = fields.question.value,
                         middle = fields.middleField.value,
-                        answer = fields.answer.value
+                        answer = fields.answer.value,
+                        field = fields.isQOrA.value
                     )
                 )
 
@@ -144,6 +145,7 @@ interface CardTypesDao {
                     )
                 )
             }
+
             NOTATION -> {
                 insertNotationCard(
                     NotationCard(
@@ -160,15 +162,19 @@ interface CardTypesDao {
             is CT.Basic -> {
                 deleteBasicCard(deleteCT.basicCard)
             }
+
             is CT.ThreeField -> {
                 deleteThreeCard(deleteCT.threeFieldCard)
             }
+
             is CT.Hint -> {
                 deleteHintCard(deleteCT.hintCard)
             }
+
             is CT.MultiChoice -> {
                 deleteMultiChoiceCard(deleteCT.multiChoiceCard)
             }
+
             is CT.Notation -> {
                 deleteNotationCard(deleteCT.notationCard)
             }

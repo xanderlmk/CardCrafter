@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         applicationId = "com.belmontCrest.cardCrafter"
-        minSdk = 26
+        minSdk = 28
         targetSdk = 35
         versionCode = 12
         versionName = "1.0.5"

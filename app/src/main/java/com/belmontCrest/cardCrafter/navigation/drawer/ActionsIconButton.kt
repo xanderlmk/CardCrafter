@@ -77,11 +77,11 @@ fun ActionIconButton(
 
     when (cr.name) {
         MainNavDestination.route -> {
-            MainDLRouteContent(getUIStyle, coroutineScope, navViewModel)
+            MainDLRouteContent(getUIStyle, coroutineScope, navViewModel, mainNavController)
         }
 
         DeckListDestination.route -> {
-            MainDLRouteContent(getUIStyle, coroutineScope, navViewModel)
+            MainDLRouteContent(getUIStyle, coroutineScope, navViewModel, mainNavController)
         }
 
         AddDeckDestination.route -> {

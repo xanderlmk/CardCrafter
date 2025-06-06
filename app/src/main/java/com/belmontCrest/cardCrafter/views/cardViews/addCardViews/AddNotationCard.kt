@@ -1,6 +1,7 @@
 package com.belmontCrest.cardCrafter.views.cardViews.addCardViews
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,7 +31,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -83,7 +83,7 @@ fun AddNotationCard(
     val context = LocalContext.current
     var enabled by rememberSaveable { mutableStateOf(true) }
     val resetOffset by navVM.resetOffset.collectAsStateWithLifecycle()
-    var initialPos by remember { mutableStateOf<Offset?>(null) }
+   // var initialPos by remember { mutableStateOf<Offset?>(null) }
 
     LaunchedEffect(resetOffset) {
         if (resetOffset) {
@@ -93,15 +93,19 @@ fun AddNotationCard(
     }
     Box {
         if (showKB) {
+            BackHandler {
+                navVM.toggleKeyboard()
+                navVM.resetOffset()
+            }
             KaTeXMenu(
-                modifier.onGloballyPositioned { coordinates ->
-                    if (initialPos == null) {
-                        initialPos = coordinates.localToWindow(Offset.Zero)
-                        Log.i("KatexMenu", "$initialPos")
-                        // Measure the menu’s total size (header + WebView):
-                    }
-                }, { offset }, onDismiss = { navVM.toggleKeyboard() },
-                onOffset = { offset += it }, getUIStyle, initialPos
+                modifier
+                    .fillMaxSize(),
+                /**.onGloballyPositioned { coordinates ->
+                initialPos = coordinates.localToWindow(Offset.Zero)
+
+                }*/ { offset },
+                onDismiss = { navVM.toggleKeyboard() },
+                onOffset = { offset += it }, getUIStyle, //initialPos
             ) { notation, sa ->
                 when (val sel = selectedKB) {
                     is SelectedKeyboard.Question -> {

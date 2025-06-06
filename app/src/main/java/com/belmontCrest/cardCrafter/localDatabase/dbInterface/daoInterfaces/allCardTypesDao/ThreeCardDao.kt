@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 
 @Dao
@@ -20,13 +21,15 @@ interface ThreeCardDao {
         Update threeFieldCard
         Set question = :newQuestion, 
         middle = :newMiddle,
-        answer = :newAnswer
+        answer = :newAnswer,
+        field = :isQOrA
         where cardId = :id""")
     suspend fun updateThreeCard(
         id: Int,
         newQuestion: String,
         newMiddle: String,
-        newAnswer: String
+        newAnswer: String,
+        isQOrA : PartOfQorA
     )
 
 }

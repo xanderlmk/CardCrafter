@@ -155,11 +155,11 @@ class OfflineFlashCardRepository(
     ) = cardDao.insertBasicCard(deck, basicCD, isOwnerOrCoOwner)
 
     override suspend fun insertThreeCard(
-        deck: Deck, threeCD: CDetails.ThreeHintCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, threeCD: CDetails.ThreeCD, isOwnerOrCoOwner: Boolean
     ) = cardDao.insertThreeCard(deck, threeCD, isOwnerOrCoOwner)
 
     override suspend fun insertHintCard(
-        deck: Deck, hintCD: CDetails.ThreeHintCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, hintCD: CDetails.HintCD, isOwnerOrCoOwner: Boolean
     ) = cardDao.insertHintCard(deck, hintCD, isOwnerOrCoOwner)
 
     override suspend fun insertMultiCard(
