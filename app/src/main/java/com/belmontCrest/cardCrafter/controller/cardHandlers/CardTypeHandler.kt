@@ -12,7 +12,7 @@ import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditBasicCard
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditHintCard
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditThreeCard
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXMenu
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditChoiceCard
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditNotationCard
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.toCardDetails

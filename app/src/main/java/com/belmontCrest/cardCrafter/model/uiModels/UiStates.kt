@@ -81,17 +81,17 @@ sealed class CardState : Parcelable {
     data object Finished : CardState()
 }
 
-/** Selected keyboard which is tied to AddCardVM */
-@Parcelize
-sealed class SelectedKeyboard : Parcelable {
-    @Parcelize
+/** Selected keyboard which is tied to NavVM */
+@Serializable
+sealed class SelectedKeyboard {
+    @Serializable
     data object Question : SelectedKeyboard()
 
     /** The pertaining step on the steps from stringList. */
-    @Parcelize
+    @Serializable
     data class Step(val index: Int) : SelectedKeyboard()
 
-    @Parcelize
+    @Serializable
     data object Answer : SelectedKeyboard()
 }
 
