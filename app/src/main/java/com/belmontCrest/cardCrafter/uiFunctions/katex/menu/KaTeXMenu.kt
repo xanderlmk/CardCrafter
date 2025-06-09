@@ -1,37 +1,32 @@
-package com.belmontCrest.cardCrafter.uiFunctions.katex
+package com.belmontCrest.cardCrafter.uiFunctions.katex.menu
 
 import android.annotation.SuppressLint
-import android.os.Handler
-import android.os.Looper
 import android.os.Parcelable
-import android.util.Log
-import android.webkit.JavascriptInterface
 import android.webkit.WebView
-import android.webkit.WebViewClient
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -55,6 +50,21 @@ sealed class SelectedAnnotation : Parcelable {
     data object Accent : SelectedAnnotation()
 
     @Parcelize
+    data object EQ : SelectedAnnotation()
+
+    @Parcelize
+    data object OP : SelectedAnnotation()
+
+    @Parcelize
+    data object NORM : SelectedAnnotation()
+
+    @Parcelize
+    sealed class CursorChange : SelectedAnnotation() {
+        data object Forward : CursorChange()
+        data object Backward : CursorChange()
+    }
+
+    @Parcelize
     data object Idle : SelectedAnnotation()
 }
 
@@ -65,61 +75,10 @@ sealed class SelectedAnnotation : Parcelable {
 @Composable
 fun KaTeXMenu(
     modifier: Modifier, offsetProvider: () -> Offset, onDismiss: () -> Unit,
-    onOffset: (Offset) -> Unit, getUIStyle: GetUIStyle, //initialPos: Offset?,
-    onSelectNotation: (String, SelectedAnnotation) -> Unit,
+    onOffset: (Offset) -> Unit, getUIStyle: GetUIStyle,// initialPos: Offset?,
+    webView: WebView, scrollState: ScrollState,
+    onCursorChange: (SelectedAnnotation.CursorChange) -> Unit
 ) {
-    val context = LocalContext.current
-    val textToHex = getUIStyle.titleColor().toShortHex()
-    val webView = remember {
-        @Suppress("unused")
-        WebView(context).apply {
-            isFocusable = false
-            isFocusableInTouchMode = false
-            setBackgroundColor(getUIStyle.katexMenuBGColor().toArgb())
-            settings.javaScriptEnabled = true
-            // expose a Kotlin callback under “Android” in JS
-            addJavascriptInterface(object {
-                @JavascriptInterface
-                fun onSymbolSelected(symbol: String) {
-                    Handler(Looper.getMainLooper()).post {
-                        onSelectNotation("\\\\$symbol", SelectedAnnotation.Letter)
-                    }
-                }
-            }, "Android")
-            addJavascriptInterface(object {
-                @JavascriptInterface
-                fun onAccentSelected(accent: String) {
-                    Handler(Looper.getMainLooper()).post {
-                        onSelectNotation("\\\\$accent", SelectedAnnotation.Accent)
-                    }
-                }
-            }, "Accent")
-            webViewClient = object : WebViewClient() {
-                override fun onPageFinished(view: WebView, url: String) {
-                    super.onPageFinished(view, url)
-                    val themeJs = "setTheme('$textToHex');"
-                    view.evaluateJavascript(themeJs, null)
-                    val list = buildKeyboardHtml()
-                    val insertLatexJs = """
-                    | document.getElementById('list').innerHTML = `$list`;
-                    | renderMathInElement(document.body);
-                """.trimMargin()
-                    view.evaluateJavascript(insertLatexJs, null)
-                }
-            }
-            loadUrl("file:///android_asset/katex-menu.html")
-        }
-    }
-
-    DisposableEffect(webView) {
-        onDispose {
-            try {
-                webView.destroy()
-            } catch (e: Exception) {
-                Log.w("KatexMenu", "Failed to destroy WebView: $e")
-            }
-        }
-    }
     /*
         val maxY = getMaxHeight().value
         val maxX = getMaxWidth().value
@@ -130,7 +89,6 @@ fun KaTeXMenu(
             Log.i(KATEX_MENU, "max width: $maxX")
             Log.i(KATEX_MENU, "max height: $maxY")
         }*/
-
 
     Box(
         modifier = modifier
@@ -165,6 +123,20 @@ fun KaTeXMenu(
                 }
                 .border(1.5.dp, getUIStyle.defaultIconColor())
         ) {
+
+            Row(
+                modifier = Modifier.align(Alignment.TopStart),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = { onCursorChange(SelectedAnnotation.CursorChange.Backward) },
+                ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
+                IconButton(
+                    onClick = { onCursorChange(SelectedAnnotation.CursorChange.Forward) },
+                ) { Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null) }
+            }
+
             Text(
                 text = "Drag here",
                 modifier = Modifier.align(Alignment.Center),
@@ -186,7 +158,7 @@ fun KaTeXMenu(
                 .height(200.dp)
                 .background(getUIStyle.katexMenuBGColor())
                 .border(1.5.dp, getUIStyle.defaultIconColor())
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
         )
     }
 

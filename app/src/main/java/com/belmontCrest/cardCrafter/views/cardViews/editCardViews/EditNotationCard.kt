@@ -30,8 +30,8 @@ import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.LatexKeyboard
-import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXMenu
-import com.belmontCrest.cardCrafter.uiFunctions.katex.SelectedAnnotation
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 
 @Composable

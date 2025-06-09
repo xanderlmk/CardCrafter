@@ -1,8 +1,11 @@
 package com.belmontCrest.cardCrafter.uiFunctions
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -27,7 +30,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +54,7 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
+import kotlinx.coroutines.delay
 
 
 @Composable
@@ -233,74 +239,79 @@ fun CardOptionsButton(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(false) }
-    ToggleKeyBoard(navVM, getUIStyle, fields.newType.value)
-    Box(
-        modifier = modifier
-            .wrapContentSize(Alignment.TopEnd)
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            onClick = { expanded.value = true },
-            modifier = Modifier
-                .size(54.dp)
-                .align(Alignment.TopEnd)
+        ToggleKeyBoard(navVM, getUIStyle, fields.newType.value)
+        Box(
+            modifier = modifier
+                .wrapContentSize(Alignment.TopEnd)
         ) {
-            Icon(
-                Icons.Default.MoreVert,
-                contentDescription = "Card Type",
-                tint = getUIStyle.titleColor()
+            IconButton(
+                onClick = { expanded.value = true },
+                modifier = Modifier
+                    .size(54.dp)
+                    .align(Alignment.TopEnd)
+            ) {
+                Icon(
+                    Icons.Default.MoreVert,
+                    contentDescription = "Card Type",
+                    tint = getUIStyle.titleColor()
+                )
+            }
+            DropdownMenu(expanded = expanded.value, onDismissRequest = { expanded.value = false }) {
+                DropdownMenuItem(
+                    onClick = {
+                        resetKeyboardStuff(navVM, fields.newType.value)
+                        fields.newType.value = Type.BASIC
+                    },
+                    text = { Text(stringResource(R.string.basic_card)) })
+                DropdownMenuItem(
+                    onClick = {
+                        resetKeyboardStuff(navVM, fields.newType.value)
+                        fields.newType.value = Type.THREE
+                    },
+                    text = { Text(stringResource(R.string.three_field_card)) })
+                DropdownMenuItem(
+                    onClick = {
+                        resetKeyboardStuff(navVM, fields.newType.value)
+                        fields.newType.value = Type.HINT
+                    },
+                    text = { Text(stringResource(R.string.hint_card)) })
+                DropdownMenuItem(
+                    onClick = {
+                        resetKeyboardStuff(navVM, fields.newType.value)
+                        fields.newType.value = Type.MULTI
+                    },
+                    text = { Text(stringResource(R.string.multi_choice_card)) })
+                DropdownMenuItem(
+                    onClick = { fields.newType.value = Type.NOTATION },
+                    text = { Text("Notation Card") }
+                )
+                HorizontalDivider()
+                DropdownMenuItem(
+                    onClick = {
+                        showDialog.value = true
+                    },
+                    text = { Text("Delete Card") },
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            modifier = Modifier
+                                .size(28.dp),
+                            contentDescription = "Delete Card",
+                            tint = getUIStyle.iconColor()
+                        )
+                    }
+                )
+            }
+            DeleteCard(
+                navVM, coroutineScope,
+                card, fields, showDialog,
+                onDelete, getUIStyle
             )
         }
-        DropdownMenu(expanded = expanded.value, onDismissRequest = { expanded.value = false }) {
-            DropdownMenuItem(
-                onClick = {
-                    resetKeyboardStuff(navVM, fields.newType.value)
-                    fields.newType.value = Type.BASIC
-                },
-                text = { Text(stringResource(R.string.basic_card)) })
-            DropdownMenuItem(
-                onClick = {
-                    resetKeyboardStuff(navVM, fields.newType.value)
-                    fields.newType.value = Type.THREE
-                },
-                text = { Text(stringResource(R.string.three_field_card)) })
-            DropdownMenuItem(
-                onClick = {
-                    resetKeyboardStuff(navVM, fields.newType.value)
-                    fields.newType.value = Type.HINT
-                },
-                text = { Text(stringResource(R.string.hint_card)) })
-            DropdownMenuItem(
-                onClick = {
-                    resetKeyboardStuff(navVM, fields.newType.value)
-                    fields.newType.value = Type.MULTI
-                },
-                text = { Text(stringResource(R.string.multi_choice_card)) })
-            DropdownMenuItem(
-                onClick = { fields.newType.value = Type.NOTATION },
-                text = { Text("Notation Card") }
-            )
-            HorizontalDivider()
-            DropdownMenuItem(
-                onClick = {
-                    showDialog.value = true
-                },
-                text = { Text("Delete Card") },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        modifier = Modifier
-                            .size(28.dp),
-                        contentDescription = "Delete Card",
-                        tint = getUIStyle.iconColor()
-                    )
-                }
-            )
-        }
-        DeleteCard(
-            navVM, coroutineScope,
-            card, fields, showDialog,
-            onDelete, getUIStyle
-        )
     }
 }
 
@@ -313,45 +324,50 @@ private fun resetKeyboardStuff(navVM: NavViewModel, type: String) {
 @Composable
 fun CardTypesButton(getUIStyle: GetUIStyle, navVM: NavViewModel) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    val type by navVM.type.collectAsStateWithLifecycle()
-    ToggleKeyBoard(navVM, getUIStyle, type)
-    Box(
-        Modifier
-            .wrapContentSize(Alignment.TopEnd)
+    val type by navVM.type.collectAsState()
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            onClick = { expanded = true },
-            modifier = Modifier
-                .padding(4.dp)
-                .size(54.dp)
+        ToggleKeyBoard(navVM, getUIStyle, type)
+        Box(
+            Modifier
+                .wrapContentSize(Alignment.TopEnd)
         ) {
-            Icon(
-                Icons.Default.MoreVert,
-                contentDescription = "Card Type",
-                tint = getUIStyle.titleColor()
-            )
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(
-                onClick = { navVM.updateType("basic") },
-                text = { Text(stringResource(R.string.basic_card)) }
-            )
-            DropdownMenuItem(
-                onClick = { navVM.updateType("three") },
-                text = { Text(stringResource(R.string.three_field_card)) }
-            )
-            DropdownMenuItem(
-                onClick = { navVM.updateType("hint") },
-                text = { Text(stringResource(R.string.hint_card)) }
-            )
-            DropdownMenuItem(
-                onClick = { navVM.updateType("multi") },
-                text = { Text(stringResource(R.string.multi_choice_card)) }
-            )
-            DropdownMenuItem(
-                onClick = { navVM.updateType("notation") },
-                text = { Text("Notation Card") }
-            )
+            IconButton(
+                onClick = { expanded = true },
+                modifier = Modifier
+                    .padding(4.dp)
+                    .size(54.dp)
+            ) {
+                Icon(
+                    Icons.Default.MoreVert,
+                    contentDescription = "Card Type",
+                    tint = getUIStyle.titleColor()
+                )
+            }
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                DropdownMenuItem(
+                    onClick = { navVM.updateType("basic") },
+                    text = { Text(stringResource(R.string.basic_card)) }
+                )
+                DropdownMenuItem(
+                    onClick = { navVM.updateType("three") },
+                    text = { Text(stringResource(R.string.three_field_card)) }
+                )
+                DropdownMenuItem(
+                    onClick = { navVM.updateType("hint") },
+                    text = { Text(stringResource(R.string.hint_card)) }
+                )
+                DropdownMenuItem(
+                    onClick = { navVM.updateType("multi") },
+                    text = { Text(stringResource(R.string.multi_choice_card)) }
+                )
+                DropdownMenuItem(
+                    onClick = { navVM.updateType("notation") },
+                    text = { Text("Notation Card") }
+                )
+            }
         }
     }
 }
@@ -362,6 +378,11 @@ fun ToggleKeyBoard(
 ) {
     val showKB by navVM.showKatexKeyboard.collectAsStateWithLifecycle()
     val selectedKB by navVM.selectedKB.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        navVM.retrieveKB()
+        delay(1400)
+        Log.d("card types", "type: $type\nshowKB: $showKB\nselectedKB: $selectedKB\n")
+    }
     if (type == Type.NOTATION && selectedKB != null) {
         Box(
             modifier = Modifier

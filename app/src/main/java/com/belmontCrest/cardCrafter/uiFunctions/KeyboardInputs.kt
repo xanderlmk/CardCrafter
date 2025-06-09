@@ -37,11 +37,12 @@ import androidx.compose.ui.unit.sp
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.textColor
-import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXMenu
-import com.belmontCrest.cardCrafter.uiFunctions.katex.SelectedAnnotation
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
 import com.belmontCrest.cardCrafter.uiFunctions.katex.isInside
 import com.belmontCrest.cardCrafter.uiFunctions.katex.katexMapper
-import com.belmontCrest.cardCrafter.uiFunctions.katex.updateNotation
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.updateCursor
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.updateNotation
 
 private object KeyboardInputs {
     const val KK = "KatexKeyBoard"
@@ -149,6 +150,11 @@ fun LatexKeyboard(
     }
     LaunchedEffect(kt) {
         val text = textFieldValue.text
+        if (kt.sa is SelectedAnnotation.CursorChange) {
+            textFieldValue = updateCursor(kt.sa, textFieldValue, text)
+            onIdle()
+            return@LaunchedEffect
+        }
         if (!textFieldValue.selection.collapsed) {
             Log.w(kk, "text field not collapsed.")
             return@LaunchedEffect
@@ -160,26 +166,12 @@ fun LatexKeyboard(
             return@LaunchedEffect
         }
         if (!kt.notation.isNullOrEmpty()) {
-            when (kt.sa) {
-                is SelectedAnnotation.Letter -> {
-                    textFieldValue = updateNotation(textFieldValue, text, kk, kt.notation, 0) {
-                        onValueChanged(it)
-                    }
+            try {
+                textFieldValue = updateNotation(kt.sa, kt.notation, text, kk, textFieldValue) {
+                    onValueChanged(it)
                 }
-
-                is SelectedAnnotation.Accent -> {
-                    textFieldValue = updateNotation(textFieldValue, text, kk, kt.notation, 1) {
-                        onValueChanged(it)
-                    }
-                }
-
-                is SelectedAnnotation.Idle -> {
-                    Log.e(
-                        kk, """
-                        |SelectedAnnotation is Idle, but notation is not null. 
-                        |This shouldn't happen""".trimMargin()
-                    )
-                }
+            } catch (e: IllegalStateException) {
+                Log.e(kk, "$e")
             }
             onIdle()
         }
@@ -187,6 +179,7 @@ fun LatexKeyboard(
     TextField(
         value = textFieldValue,
         onValueChange = { newValue ->
+
             val oldText = textFieldValue.text
             val newText = newValue.text
 

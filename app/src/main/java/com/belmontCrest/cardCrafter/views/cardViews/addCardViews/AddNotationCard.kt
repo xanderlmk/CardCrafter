@@ -16,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -44,10 +45,11 @@ import com.belmontCrest.cardCrafter.model.uiModels.Fields
 import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXMenu
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
 import com.belmontCrest.cardCrafter.uiFunctions.LatexKeyboard
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
-import com.belmontCrest.cardCrafter.uiFunctions.katex.SelectedAnnotation
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.getWebView
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -83,8 +85,37 @@ fun AddNotationCard(
     val context = LocalContext.current
     var enabled by rememberSaveable { mutableStateOf(true) }
     val resetOffset by navVM.resetOffset.collectAsStateWithLifecycle()
-   // var initialPos by remember { mutableStateOf<Offset?>(null) }
+    // var initialPos by remember { mutableStateOf<Offset?>(null) }
+    val webScrollState = rememberScrollState()
+    val webView = getWebView(getUIStyle) { notation, sa ->
+        when (val sel = selectedKB) {
+            is SelectedKeyboard.Question -> {
+                selectedQSymbol = KaTeXMenu(notation, sa)
+            }
 
+            is SelectedKeyboard.Step -> {
+                selectedSLSymbols[sel.index] = KaTeXMenu(notation, sa)
+            }
+
+            is SelectedKeyboard.Answer -> {
+                selectedASymbol = KaTeXMenu(notation, sa)
+            }
+
+            else -> {
+                showToastMessage(context, "Please select a text field first.")
+                /* No Keyboard, Do Nothing */
+            }
+        }
+    }
+    DisposableEffect(webView) {
+        onDispose {
+            try {
+                webView.destroy()
+            } catch (e: Exception) {
+                Log.w("KatexMenu", "Failed to destroy WebView: $e")
+            }
+        }
+    }
     LaunchedEffect(resetOffset) {
         if (resetOffset) {
             offset = Offset.Zero
@@ -103,21 +134,23 @@ fun AddNotationCard(
                 /**.onGloballyPositioned { coordinates ->
                 initialPos = coordinates.localToWindow(Offset.Zero)
 
-                }*/ { offset },
+                }*/
+                { offset },
                 onDismiss = { navVM.toggleKeyboard() },
-                onOffset = { offset += it }, getUIStyle, //initialPos
-            ) { notation, sa ->
+                onOffset = { offset += it }, getUIStyle, //initialPos,
+                webView = webView, scrollState = webScrollState
+            ) {
                 when (val sel = selectedKB) {
                     is SelectedKeyboard.Question -> {
-                        selectedQSymbol = KaTeXMenu(notation, sa)
+                        selectedQSymbol = KaTeXMenu("null", it)
                     }
 
                     is SelectedKeyboard.Step -> {
-                        selectedSLSymbols[sel.index] = KaTeXMenu(notation, sa)
+                        selectedSLSymbols[sel.index] = KaTeXMenu("null", it)
                     }
 
                     is SelectedKeyboard.Answer -> {
-                        selectedASymbol = KaTeXMenu(notation, sa)
+                        selectedASymbol = KaTeXMenu("null", it)
                     }
 
                     else -> {

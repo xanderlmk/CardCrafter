@@ -1,6 +1,7 @@
 package com.belmontCrest.cardCrafter.views.cardViews.editCardViews
 
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,8 +49,9 @@ import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.editCardModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
 import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
-import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXMenu
-import com.belmontCrest.cardCrafter.uiFunctions.katex.SelectedAnnotation
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.getWebView
 import kotlinx.coroutines.launch
 
 class EditingCardView(
@@ -70,7 +73,19 @@ class EditingCardView(
         val resetOffset by navVM.resetOffset.collectAsStateWithLifecycle()
         var ktm by rememberSaveable { mutableStateOf(KaTeXMenu(null, SelectedAnnotation.Idle)) }
         //var initialPos by remember { mutableStateOf<Offset?>(null) }
-
+        val webView = getWebView(getUIStyle) { notation, sa ->
+            ktm = KaTeXMenu(notation, sa)
+        }
+        val webScrollState = rememberScrollState()
+        DisposableEffect(webView) {
+            onDispose {
+                try {
+                    webView.destroy()
+                } catch (e: Exception) {
+                    Log.w("KatexMenu", "Failed to destroy WebView: $e")
+                }
+            }
+        }
         LaunchedEffect(resetOffset) {
             if (resetOffset) {
                 offset = Offset.Zero
@@ -86,6 +101,7 @@ class EditingCardView(
             if (showKB) {
                 BackHandler {
                     navVM.toggleKeyboard()
+                    navVM.resetOffset()
                 }
                 KaTeXMenu(
                     Modifier
@@ -98,9 +114,10 @@ class EditingCardView(
                         .zIndex(2f)
                         .padding(6.dp),
                     { offset }, onDismiss = { navVM.toggleKeyboard() },
-                    onOffset = { offset += it }, getUIStyle, //initialPos
-                ) { notation, sa ->
-                    ktm = KaTeXMenu(notation, sa)
+                    onOffset = { offset += it }, getUIStyle, //initialPos,
+                    webView = webView, scrollState = webScrollState
+                ) {
+                    ktm = KaTeXMenu("null", it)
                 }
             }
             Column(

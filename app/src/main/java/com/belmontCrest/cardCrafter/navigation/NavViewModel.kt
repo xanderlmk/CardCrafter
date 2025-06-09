@@ -14,6 +14,9 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.model.uiModels.StringVar
 import com.belmontCrest.cardCrafter.model.uiModels.SelectedCard
 import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard
+import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard.Answer
+import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard.Question
+import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard.Step
 import com.belmontCrest.cardCrafter.model.uiModels.WhichDeck
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +29,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
 
 /**
@@ -40,6 +44,13 @@ class NavViewModel(
 ) : ViewModel() {
     companion object {
         private const val TIMEOUT_MILLIS = 4_000L
+
+        // private const val KEYBOARD_TYPE = "selected_kb_type"
+        // private const val KEYBOARD_INDEX = "selected_kb_index"
+        private const val SHOW_KB = "showKB"
+        private const val CT_TYPE = "CT_type"
+        private const val KEY_SELECTED_KB = "selected_kb"
+
     }
 
     private val deckId = MutableStateFlow(savedStateHandle["id"] ?: 0)
@@ -117,10 +128,10 @@ class NavViewModel(
         initialValue = WhichDeck()
     )
 
-    private val _type = MutableStateFlow(savedStateHandle["type"] ?: "basic")
+    private val _type = MutableStateFlow(savedStateHandle[CT_TYPE] ?: "basic")
     val type = _type.asStateFlow()
     fun updateType(newType: String) {
-        savedStateHandle["type"] = newType
+        savedStateHandle[CT_TYPE] = newType
         _type.update { newType }
     }
 
@@ -143,12 +154,6 @@ class NavViewModel(
                 SelectedCard(cardTypeRepository.getACardType(cardId.value))
             }
     )
-    private val _showKatexKeyboard = MutableStateFlow(false)
-    val showKatexKeyboard = _showKatexKeyboard.asStateFlow()
-    private val _selectedKB: MutableStateFlow<SelectedKeyboard?> = MutableStateFlow(null)
-    val selectedKB = _selectedKB.asStateFlow()
-    private val _resetOffset = MutableStateFlow(false)
-    val resetOffset = _resetOffset.asStateFlow()
 
     fun getDeckById(id: Int) {
         savedStateHandle["id"] = id
@@ -183,7 +188,17 @@ class NavViewModel(
         _isBlocking.update { false }
     }
 
+    private val _showKatexKeyboard: MutableStateFlow<Boolean> =
+        MutableStateFlow(savedStateHandle[SHOW_KB] as Boolean? == true)
+    val showKatexKeyboard = _showKatexKeyboard.asStateFlow()
+    private val _selectedKB: MutableStateFlow<SelectedKeyboard?> = MutableStateFlow(null)
+    val selectedKB = _selectedKB.asStateFlow()
+    private val _resetOffset = MutableStateFlow(false)
+    val resetOffset = _resetOffset.asStateFlow()
+
     fun updateSelectedKB(selectedKeyboard: SelectedKeyboard) {
+        savedStateHandle[KEY_SELECTED_KB] =
+            Json.encodeToString(SelectedKeyboard.serializer(), selectedKeyboard)
         _selectedKB.update { selectedKeyboard }
     }
 
@@ -191,8 +206,16 @@ class NavViewModel(
         _selectedKB.update { null }
     }
 
+    fun retrieveKB() {
+        _selectedKB.update {
+            savedStateHandle.get<String>(KEY_SELECTED_KB)
+                ?.let { Json.decodeFromString(SelectedKeyboard.serializer(), it) }
+        }
+
+    }
+
     fun toggleKeyboard() {
-        _showKatexKeyboard.update { !it }
+        _showKatexKeyboard.update { savedStateHandle[SHOW_KB] = !it;!it }
     }
 
     fun resetOffset() {
@@ -206,6 +229,7 @@ class NavViewModel(
     /** Reset the selected keyboard to null and don't show the keyboard */
     fun resetKeyboardStuff() {
         resetSelectedKB()
+        savedStateHandle[SHOW_KB] = false
         _showKatexKeyboard.update { false }
     }
 }
