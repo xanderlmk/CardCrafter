@@ -6,14 +6,16 @@ on:
 
 jobs:
   block_webpage_into_main:
-    # Only run when the PR’s base is 'main' and the head is exactly 'Webpage'
-    if: >
-      github.event.pull_request.base.ref == 'main' &&
-      github.event.pull_request.head.ref == 'Webpage'
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚫 Disallow merging Webpage into main
+      - name: ⛔ Check for disallowed merge direction
         run: |
-          echo "::error ::Pull Requests from branch 'Webpage' to 'main' are blocked by policy."
-          exit 1
+          echo "Base branch: ${{ github.event.pull_request.base.ref }}"
+          echo "Head branch: ${{ github.event.pull_request.head.ref }}"
+          if [[ "${{ github.event.pull_request.base.ref }}" == "main" && "${{ github.event.pull_request.head.ref }}" == "Webpage" ]]; then
+            echo "::error ::Pull Requests from branch 'Webpage' to 'main' are blocked by policy."
+            exit 1
+          else
+            echo "✅ PR merge direction is allowed."
+          fi
