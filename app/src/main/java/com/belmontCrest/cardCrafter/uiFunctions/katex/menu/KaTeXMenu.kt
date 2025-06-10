@@ -6,23 +6,33 @@ import android.webkit.WebView
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -32,6 +42,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.belmontCrest.cardCrafter.model.getIsLandScape
 import com.belmontCrest.cardCrafter.model.getKatexMenuWidth
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.parcelize.Parcelize
@@ -62,11 +73,18 @@ sealed class SelectedAnnotation : Parcelable {
     sealed class CursorChange : SelectedAnnotation() {
         data object Forward : CursorChange()
         data object Backward : CursorChange()
+        data object Inline : CursorChange()
+        data object NewLine : CursorChange()
+        data object Delete : CursorChange()
     }
 
     @Parcelize
     data object Idle : SelectedAnnotation()
 }
+
+
+class IsInsideException :
+    Exception("You cannot put a notation equation inside a notation equation.")
 
 //private const val KATEX_MENU = "KatexMenu"
 
@@ -79,6 +97,8 @@ fun KaTeXMenu(
     webView: WebView, scrollState: ScrollState,
     onCursorChange: (SelectedAnnotation.CursorChange) -> Unit
 ) {
+
+    var expanded by rememberSaveable { mutableStateOf(false) }
     /*
         val maxY = getMaxHeight().value
         val maxX = getMaxWidth().value
@@ -90,10 +110,92 @@ fun KaTeXMenu(
             Log.i(KATEX_MENU, "max height: $maxY")
         }*/
 
+    val isLandscape = getIsLandScape()
+    val width = if (isLandscape) getKatexMenuWidth() / 2.5.dp else getKatexMenuWidth() / 2.dp
+    val offsetMod =
+        if (!isLandscape) Modifier.offset(y = -(126.dp)) else Modifier.offset(x = -(width.dp))
     Box(
         modifier = modifier
             .offset { IntOffset(offsetProvider().x.roundToInt(), offsetProvider().y.roundToInt()) }
     ) {
+        if (expanded) {
+            Column(
+                modifier = offsetMod
+                    .width(width.dp)
+                    .height(126.dp)
+                    .pointerInput(Unit) {
+                        detectDragGestures { change, dragAmount ->
+                            change.consume()
+                            onOffset(dragAmount)
+                        }
+                    }
+                    .background(getUIStyle.katexMenuHeaderColor(), RoundedCornerShape(12.dp))
+                    .border(1.5.dp, getUIStyle.defaultIconColor(), RoundedCornerShape(12.dp)),
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        modifier = Modifier.size(30.dp),
+                        onClick = { onCursorChange(SelectedAnnotation.CursorChange.Backward) },
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null,
+                            modifier = Modifier.size(25.dp)
+                        )
+                    }
+                    IconButton(
+                        modifier = Modifier.size(30.dp),
+                        onClick = { onCursorChange(SelectedAnnotation.CursorChange.Forward) },
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null,
+                            modifier = Modifier.size(25.dp)
+                        )
+                    }
+                    Text(
+                        text = "delete",
+                        modifier = Modifier
+                            .clickable {
+                                onCursorChange(SelectedAnnotation.CursorChange.Delete)
+                            },
+                        textAlign = TextAlign.End,
+                        fontSize = 14.sp,
+                        color = getUIStyle.titleColor()
+                    )
+
+                }
+                HorizontalDivider(color = getUIStyle.defaultIconColor())
+                Text(
+                    text = "Start Inline",
+                    modifier = Modifier
+                        .clickable {
+                            onCursorChange(SelectedAnnotation.CursorChange.Inline)
+                        }
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    fontSize = 16.sp,
+                    color = getUIStyle.titleColor()
+                )
+                HorizontalDivider(color = getUIStyle.defaultIconColor())
+                Text(
+                    text = "Start New Line",
+                    modifier = Modifier
+                        .clickable {
+                            onCursorChange(SelectedAnnotation.CursorChange.NewLine)
+                        }
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    fontSize = 16.sp,
+                    color = getUIStyle.titleColor()
+                )
+            }
+        }
         Box(
             modifier = Modifier
                 .width(getKatexMenuWidth())
@@ -123,20 +225,16 @@ fun KaTeXMenu(
                 }
                 .border(1.5.dp, getUIStyle.defaultIconColor())
         ) {
-
-            Row(
-                modifier = Modifier.align(Alignment.TopStart),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    onClick = { onCursorChange(SelectedAnnotation.CursorChange.Backward) },
-                ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null) }
-                IconButton(
-                    onClick = { onCursorChange(SelectedAnnotation.CursorChange.Forward) },
-                ) { Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null) }
-            }
-
+            Text(
+                text = if (!expanded) "Expand" else "Minimize",
+                modifier = Modifier
+                    .padding(start = 4.dp)
+                    .align(Alignment.TopStart)
+                    .clickable { expanded = !expanded },
+                textAlign = TextAlign.Start,
+                fontSize = 16.sp,
+                color = getUIStyle.titleColor()
+            )
             Text(
                 text = "Drag here",
                 modifier = Modifier.align(Alignment.Center),

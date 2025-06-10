@@ -149,7 +149,7 @@ private val BIG_OPERATORS = listOf(
 )
 
 private val NORMAL_OPS_NUMS = listOf(
-    "x", "y", "a^2", "a^{b}", "(", ")",
+    "x", "y", "a^2", "a^{b}", "(", ")", "\\\\{\\\\}",
     "\\\\lt", "\\\\gt", "|a|", ",", "\\\\le", "\\\\ge",
     "\\\\sqrt{x}", "\\\\sqrt[a]{x}", "\\\\pi",
     "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",

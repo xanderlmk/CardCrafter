@@ -14,9 +14,6 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.model.uiModels.StringVar
 import com.belmontCrest.cardCrafter.model.uiModels.SelectedCard
 import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard
-import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard.Answer
-import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard.Question
-import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard.Step
 import com.belmontCrest.cardCrafter.model.uiModels.WhichDeck
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -215,7 +212,7 @@ class NavViewModel(
     }
 
     fun toggleKeyboard() {
-        _showKatexKeyboard.update { savedStateHandle[SHOW_KB] = !it;!it }
+        _showKatexKeyboard.update { savedStateHandle[SHOW_KB] = !it; !it }
     }
 
     fun resetOffset() {
