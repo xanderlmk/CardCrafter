@@ -3,6 +3,7 @@ package com.belmontCrest.cardCrafter.uiFunctions.katex.menu
 import android.util.Log
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.belmontCrest.cardCrafter.uiFunctions.katex.isInside
 
 /**
  * Add the notation to the given text field and update the textFieldValue
@@ -87,9 +88,12 @@ fun updateNotation(
                 return updateNotation(textFieldValue, text, kk, notation, -1) { onValueChanged(it) }
             } else if (notation.startsWith("\\\\sqrt")) {
                 val offset =
-                    if (notation.firstOrNull { it == '[' } != null) -3
-                    else -1
+                    if (notation.firstOrNull { it == '[' } != null) -3 else -1
                 return updateNotation(textFieldValue, text, kk, notation, offset) {
+                    onValueChanged(it)
+                }
+            } else if (notation.startsWith("{}")) {
+                return updateNotation(textFieldValue, text, kk, notation, -1) {
                     onValueChanged(it)
                 }
             } else {
@@ -107,7 +111,8 @@ fun updateNotation(
 }
 
 fun updateCursor(
-    cursor: SelectedAnnotation.CursorChange, textFieldValue: TextFieldValue, text: String
+    cursor: SelectedAnnotation.CursorChange, textFieldValue: TextFieldValue,
+    text: String, onValueChanged: (String) -> Unit
 ): TextFieldValue {
     when (cursor) {
         SelectedAnnotation.CursorChange.Backward -> {
@@ -119,6 +124,59 @@ fun updateCursor(
             val textRange =
                 TextRange((textFieldValue.selection.start + 1).coerceAtMost(text.length))
             return TextFieldValue(text, textRange, textRange)
+        }
+
+        SelectedAnnotation.CursorChange.Inline -> {
+            if (isInside(text, text.length, textFieldValue.selection)) throw IsInsideException()
+            val replacement = "\\\\(\\\\)"
+            val startIndex = textFieldValue.selection.start
+            val insertionPoint = startIndex + replacement.length - 3
+            val replaced = buildString {
+                append(text.substring(0, startIndex))
+                append(replacement)
+                append(text.substring(startIndex))
+            }
+            onValueChanged(replaced)
+            return TextFieldValue(
+                text = replaced,
+                selection = TextRange(insertionPoint),
+                composition = TextRange(insertionPoint)
+            )
+        }
+
+        SelectedAnnotation.CursorChange.NewLine -> {
+            if (isInside(text, text.length, textFieldValue.selection)) throw IsInsideException()
+            val replacement = "$$$$"
+            val startIndex = textFieldValue.selection.start
+            val insertionPoint = startIndex + replacement.length - 2
+            val replaced = buildString {
+                append(text.substring(0, startIndex))
+                append(replacement)
+                append(text.substring(startIndex))
+            }
+            onValueChanged(replaced)
+            return TextFieldValue(
+                text = replaced,
+                selection = TextRange(insertionPoint),
+                composition = TextRange(insertionPoint)
+            )
+        }
+
+        SelectedAnnotation.CursorChange.Delete -> {
+            if (text.isBlank()) return textFieldValue
+            val startIndex = textFieldValue.selection.start
+            if (startIndex == 0) return textFieldValue
+            val replaced = buildString {
+                append(text.substring(0, (startIndex - 1)))
+                append(text.substring(startIndex))
+            }
+            val textRange = TextRange((textFieldValue.selection.start - 1).coerceAtLeast(0))
+            onValueChanged(replaced)
+            return TextFieldValue(
+                text = replaced,
+                selection = textRange,
+                composition = textRange
+            )
         }
     }
 }

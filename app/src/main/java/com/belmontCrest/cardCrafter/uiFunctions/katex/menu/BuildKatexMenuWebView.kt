@@ -48,7 +48,7 @@ fun getWebView(
                 fun onFracBinoSelected(eq: String) {
                     Handler(Looper.getMainLooper()).postAtFrontOfQueue {
                         val replaced = eq.replace("bra", "\\\\bra").replace("frac", "\\\\frac")
-                                .replace("gen", "\\\\gen").replace("bin", "\\\\bin")
+                            .replace("gen", "\\\\gen").replace("bin", "\\\\bin")
                         onSelectNotation(replaced, SelectedAnnotation.EQ)
                     }
                 }
@@ -68,10 +68,7 @@ fun getWebView(
                 @JavascriptInterface
                 fun onNormSelected(sel: String) {
                     Handler(Looper.getMainLooper()).postAtFrontOfQueue {
-                        val replaced = sel.replace("l", "\\\\l").replace("gt", "\\\\gt")
-                            .replace("sqrt", "\\\\sqrt").replace("pi", "\\\\pi")
-                            .replace("ti", "\\\\ti").replace("div", "\\\\div").replace("a", "")
-                            .replace("{x}", "{}").replace("b", "")
+                        val replaced = sel.convertNormSel()
                         onSelectNotation(replaced, SelectedAnnotation.NORM)
                     }
                 }
@@ -116,3 +113,41 @@ fun getWebView(
         }
     }
 }
+
+private val latexNormMap = mapOf(
+    // comparisons
+    "lt" to "\\\\lt",
+    "gt" to "\\\\gt",
+    "le" to "\\\\le",
+    "ge" to "\\\\ge",
+
+    // fractions & roots
+    "times" to "\\\\times",
+    "div" to "\\\\div",
+    "sqrt{x}" to "\\\\sqrt{}",
+    "sqrt[a]{x}" to "\\\\sqrt[]{}",
+
+    // constants
+    "pi" to "\\\\pi",
+
+    // exponents & letters
+    "a^2" to "^2",
+    "a^{b}" to "^{}",
+    "|a|" to "||",
+
+    // punctuation & parens
+    "(" to "(",
+    ")" to ")",
+    "," to ",",
+    "." to ".",
+    "=" to "=",
+    "{}" to "{}",
+
+    // digits
+    "0" to "0", "1" to "1", "2" to "2", "3" to "3", "4" to "4",
+    "5" to "5", "6" to "6", "7" to "7", "8" to "8", "9" to "9"
+)
+
+
+
+private fun String.convertNormSel(): String = latexNormMap[this] ?: this

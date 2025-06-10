@@ -99,7 +99,7 @@ fun getKatexMenuWidth(): Dp {
             }
 
             else -> {
-                400.dp
+                375.dp
             }
         }
     } else {

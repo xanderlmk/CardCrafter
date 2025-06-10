@@ -47,7 +47,8 @@ fun katexMapper(
         return Pair(
             TextFieldValue(
                 text = replaced,
-                selection = TextRange(insertionPoint)
+                selection = TextRange(insertionPoint),
+                composition = TextRange(insertionPoint)
             ),
             replaced
         )
@@ -66,7 +67,8 @@ fun katexMapper(
         return Pair(
             TextFieldValue(
                 text = replaced,
-                selection = TextRange(insertionPoint)
+                selection = TextRange(insertionPoint),
+                composition = TextRange(insertionPoint)
             ),
             replaced
         )
@@ -93,7 +95,8 @@ fun katexMapper(
         return Pair(
             TextFieldValue(
                 text = replaced,
-                selection = TextRange(insertionPoint)
+                selection = TextRange(insertionPoint),
+                composition = TextRange(insertionPoint)
             ),
             replaced
         )
@@ -235,7 +238,8 @@ private fun katexWord(
     return Pair(
         TextFieldValue(
             text = replaced,
-            selection = TextRange(insertionPoint)
+            selection = TextRange(insertionPoint),
+            composition = TextRange(insertionPoint)
         ),
         replaced
     )

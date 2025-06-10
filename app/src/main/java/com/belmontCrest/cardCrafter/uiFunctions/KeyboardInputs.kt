@@ -40,6 +40,7 @@ import com.belmontCrest.cardCrafter.ui.theme.textColor
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
 import com.belmontCrest.cardCrafter.uiFunctions.katex.isInside
 import com.belmontCrest.cardCrafter.uiFunctions.katex.katexMapper
+import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.IsInsideException
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.updateCursor
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.updateNotation
@@ -150,18 +151,24 @@ fun LatexKeyboard(
     }
     LaunchedEffect(kt) {
         val text = textFieldValue.text
-        if (kt.sa is SelectedAnnotation.CursorChange) {
-            textFieldValue = updateCursor(kt.sa, textFieldValue, text)
-            onIdle()
-            return@LaunchedEffect
-        }
         if (!textFieldValue.selection.collapsed) {
             Log.w(kk, "text field not collapsed.")
+            return@LaunchedEffect
+        }
+        if (kt.sa is SelectedAnnotation.CursorChange) {
+            try {
+                textFieldValue = updateCursor(kt.sa, textFieldValue, text) { onValueChanged(it) }
+            } catch (e : IsInsideException) {
+                Log.e(kk, "$e")
+                showToastMessage(context, "Cannot put notation inside a notation")
+            }
+            onIdle()
             return@LaunchedEffect
         }
         if (!isInside(text, text.length, textFieldValue.selection)) {
             if (kt.notation != null) {
                 showToastMessage(context, "Make sure the symbol is between the delimiters.")
+                onIdle()
             }
             return@LaunchedEffect
         }
