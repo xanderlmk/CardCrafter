@@ -10,7 +10,7 @@ import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
-import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
+import com.belmontCrest.cardCrafter.model.ui.SealedAllCTs
 import com.belmontCrest.cardCrafter.supabase.controller.networkConnectivityFlow
 import com.belmontCrest.cardCrafter.supabase.model.tables.FourSelectedCards
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_CARDS
@@ -174,9 +174,7 @@ class SupabaseViewModel(
 
 
     fun updateCardsToDisplayUUID(uuid: String) {
-        _cardsToDisplay.update {
-            CardsToDisplay(deckUUID = uuid)
-        }.also {
+        _cardsToDisplay.update { CardsToDisplay(deckUUID = uuid) }.also {
             getOnlineCTD(uuid)
         }
     }
@@ -220,9 +218,7 @@ class SupabaseViewModel(
             authRepository.getGoogleCredentials().let { credentials ->
                 when (credentials) {
                     is GoogleCredentials.Success -> {
-                        _googleClientId.update {
-                            credentials.credentials
-                        }
+                        _googleClientId.update { credentials.credentials }
                         Pair(true, "")
                     }
 
@@ -240,9 +236,7 @@ class SupabaseViewModel(
     ): Boolean {
         return withContext(Dispatchers.IO) {
             authRepository.signInWithGoogle(googleIdToken, rawNonce).let {
-                _currentUser.update {
-                    authRepository.getCurrentUser()
-                }
+                _currentUser.update { authRepository.getCurrentUser() }
                 getOwner()
                 it
             }
@@ -266,9 +260,7 @@ class SupabaseViewModel(
     suspend fun signInWithEmail(email: String, password: String): String {
         return withContext(Dispatchers.IO) {
             authRepository.signInWithEmail(email, password).let {
-                _currentUser.update {
-                    authRepository.getCurrentUser()
-                }
+                _currentUser.update { authRepository.getCurrentUser() }
                 getOwner()
                 it
             }

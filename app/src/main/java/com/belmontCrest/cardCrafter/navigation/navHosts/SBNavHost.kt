@@ -28,8 +28,8 @@ import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
-import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
+import com.belmontCrest.cardCrafter.model.ui.Fields
+import com.belmontCrest.cardCrafter.model.ui.PreferencesManager
 import com.belmontCrest.cardCrafter.navigation.destinations.CoOwnerRequestsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ForgotPasswordDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SBCardListDestination

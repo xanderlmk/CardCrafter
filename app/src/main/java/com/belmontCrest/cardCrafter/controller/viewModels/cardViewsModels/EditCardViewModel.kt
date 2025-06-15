@@ -7,7 +7,7 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.Scien
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.model.ui.Fields
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

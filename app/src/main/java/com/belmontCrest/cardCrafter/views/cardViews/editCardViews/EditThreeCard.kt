@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
 import com.belmontCrest.cardCrafter.uiFunctions.IsPartOfQOrA

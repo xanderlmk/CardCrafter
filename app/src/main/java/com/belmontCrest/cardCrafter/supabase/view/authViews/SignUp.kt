@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable

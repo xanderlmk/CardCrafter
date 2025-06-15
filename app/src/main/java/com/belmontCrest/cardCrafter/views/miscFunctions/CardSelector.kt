@@ -1,84 +1,53 @@
 package com.belmontCrest.cardCrafter.views.miscFunctions
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
+import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
-import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
-
-@Composable
-fun BasicCardQuestion(basicCard: BasicCard) {
-    Text(
-        text = basicCard.question,
-        maxLines = 3,
-        overflow = TextOverflow.Ellipsis
-
-    )
-}
-
-@Composable
-fun ThreeCardQuestion(threeFieldCard: ThreeFieldCard) {
-    Text(
-        text = threeFieldCard.question,
-        maxLines = 3,
-        overflow = TextOverflow.Companion.Ellipsis
-
-    )
-}
-
-@Composable
-fun HintCardQuestion(hintCard: HintCard) {
-    Text(
-        text = hintCard.question,
-        maxLines = 3,
-        overflow = TextOverflow.Companion.Ellipsis
-
-    )
-}
-
-@Composable
-fun ChoiceCardQuestion(multiChoiceCard: MultiChoiceCard) {
-    Text(
-        text = multiChoiceCard.question,
-        maxLines = 3,
-        overflow = TextOverflow.Companion.Ellipsis
-    )
-}
-
-@Composable
-fun NotationCardQuestion(notationCard: NotationCard){
-    Text(
-        text = notationCard.question,
-        maxLines = 3,
-        overflow = TextOverflow.Companion.Ellipsis
-    )
-}
+import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.views.miscFunctions.details.toQuestion
 
 @Composable
 fun CardSelector(
-    allCTs: List<CT>,
-    index: Int
+    allCTs: List<CT>, index: Int, getUIStyle: GetUIStyle, isSelecting: Boolean, selected: Boolean
 ) {
-    val ct = allCTs[index]
-    when(ct){
-        is CT.Basic -> {
-            BasicCardQuestion(ct.basicCard)
+    if (isSelecting) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (selected) {
+                Icon(painterResource(R.drawable.filled_square), contentDescription = null)
+                Text(
+                    text = allCTs[index].toQuestion(),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                    color = getUIStyle.buttonTextColor()
+                )
+            } else {
+                Icon(painterResource(R.drawable.outlined_square), contentDescription = null)
+                Text(
+                    text = allCTs[index].toQuestion(),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                    color = getUIStyle.buttonTextColor()
+                )
+            }
         }
-        is CT.ThreeField -> {
-            ThreeCardQuestion(ct.threeFieldCard)
-        }
-        is CT.Hint -> {
-            HintCardQuestion(ct.hintCard)
-        }
-        is CT.MultiChoice -> {
-            ChoiceCardQuestion(ct.multiChoiceCard)
-        }
-        is CT.Notation -> {
-            NotationCardQuestion(ct.notationCard)
-        }
+    } else {
+        Text(
+            text = allCTs[index].toQuestion(),
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+            color = getUIStyle.buttonTextColor()
+        )
     }
 }

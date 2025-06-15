@@ -31,7 +31,7 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UPDATED_ON_CONFLICT
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.CustomText
-import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import kotlinx.coroutines.launch
 

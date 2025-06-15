@@ -23,13 +23,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
-import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
+import com.belmontCrest.cardCrafter.model.ui.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.DeepLinksViewModel
 import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import kotlinx.coroutines.launch
 import kotlin.getValue
 

@@ -40,7 +40,7 @@ import com.belmontCrest.cardCrafter.controller.onClickActions.updateDeckName
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateMultipliers
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateReviewAmount
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.EditDeckViewModel
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.uiFunctions.EditDoubleField
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField

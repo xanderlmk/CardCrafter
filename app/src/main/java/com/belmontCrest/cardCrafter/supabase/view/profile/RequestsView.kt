@@ -41,9 +41,9 @@ import com.belmontCrest.cardCrafter.supabase.model.tables.SBCoOwnerWithDeck
 import com.belmontCrest.cardCrafter.supabase.model.tables.Status
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.CancelButton
 import com.belmontCrest.cardCrafter.uiFunctions.CustomText
-import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

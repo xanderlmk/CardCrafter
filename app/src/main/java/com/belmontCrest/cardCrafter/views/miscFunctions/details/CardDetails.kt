@@ -2,13 +2,9 @@ package com.belmontCrest.cardCrafter.views.miscFunctions.details
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
-import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
-import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
-import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsBasic
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsHint
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsMulti
@@ -25,6 +21,14 @@ data class CardDetails(
     val stringList: MutableList<MutableState<String>> = mutableListOf(),
     val isQorA: MutableState<PartOfQorA> = mutableStateOf(PartOfQorA.Q)
 )
+
+fun CT.toQuestion(): String = when (this) {
+    is CT.Basic -> this.basicCard.question
+    is CT.Hint -> this.hintCard.question
+    is CT.MultiChoice -> this.multiChoiceCard.question
+    is CT.Notation -> this.notationCard.question
+    is CT.ThreeField -> this.threeFieldCard.question
+}
 
 private val listStringC = ListStringConverter()
 

@@ -6,9 +6,16 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toBasicList
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCardList
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toHintList
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toMultiChoiceList
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toNotationList
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toThreeFieldList
 import com.belmontCrest.cardCrafter.localDatabase.tables.AllCardTypes
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
@@ -18,7 +25,7 @@ import com.belmontCrest.cardCrafter.model.Type.HINT
 import com.belmontCrest.cardCrafter.model.Type.MULTI
 import com.belmontCrest.cardCrafter.model.Type.NOTATION
 import com.belmontCrest.cardCrafter.model.Type.THREE
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.model.ui.Fields
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -40,15 +47,21 @@ interface CardTypesDao {
         ORDER BY nextReview ASC, partOfList DESC, reviewsLeft DESC
         LIMIT :cardAmount"""
     )
-    fun getDueAllCardTypes(deckId: Int, cardAmount: Int, currentTime: Long):
-            List<AllCardTypes>
+    fun getDueAllCardTypes(deckId: Int, cardAmount: Int, currentTime: Long): List<AllCardTypes>
 
     @Transaction
     @Query(
         """SELECT * FROM cards WHERE deckId = :deckId
         ORDER BY cards.id"""
     )
-    fun getAllCardTypes(deckId: Int): Flow<List<AllCardTypes>>
+    fun getAllCardTypesStream(deckId: Int): Flow<List<AllCardTypes>>
+
+    @Transaction
+    @Query(
+        """SELECT * FROM cards WHERE deckId = :deckId
+        ORDER BY cards.id"""
+    )
+    suspend fun getAllCardTypes(deckId: Int): List<AllCardTypes>
 
 
     @Transaction
@@ -179,5 +192,36 @@ interface CardTypesDao {
                 deleteNotationCard(deleteCT.notationCard)
             }
         }
+    }
+
+    @Delete
+    suspend fun deleteCards(cards: List<Card>)
+
+    @Delete
+    suspend fun deleteBasicCards(basicCards: List<BasicCard>)
+
+    @Delete
+    suspend fun deleteThreeCards(threeCards: List<ThreeFieldCard>)
+
+    @Delete
+    suspend fun deleteHintCards(hintCards: List<HintCard>)
+
+    @Delete
+    suspend fun deleteMultiCards(multiCards: List<MultiChoiceCard>)
+
+    @Delete
+    suspend fun deleteNotationCards(notationCards: List<NotationCard>)
+
+    @Transaction
+    suspend fun deleteCardList(cts: List<CT>) {
+        val basicCards = cts.toBasicList()
+        val threeCards = cts.toThreeFieldList()
+        val hintCards = cts.toHintList()
+        val multiCards = cts.toMultiChoiceList()
+        val notationCards = cts.toNotationList()
+        val cards = cts.toCardList()
+        deleteCards(cards); deleteBasicCards(basicCards); deleteThreeCards(threeCards)
+        deleteHintCards(hintCards); deleteMultiCards(multiCards)
+        deleteNotationCards(notationCards)
     }
 }

@@ -32,22 +32,21 @@ import com.belmontCrest.cardCrafter.model.FWProp
 import com.belmontCrest.cardCrafter.model.TAProp
 import com.belmontCrest.cardCrafter.model.TextProps
 import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.navigation.destinations.EditDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SBNavDestination
-import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.PersonalDeckSyncViewModel
 import com.belmontCrest.cardCrafter.supabase.model.SyncStatus
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.settingsButtonModifier
-import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.CancelButton
 import com.belmontCrest.cardCrafter.uiFunctions.ContentIcons
 import com.belmontCrest.cardCrafter.uiFunctions.CustomText
-import com.belmontCrest.cardCrafter.uiFunctions.SettingsButton
-import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.SettingsButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -64,10 +63,7 @@ fun MainDLRouteContent(
     when (val status = syncStatus) {
         is SyncStatus.Error -> {
             AlertDialog(
-                onDismissRequest = {
-                    pdsVM.resetSyncStatus()
-                    navViewModel.resetIsBlocking()
-                },
+                onDismissRequest = { pdsVM.resetSyncStatus(); navViewModel.resetIsBlocking() },
                 title = { Text("Error") },
                 text = { CustomText(status.message, getUIStyle) },
                 confirmButton = {

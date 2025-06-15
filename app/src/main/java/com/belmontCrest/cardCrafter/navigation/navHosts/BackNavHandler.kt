@@ -2,7 +2,7 @@ package com.belmontCrest.cardCrafter.navigation.navHosts
 
 import androidx.navigation.NavHostController
 import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.model.ui.Fields
 
 object BackNavHandler {
     fun returnToDeckListFromSB(

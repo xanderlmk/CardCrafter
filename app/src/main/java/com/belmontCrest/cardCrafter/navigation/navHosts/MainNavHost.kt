@@ -38,8 +38,8 @@ import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestinat
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
-import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
+import com.belmontCrest.cardCrafter.model.ui.Fields
+import com.belmontCrest.cardCrafter.model.ui.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass

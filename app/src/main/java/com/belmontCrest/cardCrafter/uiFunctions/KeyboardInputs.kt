@@ -161,8 +161,9 @@ fun LatexKeyboard(
             } catch (e : IsInsideException) {
                 Log.e(kk, "$e")
                 showToastMessage(context, "Cannot put notation inside a notation")
+            } finally {
+                onIdle()
             }
-            onIdle()
             return@LaunchedEffect
         }
         if (!isInside(text, text.length, textFieldValue.selection)) {
@@ -179,8 +180,9 @@ fun LatexKeyboard(
                 }
             } catch (e: IllegalStateException) {
                 Log.e(kk, "$e")
+            } finally {
+                onIdle()
             }
-            onIdle()
         }
     }
     TextField(

@@ -135,97 +135,44 @@ suspend fun redoACard(
          * (the redo card) hence we call this getRedoCard.
          */
         is CT.Basic -> {
-            ct.card = cardDeckVM.getRedoCardType(
-                ct.card.id,
-                index
-            ).also {
-                dueCTs[index] = ct
-            }
+            ct.card = cardDeckVM.getRedoCardType(ct.card.id, index).also { dueCTs[index] = ct }
         }
 
         is CT.Hint -> {
-            ct.card = cardDeckVM.getRedoCardType(
-                ct.card.id,
-                index
-            ).also {
-                dueCTs[index] = ct
-            }
+            ct.card = cardDeckVM.getRedoCardType(ct.card.id, index).also { dueCTs[index] = ct }
         }
 
         is CT.ThreeField -> {
-            ct.card = cardDeckVM.getRedoCardType(
-                ct.card.id,
-                index
-            ).also {
-                dueCTs[index] = ct
-            }
+            ct.card = cardDeckVM.getRedoCardType(ct.card.id, index).also { dueCTs[index] = ct }
         }
 
         is CT.MultiChoice -> {
-            ct.card = cardDeckVM.getRedoCardType(
-                ct.card.id,
-                index
-            ).also {
-                dueCTs[index] = ct
-            }
+            ct.card = cardDeckVM.getRedoCardType(ct.card.id, index).also { dueCTs[index] = ct }
         }
 
         is CT.Notation -> {
-            ct.card = cardDeckVM.getRedoCardType(
-                ct.card.id,
-                index
-            ).also {
-                dueCTs[index] = ct
-            }
+            ct.card = cardDeckVM.getRedoCardType(ct.card.id, index).also { dueCTs[index] = ct }
         }
     }
 }
 
 fun showReviewsLeft(ct: CT): String {
     return when (ct) {
-        is CT.Basic -> {
-            ct.card.reviewsLeft.toString()
-        }
-
-        is CT.Hint -> {
-            ct.card.reviewsLeft.toString()
-        }
-
-        is CT.ThreeField -> {
-            ct.card.reviewsLeft.toString()
-        }
-
-        is CT.MultiChoice -> {
-            ct.card.reviewsLeft.toString()
-        }
-
-        is CT.Notation -> {
-            ct.card.reviewsLeft.toString()
-        }
+        is CT.Basic -> ct.card.reviewsLeft.toString()
+        is CT.Hint -> ct.card.reviewsLeft.toString()
+        is CT.ThreeField -> ct.card.reviewsLeft.toString()
+        is CT.MultiChoice -> ct.card.reviewsLeft.toString()
+        is CT.Notation -> ct.card.reviewsLeft.toString()
     }
 }
 
 fun returnReviewsLeft(ct: CT): Int {
     return when (ct) {
-        is CT.Basic -> {
-            ct.card.reviewsLeft
-        }
-
-        is CT.Hint -> {
-            ct.card.reviewsLeft
-        }
-
-        is CT.ThreeField -> {
-            ct.card.reviewsLeft
-        }
-
-        is CT.MultiChoice -> {
-            ct.card.reviewsLeft
-        }
-
-        is CT.Notation -> {
-            ct.card.reviewsLeft
-        }
+        is CT.Basic -> ct.card.reviewsLeft
+        is CT.Hint -> ct.card.reviewsLeft
+        is CT.ThreeField -> ct.card.reviewsLeft
+        is CT.MultiChoice -> ct.card.reviewsLeft
+        is CT.Notation -> ct.card.reviewsLeft
     }
 }
 

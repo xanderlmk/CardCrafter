@@ -10,13 +10,16 @@ import androidx.compose.ui.res.stringResource
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.deleteTextColor
 import kotlinx.coroutines.CoroutineScope
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
+import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.CancelButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import kotlinx.coroutines.launch
 
 fun saveCard(
@@ -71,6 +74,7 @@ fun saveCard(
                 return false
             }
         }
+
         is CT.MultiChoice -> {
             if (
                 fields.question.value.isNotBlank() &&
@@ -83,7 +87,7 @@ fun saveCard(
                         (fields.choices[3].value.isBlank() &&
                                 fields.correct.value == 'd')
                         ) &&
-                fields.correct.value in 'a' .. 'd'
+                fields.correct.value in 'a'..'d'
             ) {
                 editCardVM.updateMultiChoiceCard(
                     ct.card.id,
@@ -99,12 +103,14 @@ fun saveCard(
                 return false
             }
         }
+
         is CT.Notation -> {
             if (fields.question.value.isNotBlank() &&
                 fields.answer.value.isNotBlank() &&
-                ( fields.stringList.isEmpty() ||
+                (fields.stringList.isEmpty() ||
                         fields.stringList.all { it.value.isNotBlank() }
-                        )) {
+                        )
+            ) {
                 editCardVM.updateNotationCard(
                     ct.card.id,
                     fields.question.value,
@@ -127,40 +133,43 @@ suspend fun updateCardType(
     fields: Fields,
     editCardVM: EditCardViewModel,
     ct: CT,
-    newType : String
+    newType: String
 ): Boolean {
     val card = ct.toCard()
     when (newType) {
-        "basic" -> {
+        Type.BASIC -> {
             if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()) {
-                editCardVM.updateCardType(card.id,newType,fields,ct)
+                editCardVM.updateCardType(card.id, newType, fields, ct)
                 return true
             } else {
                 return false
             }
         }
-        "three" -> {
+
+        Type.THREE -> {
             if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()
                 && fields.middleField.value.isNotBlank()
             ) {
-                editCardVM.updateCardType(card.id,newType,fields,ct)
+                editCardVM.updateCardType(card.id, newType, fields, ct)
                 return true
             } else {
                 return false
             }
 
         }
-        "hint" -> {
+
+        Type.HINT -> {
             if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()
                 && fields.middleField.value.isNotBlank()
             ) {
-                editCardVM.updateCardType(card.id,newType,fields,ct)
+                editCardVM.updateCardType(card.id, newType, fields, ct)
                 return true
             } else {
                 return false
             }
         }
-        "multi" -> {
+
+        Type.MULTI -> {
             if (
                 fields.question.value.isNotBlank() &&
                 fields.choices[0].value.isNotBlank() &&
@@ -172,21 +181,23 @@ suspend fun updateCardType(
                         (fields.choices[3].value.isBlank() &&
                                 fields.correct.value == 'd')
                         ) &&
-                fields.correct.value in 'a' .. 'd'
+                fields.correct.value in 'a'..'d'
             ) {
-                editCardVM.updateCardType(card.id,newType,fields,ct)
+                editCardVM.updateCardType(card.id, newType, fields, ct)
                 return true
             } else {
                 return false
             }
         }
-        "notation" -> {
+
+        Type.NOTATION -> {
             if (fields.question.value.isNotBlank() &&
                 fields.answer.value.isNotBlank() &&
-                ( fields.stringList.isEmpty() ||
+                (fields.stringList.isEmpty() ||
                         fields.stringList.all { it.value.isNotBlank() }
-                        )) {
-                editCardVM.updateCardType(card.id,newType,fields,ct)
+                        )
+            ) {
+                editCardVM.updateCardType(card.id, newType, fields, ct)
                 return true
             } else {
                 return false
@@ -235,16 +246,37 @@ fun DeleteCard(
                 }
             },
             dismissButton = {
-                Button(
-                    onClick = { pressed.value = false },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = getUIStyle.secondaryButtonColor(),
-                        contentColor = getUIStyle.buttonTextColor()
-                    )
-                ) {
-                    Text(stringResource(R.string.cancel))
-                }
+                CancelButton(onClick = { pressed.value = false }, enabled = true, getUIStyle)
             }
         )
     }
+}
+
+@Composable
+fun DeleteCards(
+    showDialog: Boolean, onDismiss: (Boolean) -> Unit,
+    onDelete: () -> Unit, getUIStyle: GetUIStyle, enabled: Boolean
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { if (enabled) onDismiss(false) },
+            title = { Text(stringResource(R.string.delete_card_list)) },
+            text = {
+                Text(
+                    text = stringResource(R.string.sure_to_delete_card_list),
+                    color = getUIStyle.titleColor()
+                )
+            },
+            confirmButton = {
+                SubmitButton(
+                    onClick = { onDelete() }, enabled = enabled,
+                    getUIStyle, stringResource(R.string.delete)
+                )
+            },
+            dismissButton = {
+                CancelButton(onClick = { onDismiss(false) }, enabled, getUIStyle)
+            }
+        )
+    }
+
 }

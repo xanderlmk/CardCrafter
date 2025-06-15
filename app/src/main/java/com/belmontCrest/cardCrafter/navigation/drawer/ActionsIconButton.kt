@@ -15,8 +15,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -29,7 +31,7 @@ import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.navigation.destinations.AddDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.CoOwnerRequestsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckListDestination
@@ -42,11 +44,13 @@ import com.belmontCrest.cardCrafter.supabase.view.exportDeck.CardPickerDropdown
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.redoButtonModifier
-import com.belmontCrest.cardCrafter.uiFunctions.BackButton
-import com.belmontCrest.cardCrafter.uiFunctions.CardOptionsButton
-import com.belmontCrest.cardCrafter.uiFunctions.CardTypesButton
-import com.belmontCrest.cardCrafter.uiFunctions.MailButton
-import com.belmontCrest.cardCrafter.uiFunctions.RedoCardButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.BackButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.CardListOptions
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.CardOptionsButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.CardTypesButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.MailButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.RedoCardButton
+import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -64,12 +68,12 @@ fun ActionIconButton(
     val sc by navViewModel.card.collectAsStateWithLifecycle()
     val wd by navViewModel.wd.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val isSelecting by navViewModel.isSelecting.collectAsStateWithLifecycle()
     val onNavigateBack: () -> Unit = {
         fields.isEditing.value = false
         fields.inDeckClicked.value = false
-        coroutineScope.launch {
-            navViewModel.getCardById(0)
-        }
+        coroutineScope.launch { navViewModel.getCardById(0) }
         navViewModel.updateRoute(ViewAllCardsDestination.route)
         deckNavController?.navigate(ViewAllCardsDestination.route)
     }
@@ -126,17 +130,39 @@ fun ActionIconButton(
         }
 
         ViewAllCardsDestination.route -> {
-            BackButton(
-                onBackClick = {
-                    fields.inDeckClicked.value = false
-                    navViewModel.updateRoute(DeckViewDestination.route)
-                    deckNavController?.navigate(DeckViewDestination.route)
-                },
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .backButtonModifier(),
-                getUIStyle = getUIStyle,
-            )
+            if (!isSelecting) {
+                BackButton(
+                    onBackClick = {
+                        fields.inDeckClicked.value = false
+                        navViewModel.updateRoute(DeckViewDestination.route)
+                        deckNavController?.navigate(DeckViewDestination.route)
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp)
+                        .backButtonModifier(),
+                    getUIStyle = getUIStyle,
+                )
+            } else {
+                var enabled by rememberSaveable { mutableStateOf(true) }
+                var showDialog by rememberSaveable { mutableStateOf(false) }
+                val expanded = rememberSaveable { mutableStateOf(false) }
+                CardListOptions(
+                    onDelete = {
+                        coroutineScope.launch {
+                            enabled = false
+                            val success = navViewModel.deleteCardList()
+                            if (!success) showToastMessage(context, "Failed to delete cards")
+                            showDialog = false
+                            enabled = true
+                            expanded.value = false
+                        }
+                    },
+                    onSelectAll = { coroutineScope.launch { navViewModel.selectAll() } },
+                    onClearSelection = { navViewModel.clearSelection() },
+                    getUIStyle, enabled = enabled, showDialog = showDialog,
+                    onDialogToggle = { showDialog = it }, expanded = expanded
+                )
+            }
         }
 
         AddCardDestination.route -> {

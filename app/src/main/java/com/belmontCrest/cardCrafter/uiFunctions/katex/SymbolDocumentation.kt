@@ -24,7 +24,7 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.sp
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 
 @Composable
 fun SymbolDocumentation(

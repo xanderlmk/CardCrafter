@@ -48,10 +48,10 @@ import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.borderedModifier
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
-import com.belmontCrest.cardCrafter.uiFunctions.CancelButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.CancelButton
 import com.belmontCrest.cardCrafter.uiFunctions.CustomText
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
-import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.toCardDetails
 import kotlinx.coroutines.launch
 

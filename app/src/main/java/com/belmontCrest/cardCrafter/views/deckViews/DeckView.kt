@@ -36,8 +36,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.DeckViewModel
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
-import com.belmontCrest.cardCrafter.uiFunctions.AddCardButton
+import com.belmontCrest.cardCrafter.model.ui.Fields
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.AddCardButton
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.addButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier

@@ -35,11 +35,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.mainViewModifier
-import com.belmontCrest.cardCrafter.uiFunctions.SmallAddButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.SmallAddButton
 import java.text.SimpleDateFormat
 import java.util.Locale
 
