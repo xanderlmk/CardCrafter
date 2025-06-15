@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.model.uiModels
+package com.belmontCrest.cardCrafter.model.ui
 
 import android.os.Parcel
 import android.os.Parcelable

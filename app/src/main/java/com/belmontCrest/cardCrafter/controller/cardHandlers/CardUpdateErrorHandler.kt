@@ -2,7 +2,7 @@ package com.belmontCrest.cardCrafter.controller.cardHandlers
 
 import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteException
-import com.belmontCrest.cardCrafter.model.uiModels.CardUpdateError
+import com.belmontCrest.cardCrafter.model.ui.CardUpdateError
 import kotlinx.coroutines.TimeoutCancellationException
 import java.io.IOException
 

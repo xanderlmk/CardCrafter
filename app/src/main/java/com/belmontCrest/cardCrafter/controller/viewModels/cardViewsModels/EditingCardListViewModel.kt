@@ -6,11 +6,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.model.uiModels.SealedAllCTs
+import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.model.ui.SealedAllCTs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -26,11 +26,12 @@ class EditingCardListViewModel(
     }
 
     private val deckId = MutableStateFlow(savedStateHandle["deckId"] ?: 0)
-    private val sealedUiState = deckId.flatMapLatest { id ->
+
+    val sealedAllCTs = deckId.flatMapLatest { id ->
         if (id == 0) {
             flowOf(SealedAllCTs())
         } else {
-            cardTypeRepository.getAllCardTypes(id).map {
+            cardTypeRepository.getAllCardTypesStream(id).map {
                 SealedAllCTs(it.toMutableList())
             }
         }
@@ -39,17 +40,23 @@ class EditingCardListViewModel(
         initialValue = SealedAllCTs(),
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS)
     )
-    var sealedAllCTs = sealedUiState
 
-    private val _searchQuery = MutableStateFlow(savedStateHandle["query"] ?: "")
-    val searchQuery = _searchQuery.asStateFlow()
+    val searchQuery = cardTypeRepository.searchQuery.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = savedStateHandle["query"] ?: ""
+    )
+    val selectedCards = cardTypeRepository.selectedCards.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = emptyList()
+    )
 
-    fun updateQuery(query : String) {
+    fun updateQuery(query: String) {
         savedStateHandle["query"] = query
-        _searchQuery.update {
-            query
-        }
+        cardTypeRepository.updateQuery(query)
     }
+
     fun updateId(
         id: Int,
     ) {
@@ -57,6 +64,13 @@ class EditingCardListViewModel(
         deckId.update { id }
     }
 
+    fun toggleCard(ct: CT) {
+        cardTypeRepository.toggleCard(ct)
+    }
+
+    init {
+        updateQuery(savedStateHandle["query"] ?: "")
+    }
 }
 
 

@@ -33,7 +33,7 @@ import com.belmontCrest.cardCrafter.supabase.view.authViews.CreateAccount
 import com.belmontCrest.cardCrafter.supabase.view.exportDeck.LocalDecks
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.uiFunctions.ExportDeckButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.ExportDeckButton
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable

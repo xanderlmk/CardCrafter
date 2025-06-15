@@ -11,10 +11,11 @@ import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
-import com.belmontCrest.cardCrafter.model.uiModels.StringVar
-import com.belmontCrest.cardCrafter.model.uiModels.SelectedCard
-import com.belmontCrest.cardCrafter.model.uiModels.SelectedKeyboard
-import com.belmontCrest.cardCrafter.model.uiModels.WhichDeck
+import com.belmontCrest.cardCrafter.model.ui.StringVar
+import com.belmontCrest.cardCrafter.model.ui.SelectedCard
+import com.belmontCrest.cardCrafter.model.ui.SelectedKeyboard
+import com.belmontCrest.cardCrafter.model.ui.WhichDeck
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 
@@ -40,14 +42,12 @@ class NavViewModel(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     companion object {
+        private const val NAV_VM = "NavViewModel"
         private const val TIMEOUT_MILLIS = 4_000L
-
-        // private const val KEYBOARD_TYPE = "selected_kb_type"
-        // private const val KEYBOARD_INDEX = "selected_kb_index"
         private const val SHOW_KB = "showKB"
         private const val CT_TYPE = "CT_type"
         private const val KEY_SELECTED_KB = "selected_kb"
-
+        private const val IS_SELECTING = "is_selecting"
     }
 
     private val deckId = MutableStateFlow(savedStateHandle["id"] ?: 0)
@@ -57,9 +57,7 @@ class NavViewModel(
         if (id == 0) {
             flowOf(StringVar())
         } else {
-            flashCardRepository.getDeckName(id).map {
-                StringVar(it ?: "")
-            }
+            flashCardRepository.getDeckName(id).map { StringVar(it ?: "") }
         }
     }.stateIn(
         scope = viewModelScope,
@@ -106,18 +104,14 @@ class NavViewModel(
 
     fun updateStartingSBRoute(newRoute: String) {
         savedStateHandle["startSBRoute"] = newRoute
-        _startingSBRoute.update {
-            StringVar(newRoute)
-        }
+        _startingSBRoute.update { StringVar(newRoute) }
     }
 
     val wd: StateFlow<WhichDeck> = deckId.flatMapLatest { id ->
         if (id == 0) {
             flowOf(WhichDeck())
         } else {
-            flashCardRepository.getDeckStream(id).map {
-                WhichDeck(it)
-            }
+            flashCardRepository.getDeckStream(id).map { WhichDeck(it) }
         }
     }.stateIn(
         scope = viewModelScope,
@@ -155,12 +149,21 @@ class NavViewModel(
     fun getDeckById(id: Int) {
         savedStateHandle["id"] = id
         deckId.update { id }
-
     }
 
     fun deleteCard(card: Card) {
-        viewModelScope.launch {
-            flashCardRepository.deleteCard(card)
+        viewModelScope.launch { flashCardRepository.deleteCard(card) }
+    }
+
+    suspend fun deleteCardList(): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                cardTypeRepository.deleteCTs()
+                return@withContext true
+            } catch (e: Exception) {
+                Log.e(NAV_VM, "Error deleting card list: $e")
+                return@withContext false
+            }
         }
     }
 
@@ -208,7 +211,6 @@ class NavViewModel(
             savedStateHandle.get<String>(KEY_SELECTED_KB)
                 ?.let { Json.decodeFromString(SelectedKeyboard.serializer(), it) }
         }
-
     }
 
     fun toggleKeyboard() {
@@ -228,5 +230,31 @@ class NavViewModel(
         resetSelectedKB()
         savedStateHandle[SHOW_KB] = false
         _showKatexKeyboard.update { false }
+    }
+
+    private val _isSelecting = MutableStateFlow(savedStateHandle[IS_SELECTING] as Boolean? == true)
+    val isSelecting = _isSelecting.asStateFlow()
+
+    fun isSelectingTrue() {
+        _isSelecting.update { true }
+    }
+
+    fun selectAll() {
+        wd.value.deck?.let { deck ->
+            viewModelScope.launch { cardTypeRepository.toggleAllCards(deck.id) }
+        }
+    }
+
+    fun clearSelection() {
+        cardTypeRepository.clearSelection()
+    }
+
+    fun resetSearchQuery() {
+        cardTypeRepository.resetQuery()
+    }
+
+    fun resetSelection() {
+        cardTypeRepository.clearSelection()
+        _isSelecting.update { false }
     }
 }

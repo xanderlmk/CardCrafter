@@ -7,7 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.model.uiModels.DueDeckDetails
+import com.belmontCrest.cardCrafter.model.ui.DueDeckDetails
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
 import java.util.Date

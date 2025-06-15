@@ -36,7 +36,7 @@ import com.belmontCrest.cardCrafter.model.TextProps
 import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.cardListTextProp
 import com.belmontCrest.cardCrafter.model.toTextProp
-import com.belmontCrest.cardCrafter.model.uiModels.PreferencesManager
+import com.belmontCrest.cardCrafter.model.ui.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.tables.CoOwnerWithUsername
@@ -47,8 +47,8 @@ import com.belmontCrest.cardCrafter.ui.theme.borderedModifier
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CustomText
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
-import com.belmontCrest.cardCrafter.uiFunctions.PullDeck
-import com.belmontCrest.cardCrafter.uiFunctions.SubmitButton
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.PullDeck
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.CardDetails
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.toCardDetails

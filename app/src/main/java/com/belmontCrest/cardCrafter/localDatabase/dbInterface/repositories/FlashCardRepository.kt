@@ -3,7 +3,7 @@ package com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
-import com.belmontCrest.cardCrafter.model.uiModels.DueDeckDetails
+import com.belmontCrest.cardCrafter.model.ui.DueDeckDetails
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.CDetails
 import kotlinx.coroutines.flow.Flow
 import java.util.Date

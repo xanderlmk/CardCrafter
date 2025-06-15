@@ -34,12 +34,13 @@ import com.belmontCrest.cardCrafter.model.FSProp
 import com.belmontCrest.cardCrafter.model.paddingForModal
 import com.belmontCrest.cardCrafter.model.returnFontSizeBasedOnDp
 import com.belmontCrest.cardCrafter.model.toTextProp
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
-import com.belmontCrest.cardCrafter.model.uiModels.StringVar
-import com.belmontCrest.cardCrafter.model.uiModels.WhichDeck
+import com.belmontCrest.cardCrafter.model.ui.Fields
+import com.belmontCrest.cardCrafter.model.ui.StringVar
+import com.belmontCrest.cardCrafter.model.ui.WhichDeck
 import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.EditingCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -58,26 +59,23 @@ class ModalContent(
     private val cardDeckVM: CardDeckViewModel,
     private val supabaseVM: SupabaseViewModel,
     private val cr: StringVar,
-    private val wd: WhichDeck
+    private val wd: WhichDeck,
+    private val coroutineScope: CoroutineScope
 ) {
     private val mdModifier = Modifier
         .padding(horizontal = 4.dp)
         .size(28.dp)
-        .background(
-            color = getUIStyle.buttonColor(),
-            shape = RoundedCornerShape(12.dp)
-        )
+        .background(color = getUIStyle.buttonColor(), shape = RoundedCornerShape(12.dp))
         .zIndex(2f)
     private val ci = ContentIcons(getUIStyle)
 
     @Composable
-    fun Home(coroutineScope: CoroutineScope) {
+    fun Home() {
         val fontSize = returnFontSizeBasedOnDp()
         CustomRow(
             onClick = {
-                updateCards(coroutineScope)
+                launchUpdates()
                 fields.mainClicked.value = false
-                resetKeyboardStuff()
                 launchHome(coroutineScope, navViewModel, cardDeckVM, fields)
                 navViewModel.updateRoute(DeckListDestination.route)
                 navController.navigate(DeckListDestination.route)
@@ -92,7 +90,7 @@ class ModalContent(
     fun ExportDecks() {
         val fontSize = returnFontSizeBasedOnDp()
         CustomRow(onClick = {
-            resetKeyboardStuff()
+            launchUpdates()
             navViewModel.updateRoute(UserEDDestination.route)
             navViewModel.updateStartingSBRoute(UserEDDestination.route)
             navController.navigate(SBNavDestination.route)
@@ -106,12 +104,11 @@ class ModalContent(
     }
 
     @Composable
-    fun Settings(coroutineScope: CoroutineScope) {
+    fun Settings() {
         val fontSize = returnFontSizeBasedOnDp()
         CustomRow(
             onClick = {
-                resetKeyboardStuff()
-                updateCards(coroutineScope)
+                launchUpdates()
                 cardDeckVM.updateIndex(0)
                 navViewModel.updateRoute(SettingsDestination.route)
                 navController.navigate(SettingsDestination.route)
@@ -125,22 +122,20 @@ class ModalContent(
 
     @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
-    fun UserProfile(coroutineScope: CoroutineScope) {
+    fun UserProfile() {
         val fontSize = returnFontSizeBasedOnDp()
         val context = LocalContext.current
         CustomRow(
             onClick = {
-                resetKeyboardStuff()
                 if (cr.name != UserProfileDestination.route) {
-                    updateCards(coroutineScope)
+                    launchUpdates()
                     navViewModel.updateStartingSBRoute(UserProfileDestination.route)
                     navViewModel.updateRoute(UserProfileDestination.route)
                     navController.navigate(SBNavDestination.route)
                     coroutineScope.launch {
                         val result = supabaseVM.getGoogleId()
-                        if (!result.first) {
-                            showToastMessage(context, result.second)
-                        }
+                        if (!result.first) showToastMessage(context, result.second)
+
                     }
                 }
             }
@@ -150,7 +145,7 @@ class ModalContent(
         }
     }
 
-    private fun updateCards(coroutineScope: CoroutineScope) {
+    private fun updateCards() {
         if (cr.name == ViewDueCardsDestination.route) {
             wd.deck?.let {
                 /** If the list is empty, no cards
@@ -158,9 +153,7 @@ class ModalContent(
                  *  or the user finished the deck.
                  */
                 println("updating cards!")
-                coroutineScope.launch(Dispatchers.IO) {
-                    updateDecksCardList(it, cardDeckVM)
-                }
+                coroutineScope.launch(Dispatchers.IO) { updateDecksCardList(it, cardDeckVM) }
             }
         }
     }
@@ -172,6 +165,18 @@ class ModalContent(
         }
     }
 
+    private fun resetSelectionAndQuery() {
+        if (cr.name == ViewAllCardsDestination.route) {
+            navViewModel.resetSelection()
+            navViewModel.resetSearchQuery()
+        }
+    }
+
+    private fun launchUpdates() {
+        resetKeyboardStuff()
+        updateCards()
+        resetSelectionAndQuery()
+    }
 }
 
 @Composable
@@ -182,12 +187,8 @@ fun CustomRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                onClick()
-            }
+            .clickable { onClick() }
             .paddingForModal()
     )
-    {
-        content()
-    }
+    { content() }
 }

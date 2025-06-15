@@ -4,7 +4,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDe
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
-import com.belmontCrest.cardCrafter.model.uiModels.CardState
+import com.belmontCrest.cardCrafter.model.ui.CardState
 import java.util.Calendar
 import java.util.Date
 

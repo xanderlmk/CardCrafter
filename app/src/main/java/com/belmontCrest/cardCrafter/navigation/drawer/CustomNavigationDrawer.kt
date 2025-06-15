@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
@@ -32,9 +33,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckListDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
@@ -45,7 +48,7 @@ import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestinat
 import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -67,35 +70,32 @@ fun CustomNavigationDrawer(
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-
-
     val modalContent = ModalContent(
         navController = mainNavController, fields = fields,
         getUIStyle = getUIStyle, navViewModel = navViewModel,
         cardDeckVM = cardDeckVM, supabaseVM = supabaseVM,
         cr = navViewModel.route.collectAsStateWithLifecycle().value,
-        wd = navViewModel.wd.collectAsStateWithLifecycle().value
+        wd = navViewModel.wd.collectAsStateWithLifecycle().value,
+        coroutineScope = coroutineScope
     )
-    // Extract the current route.
+
+    /** Current route */
     val cr = navViewModel.route.collectAsStateWithLifecycle().value
     val stateSize = cardDeckVM.stateSize.collectAsStateWithLifecycle().value
     val stateIndex = cardDeckVM.stateIndex.collectAsStateWithLifecycle().value
 
-
     val deckName by navViewModel.deckName.collectAsStateWithLifecycle()
+    val isSelecting by navViewModel.isSelecting.collectAsStateWithLifecycle()
     val owner by supabaseVM.owner.collectAsStateWithLifecycle()
 
     // Determine the title based on the current route.
     val titleText = when (cr.name) {
-        MainNavDestination.route -> "Decks"
-        DeckListDestination.route -> "Decks"
+        MainNavDestination.route -> stringResource(R.string.deck_list)
+        DeckListDestination.route -> stringResource(R.string.deck_list)
         SettingsDestination.route -> "Settings"
         ViewAllCardsDestination.route -> deckName.name
-        ViewDueCardsDestination.route -> if (stateSize == 0) {
-            ""
-        } else {
-            "Card ${stateIndex + 1} out of $stateSize"
-        }
+        ViewDueCardsDestination.route ->
+            if (stateSize == 0) "" else "Card ${stateIndex + 1} out of $stateSize"
 
         SBNavDestination.route -> "Online Decks"
         SupabaseDestination.route -> "Online Decks"
@@ -112,9 +112,9 @@ fun CustomNavigationDrawer(
                 modifier = Modifier
                     .fillMaxWidth(0.50f)
             ) {
-                modalContent.Home(coroutineScope)
-                modalContent.Settings(coroutineScope)
-                modalContent.UserProfile(coroutineScope)
+                modalContent.Home()
+                modalContent.Settings()
+                modalContent.UserProfile()
                 if (owner != null) {
                     modalContent.ExportDecks()
                 }
@@ -155,16 +155,15 @@ fun CustomNavigationDrawer(
                         }
                     },
                     navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                coroutineScope.launch {
-                                    drawerState.open()
-                                }
-                            }) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "Localized description"
-                            )
+                        if (isSelecting) {
+                            IconButton(onClick = {
+                                navViewModel.resetSelection()
+                            }
+                            ) { Icon(Icons.Filled.Clear, contentDescription = null) }
+                        } else {
+                            IconButton(
+                                onClick = { coroutineScope.launch { drawerState.open() } }
+                            ) { Icon(Icons.Filled.Menu, contentDescription = null) }
                         }
                     },
                     actions = {
@@ -188,7 +187,9 @@ fun CustomNavigationDrawer(
                         .pointerInput(Unit) {
                             // swallow all touch events while visible
                             awaitPointerEventScope {
-                                while (true) { awaitPointerEvent() }
+                                while (true) {
+                                    awaitPointerEvent()
+                                }
                             }
                         }
                 ) {

@@ -32,8 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnReviewsLeft
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
-import com.belmontCrest.cardCrafter.model.uiModels.SealedDueCTs
+import com.belmontCrest.cardCrafter.model.ui.Fields
+import com.belmontCrest.cardCrafter.model.ui.SealedDueCTs
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 
 

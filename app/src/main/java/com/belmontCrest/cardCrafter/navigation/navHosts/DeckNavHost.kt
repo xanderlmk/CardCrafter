@@ -29,7 +29,7 @@ import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestinat
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.views.cardViews.addCardViews.AddCardView
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.CardDeckView
@@ -226,27 +226,25 @@ fun DeckNavHost(
             }
         }
         composable(ViewAllCardsDestination.route) {
+            val isSelecting by navViewModel.isSelecting.collectAsStateWithLifecycle()
             BackHandler {
-                fields.inDeckClicked.value = false
-                navViewModel.updateRoute(DeckViewDestination.route)
-                deckNavController.popBackStack(
-                    DeckViewDestination.route,
-                    inclusive = false
-                )
+                if (isSelecting) {
+                    navViewModel.resetSelection()
+                } else {
+                    fields.inDeckClicked.value = false
+                    navViewModel.resetSearchQuery()
+                    navViewModel.updateRoute(DeckViewDestination.route)
+                    deckNavController.popBackStack(DeckViewDestination.route, inclusive = false)
+                }
             }
             wd.deck?.let { thisDeck ->
                 editCardsList.ViewFlashCards(
+                    navVM = navViewModel,
                     goToEditCard = { cardId ->
                         fields.resetFields()
-                        coroutineScope.launch {
-                            navViewModel.getCardById(cardId)
-                        }
-                        navViewModel.updateRoute(
-                            EditingCardDestination.route
-                        )
-                        deckNavController.navigate(
-                            EditingCardDestination.route
-                        )
+                        coroutineScope.launch { navViewModel.getCardById(cardId) }
+                        navViewModel.updateRoute(EditingCardDestination.route)
+                        deckNavController.navigate(EditingCardDestination.route)
                     }
                 )
             }

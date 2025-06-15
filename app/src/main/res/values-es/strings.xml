@@ -7,6 +7,7 @@
     <string name="hard">Difícil</string>
     <string name="good">Bueno</string>
     <string name="submit">Entregar</string>
+    <string name="delete">Borrar</string>
     <string name="save">Guardar</string>
     <string name="cancel">Cancelar</string>
     <string name="question">Pregunta</string>
@@ -65,8 +66,8 @@
     <string name="good_multiplier_1">Multiplicador bueno debe ser mayor que 1.0</string>
     <string name="failed_multiplier">Fracaso en actualizar multiplicadores</string>
     <string name="updated_multiplier">Multiplicadores actualizados!</string>
-    <string name="sure_to_delete_deck">Estas seguro/a que quiere borrar este mazo?</string>
-    <string name="sure_to_delete_card">Estas seguro/a que quiere borrar esta carta?</string>
+    <string name="sure_to_delete_deck">¿Estas seguro/a que quiere borrar este mazo?</string>
+    <string name="sure_to_delete_card">¿Estas seguro/a que quiere borrar esta carta?</string>
     <string name="reviews_left">Revisiones restantes de la carta: </string>
     <string name="default_value">Predeterminado:</string>
     <string name="card_amount">Cantidad de cartas</string>
@@ -83,4 +84,8 @@
     <string name="could_not_sign_in">No se puede iniciar sesión</string>
     <string name="no_credentials_available">No hay credenciales</string>
     <string name="not_owner_or_co_owner">No es el propietario ni copropietario de este mazo.</string>
+    <string name="sure_to_delete_card_list">¿Estás seguro de que quieres eliminar estas tarjetas?</string>
+    <string name="delete_card_list">Borrar Cartas</string>
+    <string name="keyboard_disabled">Teclado desactivado</string>
+    <string name="search">Buscar…</string>
 </resources>

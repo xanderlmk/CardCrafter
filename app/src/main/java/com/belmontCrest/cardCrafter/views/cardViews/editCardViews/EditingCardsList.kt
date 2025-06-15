@@ -1,16 +1,17 @@
 package com.belmontCrest.cardCrafter.views.cardViews.editCardViews
 
-import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,18 +25,23 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardId
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.model.TAProp
 import com.belmontCrest.cardCrafter.model.toTextProp
-import com.belmontCrest.cardCrafter.model.uiModels.Fields
+import com.belmontCrest.cardCrafter.model.ui.Fields
+import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.views.miscFunctions.CardSelector
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CustomText
+import com.belmontCrest.cardCrafter.views.miscFunctions.details.toQuestion
 
 class EditCardsList(
     private var editingCardListVM: EditingCardListViewModel,
@@ -43,36 +49,26 @@ class EditCardsList(
     private var listState: LazyListState,
     private var getUIStyle: GetUIStyle
 ) {
-    @SuppressLint("CoroutineCreationDuringComposition")
     @Composable
     fun ViewFlashCards(
-        goToEditCard: (Int) -> Unit
+        navVM: NavViewModel, goToEditCard: (Int) -> Unit
     ) {
         val sealedCardsList by editingCardListVM.sealedAllCTs.collectAsStateWithLifecycle()
         val searchQuery by editingCardListVM.searchQuery.collectAsStateWithLifecycle()
         val middleCard = rememberSaveable { mutableIntStateOf(0) }
         var enabled by remember { mutableStateOf(true) }
-
+        val isSelecting by navVM.isSelecting.collectAsStateWithLifecycle()
+        val selectedCTL by editingCardListVM.selectedCards.collectAsStateWithLifecycle()
         val filtered = sealedCardsList.allCTs.filter { ct ->
-            if (searchQuery.isBlank()) {
-                return@filter true
-            }
-            val q = when (ct) {
-                is CT.Basic -> ct.basicCard.question
-                is CT.Hint -> ct.hintCard.question
-                is CT.ThreeField -> ct.threeFieldCard.question
-                is CT.MultiChoice -> ct.multiChoiceCard.question
-                is CT.Notation -> ct.notationCard.question
-            }
-            q.contains(searchQuery, ignoreCase = true)
+            if (searchQuery.isBlank()) return@filter true
+
+            ct.toQuestion().contains(searchQuery, ignoreCase = true)
         }
 
         // Restore the scroll position when returning from editing
         LaunchedEffect(Unit) {
             snapshotFlow { listState.layoutInfo.visibleItemsInfo }
-                .collect { visibleItems ->
-                    middleCard.intValue = visibleItems.size / 2
-                }
+                .collect { visibleItems -> middleCard.intValue = visibleItems.size / 2 }
             getListState(listState, middleCard.intValue)
         }
         Column(
@@ -81,14 +77,18 @@ class EditCardsList(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val text =
+                if (isSelecting) stringResource(R.string.keyboard_disabled)
+                else stringResource(R.string.search)
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { editingCardListVM.updateQuery(it) },
-                placeholder = { Text("Search…", color = getUIStyle.defaultIconColor()) },
+                placeholder = { Text(text, color = getUIStyle.defaultIconColor()) },
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
+                enabled = !isSelecting
             )
             if (searchQuery.isNotEmpty() && filtered.isEmpty()) {
                 CustomText(
@@ -98,31 +98,57 @@ class EditCardsList(
                 )
             }
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 state = listState
             ) {
-                items(filtered.size) { index ->
-                    Button(
-                        onClick = {
-                                enabled = false
-                                fields.scrollPosition.value = index
-                                fields.isEditing.value = true
-                                goToEditCard(filtered[index].getCardId())
-                                enabled = true
-                        }, enabled = enabled,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = getUIStyle.secondaryButtonColor(),
-                            contentColor = getUIStyle.buttonTextColor()
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                    ) {
-                        CardSelector(filtered, index)
-                    }
+                items(filtered.size, key = { index -> filtered[index].getCardId() }) { index ->
+                    val selected = selectedCTL.any { it.getCardId() == filtered[index].getCardId() }
+
+                    CardItem(
+                        filtered, index, isSelecting = isSelecting, selected = selected,
+                        onTap = {
+                            if (enabled) {
+                                if (isSelecting) {
+                                    editingCardListVM.toggleCard(filtered[index])
+                                } else {
+                                    enabled = false
+                                    fields.scrollPosition.value = index
+                                    fields.isEditing.value = true
+                                    goToEditCard(filtered[index].getCardId())
+                                    enabled = true
+                                }
+                            }
+                        },
+                        onLongPress = {
+                            if (enabled) {
+                                editingCardListVM.toggleCard(filtered[index])
+                                navVM.isSelectingTrue()
+                            }
+                        })
                 }
             }
+        }
+    }
+
+    @Composable
+    fun CardItem(
+        filtered: List<CT>, index: Int, onTap: () -> Unit, onLongPress: () -> Unit,
+        isSelecting: Boolean, selected: Boolean
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .background(getUIStyle.secondaryButtonColor(), RoundedCornerShape(16.dp))
+                .padding(4.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = { onTap() },
+                        onLongPress = { onLongPress() }
+                    )
+                }
+        ) {
+            CardSelector(filtered, index, getUIStyle, isSelecting, selected)
         }
     }
 

@@ -7,6 +7,7 @@
     <string name="hard">Hard</string>
     <string name="good">Good</string>
     <string name="submit">Submit</string>
+    <string name="delete">Delete</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="question">Question</string>
@@ -83,4 +84,8 @@
     <string name="could_not_sign_in">Couldn\'t sign in.</string>
     <string name="no_credentials_available">No credentials available</string>
     <string name="not_owner_or_co_owner">You are not the owner or a co-owner of this deck.</string>
+    <string name="sure_to_delete_card_list">Are you sure you want to delete these cards?</string>
+    <string name="delete_card_list">Delete Cards</string>
+    <string name="keyboard_disabled">Keyboard Disabled</string>
+    <string name="search">Search…</string>
 </resources>

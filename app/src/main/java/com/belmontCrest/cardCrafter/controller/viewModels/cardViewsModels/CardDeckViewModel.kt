@@ -12,10 +12,10 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardT
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.model.uiModels.CardState
-import com.belmontCrest.cardCrafter.model.uiModels.CardUpdateError
-import com.belmontCrest.cardCrafter.model.uiModels.SavedCardUiState
-import com.belmontCrest.cardCrafter.model.uiModels.SealedDueCTs
+import com.belmontCrest.cardCrafter.model.ui.CardState
+import com.belmontCrest.cardCrafter.model.ui.CardUpdateError
+import com.belmontCrest.cardCrafter.model.ui.SavedCardUiState
+import com.belmontCrest.cardCrafter.model.ui.SealedDueCTs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
@@ -63,8 +63,7 @@ class CardDeckViewModel(
      */
     private val _deckId = MutableStateFlow(savedStateHandle[DECK_ID] ?: 0)
 
-    private val state =
-        _deckId.flatMapLatest { id ->
+    private val state = _deckId.flatMapLatest { id ->
             flashCardRepository.getDueDeckDetails(id)
         }.flatMapLatest { dueDetails ->
             if (dueDetails == null) {
@@ -279,8 +278,7 @@ class CardDeckViewModel(
                     return@withContext true
                 } else {
                     viewModelScope.launch(Dispatchers.IO) {
-                        flashCardRepository.updateCardsLeft(
-                            deck.id, deck.cardsLeft, deck.cardsDone
+                        flashCardRepository.updateCardsLeft(deck.id, deck.cardsLeft, deck.cardsDone
                         )
                     }
                 }
@@ -294,9 +292,7 @@ class CardDeckViewModel(
                 true
             } catch (e: Exception) {
                 thisErrorState.value = returnError(e)
-                thisErrorState.value?.let { cardUE ->
-                    callError(cardUE)
-                }
+                thisErrorState.value?.let { cardUE -> callError(cardUE) }
                 false
             }
         }
