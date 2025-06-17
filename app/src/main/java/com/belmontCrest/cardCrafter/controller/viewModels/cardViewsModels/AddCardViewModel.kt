@@ -3,6 +3,7 @@ package com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.belmontCrest.cardCrafter.controller.viewModels.ReusedFunc
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
@@ -13,9 +14,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
-import java.util.Date
 
 class AddCardViewModel(
     private val flashCardRepository: FlashCardRepository,
@@ -25,10 +23,11 @@ class AddCardViewModel(
     private val _errorMessage: MutableStateFlow<String> = MutableStateFlow("")
     val errorMessage = _errorMessage.asStateFlow()
     private val isOwner = MutableStateFlow(false)
+    private val rf = ReusedFunc(flashCardRepository)
 
-    companion object {
+    /*companion object {
         private const val TIMEOUT_MILLIS = 4_000L
-    }
+    }*/
 
     init {
         viewModelScope.launch {
@@ -64,7 +63,7 @@ class AddCardViewModel(
 
     fun addThreeCard(
         deck: Deck, question: String,
-        middle: String, answer: String, isQOrA : PartOfQorA
+        middle: String, answer: String, isQOrA: PartOfQorA
     ) {
         if (question.isNotBlank() && answer.isNotBlank()
             && middle.isNotBlank()
@@ -119,44 +118,7 @@ class AddCardViewModel(
 
 
     suspend fun updateCardsLeft(deck: Deck, cardsToAdd: Int = 1) {
-        return withContext(Dispatchers.IO) {
-            /** Only add the cards if the deck's review is due */
-            if (deck.nextReview <= Date()) {
-                viewModelScope.launch(Dispatchers.IO) {
-                    withTimeout(TIMEOUT_MILLIS) {
-                        /** This keeps a record of the amount of cards left vs done and compares
-                         *  it to the card amount. Here's three examples
-                         *  cardsLeft = CL, cardsDone = CD, cardAmount = CA
-                         *  CA = 20
-                         *  1. CL = 19, CD = 1
-                         *      CL + 1 = 20, CD + 1 = 2, ! < CA, F; move down
-                         *      CD + 1 = 2, ! >= CA, F; just update to CA
-                         *
-                         *  2. CL = 1, CD = 19
-                         *      CL + 1 = 2, CD + 1 = 20, ! < CA, F; move down
-                         *      CD + 1 = 20 >= CA, T, Don't update just return.
-                         *
-                         *  3. CL = 15, CD = 5
-                         *      CL + 1 = 16, CD + 1 = 6, 16 && 6 < CA, T; Update accordingly.
-                         */
-                        if (((deck.cardsLeft + cardsToAdd) < deck.cardAmount) &&
-                            ((deck.cardsDone + cardsToAdd) < deck.cardAmount)
-                        ) {
-                            flashCardRepository.updateCardsLeft(
-                                deckId = deck.id, cardsDone = deck.cardsDone,
-                                cardsLeft = (deck.cardsLeft + cardsToAdd),
-                            )
-                        } else if ((deck.cardsDone + cardsToAdd) >= deck.cardAmount) {
-                            return@withTimeout
-                        } else {
-                            flashCardRepository.updateCardsLeft(
-                                deck.id, deck.cardAmount, deck.cardsDone
-                            )
-                        }
-                    }
-                }
-            }
-        }
+        rf.updateCardsLeft(deck, cardsToAdd)
     }
 
     fun setErrorMessage(message: String) {

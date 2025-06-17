@@ -8,6 +8,8 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.Offli
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineFlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineScienceRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.ScienceSpecificRepository
+import com.belmontCrest.cardCrafter.navigation.KeyboardSelectionRepoImpl
+import com.belmontCrest.cardCrafter.navigation.KeyboardSelectionRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.CoOwnerRequestsRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.CoOwnerRequestsRepositoryImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.ExportRepository
@@ -58,6 +60,7 @@ interface AppContainer {
     val isOwnerOrCoOwnerRepo : IsOwnerOrCoOwnerRepo
     val deepLinkerRepo : DeepLinkerRepository
     val fpRepository : ForgotPasswordRepository
+    val kbRepository: KeyboardSelectionRepository
 }
 
 class AppDataContainer(
@@ -140,5 +143,9 @@ class AppDataContainer(
 
     override val fpRepository: ForgotPasswordRepository by lazy {
         ForgotPasswordRepoImpl(sharedSupabase)
+    }
+
+    override val kbRepository: KeyboardSelectionRepository by lazy {
+        KeyboardSelectionRepoImpl()
     }
 }

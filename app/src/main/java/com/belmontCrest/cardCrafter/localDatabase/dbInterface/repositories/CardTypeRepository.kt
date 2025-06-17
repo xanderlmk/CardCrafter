@@ -2,6 +2,7 @@ package com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories
 
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
@@ -15,9 +16,9 @@ interface CardTypeRepository {
 
     val selectedCards: StateFlow<List<CT>>
     fun toggleCard(ct: CT)
-    fun clearSelection()
-
+    fun deselectAll()
     suspend fun toggleAllCards(deckId: Int)
+
     val searchQuery: StateFlow<String>
     fun updateQuery(query: String)
     fun resetQuery()
@@ -44,15 +45,17 @@ interface CardTypeRepository {
 
     fun getAllCardTypesStream(deckId: Int): Flow<List<CT>>
 
-    fun getAllDueCards(deckId: Int, cardAmount: Int, currentTime: Long): Flow<List<CT>>
+    fun getAllDueCardsStream(deckId: Int, cardAmount: Int, currentTime: Long): Flow<List<CT>>
 
-    fun getDueAllCardTypes(deckId: Int, cardAmount: Int, currentTime: Long = Date().time):
-            List<CT>
+    fun getAllDueCards(deckId: Int, cardAmount: Int, currentTime: Long = Date().time): List<CT>
 
     fun getACardType(id: Int): CT
 
     fun getACardTypeStream(id: Int): Flow<CT>
 
+    suspend fun copyCardList(deck: Deck)
+
+    suspend fun moveCardList(deck: Deck)
 
     suspend fun updateCT(cardId: Int, type: String, fields: Fields, deleteCT: CT)
 

@@ -47,6 +47,7 @@
     <string name="edit_multiplier">Edit Multiplier</string>
     <string name="good_multiplier">Good Multiplier</string>
     <string name="bad_multiplier">Bad Multiplier</string>
+    <!-- Choice Card strings -->
     <string name="multi_choice_card">Multiple Choice Card</string>
     <string name="multi">Multiple Choices</string>
     <string name="choice_a">Choice A</string>
@@ -85,7 +86,17 @@
     <string name="no_credentials_available">No credentials available</string>
     <string name="not_owner_or_co_owner">You are not the owner or a co-owner of this deck.</string>
     <string name="sure_to_delete_card_list">Are you sure you want to delete these cards?</string>
+    <string name="sure_to_duplicate_card_list">Are you sure you want to duplicate these cards?</string>
+    <string name="duplicate_card_list">Duplicate Cards</string>
     <string name="delete_card_list">Delete Cards</string>
     <string name="keyboard_disabled">Keyboard Disabled</string>
+
+    <string name="okay">Okay</string>
     <string name="search">Search…</string>
+
+    <string name="select_all">Select all</string>
+    <string name="deselect_all">Deselect all</string>
+    <string name="copy_cards">Copy cards</string>
+    <string name="move_cards">Move cards</string>
+    <string name="duplicate_cards">Duplicate cards</string>
 </resources>

@@ -69,7 +69,7 @@ class CardDeckViewModel(
             if (dueDetails == null) {
                 flowOf(SealedDueCTs())
             } else {
-                cardTypeRepository.getAllDueCards(dueDetails.id, dueDetails.cardsLeft, Date().time)
+                cardTypeRepository.getAllDueCardsStream(dueDetails.id, dueDetails.cardsLeft, Date().time)
                     .map {
                         transitionTo(CardState.Finished)
                         SealedDueCTs(

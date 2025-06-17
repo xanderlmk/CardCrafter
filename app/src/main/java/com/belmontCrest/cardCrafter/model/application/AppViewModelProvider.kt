@@ -36,6 +36,7 @@ object AppViewModelProvider {
             NavViewModel(
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.cardTypeRepository,
+                flashCardApplication().container.kbRepository,
                 this.createSavedStateHandle()
             )
         }
