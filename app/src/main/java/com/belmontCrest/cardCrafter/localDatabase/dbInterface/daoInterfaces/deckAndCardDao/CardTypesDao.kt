@@ -2,8 +2,6 @@ package com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.dec
 
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toBasicList
@@ -16,10 +14,12 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.AllCardTypes
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
+import com.belmontCrest.cardCrafter.model.InsertOrAbortDao
 import com.belmontCrest.cardCrafter.model.Type.BASIC
 import com.belmontCrest.cardCrafter.model.Type.HINT
 import com.belmontCrest.cardCrafter.model.Type.MULTI
@@ -27,9 +27,10 @@ import com.belmontCrest.cardCrafter.model.Type.NOTATION
 import com.belmontCrest.cardCrafter.model.Type.THREE
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 @Dao
-interface CardTypesDao {
+interface CardTypesDao : InsertOrAbortDao {
     @Transaction
     @Query(
         """SELECT * FROM cards WHERE deckId = :deckId 
@@ -63,7 +64,6 @@ interface CardTypesDao {
     )
     suspend fun getAllCardTypes(deckId: Int): List<AllCardTypes>
 
-
     @Transaction
     @Query("""SELECT * FROM cards where id = :id""")
     fun getACardType(id: Int): AllCardTypes
@@ -72,20 +72,6 @@ interface CardTypesDao {
     @Query("""SELECT * FROM cards where id = :id""")
     fun getACardTypeStream(id: Int): Flow<AllCardTypes>
 
-    @Insert(onConflict = OnConflictStrategy.Companion.ABORT)
-    suspend fun insertBasicCard(basicCard: BasicCard)
-
-    @Insert(onConflict = OnConflictStrategy.Companion.ABORT)
-    suspend fun insertThreeCard(threeFieldCard: ThreeFieldCard)
-
-    @Insert(onConflict = OnConflictStrategy.Companion.ABORT)
-    suspend fun insertHintCard(hintCard: HintCard)
-
-    @Insert(onConflict = OnConflictStrategy.Companion.ABORT)
-    suspend fun insertMultiChoiceCard(multiChoiceCard: MultiChoiceCard)
-
-    @Insert(onConflict = OnConflictStrategy.Companion.ABORT)
-    suspend fun insertNotationCard(notationCard: NotationCard)
 
     @Query("Update cards set type = :type where id = :cardId")
     suspend fun updateCard(cardId: Int, type: String)
@@ -172,25 +158,11 @@ interface CardTypesDao {
         }
         updateCard(cardId, type)
         when (deleteCT) {
-            is CT.Basic -> {
-                deleteBasicCard(deleteCT.basicCard)
-            }
-
-            is CT.ThreeField -> {
-                deleteThreeCard(deleteCT.threeFieldCard)
-            }
-
-            is CT.Hint -> {
-                deleteHintCard(deleteCT.hintCard)
-            }
-
-            is CT.MultiChoice -> {
-                deleteMultiChoiceCard(deleteCT.multiChoiceCard)
-            }
-
-            is CT.Notation -> {
-                deleteNotationCard(deleteCT.notationCard)
-            }
+            is CT.Basic -> deleteBasicCard(deleteCT.basicCard)
+            is CT.ThreeField -> deleteThreeCard(deleteCT.threeFieldCard)
+            is CT.Hint -> deleteHintCard(deleteCT.hintCard)
+            is CT.MultiChoice -> deleteMultiChoiceCard(deleteCT.multiChoiceCard)
+            is CT.Notation -> deleteNotationCard(deleteCT.notationCard)
         }
     }
 
@@ -212,6 +184,7 @@ interface CardTypesDao {
     @Delete
     suspend fun deleteNotationCards(notationCards: List<NotationCard>)
 
+    /** Delete the selected cards */
     @Transaction
     suspend fun deleteCardList(cts: List<CT>) {
         val basicCards = cts.toBasicList()
@@ -223,5 +196,84 @@ interface CardTypesDao {
         deleteCards(cards); deleteBasicCards(basicCards); deleteThreeCards(threeCards)
         deleteHintCards(hintCards); deleteMultiCards(multiCards)
         deleteNotationCards(notationCards)
+    }
+
+
+    @Query("SELECT MAX(deckCardNumber) FROM cards WHERE deckId = :deckId")
+    fun getMaxDCNumber(deckId: Int): Int?
+
+    /** Copy the selected cards into a new deck */
+    @Transaction
+    suspend fun copyCardList(cts: List<CT>, deck: Deck) {
+        cts.map { ct ->
+            val newDeckCardNumber = returnCardDeckNum(deck.id)
+            when (ct) {
+                is CT.Basic -> {
+                    val cardId = returnCard(deck, newDeckCardNumber, BASIC).toInt()
+                    val bc = ct.basicCard
+                    insertBasicCard(BasicCard(cardId, bc.question, bc.answer))
+                }
+
+                is CT.Hint -> {
+                    val cardId = returnCard(deck, newDeckCardNumber, HINT).toInt()
+                    val hc = ct.hintCard
+                    insertHintCard(HintCard(cardId, hc.question, hc.hint, hc.answer))
+                }
+
+                is CT.MultiChoice -> {
+                    val cardId = returnCard(deck, newDeckCardNumber, MULTI).toInt()
+                    val mc = ct.multiChoiceCard
+                    insertMultiChoiceCard(
+                        MultiChoiceCard(
+                            cardId, question = mc.question,
+                            choiceA = mc.choiceA, choiceB = mc.choiceB,
+                            choiceC = mc.choiceC, choiceD = mc.choiceD, mc.correct
+                        )
+                    )
+                }
+
+                is CT.Notation -> {
+                    val cardId = returnCard(deck, newDeckCardNumber, NOTATION).toInt()
+                    val nc = ct.notationCard
+                    insertNotationCard(NotationCard(cardId, nc.question, nc.steps, nc.answer))
+                }
+
+                is CT.ThreeField -> {
+                    val cardId = returnCard(deck, newDeckCardNumber, THREE).toInt()
+                    val tc = ct.threeFieldCard
+                    insertThreeCard(
+                        ThreeFieldCard(cardId, tc.question, tc.middle, tc.answer, tc.field)
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     *  First copy the selected cards to the new deck, and then delete the
+     *  original selected cards.
+     */
+    @Transaction
+    suspend fun moveCardList(cts: List<CT>, deck: Deck) {
+        copyCardList(cts, deck)
+        deleteCardList(cts)
+    }
+
+    private suspend fun returnCard(
+        deck: Deck, newDeckCardNumber: Int, type: String
+    ): Long {
+        return insertCard(
+            Card(
+                deckId = deck.id, nextReview = Date(), passes = 0, prevSuccess = false,
+                totalPasses = 0, type = type, deckUUID = deck.uuid,
+                deckCardNumber = newDeckCardNumber,
+                cardIdentifier = "${deck.uuid}-$newDeckCardNumber",
+                reviewsLeft = deck.reviewAmount,
+            )
+        )
+    }
+
+    private fun returnCardDeckNum(deckId: Int): Int {
+        return (getMaxDCNumber(deckId) ?: 0) + 1
     }
 }

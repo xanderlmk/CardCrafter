@@ -146,6 +146,8 @@ fun RedoCardButton(
         },
         modifier = modifier
     ) {
+        val ci = ContentIcons(getUIStyle)
+ci.ContentIcon()
         Icon(
             painter = painterResource(R.drawable.return_arrow),
             modifier = Modifier
@@ -166,6 +168,7 @@ fun SettingsButton(
     fields: Fields
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val ci = ContentIcons(getUIStyle)
     IconButton(
         onClick = {
             if (!fields.inDeckClicked.value) {
@@ -179,13 +182,7 @@ fun SettingsButton(
             )
             .padding(6.dp)
     ) {
-        Icon(
-            imageVector = Icons.Filled.Edit,
-            modifier = Modifier
-                .size(24.dp),
-            contentDescription = "Settings",
-            tint = getUIStyle.iconColor()
-        )
+        ci.ContentIcon("Settings", Icons.Filled.Edit, Modifier.size(24.dp))
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(
                 onClick = {

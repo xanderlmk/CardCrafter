@@ -23,7 +23,7 @@ enum class TAProp { Start, Center, End, Default }
 /** Max lines prop */
 enum class MLProp { One, Two, Three, Default }
 
-enum class TCProp{ Button, Default }
+enum class TCProp { Button, Default, Disabled }
 
 /** Defining our text props */
 data class TextProps(
@@ -64,50 +64,44 @@ fun FSProp.toTextProp(): TextProps = when (this) {
     FSProp.Default -> TextProps(fs = FSProp.Default)
 }
 
-fun setFontSize(fsProp: FSProp): TextUnit {
-    return when (fsProp) {
-        FSProp.Font22 -> 22.sp
-        FSProp.Font20 -> 20.sp
-        FSProp.Font18 -> 18.sp
-        FSProp.Font16 -> 16.sp
-        FSProp.Font14 -> 14.sp
-        FSProp.Font12 -> 12.sp
-        FSProp.Font10 -> 10.sp
-        FSProp.Default -> TextUnit.Unspecified
-    }
+fun setFontSize(fsProp: FSProp): TextUnit = when (fsProp) {
+    FSProp.Font22 -> 22.sp
+    FSProp.Font20 -> 20.sp
+    FSProp.Font18 -> 18.sp
+    FSProp.Font16 -> 16.sp
+    FSProp.Font14 -> 14.sp
+    FSProp.Font12 -> 12.sp
+    FSProp.Font10 -> 10.sp
+    FSProp.Default -> TextUnit.Unspecified
 }
 
-fun setFontWeight(fwProp: FWProp): FontWeight {
-    return when (fwProp) {
-        FWProp.Bold -> FontWeight.Bold
-        FWProp.SemiBold -> FontWeight.SemiBold
-        FWProp.Default -> FontWeight.Normal
-    }
+
+fun setFontWeight(fwProp: FWProp): FontWeight = when (fwProp) {
+    FWProp.Bold -> FontWeight.Bold
+    FWProp.SemiBold -> FontWeight.SemiBold
+    FWProp.Default -> FontWeight.Normal
 }
 
-fun setTextAlign(taProp: TAProp): TextAlign? {
-    return when (taProp) {
-        TAProp.Center -> TextAlign.Center
-        TAProp.Start -> TextAlign.Start
-        TAProp.End -> TextAlign.End
-        TAProp.Default -> null
-    }
+
+fun setTextAlign(taProp: TAProp): TextAlign? = when (taProp) {
+    TAProp.Center -> TextAlign.Center
+    TAProp.Start -> TextAlign.Start
+    TAProp.End -> TextAlign.End
+    TAProp.Default -> null
 }
 
-fun setMaxLines(mlProp: MLProp): Int {
-    return when (mlProp) {
-        MLProp.One -> 1
-        MLProp.Two -> 2
-        MLProp.Three -> 3
-        MLProp.Default -> Int.MAX_VALUE
-    }
+
+fun setMaxLines(mlProp: MLProp): Int = when (mlProp) {
+    MLProp.One -> 1
+    MLProp.Two -> 2
+    MLProp.Three -> 3
+    MLProp.Default -> Int.MAX_VALUE
 }
 
-fun setTextColor(tcProp: TCProp, getUIStyle : GetUIStyle): Color {
-    return when(tcProp) {
-        TCProp.Button -> getUIStyle.buttonTextColor()
-        TCProp.Default -> getUIStyle.titleColor()
-    }
+fun setTextColor(tcProp: TCProp, getUIStyle: GetUIStyle): Color = when (tcProp) {
+    TCProp.Button -> getUIStyle.buttonTextColor()
+    TCProp.Default -> getUIStyle.titleColor()
+    TCProp.Disabled -> getUIStyle.disabledTextColor()
 }
 
 fun titledTextProp() = TextProps(FSProp.Font22, FWProp.Default, TAProp.Center)

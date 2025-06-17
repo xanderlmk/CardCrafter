@@ -35,10 +35,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
+import com.belmontCrest.cardCrafter.controller.onClickActions.CopyMoveCardList
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteCard
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteCards
+import com.belmontCrest.cardCrafter.controller.onClickActions.DuplicateCards
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.model.Type
+import com.belmontCrest.cardCrafter.model.ui.Decision
+import com.belmontCrest.cardCrafter.model.ui.Dialogs
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -152,15 +157,15 @@ fun CardTypesButton(getUIStyle: GetUIStyle, navVM: NavViewModel) {
                 Icon(
                     Icons.Default.MoreVert,
                     contentDescription = "Card Type",
-                    tint = getUIStyle.titleColor()
+                    tint = getUIStyle.defaultIconColor()
                 )
             }
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 CardItems(
-                    toBasic = { navVM.updateType(Type.BASIC) },
-                    toThree = { navVM.updateType(Type.THREE) },
-                    toHint = { navVM.updateType(Type.HINT) },
-                    toMulti = { navVM.updateType(Type.MULTI) },
+                    toBasic = { navVM.updateType(Type.BASIC); navVM.resetKeyboardStuff() },
+                    toThree = { navVM.updateType(Type.THREE); navVM.resetKeyboardStuff() },
+                    toHint = { navVM.updateType(Type.HINT); navVM.resetKeyboardStuff() },
+                    toMulti = { navVM.updateType(Type.MULTI); navVM.resetKeyboardStuff() },
                     toNotation = { navVM.updateType(Type.NOTATION) }
                 )
             }
@@ -221,13 +226,13 @@ fun ToggleKeyBoard(
                 Icon(
                     painterResource(R.drawable.twotone_keyboard),
                     contentDescription = "Keyboard",
-                    tint = getUIStyle.titleColor()
+                    tint = getUIStyle.defaultIconColor()
                 )
             } else {
                 Icon(
                     painterResource(R.drawable.twotone_keyboard_hide),
                     contentDescription = "Hide Keyboard",
-                    tint = getUIStyle.titleColor()
+                    tint = getUIStyle.defaultIconColor()
                 )
             }
         }
@@ -236,15 +241,14 @@ fun ToggleKeyBoard(
 
 @Composable
 fun CardListOptions(
-    onDelete: () -> Unit,
-    onSelectAll: () -> Unit,
-    onClearSelection: () -> Unit,
-    getUIStyle: GetUIStyle,
-    enabled: Boolean,
-    showDialog: Boolean,
-    onDialogToggle: (Boolean) -> Unit,
-    expanded: MutableState<Boolean>
+    onDelete: () -> Unit, onCopyMoveCL: (Decision, Int) -> Unit,
+    onSelectAll: () -> Unit, onDeselectAll: () -> Unit, onDuplicate: () -> Unit,
+    getUIStyle: GetUIStyle, enabled: Boolean, dialogs: Dialogs,
+    onDelDialogToggle: (Boolean) -> Unit, expanded: MutableState<Boolean>,
+    selectedDeck: Deck?, onCORMDialogToggle: (Boolean) -> Unit, selectable: Boolean,
+    onDupDialogToggle: (Boolean) -> Unit, deckList: List<Deck>
 ) {
+    var decision by rememberSaveable { mutableStateOf<Decision>(Decision.Idle) }
     Box(Modifier.wrapContentSize(Alignment.TopEnd)) {
         IconButton(
             onClick = { expanded.value = true },
@@ -253,37 +257,56 @@ fun CardListOptions(
                 .size(54.dp)
         ) {
             Icon(
-                Icons.Default.MoreVert, contentDescription = null,
-                tint = getUIStyle.titleColor()
+                Icons.Default.MoreVert, contentDescription = null, tint = getUIStyle.titleColor()
             )
         }
         DropdownMenu(expanded = expanded.value, onDismissRequest = { expanded.value = false }) {
             DropdownMenuItem(
                 onClick = { onSelectAll() },
-                text = { Text("Select all") },
+                text = { Text(stringResource(R.string.select_all)) },
             )
             DropdownMenuItem(
-                onClick = { onClearSelection() },
-                text = { Text("Clear selection") }
+                onClick = { onDeselectAll() },
+                text = { Text(stringResource(R.string.deselect_all)) }
             )
             DropdownMenuItem(
-                onClick = { onDialogToggle(true) },
+                onClick = { onCORMDialogToggle(true); decision = Decision.Copy },
+                enabled = selectable, text = { Text(stringResource(R.string.copy_cards)) }
+            )
+            DropdownMenuItem(
+                onClick = { onCORMDialogToggle(true); decision = Decision.Move },
+                enabled = selectable, text = { Text(stringResource(R.string.move_cards)) }
+            )
+            DropdownMenuItem(
+                onClick = { onDupDialogToggle(true) }, enabled = selectable,
+                text = { Text(stringResource(R.string.duplicate_cards)) })
+            DropdownMenuItem(
+                onClick = { onDelDialogToggle(true) }, enabled = selectable,
                 text = { Text(stringResource(R.string.delete_card_list)) },
                 trailingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Delete,
                         modifier = Modifier
                             .size(28.dp),
-                        contentDescription = "Delete Card",
+                        contentDescription = stringResource(R.string.delete_card),
                         tint = getUIStyle.iconColor()
                     )
                 }
             )
-
         }
         DeleteCards(
-            showDialog = showDialog, onDismiss = { onDialogToggle(it) },
+            showDialog = dialogs.showDelete, onDismiss = { onDelDialogToggle(it) },
             enabled = enabled, getUIStyle = getUIStyle, onDelete = { onDelete() }
+        )
+        CopyMoveCardList(
+            showDialog = dialogs.showMoveCopy, onDismiss = { onCORMDialogToggle(it) },
+            enabled = enabled, getUIStyle = getUIStyle, onCopyOrMove = { id ->
+                if (decision !is Decision.Idle) onCopyMoveCL(decision, id)
+            }, deckList = deckList, selectedDeck = selectedDeck
+        )
+        DuplicateCards(
+            showDialog = dialogs.showDuplicate, onDismiss = { onDupDialogToggle(it) },
+            enabled = enabled, getUIStyle = getUIStyle, onDuplicate = { onDuplicate() }
         )
     }
 }

@@ -10,6 +10,7 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.allC
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.CardTypesDao
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
@@ -61,17 +62,13 @@ class OfflineCardTypeRepository(
         }
     }
 
-    override fun clearSelection() {
-        _selectedCards.update { emptyList() }
-    }
+    override fun deselectAll() = _selectedCards.update { emptyList() }
 
-    override fun updateQuery(query: String) {
-        _searchQuery.update { query }
-    }
 
-    override fun resetQuery() {
-        _searchQuery.update { "" }
-    }
+    override fun updateQuery(query: String) = _searchQuery.update { query }
+
+
+    override fun resetQuery() = _searchQuery.update { "" }
 
     override suspend fun deleteBasicCard(basicCard: BasicCard) =
         basicCardDao.deleteBasicCard(basicCard)
@@ -89,28 +86,16 @@ class OfflineCardTypeRepository(
         basicCardDao.updateBasicCard(id, question, answer)
 
     override suspend fun updateThreeCard(
-        id: Int,
-        question: String,
-        middle: String,
-        answer: String,
-        isQOrA: PartOfQorA
+        id: Int, question: String, middle: String, answer: String, isQOrA: PartOfQorA
     ) = threeCardDao.updateThreeCard(id, question, middle, answer, isQOrA)
 
     override suspend fun updateHintCard(
-        id: Int,
-        question: String,
-        hint: String,
-        answer: String
+        id: Int, question: String, hint: String, answer: String
     ) = hintCardDao.updateHintCard(id, question, hint, answer)
 
     override suspend fun updateMultiChoiceCard(
-        id: Int,
-        newQuestion: String,
-        newChoiceA: String,
-        newChoiceB: String,
-        newChoiceC: String,
-        newChoiceD: String,
-        newCorrect: Char
+        id: Int, newQuestion: String, newChoiceA: String, newChoiceB: String,
+        newChoiceC: String, newChoiceD: String, newCorrect: Char
     ) = multiChoiceCardDao.updateMultiChoiceCard(
         id, newQuestion, newChoiceA, newChoiceB, newChoiceC, newChoiceD, newCorrect
     )
@@ -133,10 +118,8 @@ class OfflineCardTypeRepository(
             listOf<CT>()
         }
 
-    override fun getAllDueCards(
-        deckId: Int,
-        cardAmount: Int,
-        currentTime: Long
+    override fun getAllDueCardsStream(
+        deckId: Int, cardAmount: Int, currentTime: Long
     ) = cardTypesDao.getDueAllCardTypesFlow(deckId, cardAmount, currentTime).map {
         try {
             mapAllCardTypesToCTs(it)
@@ -146,7 +129,7 @@ class OfflineCardTypeRepository(
         }
     }
 
-    override fun getDueAllCardTypes(
+    override fun getAllDueCards(
         deckId: Int, cardAmount: Int, currentTime: Long
     ) = try {
         mapAllCardTypesToCTs(cardTypesDao.getDueAllCardTypes(deckId, cardAmount, currentTime))
@@ -170,6 +153,12 @@ class OfflineCardTypeRepository(
         Log.d("CardTypeRepository", "$e")
         throw e
     }
+
+    override suspend fun copyCardList(deck: Deck) =
+        cardTypesDao.copyCardList(_selectedCards.value, deck)
+
+    override suspend fun moveCardList(deck: Deck) =
+        cardTypesDao.moveCardList(_selectedCards.value, deck)
 
     override suspend fun updateCT(
         cardId: Int, type: String, fields: Fields, deleteCT: CT

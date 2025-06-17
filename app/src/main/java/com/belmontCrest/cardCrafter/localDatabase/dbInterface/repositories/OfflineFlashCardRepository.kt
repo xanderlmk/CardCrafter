@@ -38,7 +38,9 @@ class OfflineFlashCardRepository(
             throw e
         }
 
-    override fun getAllDecksStream(): Flow<List<Deck>> = deckDao.getAllDecks()
+    override fun getAllDecksStream(): Flow<List<Deck>> = deckDao.getAllDecksStream()
+
+    override suspend fun getAllDecks() = deckDao.getAllDecks()
 
     override fun getDeckStream(id: Int) = deckDao.getDeckFlow(id)
 

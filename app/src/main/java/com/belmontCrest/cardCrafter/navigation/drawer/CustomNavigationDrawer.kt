@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -133,9 +134,9 @@ fun CustomNavigationDrawer(
                     title = {
                         if (titleText == ExportSBDestination.route) {
                             Text(
-                                text = titleText,
-                                color = getUIStyle.titleColor(),
+                                text = titleText, color = getUIStyle.titleColor(),
                                 textAlign = TextAlign.End,
+                                maxLines = 2, overflow = TextOverflow.Ellipsis,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontSize = 22.sp,
                                 modifier = Modifier
@@ -144,9 +145,9 @@ fun CustomNavigationDrawer(
                             )
                         } else {
                             Text(
-                                text = titleText,
-                                color = getUIStyle.titleColor(),
+                                text = titleText, color = getUIStyle.titleColor(),
                                 textAlign = TextAlign.Start,
+                                maxLines = 2, overflow = TextOverflow.Ellipsis,
                                 fontSize = 22.sp,
                                 modifier = Modifier
                                     .fillMaxWidth()

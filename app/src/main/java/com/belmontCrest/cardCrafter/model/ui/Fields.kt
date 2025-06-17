@@ -27,7 +27,6 @@ data class Fields(
     var newType: MutableState<String> = mutableStateOf(""),
     var isQOrA: MutableState<PartOfQorA> = mutableStateOf(PartOfQorA.A),
     var isEditing: MutableState<Boolean> = mutableStateOf(false)
-
 ) : Parcelable {
     fun resetFields() {
         question.value = ""; middleField.value = ""; answer.value = ""

@@ -95,4 +95,21 @@ sealed class SelectedKeyboard {
     data object Answer : SelectedKeyboard()
 }
 
+/** Whether the user decides to move the cards or copy it */
+@Parcelize
+sealed class Decision : Parcelable {
+    @Parcelize
+    data object Move : Decision()
+
+    @Parcelize
+    data object Copy : Decision()
+
+    @Parcelize
+    data object Idle : Decision()
+}
+
+@Parcelize
+data class Dialogs(
+    val showDelete: Boolean, val showMoveCopy: Boolean, val showDuplicate: Boolean
+) : Parcelable
 

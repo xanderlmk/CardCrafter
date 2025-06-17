@@ -101,9 +101,9 @@ class EditCardsList(
                 modifier = Modifier.fillMaxSize(),
                 state = listState
             ) {
+                val selectedCardIds = selectedCTL.map { it.getCardId() }.toSet()
                 items(filtered.size, key = { index -> filtered[index].getCardId() }) { index ->
-                    val selected = selectedCTL.any { it.getCardId() == filtered[index].getCardId() }
-
+                    val selected = filtered[index].getCardId() in selectedCardIds
                     CardItem(
                         filtered, index, isSelecting = isSelecting, selected = selected,
                         onTap = {

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -31,6 +32,9 @@ import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
+import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.model.ui.Decision
+import com.belmontCrest.cardCrafter.model.ui.Dialogs
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.navigation.destinations.AddDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.CoOwnerRequestsDestination
@@ -77,7 +81,8 @@ fun ActionIconButton(
         navViewModel.updateRoute(ViewAllCardsDestination.route)
         deckNavController?.navigate(ViewAllCardsDestination.route)
     }
-    val cr = navViewModel.route.collectAsStateWithLifecycle().value
+    val cr by navViewModel.route.collectAsStateWithLifecycle()
+    val selectable by navViewModel.selectable.collectAsStateWithLifecycle()
 
     when (cr.name) {
         MainNavDestination.route -> {
@@ -130,6 +135,10 @@ fun ActionIconButton(
         }
 
         ViewAllCardsDestination.route -> {
+            var deckList by rememberSaveable { mutableStateOf(emptyList<Deck>()) }
+            LaunchedEffect(Unit) {
+                coroutineScope.launch { deckList = navViewModel.getAllDecks() }
+            }
             if (!isSelecting) {
                 BackButton(
                     onBackClick = {
@@ -144,23 +153,78 @@ fun ActionIconButton(
                 )
             } else {
                 var enabled by rememberSaveable { mutableStateOf(true) }
-                var showDialog by rememberSaveable { mutableStateOf(false) }
+                var showDelDialog by rememberSaveable { mutableStateOf(false) }
+                var showCORMDialog by rememberSaveable { mutableStateOf(false) }
+                var showDupDialog by rememberSaveable { mutableStateOf(false) }
                 val expanded = rememberSaveable { mutableStateOf(false) }
+                val onFinished: () -> Unit = {
+                    showCORMDialog = false; enabled = true; expanded.value = false
+                    showDupDialog = false; showDelDialog = false
+                }
                 CardListOptions(
                     onDelete = {
                         coroutineScope.launch {
                             enabled = false
                             val success = navViewModel.deleteCardList()
                             if (!success) showToastMessage(context, "Failed to delete cards")
-                            showDialog = false
-                            enabled = true
-                            expanded.value = false
+                            onFinished()
                         }
                     },
+                    onDuplicate = {
+                        wd.deck?.let { deck ->
+                            coroutineScope.launch {
+                                enabled = false
+                                val (success, _) = navViewModel.copyCardList(deck.id)
+                                if (!success) showToastMessage(context, "Failed to duplicate cards")
+                                else showToastMessage(context, "Duplicated cards successfully!")
+                                onFinished()
+                            }
+                        }
+                    },
+                    onCopyMoveCL = { decision, deckId ->
+                        when (decision) {
+                            Decision.Copy -> {
+                                coroutineScope.launch {
+                                    enabled = false
+                                    val (success, deckName) = navViewModel.copyCardList(deckId)
+                                    if (!success) showToastMessage(
+                                        context, "Failed to copy cards to $$**", deckName
+                                    )
+                                    else showToastMessage(
+                                        context, "Copied cards to $$**!", deckName
+                                    )
+                                    onFinished()
+                                }
+                            }
+
+                            Decision.Idle -> {
+                                showToastMessage(context, "Error: no valid decision made.")
+                            }
+
+                            Decision.Move -> {
+                                coroutineScope.launch {
+                                    enabled = false
+                                    val (success, deckName) = navViewModel.moveCardList(deckId)
+                                    if (!success) showToastMessage(
+                                        context, "Failed to move cards to $$**", deckName
+                                    )
+                                    else showToastMessage(
+                                        context, "Moved cards to $$**!", deckName
+                                    )
+                                    onFinished()
+                                }
+                            }
+                        }
+                    }, deckList = deckList, selectedDeck = wd.deck, getUIStyle = getUIStyle,
                     onSelectAll = { coroutineScope.launch { navViewModel.selectAll() } },
-                    onClearSelection = { navViewModel.clearSelection() },
-                    getUIStyle, enabled = enabled, showDialog = showDialog,
-                    onDialogToggle = { showDialog = it }, expanded = expanded
+                    onDeselectAll = { navViewModel.deselectAll() }, selectable = selectable,
+                    onCORMDialogToggle = { showCORMDialog = it }, expanded = expanded,
+                    onDelDialogToggle = { showDelDialog = it }, enabled = enabled,
+                    onDupDialogToggle = { showDupDialog = it },
+                    dialogs = Dialogs(
+                        showDelete = showDelDialog, showMoveCopy = showCORMDialog,
+                        showDuplicate = showDupDialog
+                    )
                 )
             }
         }

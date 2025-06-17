@@ -85,7 +85,17 @@
     <string name="no_credentials_available">No hay credenciales</string>
     <string name="not_owner_or_co_owner">No es el propietario ni copropietario de este mazo.</string>
     <string name="sure_to_delete_card_list">¿Estás seguro de que quieres eliminar estas tarjetas?</string>
+    <string name="sure_to_duplicate_card_list">¿Estás seguro de que quieres duplicar estas tarjetas?</string>
+    <string name="duplicate_card_list">Duplicar Cartas</string>
     <string name="delete_card_list">Borrar Cartas</string>
     <string name="keyboard_disabled">Teclado desactivado</string>
+
+    <string name="select_all">Seleccionar todo</string>
+    <string name="deselect_all">Deseleccionar todo</string>
+    <string name="copy_cards">Copiar cartas</string>
+    <string name="move_cards">Mover cartas</string>
+    <string name="duplicate_cards">Duplicar cartas</string>
+
+    <string name="okay">OK</string>
     <string name="search">Buscar…</string>
 </resources>
