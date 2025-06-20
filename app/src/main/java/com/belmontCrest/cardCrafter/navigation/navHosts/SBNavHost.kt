@@ -29,7 +29,8 @@ import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestinati
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.ui.Fields
-import com.belmontCrest.cardCrafter.model.ui.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
 import com.belmontCrest.cardCrafter.navigation.destinations.CoOwnerRequestsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ForgotPasswordDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SBCardListDestination
@@ -64,9 +65,11 @@ fun SupabaseNav(
 
     LaunchedEffect(Unit) { supabaseVM.signInSyncedDBUser() }
     LaunchedEffect(Unit) { navViewModel.updateSBNav(sbNavController) }
+    val pc = setPreferenceValues(preferences)
+
     /** Our Supabase Client and Views. */
     val onlineDatabase = OnlineDatabase(getUIStyle, supabaseVM)
-    val importDeck = ImportDeck(getUIStyle, preferences)
+    val importDeck = ImportDeck(getUIStyle, pc)
     val sbDeck by supabaseVM.deck.collectAsStateWithLifecycle()
     val pickedDeck by supabaseVM.pickedDeck.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
@@ -80,7 +83,7 @@ fun SupabaseNav(
         UserEDDestination.route
     }
     val uEDVM: UserExportedDecksViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    val clv = CardListView(uEDVM, getUIStyle, preferences)
+    val clv = CardListView(uEDVM, getUIStyle, pc)
     NavHost(
         navController = sbNavController,
         startDestination = startDestination,

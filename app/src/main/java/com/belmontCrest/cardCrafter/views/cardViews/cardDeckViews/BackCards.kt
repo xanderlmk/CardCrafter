@@ -18,12 +18,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXWebView
@@ -54,7 +54,11 @@ fun NotationBackCard(notationCard: NotationCard, getUIStyle: GetUIStyle) {
                 }
                 append("<p>${notationCard.answer}</p>")
             }
-            KaTeXWebView(longString, getUIStyle)
+            KaTeXWebView(
+                longString, getUIStyle, Modifier
+                    .zIndex(-1f)
+                    .fillMaxWidth()
+            )
         }
     }
 }

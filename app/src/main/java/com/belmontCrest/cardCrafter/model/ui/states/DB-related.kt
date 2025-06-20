@@ -1,5 +1,4 @@
-package com.belmontCrest.cardCrafter.model.ui
-
+package com.belmontCrest.cardCrafter.model.ui.states
 
 import android.os.Parcelable
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
@@ -64,52 +63,3 @@ data class SealedDueCTs(
 data class SavedCardUiState(
     var savedCards: List<SavedCard> = emptyList()
 )
-
-@Serializable
-@Parcelize
-sealed class CardState : Parcelable {
-    @Serializable
-    @Parcelize
-    data object Idle : CardState()
-
-    @Serializable
-    @Parcelize
-    data object Loading : CardState()
-
-    @Serializable
-    @Parcelize
-    data object Finished : CardState()
-}
-
-/** Selected keyboard which is tied to NavVM */
-@Serializable
-sealed class SelectedKeyboard {
-    @Serializable
-    data object Question : SelectedKeyboard()
-
-    /** The pertaining step on the steps from stringList. */
-    @Serializable
-    data class Step(val index: Int) : SelectedKeyboard()
-
-    @Serializable
-    data object Answer : SelectedKeyboard()
-}
-
-/** Whether the user decides to move the cards or copy it */
-@Parcelize
-sealed class Decision : Parcelable {
-    @Parcelize
-    data object Move : Decision()
-
-    @Parcelize
-    data object Copy : Decision()
-
-    @Parcelize
-    data object Idle : Decision()
-}
-
-@Parcelize
-data class Dialogs(
-    val showDelete: Boolean, val showMoveCopy: Boolean, val showDuplicate: Boolean
-) : Parcelable
-

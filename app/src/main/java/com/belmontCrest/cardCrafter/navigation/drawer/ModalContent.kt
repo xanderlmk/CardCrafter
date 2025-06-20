@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -35,8 +36,8 @@ import com.belmontCrest.cardCrafter.model.paddingForModal
 import com.belmontCrest.cardCrafter.model.returnFontSizeBasedOnDp
 import com.belmontCrest.cardCrafter.model.toTextProp
 import com.belmontCrest.cardCrafter.model.ui.Fields
-import com.belmontCrest.cardCrafter.model.ui.StringVar
-import com.belmontCrest.cardCrafter.model.ui.WhichDeck
+import com.belmontCrest.cardCrafter.model.ui.states.StringVar
+import com.belmontCrest.cardCrafter.model.ui.states.WhichDeck
 import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.EditingCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
@@ -82,7 +83,7 @@ class ModalContent(
             })
         {
             CustomText(text = "Home", getUIStyle, props = FSProp.Default.toTextProp(fontSize))
-            ci.ContentIcon("Home", Icons.Filled.Home, mdModifier)
+            ci.ContentIcon(Icons.Filled.Home, "Home", mdModifier)
         }
     }
 
@@ -97,8 +98,8 @@ class ModalContent(
         }) {
             CustomText("Exported Decks", getUIStyle, props = FSProp.Default.toTextProp(fontSize))
             ci.ContentIcon(
-                "Rounded Playing Cards", painterResource(R.drawable.rounded_playing_cards),
-                mdModifier
+                painterResource(R.drawable.rounded_playing_cards),
+                "Rounded Playing Cards", mdModifier
             )
         }
     }
@@ -116,7 +117,7 @@ class ModalContent(
         )
         {
             CustomText("Settings", getUIStyle, props = FSProp.Default.toTextProp(fontSize))
-            ci.ContentIcon("Main Settings", Icons.Default.Settings, mdModifier)
+            ci.ContentIcon(Icons.Default.Settings, "Main Settings", mdModifier)
         }
     }
 
@@ -141,7 +142,7 @@ class ModalContent(
             }
         ) {
             CustomText("User Profile", getUIStyle, props = FSProp.Default.toTextProp(fontSize))
-            ci.ContentIcon("User Profile", Icons.Default.AccountCircle, mdModifier)
+            ci.ContentIcon(Icons.Default.AccountCircle, "User Profile", mdModifier)
         }
     }
 
@@ -185,6 +186,7 @@ fun CustomRow(
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }

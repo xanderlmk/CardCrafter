@@ -33,8 +33,8 @@ import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestinat
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.model.ui.Decision
-import com.belmontCrest.cardCrafter.model.ui.Dialogs
+import com.belmontCrest.cardCrafter.model.ui.states.Decision
+import com.belmontCrest.cardCrafter.model.ui.states.Dialogs
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.navigation.destinations.AddDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.CoOwnerRequestsDestination

@@ -1,8 +1,6 @@
 package com.belmontCrest.cardCrafter.views.cardViews.addCardViews
 
 import android.util.Log
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -27,9 +24,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -41,9 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.AddCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.model.ui.Fields
-import com.belmontCrest.cardCrafter.model.ui.SelectedKeyboard
-import com.belmontCrest.cardCrafter.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
 import com.belmontCrest.cardCrafter.uiFunctions.LatexKeyboard
@@ -51,14 +43,19 @@ import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.getWebView
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import com.belmontCrest.cardCrafter.views.miscFunctions.collectNotationFieldsAsStates
+import com.belmontCrest.cardCrafter.views.miscFunctions.collectTextRangesAsStates
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+private object KeyboardInputs {
+    const val KK = "KatexKeyBoard"
+}
 
 @Composable
 fun AddNotationCard(
-    vm: AddCardViewModel, deck: Deck, navVM: NavViewModel,
-    fields: Fields, getUIStyle: GetUIStyle, modifier: Modifier
+    vm: AddCardViewModel, deck: Deck, height: Int, width: Int,
+    getUIStyle: GetUIStyle, modifier: Modifier
 ) {
     val errorMessage by vm.errorMessage.collectAsStateWithLifecycle()
     var successMessage by remember { mutableStateOf("") }
@@ -66,14 +63,8 @@ fun AddNotationCard(
     val cardAdded = stringResource(R.string.card_added).toString()
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
-    var steps by rememberSaveable { mutableIntStateOf(0) }
-    fields.stringList = rememberSaveable { mutableListOf() }
-    val showKB by navVM.showKatexKeyboard.collectAsStateWithLifecycle()
-    val selectedKB by navVM.selectedKB.collectAsStateWithLifecycle()
-    //var lastSelectedKB by rememberSaveable { mutableStateOf<SelectedKeyboard?>(null) }
-    // val focusQRequester = remember { FocusRequester() }
-    // val focusARequester = remember { FocusRequester() }
-    val focusRequester = remember { FocusRequester() }
+    val (fields, showKB, selectedKB) = collectNotationFieldsAsStates(vm)
+    val (selection, composition) = collectTextRangesAsStates(vm)
     var selectedQSymbol by rememberSaveable {
         mutableStateOf(KaTeXMenu(null, SelectedAnnotation.Idle))
     }
@@ -84,8 +75,9 @@ fun AddNotationCard(
     var offset by remember { mutableStateOf(Offset.Zero) }
     val context = LocalContext.current
     var enabled by rememberSaveable { mutableStateOf(true) }
-    val resetOffset by navVM.resetOffset.collectAsStateWithLifecycle()
-    // var initialPos by remember { mutableStateOf<Offset?>(null) }
+    val resetOffset by vm.resetOffset.collectAsStateWithLifecycle()
+
+    val kk = KeyboardInputs.KK
     val webScrollState = rememberScrollState()
     val webView = getWebView(getUIStyle) { notation, sa ->
         when (val sel = selectedKB) {
@@ -107,6 +99,7 @@ fun AddNotationCard(
             }
         }
     }
+    LaunchedEffect(Unit) { vm.onCreate() }
     DisposableEffect(webView) {
         onDispose {
             try {
@@ -119,25 +112,16 @@ fun AddNotationCard(
     LaunchedEffect(resetOffset) {
         if (resetOffset) {
             offset = Offset.Zero
-            navVM.resetDone()
+            vm.resetDone()
         }
     }
     Box {
         if (showKB) {
-            BackHandler {
-                navVM.toggleKeyboard()
-                navVM.resetOffset()
-            }
             KaTeXMenu(
-                modifier
-                    .fillMaxSize(),
-                /**.onGloballyPositioned { coordinates ->
-                initialPos = coordinates.localToWindow(Offset.Zero)
-
-                }*/
-                { offset },
-                onDismiss = { navVM.toggleKeyboard() },
-                onOffset = { offset += it }, getUIStyle, //initialPos,
+                modifier.fillMaxSize(), offsetProvider = { offset },
+                height = height, width = width,
+                onDismiss = { vm.toggleKeyboard() },
+                onOffset = { offset += it }, getUIStyle = getUIStyle, //initialPos,
                 webView = webView, scrollState = webScrollState
             ) {
                 when (val sel = selectedKB) {
@@ -160,6 +144,7 @@ fun AddNotationCard(
                 }
             }
         }
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -170,9 +155,7 @@ fun AddNotationCard(
                 fontSize = 25.sp,
                 textAlign = TextAlign.Center,
                 lineHeight = 30.sp,
-                color = getUIStyle.titleColor(),
-                modifier = Modifier
-                    .padding(top = 15.dp)
+                color = getUIStyle.titleColor()
             )
             Row(
                 modifier = Modifier
@@ -181,27 +164,21 @@ fun AddNotationCard(
                 horizontalArrangement = Arrangement.Center
             ) {
                 LatexKeyboard(
-                    value = fields.question.value,
+                    value = fields.question,
                     onValueChanged = { newText ->
-                        fields.question.value =
-                            newText
+                        vm.updateQ(newText)
                     },
                     labelStr = stringResource(R.string.question),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        //.focusRequester(focusQRequester)
-                        .focusRequester(focusRequester)
-                        .onFocusChanged { focusState ->
-                            if (focusState.hasFocus) {
-                                navVM.updateSelectedKB(SelectedKeyboard.Question)
-                                //lastSelectedKB = SelectedKeyboard.Question
-                                Log.d("AddCardVM", "Focused on Question")
-                            }
-                        }
-                        .focusable(),
-                    //focusRequester = focusQRequester,
-                    focusRequester = focusRequester,
+                        .fillMaxWidth(),
                     kt = selectedQSymbol,
+                    onFocusChanged = {
+                        Log.d(kk, "Focused on Question")
+                        vm.updateSelectedKB(SelectedKeyboard.Question)
+                    },
+                    selection = selection, composition = composition,
+                    onUpdateTR = { sel, com -> vm.updateTRs(sel, com) },
+                    selectedKeyboard = selectedKB, actualKeyboard = SelectedKeyboard.Question,
                     onIdle = { selectedQSymbol = KaTeXMenu(null, SelectedAnnotation.Idle) },
                 )
             }
@@ -219,12 +196,11 @@ fun AddNotationCard(
                     .padding(start = 8.dp, end = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (steps == 0) {
+                if (fields.steps.isEmpty()) {
                     Button(
                         onClick = {
-                            fields.stringList.add(mutableStateOf(""))
+                            vm.addStep()
                             selectedSLSymbols.add(KaTeXMenu(null, SelectedAnnotation.Idle))
-                            steps += 1
                         }, modifier = Modifier
                             .padding(8.dp),
                         colors = ButtonDefaults.buttonColors(
@@ -238,33 +214,30 @@ fun AddNotationCard(
                         )
                     }
                 } else {
-                    fields.stringList.forEachIndexed { index, it ->
-                        //val focusRequester = remember { FocusRequester() }
+                    fields.steps.forEachIndexed { index, it ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center
                         ) {
                             LatexKeyboard(
-                                value = it.value,
+                                value = it,
                                 onValueChanged = { newText ->
-                                    it.value = newText
+                                    vm.updateStep(newText, index)
                                 },
                                 labelStr = "Step: ${index + 1}",
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(1.dp)
-                                    .focusRequester(focusRequester)
-                                    .onFocusChanged { focusState ->
-                                        if (focusState.hasFocus) {
-                                            navVM.updateSelectedKB(SelectedKeyboard.Step(index))
-                                            //lastSelectedKB = SelectedKeyboard.Step(index)
-                                            Log.d("AddCardVM", "Focused on Step #${index + 1}")
-                                        }
-                                    }
-                                    .focusable(),
-                                focusRequester = focusRequester,
+                                    .padding(vertical = 2.dp),
+                                onFocusChanged = {
+                                    vm.updateSelectedKB(SelectedKeyboard.Step(index))
+                                    Log.d(kk, "Focused on Step #${index + 1}")
+                                },
+                                selection = selection, composition = composition,
+                                onUpdateTR = { sel, com -> vm.updateTRs(sel, com) },
                                 kt = selectedSLSymbols[index],
+                                selectedKeyboard = selectedKB,
+                                actualKeyboard = SelectedKeyboard.Step(index),
                                 onIdle = {
                                     selectedSLSymbols[index] =
                                         KaTeXMenu(null, SelectedAnnotation.Idle)
@@ -275,13 +248,12 @@ fun AddNotationCard(
 
                     Button(
                         onClick = {
-                            fields.stringList.add(mutableStateOf(""))
+                            vm.addStep()
                             selectedSLSymbols.add(KaTeXMenu(null, SelectedAnnotation.Idle))
-                            steps += 1
                             /*val last = lastSelectedKB
                             if (last != null) {
 
-                               navVM.updateSelectedKB(last)
+                               vm.updateSelectedKB(last)
                                 Log.d("AddCardView", "updated.")
                             }*/
                         }, modifier = Modifier
@@ -299,20 +271,16 @@ fun AddNotationCard(
 
                     Button(
                         onClick = {
-                            if (steps > 0) {
+                            if (fields.steps.isNotEmpty()) {
                                 val currently = selectedKB
                                 if (currently is SelectedKeyboard.Step &&
-                                    (currently.index - 1) == fields.stringList.lastIndex
+                                    (currently.index - 1) == fields.steps.lastIndex
                                 ) {
-                                    navVM.resetSelectedKB()
-                                    Log.d(
-                                        "AddCardVM",
-                                        "Reset since Step #${currently.index} lost focus"
-                                    )
+                                    vm.resetSelectedKB()
+                                    Log.d(kk, "Reset since Step #${currently.index} lost focus")
                                 }
-                                steps -= 1
-                                selectedSLSymbols.removeAt(steps)
-                                fields.stringList.removeAt(steps)
+                                selectedSLSymbols.removeAt(selectedSLSymbols.lastIndex)
+                                vm.removeStep()
                             }
                         },
                         modifier = Modifier.padding(top = 4.dp),
@@ -340,30 +308,20 @@ fun AddNotationCard(
                 horizontalArrangement = Arrangement.Center
             ) {
                 LatexKeyboard(
-                    value = fields.answer.value,
+                    value = fields.answer,
                     onValueChanged = { newText ->
-                        fields.answer.value =
-                            newText
+                        vm.updateA(newText)
                     },
                     labelStr = stringResource(R.string.answer),
                     modifier = Modifier
-                        .weight(1f)
-                        //.focusRequester(focusARequester)
-                        .focusRequester(focusRequester)
-                        .onFocusChanged { focusState ->
-                            if (focusState.hasFocus) {
-                                navVM.updateSelectedKB(SelectedKeyboard.Answer)
-                                //lastSelectedKB = SelectedKeyboard.Answer
-                                Log.d("AddCardVM", "Focused on Answer")
-                            } else {
-                                navVM.resetSelectedKB()
-                                Log.d("AddCardVM", "Answer lost focus.")
-                            }
-                        }
-                        .focusable(),
-                    //focusRequester = focusARequester,
-                    focusRequester = focusRequester,
-                    kt = selectedASymbol,
+                        .fillMaxWidth(),
+                    onFocusChanged = {
+                        vm.updateSelectedKB(SelectedKeyboard.Answer)
+                        //lastSelectedKB = SelectedKeyboard.Answer
+                        Log.d(kk, "Focused on Answer")
+                    }, kt = selectedASymbol, selection = selection, composition = composition,
+                    onUpdateTR = { sel, com -> vm.updateTRs(sel, com) },
+                    selectedKeyboard = selectedKB, actualKeyboard = SelectedKeyboard.Answer,
                     onIdle = { selectedASymbol = KaTeXMenu(null, SelectedAnnotation.Idle) }
                 )
             }
@@ -376,14 +334,14 @@ fun AddNotationCard(
                 SubmitButton(
                     onClick = {
                         if (
-                            fields.question.value.isBlank() ||
-                            fields.answer.value.isBlank()
+                            fields.question.isBlank() ||
+                            fields.answer.isBlank()
                         ) {
                             vm.setErrorMessage(fillOutFields)
                             successMessage = ""
                         } else if (
-                            fields.stringList.isNotEmpty() &&
-                            fields.stringList.all { it.value.isBlank() }
+                            fields.steps.isNotEmpty() &&
+                            fields.steps.all { it.isBlank() }
                         ) {
                             vm.setErrorMessage("Steps can't be blank")
                             successMessage = ""
@@ -391,13 +349,9 @@ fun AddNotationCard(
                             coroutineScope.launch {
                                 enabled = false
                                 vm.addNotationCard(
-                                    deck, fields.question.value,
-                                    fields.stringList.map { it.value }, fields.answer.value
+                                    deck, fields.question,
+                                    fields.steps, fields.answer
                                 )
-                                fields.question.value = ""
-                                fields.stringList.clear()
-                                steps = 0
-                                fields.answer.value = ""
                                 successMessage = cardAdded
                                 enabled = true
                             }

@@ -39,7 +39,8 @@ import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.Editin
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.model.ui.Fields
-import com.belmontCrest.cardCrafter.model.ui.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass
@@ -65,13 +66,9 @@ fun AppNavHost(
     val colorScheme = remember { ColorSchemeClass() }
     var onDeckView by remember { mutableStateOf(false) }
     colorScheme.colorScheme = MaterialTheme.colorScheme
+    val pc = setPreferenceValues(preferences)
     val getUIStyle = rememberUpdatedState(
-        GetUIStyle(
-            colorScheme,
-            preferences.darkTheme.value,
-            preferences.customScheme.value,
-            preferences.cuteTheme.value
-        )
+        GetUIStyle(colorScheme, pc.darkTheme, pc.dynamicTheme, pc.cuteTheme)
     ).value
     val mainView = MainView(getUIStyle, fields)
     val addDeckView = AddDeckView(getUIStyle)
@@ -187,15 +184,15 @@ fun AppNavHost(
                         navViewModel.updateRoute(DeckListDestination.route)
                         mainNavController.navigate(DeckListDestination.route)
                     },
-                    reviewAmount = preferences.reviewAmount.intValue.toString(),
-                    cardAmount = preferences.cardAmount.intValue.toString()
+                    reviewAmount = pc.reviewAmount.toString(),
+                    cardAmount = pc.cardAmount.toString()
                 )
             }
             /** Our Deck Nav Controller to call*/
             composable(DeckNavDestination.route) {
                 DeckNavHost(
                     mainNavController, cardDeckVM, fields, onDeckView,
-                    navViewModel, getUIStyle, editingCardListVM,
+                    navViewModel, getUIStyle, editingCardListVM, preferences
                 )
             }
         }

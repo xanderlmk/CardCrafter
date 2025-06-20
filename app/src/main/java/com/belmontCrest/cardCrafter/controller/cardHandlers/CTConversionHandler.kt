@@ -5,6 +5,8 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.AllCardTypes
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
+import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 
 
 fun CT.toCard(): Card = when (this) {
@@ -42,6 +44,45 @@ fun List<CT>.toHintList() = filterIsInstance<CT.Hint>().map { it.hintCard }
 fun List<CT>.toThreeFieldList() = filterIsInstance<CT.ThreeField>().map { it.threeFieldCard }
 fun List<CT>.toMultiChoiceList() = filterIsInstance<CT.MultiChoice>().map { it.multiChoiceCard }
 fun List<CT>.toNotationList() = filterIsInstance<CT.Notation>().map { it.notationCard }
+
+fun CT.Basic.question(): String = this.basicCard.question
+fun CT.Basic.answer(): String = this.basicCard.answer
+
+fun CT.Hint.question(): String = this.hintCard.question
+fun CT.Hint.hint(): String = this.hintCard.hint
+fun CT.Hint.answer(): String = this.hintCard.answer
+
+fun CT.ThreeField.question(): String = this.threeFieldCard.question
+fun CT.ThreeField.middle(): String = this.threeFieldCard.middle
+fun CT.ThreeField.field(): PartOfQorA = this.threeFieldCard.field
+fun CT.ThreeField.answer(): String = this.threeFieldCard.answer
+
+fun CT.MultiChoice.question(): String = this.multiChoiceCard.question
+fun CT.MultiChoice.choices(): List<String> = listOf(
+    this.multiChoiceCard.choiceA, this.multiChoiceCard.choiceB,
+    this.multiChoiceCard.choiceC, this.multiChoiceCard.choiceD
+)
+
+fun CT.MultiChoice.correct(): Char = this.multiChoiceCard.correct
+
+fun CT.Notation.question(): String = this.notationCard.question
+fun CT.Notation.steps(): List<String> = this.notationCard.steps
+fun CT.Notation.answer(): String = this.notationCard.answer
+
+fun CT.toCDetails(): CDetails = when (this) {
+    is CT.Basic -> CDetails(question = this.question(), answer = this.answer())
+    is CT.Hint -> CDetails(question = this.question(), middle = this.hint(), answer = this.answer())
+    is CT.MultiChoice -> CDetails(
+        question = this.question(), choices = this.choices(), correct = this.correct()
+    )
+    is CT.Notation -> CDetails(
+        question = this.question(), steps = this.steps(), answer = this.answer()
+    )
+    is CT.ThreeField -> CDetails(
+        question = this.question(), middle = this.middle(), answer = this.answer(),
+        isQOrA = this.field()
+    )
+}
 
 fun updateCTCard(
     ct: CT, dueCT: CT,

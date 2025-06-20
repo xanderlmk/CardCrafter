@@ -25,6 +25,12 @@ class GetUIStyle(
     /** if (!isDarkTheme && isCuteTheme) return true */
     private fun ifNotDarkAndCute(): Boolean = !isDarkTheme && isCuteTheme
 
+    /** if (isDarkTheme && isDynamicTheme) return true */
+    private fun ifDarkAndDynamic(): Boolean = isDarkTheme && isDynamicTheme
+
+    /** if (!isDarkTheme && isDynamicTheme) return true */
+    private fun ifNotDarkAndDynamic(): Boolean = !isDarkTheme && isDynamicTheme
+
     fun getColorScheme(): ColorScheme = cS.colorScheme
 
     fun buttonColor(): Color = cS.colorScheme.primaryContainer
@@ -42,8 +48,8 @@ class GetUIStyle(
 
     fun buttonTextColor(): Color = cS.colorScheme.onSecondaryContainer
 
+    /** Text Title color (colorScheme.onBackground) */
     fun titleColor(): Color = cS.colorScheme.onBackground
-
 
     fun disabledTextColor(): Color = if (isDarkTheme) darkDisabled else lightDisabled
 
@@ -52,29 +58,12 @@ class GetUIStyle(
     fun onTertiaryButtonColor(): Color = cS.colorScheme.onTertiaryContainer
 
     fun choiceColor(): Color = when {
-        isDarkTheme -> {
-            if (isDynamicTheme) {
-                blendColors(cS.colorScheme.onTertiary, darkChoiceColor, 0.25f)
-            } else {
-                if (isCuteTheme) {
-                    darkCuteChoiceColor
-                } else {
-                    darkChoiceColor
-                }
-            }
-        }
-
-        else -> {
-            if (isDynamicTheme) {
-                blendColors(cS.colorScheme.onTertiary, choiceColor, 0.25f)
-            } else {
-                if (isCuteTheme) {
-                    cuteChoiceColor
-                } else {
-                    choiceColor
-                }
-            }
-        }
+        ifDarkAndDynamic() -> blendColors(cS.colorScheme.onTertiary, darkChoiceColor, 0.25f)
+        ifDarkAndCute() -> darkCuteChoiceColor
+        ifDarkAndNotCute() -> darkChoiceColor
+        ifNotDarkAndDynamic() -> blendColors(cS.colorScheme.onTertiary, choiceColor, 0.25f)
+        ifNotDarkAndCute() -> cuteChoiceColor
+        else -> choiceColor
     }
 
     fun pickedChoice(): Color = when {
@@ -91,59 +80,29 @@ class GetUIStyle(
         else -> correctChoice
     }
 
-
     fun onCorrectChoice(): Color = when {
         ifDarkAndCute() -> onDarkCuteCorrectChoice
         ifNotDarkAndCute() -> onCuteCorrectChoice
         else -> cS.colorScheme.onSurfaceVariant
     }
 
-    fun isThemeOn(): Color = if (isDarkTheme) {
-        Color.White
-    } else {
-        darkBackground
-    }
+    fun isThemeOn(): Color = if (isDarkTheme) Color.White else darkBackground
 
     fun altBackground(): Color = when {
-        isDarkTheme -> {
-            if (isCuteTheme) {
-                darkCuteSecondaryBC
-            } else {
-                secondaryDBC
-            }
-        }
-
-        else -> {
-            if (isCuteTheme) {
-                cuteSecondaryBC
-            } else {
-                secondaryBC
-            }
-        }
+        ifDarkAndCute() -> darkCuteSecondaryBC
+        ifDarkAndNotCute() -> secondaryDBC
+        ifNotDarkAndCute() -> cuteSecondaryBC
+        else -> secondaryBC
     }
 
     fun background(): Color = cS.colorScheme.background
 
     fun navBarColor(): Color = when {
-        isDarkTheme -> {
-            if (!isDynamicTheme) {
-                if (isCuteTheme) {
-                    darkCuteButton
-                } else {
-                    darkNavBar
-                }
-            } else {
-                cS.colorScheme.primaryContainer
-            }
-        }
-
-        else -> {
-            if (isCuteTheme && !isDynamicTheme) {
-                cuteButton
-            } else {
-                cS.colorScheme.primaryContainer
-            }
-        }
+        ifDarkAndDynamic() -> cS.colorScheme.primaryContainer
+        ifDarkAndCute() -> darkCuteButton
+        ifDarkAndNotCute() -> darkNavBar
+        ifNotDarkAndCute() -> cuteButton
+        else -> cS.colorScheme.primaryContainer
     }
 
     fun dialogColor(): Color = when {
@@ -154,41 +113,65 @@ class GetUIStyle(
     }
 
     fun importingDeckColor(): Color = when {
-        isDarkTheme -> {
-            if (isCuteTheme) {
-                Color(100, 40, 80)
-            } else {
-                Color.DarkGray
-            }
-        }
-
-        else -> {
-            if (isCuteTheme) {
-                Color(255, 192, 203, 180)
-            } else {
-                Color.Gray
-            }
-        }
+        ifDarkAndCute() -> Color(100, 40, 80)
+        ifDarkAndNotCute() -> Color.DarkGray
+        ifNotDarkAndCute() -> Color(255, 192, 203, 180)
+        else -> Color.Gray
     }
 
-    fun defaultIconColor(): Color = if (isDarkTheme) {
-        Color.White
-    } else {
-        Color.Black
-    }
+    fun defaultIconColor(): Color = if (isDarkTheme) Color.White else Color.Black
 
     fun katexMenuBGColor(): Color = when {
+        ifDarkAndDynamic() -> {
+            val red = cS.colorScheme.onTertiary.red
+            val blue = cS.colorScheme.onTertiary.blue
+            val green = cS.colorScheme.onTertiary.green
+            val color = Color(red, blue, green, 0.8509803922f)
+            blendColors(darkSTBG, color, 0.9f)
+        }
+
         ifDarkAndCute() -> darkCuteSTBG
         ifDarkAndNotCute() -> darkSTBG
+        ifNotDarkAndDynamic() -> {
+            val red = cS.colorScheme.onTertiary.red
+            val blue = cS.colorScheme.onTertiary.blue
+            val green = cS.colorScheme.onTertiary.green
+            val color = Color(red, blue, green, 0.8509803922f)
+            blendColors(semiTransBG, color, 0.9f)
+        }
+
         ifNotDarkAndCute() -> cuteSTBG
         else -> semiTransBG
     }
 
     fun katexMenuHeaderColor(): Color = when {
+        ifDarkAndDynamic() -> {
+            val red = cS.colorScheme.primaryContainer.red
+            val blue = cS.colorScheme.primaryContainer.blue
+            val green = cS.colorScheme.primaryContainer.green
+            val color = Color(red, blue, green, 0.8509803922f)
+            blendColors(darkSTHeader, color, 0.25f)
+        }
+
         ifDarkAndCute() -> darkCuteSTHeader
         ifDarkAndNotCute() -> darkSTHeader
+        ifNotDarkAndDynamic() -> {
+            val red = cS.colorScheme.primaryContainer.red
+            val blue = cS.colorScheme.primaryContainer.blue
+            val green = cS.colorScheme.primaryContainer.green
+            val color = Color(red, blue, green, 0.8509803922f)
+            blendColors(semiTransHeader, color, 0.25f)
+        }
+
         ifNotDarkAndCute() -> cuteSTHeader
         else -> semiTransHeader
+    }
+
+    fun redColor(): Color = when {
+        ifDarkAndCute() -> Color(115, 66, 66, 255)
+        ifDarkAndNotCute() -> Color(157, 2, 2, 255)
+        ifNotDarkAndCute() -> Color(112, 1, 1, 255)
+        else -> Color.Red
     }
 
     fun blendColors(base: Color, overlay: Color, overlayAlpha: Float): Color {

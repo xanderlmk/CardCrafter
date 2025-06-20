@@ -43,7 +43,7 @@ import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.updateCTCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.updateDecksCardList
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
-import com.belmontCrest.cardCrafter.model.ui.CardState
+import com.belmontCrest.cardCrafter.model.ui.states.CardState
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle

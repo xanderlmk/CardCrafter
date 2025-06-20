@@ -57,9 +57,9 @@ interface AppContainer {
     val coOwnerRequestsRepository: CoOwnerRequestsRepository
     val exportRepository: ExportRepository
     val mergeDecksRepository: MergeDecksRepository
-    val isOwnerOrCoOwnerRepo : IsOwnerOrCoOwnerRepo
-    val deepLinkerRepo : DeepLinkerRepository
-    val fpRepository : ForgotPasswordRepository
+    val isOwnerOrCoOwnerRepo: IsOwnerOrCoOwnerRepo
+    val deepLinkerRepo: DeepLinkerRepository
+    val fpRepository: ForgotPasswordRepository
     val kbRepository: KeyboardSelectionRepository
 }
 
@@ -69,6 +69,7 @@ class AppDataContainer(
     sharedSupabase: SupabaseClient,
     syncedSupabase: SupabaseClient
 ) : AppContainer {
+
     override val flashCardRepository: FlashCardRepository by lazy {
         OfflineFlashCardRepository(
             FlashCardDatabase.getDatabase(context, scope).deckDao(),

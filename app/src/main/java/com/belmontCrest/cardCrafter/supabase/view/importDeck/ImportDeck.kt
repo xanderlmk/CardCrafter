@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.model.ui.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.PreferenceValues
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_STRING
@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class ImportDeck(
-    private val getUIStyle: GetUIStyle, private val preferences: PreferencesManager
+    private val getUIStyle: GetUIStyle, private val preferences: PreferenceValues
 ) {
     @Composable
     fun GetDeck(deck: SBDeckDto, onNavigate: () -> Unit, importDeckVM: ImportDeckViewModel) {
@@ -175,11 +175,8 @@ class ImportDeck(
                         .border(
                             width = 4.dp,
                             shape = RoundedCornerShape(18.dp),
-                            color = if (getUIStyle.getIsDarkTheme() == true) {
-                                Color.Gray
-                            } else {
-                                Color.Black
-                            }
+                            color = if (getUIStyle.getIsDarkTheme()) Color.Gray else Color.Black
+
                         )
                         .background(
                             color = getUIStyle.dialogColor(), shape = RoundedCornerShape(18.dp)

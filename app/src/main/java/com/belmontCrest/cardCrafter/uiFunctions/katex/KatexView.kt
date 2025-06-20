@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
@@ -13,17 +12,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.zIndex
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 
 @OptIn(ExperimentalStdlibApi::class)
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun KaTeXWebView(latexExpression: String, getUIStyle: GetUIStyle) {
+fun KaTeXWebView(latexExpression: String, getUIStyle: GetUIStyle, modifier: Modifier) {
     val context = LocalContext.current
     val webView = remember { WebView(context) }
 
-    val backgroundToHex = getUIStyle.background().toShortHex()
     val textToHex = getUIStyle.titleColor().toShortHex()
 
     DisposableEffect(webView) {
@@ -41,18 +38,15 @@ fun KaTeXWebView(latexExpression: String, getUIStyle: GetUIStyle) {
             webView.apply {
                 settings.javaScriptEnabled = true
                 setBackgroundColor(getUIStyle.background().toArgb())
-
             }
         },
-        modifier = Modifier
-            .fillMaxWidth()
-            .zIndex(-1f),
+        modifier = modifier,
     ) { view ->
         view.loadUrl("file:///android_asset/katex.html")
         view.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
                 super.onPageFinished(view, url)
-                val themeJs = "setTheme('$backgroundToHex','$textToHex');"
+                val themeJs = "setTheme('$textToHex');"
                 view.evaluateJavascript(themeJs, null)
                 val insertLatexJs = """
                     | document.getElementById('katex-render').innerHTML = `$latexExpression`;

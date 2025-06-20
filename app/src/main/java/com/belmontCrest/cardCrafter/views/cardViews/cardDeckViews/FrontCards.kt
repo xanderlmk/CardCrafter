@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
@@ -346,7 +347,11 @@ fun NotationFrontCard(notationCard: NotationCard, getUIStyle: GetUIStyle) {
                 indication = null
             ) { focusManager.clearFocus() }
         ) {
-            KaTeXWebView(notationCard.question, getUIStyle)
+            KaTeXWebView(
+                notationCard.question, getUIStyle, Modifier
+                    .zIndex(-1f)
+                    .fillMaxWidth()
+            )
         }
     }
 }

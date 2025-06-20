@@ -133,6 +133,4 @@ sealed class CDetails {
     data class NotationCD(
         val question: String, val steps: List<String>, val answer: String
     ) : CDetails()
-
-
 }

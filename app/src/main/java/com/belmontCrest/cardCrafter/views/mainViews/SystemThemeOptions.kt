@@ -14,7 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,20 +30,16 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 
 @Composable
 fun SystemThemeOptions(
-    customScheme: () -> Unit,
-    darkTheme: () -> Unit,
-    cuteTheme: () -> Unit,
+    toggleDynamicTheme: () -> Unit,
+    toggleDarkTheme: () -> Unit,
+    toggleCuteTheme: () -> Unit,
     customToggled: Painter,
     darkToggled: Painter,
     cuteToggled: Painter,
-    clicked: Boolean,
     isDynamicTheme: Boolean,
     getUIStyle: GetUIStyle
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    if (clicked) {
-        expanded = false
-    }
+    var expanded by rememberSaveable { mutableStateOf(false) }
     Box(
         Modifier
             .fillMaxWidth()
@@ -58,11 +54,7 @@ fun SystemThemeOptions(
                     Color.Black
                 }
             )
-            .clickable {
-                if (!clicked) {
-                    expanded = !expanded
-                }
-            }
+            .clickable { expanded = !expanded }
             .wrapContentSize(Alignment.TopCenter)
     ) {
         Text(
@@ -77,9 +69,7 @@ fun SystemThemeOptions(
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(
-                onClick = {
-                    customScheme()
-                },
+                onClick = toggleDynamicTheme,
                 text = { Text(stringResource(R.string.custom_theme)) },
                 leadingIcon = {
                     Icon(
@@ -89,9 +79,7 @@ fun SystemThemeOptions(
                     )
                 })
             DropdownMenuItem(
-                onClick = {
-                    darkTheme()
-                },
+                onClick = toggleDarkTheme,
                 text = { Text(stringResource(R.string.dark_theme)) },
                 leadingIcon = {
                     Icon(
@@ -101,9 +89,7 @@ fun SystemThemeOptions(
                     )
                 })
             DropdownMenuItem(
-                onClick = {
-                    cuteTheme()
-                },
+                onClick = toggleCuteTheme,
                 enabled = !isDynamicTheme,
                 text = { Text(stringResource(R.string.cute_theme)) },
                 leadingIcon = {

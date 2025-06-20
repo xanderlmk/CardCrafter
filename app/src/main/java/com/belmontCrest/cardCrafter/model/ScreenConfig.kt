@@ -76,7 +76,8 @@ fun getMaxHeight(): Dp {
 }
 
 @Composable
-fun getKatexMenuWidth(): Dp {
+fun getKatexMenuWidth(w: Int): Dp {
+    if (w != Int.MIN_VALUE) return w.dp
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val config = LocalWindowInfo.current.containerSize
     val width = LocalDensity.current.run { config.width.toDp() }
@@ -127,6 +128,60 @@ fun getKatexMenuWidth(): Dp {
             else -> {
                 900.dp
             }
+        }
+    }
+}
+
+@Composable
+fun dialogWidth(): Dp {
+    val config = LocalWindowInfo.current.containerSize
+    val width = LocalDensity.current.run { config.width.toDp() }
+    return when (width) {
+        in 200.dp..250.dp -> {
+            200.dp
+        }
+
+        in 251.dp..350.dp -> {
+            250.dp
+        }
+
+        in 351.dp..500.dp -> {
+            350.dp
+        }
+
+        in 501.dp..700.dp -> {
+            500.dp
+        }
+
+        else -> {
+            700.dp
+        }
+    }
+}
+
+@Composable
+fun dialogHeight(): Dp {
+    val config = LocalWindowInfo.current.containerSize
+    val height = LocalDensity.current.run { config.height.toDp() }
+    return when (height) {
+        in 200.dp..250.dp -> {
+            200.dp
+        }
+
+        in 251.dp..350.dp -> {
+            250.dp
+        }
+
+        in 351.dp..500.dp -> {
+            350.dp
+        }
+
+        in 501.dp..700.dp -> {
+            500.dp
+        }
+
+        else -> {
+            700.dp
         }
     }
 }

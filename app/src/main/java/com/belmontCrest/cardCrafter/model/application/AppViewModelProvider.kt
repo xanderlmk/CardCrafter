@@ -65,6 +65,8 @@ object AppViewModelProvider {
             AddCardViewModel(
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.isOwnerOrCoOwnerRepo,
+                flashCardApplication().container.kbRepository,
+                this.createSavedStateHandle(),
                 this.createSavedStateHandle().get<String>("deckUUID")!!
             )
         }
@@ -84,7 +86,10 @@ object AppViewModelProvider {
         initializer {
             EditCardViewModel(
                 flashCardApplication().container.cardTypeRepository,
-                flashCardApplication().container.scienceSpecificRepository
+                flashCardApplication().container.scienceSpecificRepository,
+                flashCardApplication().container.kbRepository,
+                this.createSavedStateHandle(),
+                this.createSavedStateHandle().get<Int>("card_id")!!
             )
         }
         initializer {

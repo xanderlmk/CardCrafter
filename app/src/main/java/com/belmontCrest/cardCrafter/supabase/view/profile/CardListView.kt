@@ -34,9 +34,9 @@ import com.belmontCrest.cardCrafter.model.FWProp
 import com.belmontCrest.cardCrafter.model.TAProp
 import com.belmontCrest.cardCrafter.model.TextProps
 import com.belmontCrest.cardCrafter.model.Type
+import com.belmontCrest.cardCrafter.model.application.PreferenceValues
 import com.belmontCrest.cardCrafter.model.cardListTextProp
 import com.belmontCrest.cardCrafter.model.toTextProp
-import com.belmontCrest.cardCrafter.model.ui.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.tables.CoOwnerWithUsername
@@ -59,7 +59,7 @@ import kotlinx.coroutines.launch
 class CardListView(
     private val uEDVM: UserExportedDecksViewModel,
     private val getUIStyle: GetUIStyle,
-    private val preferences: PreferencesManager
+    private val preferences: PreferenceValues
 ) {
     @Composable
     fun AllCards() {
@@ -137,7 +137,7 @@ class CardListView(
                 coroutineScope.launch {
                     enabled = false
                     val result = uEDVM.mergeRemoteWithLocal(
-                        preferences.reviewAmount.intValue, preferences.cardAmount.intValue
+                        preferences.reviewAmount, preferences.cardAmount
                     ) { progress = it }
 
                     if (result != SUCCESS) {

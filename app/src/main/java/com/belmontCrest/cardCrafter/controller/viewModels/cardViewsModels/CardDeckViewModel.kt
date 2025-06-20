@@ -12,10 +12,10 @@ import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardT
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.model.ui.CardState
+import com.belmontCrest.cardCrafter.model.ui.states.CardState
 import com.belmontCrest.cardCrafter.model.ui.CardUpdateError
-import com.belmontCrest.cardCrafter.model.ui.SavedCardUiState
-import com.belmontCrest.cardCrafter.model.ui.SealedDueCTs
+import com.belmontCrest.cardCrafter.model.ui.states.SavedCardUiState
+import com.belmontCrest.cardCrafter.model.ui.states.SealedDueCTs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException

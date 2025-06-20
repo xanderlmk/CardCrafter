@@ -2,10 +2,8 @@
 
 package com.belmontCrest.cardCrafter.localDatabase.tables
 
-import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.RequiresApi
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -144,7 +142,6 @@ data class Card(
 
     companion object : Parceler<Card> {
 
-        @RequiresApi(Build.VERSION_CODES.Q)
         override fun Card.write(parcel: Parcel, flags: Int) {
             parcel.writeInt(id)
             parcel.writeInt(deckId)
@@ -161,7 +158,6 @@ data class Card(
             parcel.writeString(cardIdentifier)
         }
 
-        @RequiresApi(Build.VERSION_CODES.Q)
         override fun create(parcel: Parcel): Card {
             return Card(parcel)
         }

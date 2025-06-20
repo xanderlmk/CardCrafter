@@ -29,7 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
-import com.belmontCrest.cardCrafter.model.ui.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.DeepLinksViewModel
 import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
@@ -64,15 +65,13 @@ class ResetPasswordActivity : ComponentActivity() {
                     createdAtState.value = created
                 }
             }
-            preferences = rememberUpdatedState(
-                PreferencesManager(applicationContext)
-            ).value
+            preferences = rememberUpdatedState(PreferencesManager(applicationContext)).value
             val colorScheme = remember { ColorSchemeClass() }
             colorScheme.colorScheme = MaterialTheme.colorScheme
 
+            val pc = setPreferenceValues(preferences)
             val getUIStyle = GetUIStyle(
-                colorScheme, preferences.darkTheme.value,
-                preferences.customScheme.value, preferences.cuteTheme.value
+                colorScheme, pc.darkTheme, pc.dynamicTheme, pc.cuteTheme
             )
             var password by rememberSaveable { mutableStateOf("") }
             var confirmPass by rememberSaveable { mutableStateOf("") }
@@ -80,9 +79,9 @@ class ResetPasswordActivity : ComponentActivity() {
             val coroutineScope = rememberCoroutineScope()
             val context = LocalContext.current
             FlashcardsTheme(
-                darkTheme = preferences.darkTheme.value,
-                dynamicColor = preferences.customScheme.value,
-                cuteTheme = preferences.cuteTheme.value
+                darkTheme = pc.darkTheme,
+                dynamicColor = pc.dynamicTheme,
+                cuteTheme = pc.cuteTheme
             ) {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),

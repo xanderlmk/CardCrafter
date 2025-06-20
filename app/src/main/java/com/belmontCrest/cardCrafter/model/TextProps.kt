@@ -3,7 +3,10 @@
 package com.belmontCrest.cardCrafter.model
 
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
@@ -25,6 +28,8 @@ enum class MLProp { One, Two, Three, Default }
 
 enum class TCProp { Button, Default, Disabled }
 
+enum class TSProp { MediumTitle, LargeTitle, Body, Footer }
+
 /** Defining our text props */
 data class TextProps(
     /** Font size */
@@ -36,7 +41,9 @@ data class TextProps(
     /** Max lines */
     val ml: MLProp = MLProp.Default,
     /** Text Colors */
-    val tc: TCProp = TCProp.Default
+    val tc: TCProp = TCProp.Default,
+    /** Text Style */
+    val ts: TSProp = TSProp.Body
 )
 
 fun TAProp.toTextProp(): TextProps = when (this) {
@@ -104,6 +111,14 @@ fun setTextColor(tcProp: TCProp, getUIStyle: GetUIStyle): Color = when (tcProp) 
     TCProp.Disabled -> getUIStyle.disabledTextColor()
 }
 
+@Composable
+fun setTextStyle(tsProp: TSProp): TextStyle = when (tsProp) {
+    TSProp.LargeTitle -> MaterialTheme.typography.titleLarge
+    TSProp.MediumTitle -> MaterialTheme.typography.titleMedium
+    TSProp.Body -> MaterialTheme.typography.bodyLarge
+    TSProp.Footer -> MaterialTheme.typography.labelMedium
+}
+
 fun titledTextProp() = TextProps(FSProp.Font22, FWProp.Default, TAProp.Center)
 
 fun cardListTextProp() = TextProps(ml = MLProp.Two, tc = TCProp.Button)
@@ -113,4 +128,17 @@ fun FSProp.toTextProp(textUnit: TextUnit): TextProps = when (textUnit) {
     12.sp -> TextProps(fs = FSProp.Font12)
     14.sp -> TextProps(fs = FSProp.Font14)
     else -> TextProps(fs = FSProp.Default)
+}
+
+fun FWProp.toTextProp(): TextProps = when (this) {
+    FWProp.SemiBold -> TextProps(fw = FWProp.SemiBold)
+    FWProp.Bold -> TextProps(fw = FWProp.Bold)
+    FWProp.Default -> TextProps(fw = FWProp.Default)
+}
+
+fun TSProp.toTextProp(): TextProps = when (this) {
+    TSProp.MediumTitle -> TextProps(ts = TSProp.MediumTitle)
+    TSProp.LargeTitle -> TextProps(ts = TSProp.LargeTitle)
+    TSProp.Body -> TextProps(ts = TSProp.Body)
+    TSProp.Footer -> TextProps(ts = TSProp.Footer)
 }

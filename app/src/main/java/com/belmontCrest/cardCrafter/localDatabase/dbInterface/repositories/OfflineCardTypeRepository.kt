@@ -15,7 +15,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
-import com.belmontCrest.cardCrafter.model.ui.Fields
+import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.toQuestion
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -161,7 +161,7 @@ class OfflineCardTypeRepository(
         cardTypesDao.moveCardList(_selectedCards.value, deck)
 
     override suspend fun updateCT(
-        cardId: Int, type: String, fields: Fields, deleteCT: CT
+        cardId: Int, type: String, fields: CDetails, deleteCT: CT
     ) = cardTypesDao.updateCT(cardId, type, fields, deleteCT)
 
     override suspend fun deleteCTs() = cardTypesDao.deleteCardList(_selectedCards.value)
