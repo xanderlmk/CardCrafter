@@ -29,7 +29,6 @@ import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.AddCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
-import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
 import com.belmontCrest.cardCrafter.uiFunctions.IsPartOfQOrA
@@ -39,10 +38,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddThreeCard(
     vm: AddCardViewModel, deck: Deck,
-    fields: Fields, getUIStyle: GetUIStyle
+    getUIStyle: GetUIStyle
 ) {
     val errorMessage by vm.errorMessage.collectAsStateWithLifecycle()
     var successMessage by remember { mutableStateOf("") }
+    val fields by vm.fields.collectAsStateWithLifecycle()
     val fillOutFields = stringResource(R.string.fill_out_all_fields).toString()
     val cardAdded = stringResource(R.string.card_added).toString()
     val scrollState = rememberScrollState()
@@ -57,9 +57,7 @@ fun AddThreeCard(
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
             lineHeight = 30.sp,
-            color = getUIStyle.titleColor(),
-            modifier = Modifier
-                .padding(top = 15.dp)
+            color = getUIStyle.titleColor()
         )
         Row(
             modifier = Modifier
@@ -68,10 +66,9 @@ fun AddThreeCard(
             horizontalArrangement = Arrangement.Center
         ) {
             EditTextFieldNonDone(
-                value = fields.question.value,
+                value = fields.question,
                 onValueChanged = { newText ->
-                    fields.question.value =
-                        newText
+                    vm.updateQ(newText)
                 },
                 labelStr = stringResource(R.string.question),
                 modifier = Modifier
@@ -87,15 +84,13 @@ fun AddThreeCard(
             modifier = Modifier
                 .padding(top = 8.dp)
         )
-        IsPartOfQOrA(getUIStyle, fields.isQOrA.value is PartOfQorA.Q) {
-            fields.isQOrA.value =
-                if (fields.isQOrA.value is PartOfQorA.Q) PartOfQorA.A else PartOfQorA.Q
+        IsPartOfQOrA(getUIStyle, fields.isQOrA is PartOfQorA.Q) {
+            vm.updateQA(if (fields.isQOrA is PartOfQorA.Q) PartOfQorA.A else PartOfQorA.Q)
         }
         EditTextFieldNonDone(
-            value = fields.middleField.value,
+            value = fields.middle,
             onValueChanged = { newText ->
-                fields.middleField.value =
-                    newText
+                vm.updateM(newText)
             },
             labelStr = stringResource(R.string.middle_field),
             modifier = Modifier
@@ -117,10 +112,9 @@ fun AddThreeCard(
             horizontalArrangement = Arrangement.Center
         ) {
             EditTextFieldNonDone(
-                value = fields.answer.value,
+                value = fields.answer,
                 onValueChanged = { newText ->
-                    fields.answer.value =
-                        newText
+                    vm.updateA(newText)
                 },
                 labelStr = stringResource(R.string.answer),
                 modifier = Modifier
@@ -135,22 +129,19 @@ fun AddThreeCard(
         ) {
             Button(
                 onClick = {
-                    if (fields.question.value.isBlank() ||
-                        fields.answer.value.isBlank() ||
-                        fields.middleField.value.isBlank()
+                    if (fields.question.isBlank() ||
+                        fields.answer.isBlank() ||
+                        fields.middle.isBlank()
                     ) {
                         vm.setErrorMessage(fillOutFields)
                         successMessage = ""
                     } else {
                         coroutineScope.launch {
                             vm.addThreeCard(
-                                deck, fields.question.value,
-                                fields.middleField.value, fields.answer.value,
-                                fields.isQOrA.value
+                                deck, fields.question,
+                                fields.middle, fields.answer,
+                                fields.isQOrA
                             )
-                            fields.question.value = ""
-                            fields.middleField.value = ""
-                            fields.answer.value = ""
                             successMessage = cardAdded
                         }
                     }

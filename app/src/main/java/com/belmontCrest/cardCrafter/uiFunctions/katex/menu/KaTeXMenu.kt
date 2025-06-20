@@ -46,30 +46,45 @@ import com.belmontCrest.cardCrafter.model.getIsLandScape
 import com.belmontCrest.cardCrafter.model.getKatexMenuWidth
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 import kotlin.math.roundToInt
 
 
 @Parcelize
+@Serializable
 data class KaTeXMenu(val notation: String?, val sa: SelectedAnnotation) : Parcelable
 
+
+@Serializable
+data class ListOfKatexMenu(
+    val km: List<KaTeXMenu> = emptyList()
+)
+
 @Parcelize
+@Serializable
 sealed class SelectedAnnotation : Parcelable {
     @Parcelize
+    @Serializable
     data object Letter : SelectedAnnotation()
 
     @Parcelize
+    @Serializable
     data object Accent : SelectedAnnotation()
 
     @Parcelize
+    @Serializable
     data object EQ : SelectedAnnotation()
 
     @Parcelize
+    @Serializable
     data object OP : SelectedAnnotation()
 
     @Parcelize
+    @Serializable
     data object NORM : SelectedAnnotation()
 
     @Parcelize
+    @Serializable
     sealed class CursorChange : SelectedAnnotation() {
         data object Forward : CursorChange()
         data object Backward : CursorChange()
@@ -79,6 +94,7 @@ sealed class SelectedAnnotation : Parcelable {
     }
 
     @Parcelize
+    @Serializable
     data object Idle : SelectedAnnotation()
 }
 
@@ -94,26 +110,16 @@ class IsInsideException :
 fun KaTeXMenu(
     modifier: Modifier, offsetProvider: () -> Offset, onDismiss: () -> Unit,
     onOffset: (Offset) -> Unit, getUIStyle: GetUIStyle,// initialPos: Offset?,
-    webView: WebView, scrollState: ScrollState,
+    webView: WebView, scrollState: ScrollState, height: Int, width: Int,
     onCursorChange: (SelectedAnnotation.CursorChange) -> Unit
 ) {
-
     var expanded by rememberSaveable { mutableStateOf(false) }
-    /*
-        val maxY = getMaxHeight().value
-        val maxX = getMaxWidth().value
-        val isLandscape = getIsLandScape()
-        val midXPoint = getKatexMenuWidth().value / 2
-
-        LaunchedEffect(Unit) {
-            Log.i(KATEX_MENU, "max width: $maxX")
-            Log.i(KATEX_MENU, "max height: $maxY")
-        }*/
-
     val isLandscape = getIsLandScape()
-    val width = if (isLandscape) getKatexMenuWidth() / 2.5.dp else getKatexMenuWidth() / 2.dp
+    val expandedWidth = 150
     val offsetMod =
-        if (!isLandscape) Modifier.offset(y = -(126.dp)) else Modifier.offset(x = -(width.dp))
+        if (!isLandscape) Modifier.offset(y = -(126.dp))
+        else Modifier.offset(x = -(expandedWidth.dp))
+
     Box(
         modifier = modifier
             .offset { IntOffset(offsetProvider().x.roundToInt(), offsetProvider().y.roundToInt()) }
@@ -121,7 +127,7 @@ fun KaTeXMenu(
         if (expanded) {
             Column(
                 modifier = offsetMod
-                    .width(width.dp)
+                    .width(expandedWidth.dp)
                     .height(126.dp)
                     .pointerInput(Unit) {
                         detectDragGestures { change, dragAmount ->
@@ -198,28 +204,12 @@ fun KaTeXMenu(
         }
         Box(
             modifier = Modifier
-                .width(getKatexMenuWidth())
+                .width(getKatexMenuWidth(width))
                 .height(26.dp)
                 .background(getUIStyle.katexMenuHeaderColor())
-                // 4. Only after a long‐press on this bar do we start dragging
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
-                        /* val pos = initialPos
-                         if (pos != null) {
-                             val currentY = offsetProvider().y - pos.y + dragAmount.y
-                             val currentX = offsetProvider().x - pos.x + dragAmount.x
-                             if (isOutsideOfBounds(
-                                     isLandscape, pos = pos, midXPoint = midXPoint,
-                                     maxY = maxY, maxX = maxX,
-                                     currentY = currentY, currentX = currentX
-                                 )
-                             ) {
-                                 Log.w(KATEX_MENU, "Out of bounds")
-                                 return@detectDragGestures
-                             }
-                             onOffset(dragAmount)
-                         }*/
                         onOffset(dragAmount)
                     }
                 }
@@ -251,9 +241,9 @@ fun KaTeXMenu(
         AndroidView(
             factory = { webView },
             modifier = Modifier
-                .width(getKatexMenuWidth())
+                .width(getKatexMenuWidth(width))
                 .padding(top = 26.dp)
-                .height(200.dp)
+                .height(height.dp)
                 .background(getUIStyle.katexMenuBGColor())
                 .border(1.5.dp, getUIStyle.defaultIconColor())
                 .verticalScroll(scrollState),

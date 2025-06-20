@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -26,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.TextUnit
@@ -140,21 +142,14 @@ fun RedoCardButton(
     modifier: Modifier = Modifier,
     getUIStyle: GetUIStyle
 ) {
+    val ci = ContentIcons(getUIStyle)
     IconButton(
         onClick = {
             onRedoClick()
         },
         modifier = modifier
     ) {
-        val ci = ContentIcons(getUIStyle)
-ci.ContentIcon()
-        Icon(
-            painter = painterResource(R.drawable.return_arrow),
-            modifier = Modifier
-                .size(22.dp),
-            contentDescription = "Redo",
-            tint = getUIStyle.iconColor()
-        )
+        ci.ContentIcon(painterResource(R.drawable.return_arrow), "Redo", Modifier.size(22.dp))
     }
 
 }
@@ -182,7 +177,7 @@ fun SettingsButton(
             )
             .padding(6.dp)
     ) {
-        ci.ContentIcon("Settings", Icons.Filled.Edit, Modifier.size(24.dp))
+        ci.ContentIcon(Icons.Filled.Edit, "Settings", Modifier.size(24.dp))
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(
                 onClick = {
@@ -226,18 +221,19 @@ fun SubmitButton(
     onClick: () -> Unit, enabled: Boolean,
     getUIStyle: GetUIStyle, string: String,
     modifier: Modifier = Modifier, fontSize: TextUnit = TextUnit.Unspecified,
-    innerModifier: Modifier = Modifier
+    innerModifier: Modifier = Modifier, textColor: Color = Color.Unspecified,
+    colors: ButtonColors = ButtonDefaults.buttonColors(
+        containerColor = getUIStyle.secondaryButtonColor(),
+        contentColor = getUIStyle.buttonTextColor()
+    )
 ) {
     Button(
         onClick = {
             onClick()
         }, enabled = enabled,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = getUIStyle.secondaryButtonColor(),
-            contentColor = getUIStyle.buttonTextColor()
-        ), modifier = modifier
+        colors = colors, modifier = modifier
     ) {
-        Text(text = string, fontSize = fontSize, modifier = innerModifier)
+        Text(text = string, fontSize = fontSize, modifier = innerModifier, color = textColor)
     }
 }
 
@@ -247,6 +243,6 @@ fun MailButton(
 ) {
     val ci = ContentIcons(getUIStyle)
     IconButton(onClick = { onClick() }) {
-        ci.ContentIcon("mail", icon = Icons.Default.MailOutline, Modifier)
+        ci.ContentIcon(Icons.Default.MailOutline, "mail", Modifier)
     }
 }

@@ -2,7 +2,6 @@ package com.belmontCrest.cardCrafter.views.cardViews.editCardViews
 
 import android.os.Build
 import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,8 +41,7 @@ import com.belmontCrest.cardCrafter.controller.onClickActions.saveCard
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateCardType
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
-import com.belmontCrest.cardCrafter.model.ui.Fields
-import com.belmontCrest.cardCrafter.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.model.application.PreferenceValues
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.editCardModifier
@@ -52,25 +50,27 @@ import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.getWebView
+import com.belmontCrest.cardCrafter.views.miscFunctions.collectNotationFieldsAsStates
 import kotlinx.coroutines.launch
 
 class EditingCardView(
-    private var getUIStyle: GetUIStyle, private val navVM: NavViewModel
+    private var getUIStyle: GetUIStyle,
+    private val pv: PreferenceValues,
 ) {
     @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     fun EditFlashCardView(
-        ct: CT, fields: Fields, onNavigateBack: () -> Unit
+        ct: CT, newType: String, onNavigateBack: () -> Unit
     ) {
         val editCardVM: EditCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
-        fields.newType = rememberSaveable { mutableStateOf(ct.getCardType()) }
+        val (fields, showKB, _) = collectNotationFieldsAsStates(editCardVM)
+        //fields.newType = rememberSaveable { mutableStateOf(ct.getCardType()) }
         val fillOutfields = stringResource(R.string.fill_out_all_fields).toString()
         val errorMessage by editCardVM.errorMessage.collectAsStateWithLifecycle()
         val coroutineScope = rememberCoroutineScope()
         val cardTypeChanged = rememberSaveable { mutableStateOf(false) }
-        val showKB by navVM.showKatexKeyboard.collectAsStateWithLifecycle()
         var offset by remember { mutableStateOf(Offset.Zero) }
-        val resetOffset by navVM.resetOffset.collectAsStateWithLifecycle()
+        val resetOffset by editCardVM.resetOffset.collectAsStateWithLifecycle()
         var ktm by rememberSaveable { mutableStateOf(KaTeXMenu(null, SelectedAnnotation.Idle)) }
         //var initialPos by remember { mutableStateOf<Offset?>(null) }
         val webView = getWebView(getUIStyle) { notation, sa ->
@@ -89,7 +89,7 @@ class EditingCardView(
         LaunchedEffect(resetOffset) {
             if (resetOffset) {
                 offset = Offset.Zero
-                navVM.resetDone()
+                editCardVM.resetDone()
             }
         }
 
@@ -99,23 +99,14 @@ class EditingCardView(
                 .padding(top = 10.dp)
         ) {
             if (showKB) {
-                BackHandler {
-                    navVM.toggleKeyboard()
-                    navVM.resetOffset()
-                }
                 KaTeXMenu(
                     Modifier
                         .fillMaxSize()
-                        /** .onGloballyPositioned { coordinates ->
-                        initialPos = coordinates.localToWindow(Offset.Zero)
-                        Log.i("KatexMenu", "$initialPos")
-                        // Measure the menu’s total size (header + WebView):
-                        }*/
                         .zIndex(2f)
                         .padding(6.dp),
-                    { offset }, onDismiss = { navVM.toggleKeyboard() },
-                    onOffset = { offset += it }, getUIStyle, //initialPos,
-                    webView = webView, scrollState = webScrollState
+                    offsetProvider = { offset }, onDismiss = { editCardVM.toggleKeyboard() },
+                    onOffset = { offset += it }, getUIStyle = getUIStyle, width = pv.width,
+                    webView = webView, scrollState = webScrollState, height = pv.height
                 ) {
                     ktm = KaTeXMenu("null", it)
                 }
@@ -136,16 +127,12 @@ class EditingCardView(
                     modifier = Modifier.editCardModifier()
                 )
 
-                val cardTypeHandler = returnCardTypeHandler(
-                    fields.newType.value, ct.getCardType()
-                )
-                if (fields.newType.value != ct.getCardType()) {
+                val cardTypeHandler = returnCardTypeHandler(newType, ct.getCardType())
+                if (newType != ct.getCardType()) {
                     cardTypeChanged.value = true
                 }
                 cardTypeHandler?.HandleCardEdit(
-                    ct = ct, fields = fields,
-                    changed = cardTypeChanged.value,
-                    vm = navVM,
+                    vm = editCardVM,
                     getUIStyle = getUIStyle,
                     onUpdate = { ktm }
                 )
@@ -167,7 +154,7 @@ class EditingCardView(
                     SubmitButton(
                         onClick = {
                             coroutineScope.launch {
-                                if (fields.newType.value == ct.getCardType()) {
+                                if (newType == ct.getCardType()) {
                                     val success = saveCard(fields, editCardVM, ct)
                                     if (success) {
                                         editCardVM.clearErrorMessage()
@@ -176,9 +163,7 @@ class EditingCardView(
                                         editCardVM.setErrorMessage(fillOutfields)
                                     }
                                 } else {
-                                    val success = updateCardType(
-                                        fields, editCardVM, ct, fields.newType.value
-                                    )
+                                    val success = updateCardType(fields, editCardVM, ct, newType)
                                     if (success) {
                                         editCardVM.clearErrorMessage()
                                         onNavigateBack()

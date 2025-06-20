@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkIfDeckExists
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkIfDeckUUIDExists
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.model.ui.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.PreferenceValues
 import com.belmontCrest.cardCrafter.supabase.controller.converters.cardColsCTToSBCT
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.BASIC_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CANCELLED
@@ -101,7 +101,7 @@ class ImportDeckViewModel(
     /** Local Imports from online decks */
     suspend fun importDeck(
         sbDeckDto: SBDeckDto,
-        preferences: PreferencesManager,
+        preferences: PreferenceValues,
         onProgress: (Float) -> Unit,
         onError: (String) -> Unit
     ): Int {
@@ -121,8 +121,8 @@ class ImportDeckViewModel(
                 }
                 supabaseToRoomRepository.insertDeckList(
                     sbDeckDto, cardObject.cardList, sbDeckDto.name,
-                    preferences.reviewAmount.intValue,
-                    preferences.cardAmount.intValue,
+                    preferences.reviewAmount,
+                    preferences.cardAmount,
                     onProgress = {
                         onProgress(it)
                     }, cardObject.total
@@ -138,7 +138,7 @@ class ImportDeckViewModel(
 
     suspend fun createNewDeck(
         sbDeckDto: SBDeckDto,
-        preferences: PreferencesManager,
+        preferences: PreferenceValues,
         name: String, onProgress: (Float) -> Unit,
         onError: (String) -> Unit
     ): Int {
@@ -164,8 +164,8 @@ class ImportDeckViewModel(
                 }
                 supabaseToRoomRepository.insertDeckList(
                     sbDeckDto, cardObject.cardList, name,
-                    preferences.reviewAmount.intValue,
-                    preferences.cardAmount.intValue,
+                    preferences.reviewAmount,
+                    preferences.cardAmount,
                     onProgress = {
                         onProgress(it)
                     }, cardObject.total
@@ -181,7 +181,7 @@ class ImportDeckViewModel(
 
     suspend fun replaceDeck(
         sbDeckDto: SBDeckDto,
-        preferences: PreferencesManager,
+        preferences: PreferenceValues,
         onProgress: (Float) -> Unit,
         onError: (String) -> Unit
     ): Pair<Int, String> {
@@ -216,8 +216,8 @@ class ImportDeckViewModel(
                 }
                 supabaseToRoomRepository.replaceDeckList(
                     sbDeckDto, cardObject.cardList,
-                    preferences.reviewAmount.intValue,
-                    preferences.cardAmount.intValue, name,
+                    preferences.reviewAmount,
+                    preferences.cardAmount, name,
                     onProgress = {
                         onProgress(it)
                     }, cardObject.total

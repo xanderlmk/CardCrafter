@@ -23,7 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
-import com.belmontCrest.cardCrafter.model.ui.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.DeepLinksViewModel
 import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
@@ -73,14 +74,14 @@ class DeepLinkerActivity : ComponentActivity() {
             val colorScheme = remember { ColorSchemeClass() }
             colorScheme.colorScheme = MaterialTheme.colorScheme
 
+            val pc = setPreferenceValues(preferences)
             val getUIStyle = GetUIStyle(
-                colorScheme, preferences.darkTheme.value,
-                preferences.customScheme.value, preferences.cuteTheme.value
+                colorScheme, pc.darkTheme, pc.dynamicTheme, pc.cuteTheme
             )
             FlashcardsTheme(
-                darkTheme = preferences.darkTheme.value,
-                dynamicColor = preferences.customScheme.value,
-                cuteTheme = preferences.cuteTheme.value
+                darkTheme = pc.darkTheme,
+                dynamicColor = pc.dynamicTheme,
+                cuteTheme = pc.cuteTheme
             ) {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -110,7 +111,7 @@ class DeepLinkerActivity : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Successfully created you account!")
+            Text("Successfully created your account!")
             Text(email)
             Text(createdAt)
             SubmitButton(

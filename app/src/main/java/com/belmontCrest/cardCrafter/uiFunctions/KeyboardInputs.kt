@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -35,6 +36,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
 import com.belmontCrest.cardCrafter.R
+import com.belmontCrest.cardCrafter.model.ui.states.MyTextRange
+import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
+import com.belmontCrest.cardCrafter.model.ui.states.toMyTextRange
+import com.belmontCrest.cardCrafter.model.ui.states.toTextRange
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.textColor
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
@@ -121,7 +126,6 @@ fun EditTextFieldNonDone(
             onDone = { focusManager.clearFocus() }
         ),
         textStyle = TextStyle.Default
-
     )
 }
 
@@ -130,25 +134,37 @@ fun EditTextFieldNonDone(
  */
 @Composable
 fun LatexKeyboard(
-    value: String, onValueChanged: (String) -> Unit,
-    labelStr: String,
-    modifier: Modifier,
-    kt: KaTeXMenu, onIdle: () -> Unit,
-    focusRequester: FocusRequester,
+    value: String, onValueChanged: (String) -> Unit, labelStr: String,
+    modifier: Modifier, kt: KaTeXMenu, onIdle: () -> Unit,
+    onFocusChanged: () -> Unit, selectedKeyboard: SelectedKeyboard?,
+    actualKeyboard: SelectedKeyboard, composition: MyTextRange?, selection: MyTextRange,
+    onUpdateTR: (MyTextRange, MyTextRange?) -> Unit
 ) {
     val kk = KeyboardInputs.KK
-    var textFieldValue by remember {
+    val focusRequester = remember { FocusRequester() }
+    val isSelected = actualKeyboard == selectedKeyboard
+    var textFieldValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(
-            TextFieldValue(
-                text = value
-            )
+            TextFieldValue(value, TextRange(value.length), TextRange(value.length))
         )
     }
+
     val context = LocalContext.current
 
+
     if (value.isEmpty()) {
-        textFieldValue = textFieldValue.copy(text = value)
+        textFieldValue = TextFieldValue()
     }
+
+    LaunchedEffect(Unit) {
+        if (composition != null && isSelected) {
+            focusRequester.requestFocus()
+            Log.d(kk, "updating $actualKeyboard textFieldValue: $value, $selection, $composition")
+            textFieldValue =
+                TextFieldValue(value, selection.toTextRange(), composition.toTextRange())
+        }
+    }
+
     LaunchedEffect(kt) {
         val text = textFieldValue.text
         if (!textFieldValue.selection.collapsed) {
@@ -157,8 +173,10 @@ fun LatexKeyboard(
         }
         if (kt.sa is SelectedAnnotation.CursorChange) {
             try {
-                textFieldValue = updateCursor(kt.sa, textFieldValue, text) { onValueChanged(it) }
-            } catch (e : IsInsideException) {
+                val newTF = updateCursor(kt.sa, textFieldValue, text) { onValueChanged(it) }
+                textFieldValue = newTF
+                onUpdateTR(newTF.selection.toMyTextRange(), newTF.composition.toMyTextRange())
+            } catch (e: IsInsideException) {
                 Log.e(kk, "$e")
                 showToastMessage(context, "Cannot put notation inside a notation")
             } finally {
@@ -175,9 +193,11 @@ fun LatexKeyboard(
         }
         if (!kt.notation.isNullOrEmpty()) {
             try {
-                textFieldValue = updateNotation(kt.sa, kt.notation, text, kk, textFieldValue) {
+                val newTF = updateNotation(kt.sa, kt.notation, text, kk, textFieldValue) {
                     onValueChanged(it)
                 }
+                textFieldValue = newTF
+                onUpdateTR(newTF.selection.toMyTextRange(), newTF.composition.toMyTextRange())
             } catch (e: IllegalStateException) {
                 Log.e(kk, "$e")
             } finally {
@@ -185,21 +205,24 @@ fun LatexKeyboard(
             }
         }
     }
+
     TextField(
         value = textFieldValue,
         onValueChange = { newValue ->
-
             val oldText = textFieldValue.text
             val newText = newValue.text
-
             if (newText.length > oldText.length) {
-
                 if (newValue.selection.collapsed) {
-                    val newInputs = katexMapper(newText, newValue, textFieldValue)
-                    textFieldValue = newInputs.first
-                    onValueChanged(newInputs.second)
+                    val (newTF, newText) = katexMapper(newText, newValue, textFieldValue)
+                    textFieldValue = newTF
+                    onUpdateTR(newTF.selection.toMyTextRange(), newTF.selection.toMyTextRange())
+                    onValueChanged(newText)
                 } else {
                     textFieldValue = newValue
+                    onUpdateTR(
+                        newValue.selection.toMyTextRange(),
+                        newValue.selection.toMyTextRange()
+                    )
                     onValueChanged(newText)
                 }
             } else { // User deletes something.
@@ -210,24 +233,31 @@ fun LatexKeyboard(
                     }
                     textFieldValue = TextFieldValue(
                         text = replaced,
-                        selection = TextRange(insertionPoint)
+                        selection = TextRange(insertionPoint),
+                        composition = TextRange(insertionPoint)
                     )
+                    val newTR = TextRange(insertionPoint).toMyTextRange()
+                    onUpdateTR(newTR, newTR)
+
                     onValueChanged(replaced)
                 } else {
                     textFieldValue = newValue
+                    val newTR = newValue.selection.toMyTextRange()
+                    onUpdateTR(newTR, newTR)
                     onValueChanged(newText)
                 }
             }
         }, singleLine = false,
         label = { Text(labelStr, color = textColor) },
-        keyboardOptions = KeyboardOptions(
-            showKeyboardOnFocus = false,
-        ),
+        keyboardOptions = KeyboardOptions(showKeyboardOnFocus = false),
         keyboardActions = KeyboardActions(
-            onDone = { focusRequester.freeFocus() }
+            onDone = { focusRequester.freeFocus() },
         ),
         modifier = modifier
             .focusRequester(focusRequester)
+            .onFocusChanged { focusState ->
+                if (focusState.hasFocus) onFocusChanged()
+            }
             .focusable(), textStyle = TextStyle.Default
     )
 }

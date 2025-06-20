@@ -29,7 +29,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.AddCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
@@ -39,10 +38,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AddMultiChoiceCard(
-    vm: AddCardViewModel, deck: Deck,
-    fields: Fields, getUIStyle: GetUIStyle
+    vm: AddCardViewModel, deck: Deck, getUIStyle: GetUIStyle
 ) {
     var successMessage by remember { mutableStateOf("") }
+    val fields by vm.fields.collectAsStateWithLifecycle()
     val errorMessage by vm.errorMessage.collectAsStateWithLifecycle()
     val fillOutFields = stringResource(R.string.fill_out_all_fields).toString()
     val cardAdded = stringResource(R.string.card_added).toString()
@@ -58,9 +57,7 @@ fun AddMultiChoiceCard(
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
             lineHeight = 30.sp,
-            color = getUIStyle.titleColor(),
-            modifier = Modifier
-                .padding(top = 10.dp)
+            color = getUIStyle.titleColor()
         )
         Row(
             modifier = Modifier
@@ -69,10 +66,9 @@ fun AddMultiChoiceCard(
             horizontalArrangement = Arrangement.Center
         ) {
             EditTextFieldNonDone(
-                value = fields.question.value,
+                value = fields.question,
                 onValueChanged = { newText ->
-                    fields.question.value =
-                        newText
+                    vm.updateQ(newText)
                 },
                 labelStr = stringResource(R.string.question),
                 modifier = Modifier
@@ -89,11 +85,11 @@ fun AddMultiChoiceCard(
                 .padding(top = 8.dp)
                 .background(
                     color =
-                    if (fields.correct.value == 'a') {
-                        getUIStyle.correctChoice()
-                    } else {
-                        Color.Transparent
-                    }
+                        if (fields.correct == 'a') {
+                            getUIStyle.correctChoice()
+                        } else {
+                            Color.Transparent
+                        }
                 )
         )
         Row(
@@ -103,20 +99,19 @@ fun AddMultiChoiceCard(
             horizontalArrangement = Arrangement.Center
         ) {
             EditTextField(
-                value = fields.choices[0].value,
+                value = fields.choices[0],
                 onValueChanged = { newText ->
-                    fields.choices[0].value =
-                        newText
+                    vm.updateCh(newText, 0)
                 },
                 labelStr = stringResource(R.string.choice_a),
                 modifier = Modifier
                     .weight(1f),
                 inputColor =
-                if (fields.correct.value == 'a') {
-                    getUIStyle.onCorrectChoice()
-                } else {
-                    Color.Transparent
-                }
+                    if (fields.correct == 'a') {
+                        getUIStyle.onCorrectChoice()
+                    } else {
+                        Color.Transparent
+                    }
             )
         }
         Text(
@@ -129,11 +124,11 @@ fun AddMultiChoiceCard(
                 .padding(top = 8.dp)
                 .background(
                     color =
-                    if (fields.correct.value == 'b') {
-                        getUIStyle.correctChoice()
-                    } else {
-                        Color.Transparent
-                    }
+                        if (fields.correct == 'b') {
+                            getUIStyle.correctChoice()
+                        } else {
+                            Color.Transparent
+                        }
                 )
         )
         Row(
@@ -143,20 +138,19 @@ fun AddMultiChoiceCard(
             horizontalArrangement = Arrangement.Center
         ) {
             EditTextField(
-                value = fields.choices[1].value,
+                value = fields.choices[1],
                 onValueChanged = { newText ->
-                    fields.choices[1].value =
-                        newText
+                    vm.updateCh(newText, 1)
                 },
                 labelStr = stringResource(R.string.choice_b),
                 modifier = Modifier
                     .weight(1f),
                 inputColor =
-                if (fields.correct.value == 'b') {
-                    getUIStyle.onCorrectChoice()
-                } else {
-                    Color.Transparent
-                }
+                    if (fields.correct == 'b') {
+                        getUIStyle.onCorrectChoice()
+                    } else {
+                        Color.Transparent
+                    }
             )
         }
         Text(
@@ -169,11 +163,11 @@ fun AddMultiChoiceCard(
                 .padding(top = 8.dp)
                 .background(
                     color =
-                    if (fields.correct.value == 'c') {
-                        getUIStyle.correctChoice()
-                    } else {
-                        Color.Transparent
-                    }
+                        if (fields.correct == 'c') {
+                            getUIStyle.correctChoice()
+                        } else {
+                            Color.Transparent
+                        }
                 )
         )
         Row(
@@ -183,20 +177,19 @@ fun AddMultiChoiceCard(
             horizontalArrangement = Arrangement.Center
         ) {
             EditTextField(
-                value = fields.choices[2].value,
+                value = fields.choices[2],
                 onValueChanged = { newText ->
-                    fields.choices[2].value =
-                        newText
+                    vm.updateCh(newText, 2)
                 },
                 labelStr = stringResource(R.string.choice_c),
                 modifier = Modifier
                     .weight(1f),
                 inputColor =
-                if (fields.correct.value == 'c') {
-                    getUIStyle.onCorrectChoice()
-                } else {
-                    Color.Transparent
-                }
+                    if (fields.correct == 'c') {
+                        getUIStyle.onCorrectChoice()
+                    } else {
+                        Color.Transparent
+                    }
             )
         }
         Text(
@@ -209,11 +202,11 @@ fun AddMultiChoiceCard(
                 .padding(top = 8.dp)
                 .background(
                     color =
-                    if (fields.correct.value == 'd') {
-                        getUIStyle.correctChoice()
-                    } else {
-                        Color.Transparent
-                    }
+                        if (fields.correct == 'd') {
+                            getUIStyle.correctChoice()
+                        } else {
+                            Color.Transparent
+                        }
                 )
         )
         Row(
@@ -223,24 +216,25 @@ fun AddMultiChoiceCard(
             horizontalArrangement = Arrangement.Center
         ) {
             EditTextField(
-                value = fields.choices[3].value,
+                value = fields.choices[3],
                 onValueChanged = { newText ->
-                    fields.choices[3].value =
-                        newText
+                    vm.updateCh(newText, 3)
                 },
                 labelStr = stringResource(R.string.choice_d),
                 modifier = Modifier
                     .weight(1f),
                 inputColor =
-                if (fields.correct.value == 'd') {
-                    getUIStyle.onCorrectChoice()
-                } else {
-                    Color.Transparent
-                }
+                    if (fields.correct == 'd') {
+                        getUIStyle.onCorrectChoice()
+                    } else {
+                        Color.Transparent
+                    }
             )
         }
 
-        PickAnswerChar(fields, getUIStyle)
+        PickAnswerChar(fields, getUIStyle) { correct ->
+            vm.updateCor(correct)
+        }
 
         Row(
             modifier = Modifier
@@ -249,36 +243,35 @@ fun AddMultiChoiceCard(
         ) {
             Button(
                 onClick = {
-                    if (fields.question.value.isBlank() ||
-                        fields.choices[0].value.isBlank() ||
-                        fields.choices[1].value.isBlank() ||
-                        fields.correct.value !in 'a'..'d'
+                    if (fields.question.isBlank() ||
+                        fields.choices[0].isBlank() ||
+                        fields.choices[1].isBlank() ||
+                        fields.correct !in 'a'..'d'
                     ) {
                         vm.setErrorMessage(fillOutFields)
                         successMessage = ""
-                    } else if (fields.choices[2].value.isBlank() &&
-                        fields.choices[3].value.isNotBlank()
+                    } else if (fields.choices[2].isBlank() &&
+                        fields.choices[3].isNotBlank()
                     ) {
                         vm.setErrorMessage("Cannot skip choice C and fill choice D")
                         successMessage = ""
-                    } else if ((fields.choices[2].value.isBlank() &&
-                                fields.correct.value == 'c') ||
-                        (fields.choices[3].value.isBlank() &&
-                                fields.correct.value == 'd')
+                    } else if ((fields.choices[2].isBlank() &&
+                                fields.correct == 'c') ||
+                        (fields.choices[3].isBlank() &&
+                                fields.correct == 'd')
                     ) {
                         vm.setErrorMessage("Answer can't be a blank choice")
                         successMessage = ""
                     } else {
                         coroutineScope.launch {
                             vm.addMultiChoiceCard(
-                                deck, fields.question.value,
-                                fields.choices[0].value,
-                                fields.choices[1].value,
-                                fields.choices[2].value,
-                                fields.choices[3].value,
-                                fields.correct.value
+                                deck, fields.question,
+                                fields.choices[0],
+                                fields.choices[1],
+                                fields.choices[2],
+                                fields.choices[3],
+                                fields.correct
                             )
-                            fields.resetFields()
                             successMessage = cardAdded
                         }
                     }

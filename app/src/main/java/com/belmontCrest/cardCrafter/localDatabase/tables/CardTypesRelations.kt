@@ -1,9 +1,7 @@
 package com.belmontCrest.cardCrafter.localDatabase.tables
 
-import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.RequiresApi
 import androidx.room.Embedded
 import androidx.room.Relation
 import kotlinx.parcelize.Parceler
@@ -42,14 +40,13 @@ data class AllCardTypes(
     )
     val notationCard: NotationCard?
 ) : Parcelable {
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     constructor(parcel: Parcel) : this(
-        parcel.readParcelable(Card::class.java.classLoader, Card::class.java)!!,
-        parcel.readParcelable(BasicCard::class.java.classLoader, BasicCard::class.java),
-        parcel.readParcelable(HintCard::class.java.classLoader, HintCard::class.java),
-        parcel.readParcelable(ThreeFieldCard::class.java.classLoader, ThreeFieldCard::class.java),
-        parcel.readParcelable(MultiChoiceCard::class.java.classLoader, MultiChoiceCard::class.java),
-        parcel.readParcelable(NotationCard::class.java.classLoader, NotationCard::class.java)
+        toParcelableCard(parcel)!!,
+        toParcelableBasicCard(parcel),
+        toParcelableHintCard(parcel),
+        toParcelableThreeCard(parcel),
+        toParcelableMultiCard(parcel),
+        toParcelableNotationCard(parcel)
     )
 
     companion object : Parceler<AllCardTypes> {
@@ -63,7 +60,6 @@ data class AllCardTypes(
             parcel.writeParcelable(notationCard, flags)
         }
 
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         override fun create(parcel: Parcel): AllCardTypes {
             return AllCardTypes(parcel)
         }
@@ -84,26 +80,22 @@ sealed class CT : Parcelable {
         )
         val basicCard: BasicCard
     ) : CT() {
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         constructor(parcel: Parcel) : this(
-            parcel.readParcelable(Card::class.java.classLoader, Card::class.java)!!,
-            parcel.readParcelable(
-                BasicCard::class.java.classLoader,
-                BasicCard::class.java
-            )!!,
+            toParcelableCard(parcel)!!, toParcelableBasicCard(parcel)!!,
         )
+
         companion object : Parceler<Basic> {
             override fun Basic.write(parcel: Parcel, flags: Int) {
                 parcel.writeParcelable(card, flags)
                 parcel.writeParcelable(basicCard, flags)
             }
 
-            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
             override fun create(parcel: Parcel): Basic {
                 return Basic(parcel)
             }
         }
     }
+
     @Serializable
     @Parcelize
     data class Hint(
@@ -114,13 +106,8 @@ sealed class CT : Parcelable {
         )
         val hintCard: HintCard
     ) : CT() {
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         constructor(parcel: Parcel) : this(
-            parcel.readParcelable(Card::class.java.classLoader, Card::class.java)!!,
-            parcel.readParcelable(
-                HintCard::class.java.classLoader,
-                HintCard::class.java
-            )!!,
+            toParcelableCard(parcel)!!, toParcelableHintCard(parcel)!!
         )
 
         companion object : Parceler<Hint> {
@@ -130,12 +117,12 @@ sealed class CT : Parcelable {
 
             }
 
-            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
             override fun create(parcel: Parcel): Hint {
                 return Hint(parcel)
             }
         }
     }
+
     @Serializable
     @Parcelize
     data class ThreeField(
@@ -146,13 +133,8 @@ sealed class CT : Parcelable {
         )
         val threeFieldCard: ThreeFieldCard
     ) : CT() {
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         constructor(parcel: Parcel) : this(
-            parcel.readParcelable(Card::class.java.classLoader, Card::class.java)!!,
-            parcel.readParcelable(
-                ThreeFieldCard::class.java.classLoader,
-                ThreeFieldCard::class.java
-            )!!,
+            toParcelableCard(parcel)!!, toParcelableThreeCard(parcel)!!
         )
 
         companion object : Parceler<ThreeField> {
@@ -161,12 +143,12 @@ sealed class CT : Parcelable {
                 parcel.writeParcelable(threeFieldCard, flags)
             }
 
-            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
             override fun create(parcel: Parcel): ThreeField {
                 return ThreeField(parcel)
             }
         }
     }
+
     @Serializable
     @Parcelize
     data class MultiChoice(
@@ -177,13 +159,8 @@ sealed class CT : Parcelable {
         )
         val multiChoiceCard: MultiChoiceCard
     ) : CT() {
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         constructor(parcel: Parcel) : this(
-            parcel.readParcelable(Card::class.java.classLoader, Card::class.java)!!,
-            parcel.readParcelable(
-                MultiChoiceCard::class.java.classLoader,
-                MultiChoiceCard::class.java
-            )!!,
+            toParcelableCard(parcel)!!, toParcelableMultiCard(parcel)!!
         )
 
         companion object : Parceler<MultiChoice> {
@@ -192,12 +169,12 @@ sealed class CT : Parcelable {
                 parcel.writeParcelable(multiChoiceCard, flags)
             }
 
-            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
             override fun create(parcel: Parcel): MultiChoice {
                 return MultiChoice(parcel)
             }
         }
     }
+
     @Serializable
     @Parcelize
     data class Notation(
@@ -208,19 +185,15 @@ sealed class CT : Parcelable {
         )
         val notationCard: NotationCard
     ) : CT() {
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         constructor(parcel: Parcel) : this(
-            parcel.readParcelable(Card::class.java.classLoader, Card::class.java)!!,
-            parcel.readParcelable(
-                NotationCard::class.java.classLoader,
-                NotationCard::class.java
-            )!!,
+            toParcelableCard(parcel)!!, toParcelableNotationCard(parcel)!!
         )
-        companion object : Parceler<Notation>  {
-            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+
+        companion object : Parceler<Notation> {
             override fun create(parcel: Parcel): Notation {
                 return Notation(parcel)
             }
+
             override fun Notation.write(parcel: Parcel, flags: Int) {
                 parcel.writeParcelable(card, flags)
                 parcel.writeParcelable(notationCard, flags)

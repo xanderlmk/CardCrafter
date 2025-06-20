@@ -33,6 +33,7 @@ import com.belmontCrest.cardCrafter.model.TAProp
 import com.belmontCrest.cardCrafter.model.TCProp
 import com.belmontCrest.cardCrafter.model.TextProps
 import com.belmontCrest.cardCrafter.model.Type
+import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.ui.theme.mainViewModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CustomText
@@ -41,17 +42,17 @@ import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import kotlinx.coroutines.launch
 
 fun saveCard(
-    fields: Fields,
+    fields: CDetails,
     editCardVM: EditCardViewModel,
     ct: CT
 ): Boolean {
     when (ct) {
         is CT.Basic -> {
-            if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()) {
+            if (fields.question.isNotBlank() && fields.answer.isNotBlank()) {
                 editCardVM.updateBasicCard(
                     ct.card.id,
-                    fields.question.value,
-                    fields.answer.value
+                    fields.question,
+                    fields.answer
                 )
                 return true
             } else {
@@ -60,15 +61,12 @@ fun saveCard(
         }
 
         is CT.ThreeField -> {
-            if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()
-                && fields.middleField.value.isNotBlank()
+            if (fields.question.isNotBlank() && fields.answer.isNotBlank()
+                && fields.middle.isNotBlank()
             ) {
                 editCardVM.updateThreeCard(
-                    ct.card.id,
-                    fields.question.value,
-                    fields.middleField.value,
-                    fields.answer.value,
-                    fields.isQOrA.value
+                    ct.card.id, fields.question, fields.middle,
+                    fields.answer, fields.isQOrA
                 )
                 return true
             } else {
@@ -78,14 +76,11 @@ fun saveCard(
         }
 
         is CT.Hint -> {
-            if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()
-                && fields.middleField.value.isNotBlank()
+            if (fields.question.isNotBlank() && fields.answer.isNotBlank()
+                && fields.middle.isNotBlank()
             ) {
                 editCardVM.updateHintCard(
-                    ct.card.id,
-                    fields.question.value,
-                    fields.middleField.value,
-                    fields.answer.value
+                    ct.card.id, fields.question, fields.middle, fields.answer
                 )
                 return true
             } else {
@@ -95,26 +90,26 @@ fun saveCard(
 
         is CT.MultiChoice -> {
             if (
-                fields.question.value.isNotBlank() &&
-                fields.choices[0].value.isNotBlank() &&
-                fields.choices[1].value.isNotBlank() &&
-                !(fields.choices[2].value.isBlank() &&
-                        fields.choices[3].value.isNotBlank()) &&
-                !((fields.choices[2].value.isBlank() &&
-                        fields.correct.value == 'c') ||
-                        (fields.choices[3].value.isBlank() &&
-                                fields.correct.value == 'd')
+                fields.question.isNotBlank() &&
+                fields.choices[0].isNotBlank() &&
+                fields.choices[1].isNotBlank() &&
+                !(fields.choices[2].isBlank() &&
+                        fields.choices[3].isNotBlank()) &&
+                !((fields.choices[2].isBlank() &&
+                        fields.correct == 'c') ||
+                        (fields.choices[3].isBlank() &&
+                                fields.correct == 'd')
                         ) &&
-                fields.correct.value in 'a'..'d'
+                fields.correct in 'a'..'d'
             ) {
                 editCardVM.updateMultiChoiceCard(
                     ct.card.id,
-                    fields.question.value,
-                    fields.choices[0].value,
-                    fields.choices[1].value,
-                    fields.choices[2].value,
-                    fields.choices[3].value,
-                    fields.correct.value
+                    fields.question,
+                    fields.choices[0],
+                    fields.choices[1],
+                    fields.choices[2],
+                    fields.choices[3],
+                    fields.correct
                 )
                 return true
             } else {
@@ -123,19 +118,17 @@ fun saveCard(
         }
 
         is CT.Notation -> {
-            if (fields.question.value.isNotBlank() &&
-                fields.answer.value.isNotBlank() &&
-                (fields.stringList.isEmpty() ||
-                        fields.stringList.all { it.value.isNotBlank() }
+            if (fields.question.isNotBlank() &&
+                fields.answer.isNotBlank() &&
+                (fields.steps.isEmpty() ||
+                        fields.steps.all { it.isNotBlank() }
                         )
             ) {
                 editCardVM.updateNotationCard(
                     ct.card.id,
-                    fields.question.value,
-                    fields.stringList.map {
-                        it.value
-                    },
-                    fields.answer.value
+                    fields.question,
+                    fields.steps,
+                    fields.answer
                 )
                 return true
             } else {
@@ -148,7 +141,7 @@ fun saveCard(
 
 
 suspend fun updateCardType(
-    fields: Fields,
+    fields: CDetails,
     editCardVM: EditCardViewModel,
     ct: CT,
     newType: String
@@ -156,7 +149,7 @@ suspend fun updateCardType(
     val card = ct.toCard()
     when (newType) {
         Type.BASIC -> {
-            if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()) {
+            if (fields.question.isNotBlank() && fields.answer.isNotBlank()) {
                 editCardVM.updateCardType(card.id, newType, fields, ct)
                 return true
             } else {
@@ -165,8 +158,8 @@ suspend fun updateCardType(
         }
 
         Type.THREE -> {
-            if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()
-                && fields.middleField.value.isNotBlank()
+            if (fields.question.isNotBlank() && fields.answer.isNotBlank()
+                && fields.middle.isNotBlank()
             ) {
                 editCardVM.updateCardType(card.id, newType, fields, ct)
                 return true
@@ -177,8 +170,8 @@ suspend fun updateCardType(
         }
 
         Type.HINT -> {
-            if (fields.question.value.isNotBlank() && fields.answer.value.isNotBlank()
-                && fields.middleField.value.isNotBlank()
+            if (fields.question.isNotBlank() && fields.answer.isNotBlank()
+                && fields.middle.isNotBlank()
             ) {
                 editCardVM.updateCardType(card.id, newType, fields, ct)
                 return true
@@ -189,17 +182,17 @@ suspend fun updateCardType(
 
         Type.MULTI -> {
             if (
-                fields.question.value.isNotBlank() &&
-                fields.choices[0].value.isNotBlank() &&
-                fields.choices[1].value.isNotBlank() &&
-                !(fields.choices[2].value.isBlank() &&
-                        fields.choices[3].value.isNotBlank()) &&
-                !((fields.choices[2].value.isBlank() &&
-                        fields.correct.value == 'c') ||
-                        (fields.choices[3].value.isBlank() &&
-                                fields.correct.value == 'd')
+                fields.question.isNotBlank() &&
+                fields.choices[0].isNotBlank() &&
+                fields.choices[1].isNotBlank() &&
+                !(fields.choices[2].isBlank() &&
+                        fields.choices[3].isNotBlank()) &&
+                !((fields.choices[2].isBlank() &&
+                        fields.correct == 'c') ||
+                        (fields.choices[3].isBlank() &&
+                                fields.correct == 'd')
                         ) &&
-                fields.correct.value in 'a'..'d'
+                fields.correct in 'a'..'d'
             ) {
                 editCardVM.updateCardType(card.id, newType, fields, ct)
                 return true
@@ -209,10 +202,10 @@ suspend fun updateCardType(
         }
 
         Type.NOTATION -> {
-            if (fields.question.value.isNotBlank() &&
-                fields.answer.value.isNotBlank() &&
-                (fields.stringList.isEmpty() ||
-                        fields.stringList.all { it.value.isNotBlank() }
+            if (fields.question.isNotBlank() &&
+                fields.answer.isNotBlank() &&
+                (fields.steps.isEmpty() ||
+                        fields.steps.all { it.isNotBlank() }
                         )
             ) {
                 editCardVM.updateCardType(card.id, newType, fields, ct)
@@ -250,10 +243,7 @@ fun DeleteCard(
                     onClick = {
                         pressed.value = false
                         fields.mainClicked.value = false
-                        coroutineScope.launch {
-                            navViewModel.deleteCard(card)
-                            onDelete()
-                        }
+                        coroutineScope.launch { navViewModel.deleteCard(card); onDelete() }
                     }, enabled = true, getUIStyle = getUIStyle,
                     string = stringResource(R.string.okay)
                 )

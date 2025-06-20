@@ -9,18 +9,14 @@
     <title>Notation Card</title>
     <style>
         body {
-           margin: 0;
            min-height: 100vh;
-           display: flex;
            align-items: center;
            justify-content: center;
            text-align: center;
        }
 
        #katex-render {
-           margin: auto;
            font-size: 22px;
-           /* Additional styling if needed */
        }
     </style>
 </head>
@@ -29,10 +25,9 @@
 <div id="katex-render"></div>
 
 <script>
-    function setTheme(bgColor, textColor) {
-            document.body.style.backgroundColor = bgColor;
-            document.body.style.color = textColor;
-        }
+    function setTheme(textColor) {
+        document.body.style.color = textColor;
+    }
     renderMathInElement(document.body, {
       delimiters: [
         {left: "$$", right: "$$", display: true},

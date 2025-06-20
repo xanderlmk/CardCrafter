@@ -29,6 +29,8 @@ import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestinat
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
+import com.belmontCrest.cardCrafter.model.application.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.views.cardViews.addCardViews.AddCardView
@@ -45,20 +47,22 @@ import kotlinx.coroutines.launch
 fun DeckNavHost(
     navController: NavHostController, cardDeckVM: CardDeckViewModel,
     fields: Fields, onDeckView: Boolean, navViewModel: NavViewModel,
-    getUIStyle: GetUIStyle, editingCardListVM: EditingCardListViewModel
+    getUIStyle: GetUIStyle, editingCardListVM: EditingCardListViewModel,
+    preferences: PreferencesManager
 ) {
     val deckNavController = rememberNavController()
     val listState = rememberLazyListState()
+    val pc = setPreferenceValues(preferences)
     val startingDeckRoute by navViewModel.startingDeckRoute.collectAsStateWithLifecycle()
     val deckView = DeckView(
         fields, getUIStyle,
     )
-    val addCardView = AddCardView(fields, getUIStyle, navViewModel)
+    val addCardView = AddCardView(getUIStyle, pc, navViewModel)
     val cardDeckView = CardDeckView(
         cardDeckVM, getUIStyle, fields
     )
     val editDeckView = EditDeckView(fields, getUIStyle)
-    val editingCardView = EditingCardView(getUIStyle, navViewModel)
+    val editingCardView = EditingCardView(getUIStyle, pc)
     val editCardsList =
         EditCardsList(
             editingCardListVM,
@@ -79,6 +83,7 @@ fun DeckNavHost(
 
     val wd by navViewModel.wd.collectAsStateWithLifecycle()
     val sc by navViewModel.card.collectAsStateWithLifecycle()
+    val showKB by navViewModel.showKatexKeyboard.collectAsStateWithLifecycle()
 
     NavHost(
         navController = deckNavController,
@@ -139,14 +144,17 @@ fun DeckNavHost(
             )
         ) {
             BackHandler {
-                fields.inDeckClicked.value = false
-                fields.resetFields()
-                navViewModel.resetKeyboardStuff()
-                navViewModel.updateRoute(DeckViewDestination.route)
-                deckNavController.popBackStack(
-                    DeckViewDestination.route,
-                    inclusive = false
-                )
+                if (showKB) {
+                    navViewModel.toggleKeyboard(); navViewModel.resetOffset()
+                } else {
+                    fields.inDeckClicked.value = false
+                    navViewModel.resetKeyboardStuff()
+                    navViewModel.updateRoute(DeckViewDestination.route)
+                    deckNavController.popBackStack(
+                        DeckViewDestination.route,
+                        inclusive = false
+                    )
+                }
             }
 
             wd.deck?.let {
@@ -178,10 +186,7 @@ fun DeckNavHost(
                      *  or the user finished the deck.
                      */
                     coroutineScope.launch(Dispatchers.IO) {
-                        updateDecksCardList(
-                            it,
-                            cardDeckVM
-                        )
+                        updateDecksCardList(it, cardDeckVM)
                     }
 
                 }
@@ -201,8 +206,7 @@ fun DeckNavHost(
                 cardDeckVM.updateWhichDeck(0)
                 updateCurrentTime()
                 deckNavController.popBackStack(
-                    DeckViewDestination.route,
-                    inclusive = false
+                    DeckViewDestination.route, inclusive = false
                 )
             }
             wd.deck?.let {
@@ -241,31 +245,33 @@ fun DeckNavHost(
                 editCardsList.ViewFlashCards(
                     navVM = navViewModel,
                     goToEditCard = { cardId ->
-                        fields.resetFields()
                         coroutineScope.launch { navViewModel.getCardById(cardId) }
                         navViewModel.updateRoute(EditingCardDestination.route)
-                        deckNavController.navigate(EditingCardDestination.route)
+                        deckNavController.navigate(EditingCardDestination.createRoute(cardId))
                     }
                 )
             }
         }
         composable(
-            route = EditingCardDestination.route
+            route = EditingCardDestination.route,
+            arguments = listOf(navArgument("card_id") { type = NavType.IntType })
         ) { backStackEntry ->
             BackHandler {
-                fields.navigateToCardList()
-                navViewModel.resetCard()
-                navViewModel.resetKeyboardStuff()
-                navViewModel.updateRoute(ViewAllCardsDestination.route)
-                deckNavController.popBackStack(
-                    ViewAllCardsDestination.route,
-                    inclusive = false
-                )
+                if (showKB) {
+                    navViewModel.toggleKeyboard(); navViewModel.resetOffset()
+                } else {
+                    fields.navigateToCardList()
+                    navViewModel.resetCard()
+                    navViewModel.resetKeyboardStuff()
+                    navViewModel.updateRoute(ViewAllCardsDestination.route)
+                    deckNavController.popBackStack(
+                        ViewAllCardsDestination.route, inclusive = false
+                    )
+                }
             }
             sc.ct?.let {
                 editingCardView.EditFlashCardView(
-                    ct = it,
-                    fields = fields,
+                    ct = it, newType = navViewModel.type.collectAsStateWithLifecycle().value,
                     onNavigateBack = {
                         navViewModel.resetKeyboardStuff()
                         fields.navigateToCardList()

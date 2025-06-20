@@ -28,7 +28,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.AddCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
 import kotlinx.coroutines.delay
@@ -37,10 +36,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddBasicCard(
     vm: AddCardViewModel, deck: Deck,
-    fields: Fields, getUIStyle: GetUIStyle
+    getUIStyle: GetUIStyle
 ) {
     val errorMessage by vm.errorMessage.collectAsStateWithLifecycle()
-
+    val fields by vm.fields.collectAsStateWithLifecycle()
     var successMessage by remember { mutableStateOf("") }
     val fillOutFields = stringResource(R.string.fill_out_all_fields).toString()
     val cardAdded = stringResource(R.string.card_added).toString()
@@ -56,9 +55,7 @@ fun AddBasicCard(
             fontSize = 25.sp,
             textAlign = TextAlign.Center,
             lineHeight = 30.sp,
-            color = getUIStyle.titleColor(),
-            modifier = Modifier
-                .padding(top = 15.dp)
+            color = getUIStyle.titleColor()
         )
         Row(
             modifier = Modifier
@@ -67,10 +64,9 @@ fun AddBasicCard(
             horizontalArrangement = Arrangement.Center
         ) {
             EditTextFieldNonDone(
-                value = fields.question.value,
+                value = fields.question,
                 onValueChanged = { newText ->
-                    fields.question.value =
-                        newText
+                    vm.updateQ(newText)
                 },
                 labelStr = stringResource(R.string.question),
                 modifier = Modifier
@@ -92,10 +88,9 @@ fun AddBasicCard(
             horizontalArrangement = Arrangement.Center
         ) {
             EditTextFieldNonDone(
-                value = fields.answer.value,
+                value = fields.answer,
                 onValueChanged = { newText ->
-                    fields.answer.value =
-                        newText
+                    vm.updateA(newText)
                 },
                 labelStr = stringResource(R.string.answer),
                 modifier = Modifier
@@ -110,16 +105,12 @@ fun AddBasicCard(
         ) {
             Button(
                 onClick = {
-                    if (fields.question.value.isBlank() || fields.answer.value.isBlank()) {
+                    if (fields.question.isBlank() || fields.answer.isBlank()) {
                         vm.setErrorMessage(fillOutFields)
                         successMessage = ""
                     } else {
                         coroutineScope.launch {
-                            vm.addBasicCard(
-                                deck, fields.question.value, fields.answer.value
-                            )
-                            fields.answer.value = ""
-                            fields.question.value = ""
+                            vm.addBasicCard(deck, fields.question, fields.answer)
                             successMessage = cardAdded
                         }
                     }

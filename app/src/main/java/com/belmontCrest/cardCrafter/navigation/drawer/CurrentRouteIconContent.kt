@@ -174,9 +174,7 @@ fun MainDLRouteContent(
             pdsVM.syncDecks()
         }
     }) {
-        ci.ContentIcon(
-            "Cloud Sync", painterResource(R.drawable.cloud_sync), Modifier
-        )
+        ci.ContentIcon(painterResource(R.drawable.cloud_sync), "Cloud Sync")
     }
 }
 

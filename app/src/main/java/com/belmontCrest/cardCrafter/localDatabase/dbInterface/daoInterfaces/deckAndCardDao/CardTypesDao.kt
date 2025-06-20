@@ -25,7 +25,7 @@ import com.belmontCrest.cardCrafter.model.Type.HINT
 import com.belmontCrest.cardCrafter.model.Type.MULTI
 import com.belmontCrest.cardCrafter.model.Type.NOTATION
 import com.belmontCrest.cardCrafter.model.Type.THREE
-import com.belmontCrest.cardCrafter.model.ui.Fields
+import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
@@ -93,7 +93,7 @@ interface CardTypesDao : InsertOrAbortDao {
 
     @Transaction
     suspend fun updateCT(
-        cardId: Int, type: String, fields: Fields,
+        cardId: Int, type: String, fields: CDetails,
         deleteCT: CT
     ) {
         when (type) {
@@ -101,8 +101,8 @@ interface CardTypesDao : InsertOrAbortDao {
                 insertBasicCard(
                     BasicCard(
                         cardId = cardId,
-                        question = fields.question.value,
-                        answer = fields.answer.value
+                        question = fields.question,
+                        answer = fields.answer
                     )
                 )
             }
@@ -111,10 +111,10 @@ interface CardTypesDao : InsertOrAbortDao {
                 insertThreeCard(
                     ThreeFieldCard(
                         cardId = cardId,
-                        question = fields.question.value,
-                        middle = fields.middleField.value,
-                        answer = fields.answer.value,
-                        field = fields.isQOrA.value
+                        question = fields.question,
+                        middle = fields.middle,
+                        answer = fields.answer,
+                        field = fields.isQOrA
                     )
                 )
 
@@ -124,9 +124,9 @@ interface CardTypesDao : InsertOrAbortDao {
                 insertHintCard(
                     HintCard(
                         cardId = cardId,
-                        question = fields.question.value,
-                        hint = fields.middleField.value,
-                        answer = fields.answer.value
+                        question = fields.question,
+                        hint = fields.middle,
+                        answer = fields.answer
                     )
                 )
             }
@@ -135,12 +135,12 @@ interface CardTypesDao : InsertOrAbortDao {
                 insertMultiChoiceCard(
                     MultiChoiceCard(
                         cardId = cardId,
-                        question = fields.question.value,
-                        choiceA = fields.choices[0].value,
-                        choiceB = fields.choices[1].value,
-                        choiceC = fields.choices[2].value,
-                        choiceD = fields.choices[3].value,
-                        correct = fields.correct.value
+                        question = fields.question,
+                        choiceA = fields.choices[0],
+                        choiceB = fields.choices[1],
+                        choiceC = fields.choices[2],
+                        choiceD = fields.choices[3],
+                        correct = fields.correct
                     )
                 )
             }
@@ -149,9 +149,9 @@ interface CardTypesDao : InsertOrAbortDao {
                 insertNotationCard(
                     NotationCard(
                         cardId = cardId,
-                        question = fields.question.value,
-                        steps = fields.stringList.map { it.value },
-                        answer = fields.answer.value
+                        question = fields.question,
+                        steps = fields.steps,
+                        answer = fields.answer
                     )
                 )
             }
@@ -205,7 +205,7 @@ interface CardTypesDao : InsertOrAbortDao {
     /** Copy the selected cards into a new deck */
     @Transaction
     suspend fun copyCardList(cts: List<CT>, deck: Deck) {
-        cts.map { ct ->
+        cts.forEach { ct ->
             val newDeckCardNumber = returnCardDeckNum(deck.id)
             when (ct) {
                 is CT.Basic -> {

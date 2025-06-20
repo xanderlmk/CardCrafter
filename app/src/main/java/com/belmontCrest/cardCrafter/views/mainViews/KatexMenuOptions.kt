@@ -16,26 +16,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 
 @Composable
-fun DefaultDeckOptions(
-    changeReviewAmount: () -> Unit,
-    changeCardAmount: () -> Unit,
-    reviewAmount: MutableState<String>,
-    cardAmount: MutableState<String>,
-    reviewSuccess: Boolean,
-    cardSuccess: Boolean,
-    getUIStyle: GetUIStyle
+fun KatexMenuOptions(
+    getUIStyle: GetUIStyle, changeMenuHeight: () -> Unit, changeMenuWidth: () -> Unit,
+    height: MutableState<String>, width: MutableState<String>,
+    heightSuccess: Boolean, widthSuccess: Boolean
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -44,15 +37,11 @@ fun DefaultDeckOptions(
             .border(
                 width = 2.dp,
                 shape = RoundedCornerShape(12.dp),
-                color = if (getUIStyle.getIsDarkTheme() == true) {
-                    Color.Gray
-                } else {
-                    Color.Black
-                }
+                color = if (getUIStyle.getIsDarkTheme()) Color.Gray else Color.Black
             )
     ) {
         Text(
-            text = "Default Deck Options",
+            text = "Katex Menu Options",
             fontSize = 20.sp,
             lineHeight = 22.sp,
             fontWeight = FontWeight.Bold,
@@ -65,14 +54,14 @@ fun DefaultDeckOptions(
         )
         if (expanded) {
             ExpandedIntBoxedOptions(
-                onClick = changeReviewAmount, getUIStyle = getUIStyle,
-                string = reviewAmount, success = reviewSuccess,
-                text = stringResource(R.string.review_amount)
+                onClick = changeMenuHeight, getUIStyle = getUIStyle,
+                string = height, success = heightSuccess,
+                text = "Height"
             )
             ExpandedIntBoxedOptions(
-                onClick = changeCardAmount, getUIStyle = getUIStyle,
-                string = cardAmount, success = cardSuccess,
-                text = stringResource(R.string.card_amount)
+                onClick = changeMenuWidth, getUIStyle = getUIStyle,
+                string = width, success = widthSuccess,
+                text = "Width"
             )
         }
     }

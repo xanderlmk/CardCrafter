@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardId
+import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardType
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.model.TAProp
@@ -114,6 +115,7 @@ class EditCardsList(
                                     enabled = false
                                     fields.scrollPosition.value = index
                                     fields.isEditing.value = true
+                                    navVM.updateType(filtered[index].getCardType())
                                     goToEditCard(filtered[index].getCardId())
                                     enabled = true
                                 }

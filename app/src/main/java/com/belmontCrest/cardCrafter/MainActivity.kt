@@ -14,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.coroutineScope
 import androidx.navigation.compose.rememberNavController
 import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
@@ -22,7 +23,7 @@ import com.belmontCrest.cardCrafter.navigation.navHosts.AppNavHost
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.model.ui.Fields
-import com.belmontCrest.cardCrafter.model.ui.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.PreferencesManager
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
 import io.github.jan.supabase.annotations.SupabaseInternal
@@ -42,7 +43,7 @@ class MainActivity : ComponentActivity() {
         AppViewModelProvider.Factory
     }
 
-    private val navViewModel : NavViewModel by viewModels{
+    private val navViewModel: NavViewModel by viewModels {
         AppViewModelProvider.Factory
     }
 
@@ -55,11 +56,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            preferences = rememberUpdatedState(
-                PreferencesManager(
-                    applicationContext
-                )
-            ).value
+            preferences = rememberUpdatedState(PreferencesManager(applicationContext)).value
 
             /**
              * Making sure that if it's their first time,
@@ -88,15 +85,14 @@ class MainActivity : ComponentActivity() {
 
 
             if (preferences.getIsFirstTime()) {
-                preferences.darkTheme.value = isSystemDark
                 preferences.setDarkTheme(isSystemDark)
                 preferences.setIsFirstTime()
             }
 
             FlashcardsTheme(
-                darkTheme = preferences.darkTheme.value,
-                dynamicColor = preferences.customScheme.value,
-                cuteTheme = preferences.cuteTheme.value
+                darkTheme = preferences.darkTheme.collectAsStateWithLifecycle().value,
+                dynamicColor = preferences.dynamicTheme.collectAsStateWithLifecycle().value,
+                cuteTheme = preferences.cuteTheme.collectAsStateWithLifecycle().value
             ) {
                 AppNavHost(
                     mainNavController = navController,
@@ -132,6 +128,7 @@ class MainActivity : ComponentActivity() {
             preferences.savePreferences()
         }
     }
+
 }
 
 /*

@@ -7,7 +7,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
-import com.belmontCrest.cardCrafter.model.ui.Fields
+import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.Date
@@ -57,7 +57,7 @@ interface CardTypeRepository {
 
     suspend fun moveCardList(deck: Deck)
 
-    suspend fun updateCT(cardId: Int, type: String, fields: Fields, deleteCT: CT)
+    suspend fun updateCT(cardId: Int, type: String, fields: CDetails, deleteCT: CT)
 
     suspend fun deleteCTs()
 }

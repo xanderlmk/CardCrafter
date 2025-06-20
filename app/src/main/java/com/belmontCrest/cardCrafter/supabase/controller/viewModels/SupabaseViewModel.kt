@@ -10,7 +10,7 @@ import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
-import com.belmontCrest.cardCrafter.model.ui.SealedAllCTs
+import com.belmontCrest.cardCrafter.model.ui.states.SealedAllCTs
 import com.belmontCrest.cardCrafter.supabase.controller.networkConnectivityFlow
 import com.belmontCrest.cardCrafter.supabase.model.tables.FourSelectedCards
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_CARDS

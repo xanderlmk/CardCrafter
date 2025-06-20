@@ -13,10 +13,9 @@ import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.model.ui.StringVar
-import com.belmontCrest.cardCrafter.model.ui.SelectedCard
-import com.belmontCrest.cardCrafter.model.ui.SelectedKeyboard
-import com.belmontCrest.cardCrafter.model.ui.WhichDeck
+import com.belmontCrest.cardCrafter.model.ui.states.StringVar
+import com.belmontCrest.cardCrafter.model.ui.states.SelectedCard
+import com.belmontCrest.cardCrafter.model.ui.states.WhichDeck
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +29,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 
 
 /**
@@ -47,10 +45,9 @@ class NavViewModel(
     companion object {
         private const val NAV_VM = "NavViewModel"
         private const val TIMEOUT_MILLIS = 4_000L
-        private const val SHOW_KB = "showKB"
         private const val CT_TYPE = "CT_type"
-        private const val KEY_SELECTED_KB = "selected_kb"
         private const val IS_SELECTING = "is_selecting"
+        private const val SHOW_KB = "show_kb"
     }
 
     private val rf = ReusedFunc(flashCardRepository)
@@ -203,47 +200,28 @@ class NavViewModel(
 
     fun resetIsBlocking() = _isBlocking.update { false }
 
-    val showKatexKeyboard = kbRepository.showKatexKeyboard.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-        initialValue = savedStateHandle[SHOW_KB] as Boolean? == true
-    )
+    val showKatexKeyboard = kbRepository.showKatexKeyboard
     val selectedKB = kbRepository.selectedKB
-    val resetOffset = kbRepository.resetOffset
     val selectable = cardTypeRepository.selectedCards.map { it.isNotEmpty() }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = false
     )
 
-    fun updateSelectedKB(selectedKeyboard: SelectedKeyboard) {
-        kbRepository.updateSelectedKB(selectedKeyboard)
-        savedStateHandle[KEY_SELECTED_KB] =
-            Json.encodeToString(SelectedKeyboard.serializer(), selectedKeyboard)
-    }
-
-    fun resetSelectedKB() = kbRepository.resetSelectedKB()
-
-    fun retrieveKB() {
-        val kb = savedStateHandle.get<String>(KEY_SELECTED_KB)
-            ?.let { Json.decodeFromString(SelectedKeyboard.serializer(), it) }
-        kbRepository.retrieveKB(kb)
-    }
-
     fun toggleKeyboard() {
         savedStateHandle[SHOW_KB] = !showKatexKeyboard.value
         kbRepository.toggleKeyboard()
     }
 
+    fun onCreate() {
+        val showKB = savedStateHandle.get<Boolean>(SHOW_KB) == true
+        kbRepository.onCreate(showKB)
+    }
+
     fun resetOffset() = kbRepository.resetOffset()
 
-    fun resetDone() = kbRepository.resetDone()
-
     /** Reset the selected keyboard to null and don't show the keyboard */
-    fun resetKeyboardStuff() {
-        kbRepository.resetKeyboardStuff()
-        savedStateHandle[SHOW_KB] = false
-    }
+    fun resetKeyboardStuff() = kbRepository.resetKeyboardStuff()
 
     private val _isSelecting =
         MutableStateFlow(savedStateHandle[IS_SELECTING] as Boolean? == true)
@@ -266,10 +244,5 @@ class NavViewModel(
 
     suspend fun getAllDecks(): List<Deck> = withContext(Dispatchers.IO) {
         flashCardRepository.getAllDecks()
-    }
-
-    init {
-        val show = savedStateHandle[SHOW_KB] as Boolean? == true
-        kbRepository.retrieveShowKB(show)
     }
 }

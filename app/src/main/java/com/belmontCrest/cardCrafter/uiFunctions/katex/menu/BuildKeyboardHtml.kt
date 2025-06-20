@@ -2,25 +2,71 @@
 
 package com.belmontCrest.cardCrafter.uiFunctions.katex.menu
 
+private val NORMAL_OPS_NUMS = listOf(
+    "x", "y", "a^2", "a^{b}", "(", ")", "\\\\{\\\\}",
+    "\\\\lt", "\\\\gt", "|a|", ",", "\\\\le", "\\\\ge",
+    "\\\\sqrt{x}", "\\\\sqrt[a]{x}", "\\\\pi",
+    "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+    ".", "=", "+", "-", "\\\\times", "\\\\div"
+)
 
-private val ACCENTS = listOf(
-    // accent variants
-    "acute{a}", "bar{y}", "breve{a}", "check{a}",
-    "dot{a}", "ddot{a}", "dddot{a}", "ddddot{a}", "grave{a}", "hat{\\\\theta}",
-    "tilde{a}", "mathring{g}", "widetilde{ac}", "utilde{AB}", "vec{F}",
+private val FRACS_AND_BINOS = listOf(
+    "\\\\frac{a}{b}",
+    "\\\\frac{a}{1 + \\\\frac{1}{b}}",
+    "\\\\genfrac ( ] {1pt} {1}a{a+1}",
+    "\\\\binom{n}{k}",
+    "{n\\\\brace k}",
+    "{n\\\\brack k}"
+)
 
-    // Arrow variants
-    "overleftarrow{AB}", "underleftarrow{AB}",
-    "overrightarrow{AB}", "underrightarrow{AB}",
-    "overleftharpoon{ac}", "overrightharpoon{ac}",
-    "overleftrightarrow{AB}", "underleftrightarrow{AB}",
-    "Overrightarrow{AB}",
+private val BIG_OPERATORS = listOf(
+    "sum", "int", "oint", "prod", "coprod",
+    "sum_{i=0}^n", "int_{x_1}^{x_2}",
+    "sum_{\\\\substack{0\\\\lt{i}\\\\lt{m}\\\\\\\\0\\\\lt{j}\\\\lt{n}}}",
+    "bigotimes", "bigoplus", "bigodot", "biguplus",
+    "bigvee", "bigwedge", "bigcap", "bigcup", "bigsqcup",
+    "iint", "iiint", "oiint", "oiiint"
+)
 
-    // Lined variants
-    "overgroup{AB}", "undergroup{AB}", "overline{AB}", "underline{AB}",
-    "widecheck{ac}", "widehat{ac}",
-    "overbrace{AB}", "underbrace{AB}", "overlinesegment{AB}",
-    "underlinesegment{AB}", "underbar{X}",
+private val BINARY_OP = listOf(
+    "bigcirc", "boxdot", "boxminus", "boxplus", "boxtimes",
+    "bullet", "Cap", "cap", "Cup", "cup", "doublecap", "doublecup",
+    "centerdot", "circ", "circledast", "circledcirc", "circleddash",
+    "curlyvee", "curlywedge", "divideontimes", "dotplus", "doublebarwedge",
+    "gtrdot", "lessdot", "land", "lor", "barwedge", "veebar", "lhd", "rhd", "unlhd", "unrhd",
+    "leftthreetimes", "rightthreetimes", "ltimes", "rtimes", "sqcap", "sqcup",
+    "odot", "ominus", "oplus", "otimes", "oslash", "mp", "pm", "uplus", "wr"
+)
+
+private val LOGIC_SET_THEORY = listOf(
+    "forall", "exists", "nexists", "isin", "notin", "ni", "notni",
+    "complement", "subset", "supset", "mid", "land", "lor",
+    "therefore", "because", "mapsto", "to", "gets",
+    "leftrightarrow", "emptyset", "varnothing", "implies", "impliedby",
+    "iff", "neg", "set{ x | x\\\\lt 5 }",
+)
+
+private val RELATIONS = listOf(
+    "=", "\\\\lt", "\\\\gt", "\\\\le", "\\\\ge", "\\\\neq", "\\\\nleq", "\\\\ngeq",
+    "\\\\cong", "\\\\ncong", "\\\\sim", "\\\\nsim", "\\\\simeq",
+    "\\\\propto", "\\\\equiv", "\\\\prec", "\\\\succ",
+    "\\\\subseteq", "\\\\nsubseteq", "\\\\supseteq", "\\\\nsupseteq",
+    "\\\\mid", "\\\\nmid", "\\\\parallel", "\\\\nparallel",
+    "\\\\perp", "\\\\vdash", "\\\\dashv",
+    "\\\\models", "\\\\trianglelefteq", "\\\\trianglerighteq",
+)
+
+private val ADV_RELATIONS = listOf(
+    "lesssim", "gtrsim", "ll", "gg", "lll", "ggg",
+    "preceq", "succeq", "lessapprox", "gtrapprox",
+    "sqsubset", "sqsubseteq", "sqsupset", "sqsupseteq", "bowtie",
+    "lesseqqgtr", "gtreqqless", "lesseqgtr", "gtreqless",
+    "lessgtr", "gtrless", "Subset", "Supset",
+    "Vdash", "Vvdash", "simcolon", "colonsim",
+    "between", "precsim", "succsim", "preccurlyeq", "succcurlyeq",
+    "precapprox", "succapprox", "leqslant", "geqslant",
+    "doteq", "doteqdot", "Doteq", "eqcirc", "circeq",
+    "bumpeq", "Bumpeq", "risingdotseq", "fallingdotseq"
 )
 
 private val GREEK_LETTERS = listOf(
@@ -87,13 +133,24 @@ private val OTHER_LETTERS = listOf(
     "eth", "hslash", "text{\\\\oe}"
 )
 
-private val FRACS_AND_BINOS = listOf(
-    "\\\\frac{a}{b}",
-    "\\\\frac{a}{1 + \\\\frac{1}{b}}",
-    "\\\\genfrac ( ] {1pt} {1}a{a+1}",
-    "\\\\binom{n}{k}",
-    "{n\\\\brace k}",
-    "{n\\\\brack k}"
+private val ACCENTS = listOf(
+    // accent variants
+    "acute{a}", "bar{y}", "breve{a}", "check{a}",
+    "dot{a}", "ddot{a}", "dddot{a}", "ddddot{a}", "grave{a}", "hat{\\\\theta}",
+    "tilde{a}", "mathring{g}", "widetilde{ac}", "utilde{AB}", "vec{F}",
+
+    // Arrow variants
+    "overleftarrow{AB}", "underleftarrow{AB}",
+    "overrightarrow{AB}", "underrightarrow{AB}",
+    "overleftharpoon{ac}", "overrightharpoon{ac}",
+    "overleftrightarrow{AB}", "underleftrightarrow{AB}",
+    "Overrightarrow{AB}",
+
+    // Lined variants
+    "overgroup{AB}", "undergroup{AB}", "overline{AB}", "underline{AB}",
+    "widecheck{ac}", "widehat{ac}",
+    "overbrace{AB}", "underbrace{AB}", "overlinesegment{AB}",
+    "underlinesegment{AB}", "underbar{X}",
 )
 
 private val ARROWS = listOf(
@@ -105,7 +162,7 @@ private val ARROWS = listOf(
     // Two-headed arrow variants
     "twoheadleftarrow", "twoheadrightarrow",
     // Tailed arrow variants
-    "leftarrowtail", "rightarrowtail", "longmapsto", "mapsto",
+    "leftarrowtail", "rightarrowtail", "longmapsto",
     // Outlined arrow variants
     "Downarrow", "Uparrow", "Leftarrow", "Rightarrow",
     "Leftrightarrow", "Updownarrow", "iff", "impliedby", "implies",
@@ -124,6 +181,7 @@ private val ARROWS = listOf(
     // Squigel arrow variants
     "leftrightsquigarrow", "rightsquigarrow"
 )
+
 private val EXTENSIBLE_ARROWS = listOf(
     // `Normal` arrow variants
     "xleftarrow{abc}", "xrightarrow{abc}",
@@ -138,22 +196,6 @@ private val EXTENSIBLE_ARROWS = listOf(
     "xtofrom{abc}", "xlongequal{abc}",
     // Under and over arrow variants (any can be done like this in this list)
     "xrightarrow[b]{a}", "xleftrightarrow[b]{a}"
-)
-private val BIG_OPERATORS = listOf(
-    "sum", "int", "oint", "prod", "coprod",
-    "sum_{i=0}^n", "int_{x_1}^{x_2}",
-    "sum_{\\\\substack{0\\\\lt{i}\\\\lt{m}\\\\\\\\0\\\\lt{j}\\\\lt{n}}}",
-    "bigotimes", "bigoplus", "bigodot", "biguplus",
-    "bigvee", "bigwedge", "bigcap", "bigcup", "bigsqcup",
-    "iint", "iiint", "oiint", "oiiint"
-)
-
-private val NORMAL_OPS_NUMS = listOf(
-    "x", "y", "a^2", "a^{b}", "(", ")", "\\\\{\\\\}",
-    "\\\\lt", "\\\\gt", "|a|", ",", "\\\\le", "\\\\ge",
-    "\\\\sqrt{x}", "\\\\sqrt[a]{x}", "\\\\pi",
-    "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
-    ".", "=", "+", "-", "\\\\times", "\\\\div"
 )
 
 private const val ON_SYMBOL_SELECTED = "onSymbolSelected"
@@ -177,6 +219,30 @@ fun buildKeyboardHtml(): String {
         append(startSection("big_ops", "Big Operators"))
         for (op in BIG_OPERATORS) {
             append(convertWord(op, "onOPSelected", true, OPERATOR))
+        }
+        append(endDiv())
+
+        append(startSection("binary_ops", "Binary Operators"))
+        for (op in BINARY_OP) {
+            append(convertWord(op, ON_SYMBOL_SELECTED, true, SYMBOL))
+        }
+        append(endDiv())
+
+        append(startSection("logic_theory", "Logic and Set Theory"))
+        for (word in LOGIC_SET_THEORY) {
+            append(convertWord(word, ON_SYMBOL_SELECTED, true, SYMBOL))
+        }
+        append(endDiv())
+
+        append(startSection("relations", "Relations"))
+        for (rel in RELATIONS) {
+            append(convertWord(rel, ON_SYMBOL_SELECTED, false, SYMBOL))
+        }
+        append(endDiv())
+
+        append(startSection("adv_relations", "Advanced Relations"))
+        for (rel in ADV_RELATIONS) {
+            append(convertWord(rel, ON_SYMBOL_SELECTED, true, SYMBOL))
         }
         append(endDiv())
 
@@ -210,8 +276,6 @@ fun buildKeyboardHtml(): String {
         }
         append(endDiv())
 
-        append(startSection("logic_theory", "Logic and Set Theory"))
-        append(endDiv())
     }
 }
 
@@ -230,10 +294,9 @@ private fun startSection(id: String, sectionName: String): String =
     |<div id="$id" class="symbols-container">
     """.trimMargin()
 
-
 private fun convertWord(
-    word: String, function: String, backSlash: Boolean, containerType : String
-    ): String {
+    word: String, function: String, backSlash: Boolean, containerType: String
+): String {
     return if (backSlash) {
         val escaped = word.replace("\\\\", "")
         """

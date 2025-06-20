@@ -1,7 +1,6 @@
 package com.belmontCrest.cardCrafter.views.cardViews.editCardViews
 
 import android.util.Log
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -11,49 +10,47 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.model.ui.Fields
-import com.belmontCrest.cardCrafter.model.ui.SelectedKeyboard
-import com.belmontCrest.cardCrafter.navigation.NavViewModel
+import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
+import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.LatexKeyboard
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import com.belmontCrest.cardCrafter.views.miscFunctions.collectNotationFieldsAsStates
+import com.belmontCrest.cardCrafter.views.miscFunctions.collectTextRangesAsStates
+
+
+private object KeyboardInputs {
+    const val KK = "KatexKeyBoard"
+}
 
 @Composable
 fun EditNotationCard(
-    fields: Fields, vm: NavViewModel,
+    vm: EditCardViewModel,
     getUIStyle: GetUIStyle, onUpdate: () -> KaTeXMenu
 ) {
-    var steps by rememberSaveable { mutableIntStateOf(fields.stringList.size) }
-    val focusRequester = remember { FocusRequester() }
+    val (fields, _, selectedKB) = collectNotationFieldsAsStates(vm)
+    val kk = KeyboardInputs.KK
     var selectedQSymbol by rememberSaveable {
         mutableStateOf(KaTeXMenu(null, SelectedAnnotation.Idle))
     }
     var selectedASymbol by rememberSaveable {
         mutableStateOf(KaTeXMenu(null, SelectedAnnotation.Idle))
     }
-    var selectedSLSymbols = rememberSaveable {
-        MutableList<KaTeXMenu>(fields.stringList.size) {
-            KaTeXMenu(null, SelectedAnnotation.Idle)
-        }
-    }
-    val selectedKB by vm.selectedKB.collectAsStateWithLifecycle()
+    val selectedSLSymbols by vm.selectedSLSymbols.collectAsStateWithLifecycle()
+    val (selection, composition) = collectTextRangesAsStates(vm)
     val context = LocalContext.current
+    LaunchedEffect(Unit) { vm.onCreate() }
     LaunchedEffect(onUpdate()) {
         when (val sel = selectedKB) {
             is SelectedKeyboard.Question -> {
@@ -61,7 +58,7 @@ fun EditNotationCard(
             }
 
             is SelectedKeyboard.Step -> {
-                selectedSLSymbols[sel.index] = onUpdate()
+                vm.updateSelectedSymbol(onUpdate(), sel.index)
             }
 
             is SelectedKeyboard.Answer -> {
@@ -78,30 +75,24 @@ fun EditNotationCard(
     }
 
     LatexKeyboard(
-        value = fields.question.value,
-        onValueChanged = { fields.question.value = it },
+        value = fields.question,
+        onValueChanged = { vm.updateQ(it) },
         labelStr = stringResource(R.string.question),
         modifier = Modifier
-            .fillMaxWidth()
-            .focusRequester(focusRequester)
-            .onFocusChanged { focusState ->
-                if (focusState.hasFocus) {
-                    vm.updateSelectedKB(SelectedKeyboard.Question)
-                    //lastSelectedKB = SelectedKeyboard.Question
-                    Log.d("AddCardVM", "Focused on Question")
-                }
-            }
-            .focusable(),
-        focusRequester = focusRequester,
+            .fillMaxWidth(),
         kt = selectedQSymbol,
+        onFocusChanged = {
+            Log.d(kk, "Focused on Question")
+            vm.updateSelectedKB(SelectedKeyboard.Question)
+        }, selection = selection, composition = composition,
+        onUpdateTR = { sel, com -> vm.updateTRs(sel, com) },
+        selectedKeyboard = selectedKB, actualKeyboard = SelectedKeyboard.Question,
         onIdle = { selectedQSymbol = KaTeXMenu(null, SelectedAnnotation.Idle) }
     )
-    if (steps == 0) {
+    if (fields.steps.isEmpty()) {
         Button(
             onClick = {
-                fields.stringList.add(mutableStateOf(""))
-                selectedSLSymbols.add(KaTeXMenu(null, SelectedAnnotation.Idle))
-                steps += 1
+                vm.addStep()
             }, modifier = Modifier
                 .padding(8.dp),
             colors = ButtonDefaults.buttonColors(
@@ -115,40 +106,34 @@ fun EditNotationCard(
             )
         }
     } else {
-        fields.stringList.forEachIndexed { index, string ->
+        fields.steps.forEachIndexed { index, string ->
+            if (selectedSLSymbols.size != fields.steps.size) return@forEachIndexed
             val indexedModifier = if (index == 0) {
                 Modifier.padding(top = 5.dp, start = 0.5.dp, end = 0.5.dp, bottom = 1.dp)
             } else {
-                Modifier.padding(1.dp)
+                Modifier.padding(vertical = 2.dp)
             }
             LatexKeyboard(
-                value = string.value,
-                onValueChanged = { string.value = it },
+                value = string,
+                onValueChanged = { vm.updateStep(it, index) },
                 labelStr = "Step: ${index + 1}",
                 modifier = indexedModifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
-                    .onFocusChanged { focusState ->
-                        if (focusState.hasFocus) {
-                            vm.updateSelectedKB(SelectedKeyboard.Step(index))
-                            //lastSelectedKB = SelectedKeyboard.Step(index)
-                            Log.d("AddCardVM", "Focused on Step #${index + 1}")
-                        }
-                    }
-                    .focusable(),
-                focusRequester = focusRequester,
-                kt = selectedSLSymbols[index],
+                    .fillMaxWidth(),
+                onFocusChanged = {
+                    vm.updateSelectedKB(SelectedKeyboard.Step(index))
+                    Log.d(kk, "Focused on Step #${index + 1}")
+                }, kt = selectedSLSymbols[index], selection = selection, composition = composition,
+                onUpdateTR = { sel, com -> vm.updateTRs(sel, com) },
+                selectedKeyboard = selectedKB,
+                actualKeyboard = SelectedKeyboard.Step(index),
                 onIdle = {
-                    selectedSLSymbols[index] =
-                        KaTeXMenu(null, SelectedAnnotation.Idle)
+                    vm.updateSelectedSymbol(KaTeXMenu(null, SelectedAnnotation.Idle), index)
                 }
             )
         }
         Button(
             onClick = {
-                fields.stringList.add(mutableStateOf(""))
-                selectedSLSymbols.add(KaTeXMenu(null, SelectedAnnotation.Idle))
-                steps += 1
+                vm.addStep()
             }, modifier = Modifier
                 .padding(8.dp),
             colors = ButtonDefaults.buttonColors(
@@ -163,10 +148,15 @@ fun EditNotationCard(
         }
         Button(
             onClick = {
-                if (steps > 0) {
-                    steps -= 1
-                    fields.stringList.removeAt(steps)
-                    selectedSLSymbols.removeAt(steps)
+                if (fields.steps.isNotEmpty()) {
+                    val currently = selectedKB
+                    if (currently is SelectedKeyboard.Step &&
+                        (currently.index - 1) == fields.steps.lastIndex
+                    ) {
+                        vm.resetSelectedKB()
+                        Log.d(kk, "Reset since Step #${currently.index} lost focus")
+                    }
+                    vm.removeStep()
                 }
             },
             modifier = Modifier.padding(top = 4.dp),
@@ -179,25 +169,18 @@ fun EditNotationCard(
         }
     }
     LatexKeyboard(
-        value = fields.answer.value,
-        onValueChanged = { fields.answer.value = it },
+        value = fields.answer,
+        onValueChanged = { vm.updateA(it) },
         labelStr = stringResource(R.string.answer),
         modifier = Modifier
-            .fillMaxWidth()
-            .focusRequester(focusRequester)
-            .onFocusChanged { focusState ->
-                if (focusState.hasFocus) {
-                    vm.updateSelectedKB(SelectedKeyboard.Answer)
-                    //lastSelectedKB = SelectedKeyboard.Answer
-                    Log.d("AddCardVM", "Focused on Answer")
-                } else {
-                    vm.resetSelectedKB()
-                    Log.d("AddCardVM", "Answer lost focus.")
-                }
-            }
-            .focusable(),
-        focusRequester = focusRequester,
-        kt = selectedASymbol,
+            .fillMaxWidth(),
+        onFocusChanged = {
+            vm.updateSelectedKB(SelectedKeyboard.Answer)
+            //lastSelectedKB = SelectedKeyboard.Answer
+            Log.d(kk, "Focused on Answer")
+        }, kt = selectedASymbol, selection = selection, composition = composition,
+        onUpdateTR = { sel, com -> vm.updateTRs(sel, com) },
+        selectedKeyboard = selectedKB, actualKeyboard = SelectedKeyboard.Answer,
         onIdle = { selectedASymbol = KaTeXMenu(null, SelectedAnnotation.Idle) }
     )
 }

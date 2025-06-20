@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -27,13 +28,16 @@ import androidx.compose.ui.unit.dp
 import com.belmontCrest.cardCrafter.R
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnReviewsLeft
-import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
-import com.belmontCrest.cardCrafter.model.ui.Fields
-import com.belmontCrest.cardCrafter.model.ui.SealedDueCTs
+import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.AddCardViewModel
+import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
+import com.belmontCrest.cardCrafter.model.ui.states.CDetails
+import com.belmontCrest.cardCrafter.model.ui.states.MyTextRange
+import com.belmontCrest.cardCrafter.model.ui.states.SealedDueCTs
+import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 
 
@@ -112,8 +116,9 @@ fun NoDueCards(getUIStyle: GetUIStyle) {
     }
 }
 
+
 @Composable
-fun PickAnswerChar(fields: Fields, getUIStyle: GetUIStyle) {
+fun PickAnswerChar(fields: CDetails, getUIStyle: GetUIStyle, onUpdate: (Char) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Column(
         Modifier
@@ -130,7 +135,7 @@ fun PickAnswerChar(fields: Fields, getUIStyle: GetUIStyle) {
             Row {
                 Text(
                     text = stringResource(R.string.answer) +
-                            ": ${fields.correct.value.uppercase()}",
+                            ": ${fields.correct.uppercase()}",
                     modifier = Modifier.padding(2.dp)
                 )
                 Icon(
@@ -151,7 +156,7 @@ fun PickAnswerChar(fields: Fields, getUIStyle: GetUIStyle) {
             ) {
                 DropdownMenuItem(
                     onClick = {
-                        fields.correct.value = 'a'
+                        onUpdate('a')
                         expanded = false
                     },
                     text = { Text("A") },
@@ -160,17 +165,17 @@ fun PickAnswerChar(fields: Fields, getUIStyle: GetUIStyle) {
                 )
                 DropdownMenuItem(
                     onClick = {
-                        fields.correct.value = 'b'
+                        onUpdate('b')
                         expanded = false
                     },
                     text = { Text("B") },
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                 )
-                if (fields.choices[2].value.isNotBlank()) {
+                if (fields.choices[2].isNotBlank()) {
                     DropdownMenuItem(
                         onClick = {
-                            fields.correct.value = 'c'
+                            onUpdate('c')
                             expanded = false
                         },
                         text = { Text("C") },
@@ -178,10 +183,10 @@ fun PickAnswerChar(fields: Fields, getUIStyle: GetUIStyle) {
                             .align(Alignment.CenterHorizontally)
                     )
                 }
-                if (fields.choices[3].value.isNotBlank()) {
+                if (fields.choices[3].isNotBlank()) {
                     DropdownMenuItem(
                         onClick = {
-                            fields.correct.value = 'd'
+                            onUpdate('d')
                             expanded = false
                         },
                         text = { Text("D") },
@@ -234,19 +239,35 @@ fun returnCardAmountError(): List<String> {
 }
 
 @Composable
-fun getSavableFields(fields: Fields): Fields {
-    return Fields(
-        question = rememberSaveable { mutableStateOf("") },
-        middleField = rememberSaveable { mutableStateOf("") },
-        answer = rememberSaveable { mutableStateOf("") },
-        choices = rememberSaveable { MutableList(4) { mutableStateOf("") } },
-        correct = rememberSaveable { mutableStateOf('?') },
-        scrollPosition = fields.scrollPosition,
-        isQOrA = rememberSaveable { mutableStateOf(PartOfQorA.A) },
-        inDeckClicked = fields.inDeckClicked,
-        isEditing = fields.isEditing,
-        mainClicked = fields.mainClicked,
-        leftDueCardView = fields.leftDueCardView,
-        newType = fields.newType,
-    )
+fun collectTextRangesAsStates(vm: AddCardViewModel): Pair<MyTextRange, MyTextRange?> {
+    val selection by vm.selection.collectAsState()
+    val composition by vm.composition.collectAsState()
+    return Pair(selection, composition)
+}
+
+@Composable
+fun collectTextRangesAsStates(vm: EditCardViewModel): Pair<MyTextRange, MyTextRange?> {
+    val selection by vm.selection.collectAsState()
+    val composition by vm.composition.collectAsState()
+    return Pair(selection, composition)
+}
+
+@Composable
+fun collectNotationFieldsAsStates(
+    vm: AddCardViewModel
+): Triple<CDetails, Boolean, SelectedKeyboard?> {
+    val fields by vm.fields.collectAsStateWithLifecycle()
+    val showKB by vm.showKatexKeyboard.collectAsStateWithLifecycle()
+    val selectedKB by vm.selectedKB.collectAsStateWithLifecycle()
+    return Triple(fields, showKB, selectedKB)
+}
+
+@Composable
+fun collectNotationFieldsAsStates(
+    vm: EditCardViewModel
+): Triple<CDetails, Boolean, SelectedKeyboard?> {
+    val fields by vm.fields.collectAsStateWithLifecycle()
+    val showKB by vm.showKatexKeyboard.collectAsStateWithLifecycle()
+    val selectedKB by vm.selectedKB.collectAsStateWithLifecycle()
+    return Triple(fields, showKB, selectedKB)
 }

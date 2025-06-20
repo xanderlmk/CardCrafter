@@ -1,28 +1,27 @@
 package com.belmontCrest.cardCrafter.navigation
 
-import com.belmontCrest.cardCrafter.model.ui.SelectedKeyboard
+import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 
-
 interface KeyboardSelectionRepository {
-    val showKatexKeyboard : StateFlow<Boolean>
-    val selectedKB : StateFlow<SelectedKeyboard?>
-    val resetOffset : StateFlow<Boolean>
-
+    val showKatexKeyboard: StateFlow<Boolean>
+    val selectedKB: StateFlow<SelectedKeyboard?>
+    val resetOffset: StateFlow<Boolean>
     fun updateSelectedKB(selectedKeyboard: SelectedKeyboard)
     fun resetSelectedKB()
-    fun retrieveKB(retrievedKB : SelectedKeyboard?)
     fun toggleKeyboard()
     fun resetOffset()
     fun resetDone()
     fun resetKeyboardStuff()
-    fun retrieveShowKB(show : Boolean)
+    fun onCreate(showKB : Boolean, selectedKeyboard: SelectedKeyboard? = null)
 }
+
 class KeyboardSelectionRepoImpl : KeyboardSelectionRepository {
+
     private val _showKatexKeyboard = MutableStateFlow(false)
     override val showKatexKeyboard = _showKatexKeyboard.asStateFlow()
     private val _selectedKB: MutableStateFlow<SelectedKeyboard?> = MutableStateFlow(null)
@@ -36,10 +35,6 @@ class KeyboardSelectionRepoImpl : KeyboardSelectionRepository {
 
     override fun resetSelectedKB() {
         _selectedKB.update { null }
-    }
-
-    override fun retrieveKB(retrievedKB : SelectedKeyboard?) {
-        _selectedKB.update { retrievedKB }
     }
 
     override fun toggleKeyboard() {
@@ -60,7 +55,7 @@ class KeyboardSelectionRepoImpl : KeyboardSelectionRepository {
         _showKatexKeyboard.update { false }
     }
 
-    override fun retrieveShowKB(show: Boolean) {
-        _showKatexKeyboard.update { show }
+    override fun onCreate(showKB : Boolean, selectedKeyboard: SelectedKeyboard?) {
+        _selectedKB.update { selectedKeyboard }
     }
 }

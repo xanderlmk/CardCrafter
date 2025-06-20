@@ -31,15 +31,13 @@ fun IsPartOfQOrA(getUIStyle: GetUIStyle, isQOrA: Boolean, onClick: () -> Unit) {
     ) {
         if (isQOrA) {
             ci.ContentIcon(
-                "Toggle Q or A",
-                painterResource(R.drawable.toggle_on),
+                painterResource(R.drawable.toggle_on), "Toggle Q or A",
                 Modifier.size(30.dp), getUIStyle.defaultIconColor()
             )
             Text("Part of Question")
         } else {
             ci.ContentIcon(
-                "Toggle Q or A",
-                painterResource(R.drawable.toggle_off),
+                painterResource(R.drawable.toggle_off), "Toggle Q or A",
                 Modifier.size(30.dp), getUIStyle.defaultIconColor()
             )
             Text("Part of Answer")
