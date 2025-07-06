@@ -14,7 +14,8 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
-import com.belmontCrest.cardCrafter.model.InsertOrAbortDao
+import com.belmontCrest.cardCrafter.model.daoHelpers.DeckHelperDao
+import com.belmontCrest.cardCrafter.model.daoHelpers.InsertOrAbortDao
 import com.belmontCrest.cardCrafter.model.Type.BASIC
 import com.belmontCrest.cardCrafter.model.Type.HINT
 import com.belmontCrest.cardCrafter.model.Type.MULTI
@@ -36,7 +37,7 @@ data class DeckSignature(
 )
 
 @Dao
-interface ImportFromSBDao : InsertOrAbortDao {
+interface ImportFromSBDao : InsertOrAbortDao, DeckHelperDao {
     @Query(
         """
         SELECT name, uuid 
@@ -52,9 +53,6 @@ interface ImportFromSBDao : InsertOrAbortDao {
     """
     )
     fun validateDeckName(name: String): DeckSignature?
-
-    @Insert
-    fun insertDeck(deck: Deck): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertImportedDeckInfo(importedDeckInfo: ImportedDeckInfo)

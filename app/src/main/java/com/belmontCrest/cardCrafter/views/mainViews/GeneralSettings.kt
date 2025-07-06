@@ -48,8 +48,8 @@ class GeneralSettings(
         }
         val invalid = rememberSaveable { mutableStateOf(false) }
         val errorMessage = rememberSaveable { mutableStateOf("") }
-        val invalidReview = stringResource(R.string.review_amount_1_40).toString()
-        val invalidCards = stringResource(R.string.card_amount_5_1000).toString()
+        val invalidReview = stringResource(R.string.review_amount_1_40)
+        val invalidCards = stringResource(R.string.card_amount_5_1000)
 
         val (cardSuccess, reviewSuccess, heightSuccess, widthSuccess) = Infinite(
             remember { mutableStateOf(false) }, remember { mutableStateOf(false) },

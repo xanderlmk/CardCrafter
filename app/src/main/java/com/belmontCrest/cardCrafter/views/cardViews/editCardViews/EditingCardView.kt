@@ -26,16 +26,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardType
-import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnCardTypeHandler
 import com.belmontCrest.cardCrafter.controller.onClickActions.saveCard
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateCardType
@@ -60,21 +59,21 @@ class EditingCardView(
     @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     fun EditFlashCardView(
-        ct: CT, newType: String, onNavigateBack: () -> Unit
+        ct: CT, newType: String, onNavigateBack: () -> Unit, editCardVM: EditCardViewModel
     ) {
-        val editCardVM: EditCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
-        val (fields, showKB, _) = collectNotationFieldsAsStates(editCardVM)
-        //fields.newType = rememberSaveable { mutableStateOf(ct.getCardType()) }
-        val fillOutfields = stringResource(R.string.fill_out_all_fields).toString()
+        val (fields, showKB, selectedKB) = collectNotationFieldsAsStates(editCardVM)
+        val fillOutfields = stringResource(R.string.fill_out_all_fields)
         val errorMessage by editCardVM.errorMessage.collectAsStateWithLifecycle()
         val coroutineScope = rememberCoroutineScope()
         val cardTypeChanged = rememberSaveable { mutableStateOf(false) }
         var offset by remember { mutableStateOf(Offset.Zero) }
         val resetOffset by editCardVM.resetOffset.collectAsStateWithLifecycle()
+        val context = LocalContext.current
         var ktm by rememberSaveable { mutableStateOf(KaTeXMenu(null, SelectedAnnotation.Idle)) }
-        //var initialPos by remember { mutableStateOf<Offset?>(null) }
-        val webView = getWebView(getUIStyle) { notation, sa ->
-            ktm = KaTeXMenu(notation, sa)
+        val webView = remember(selectedKB) {
+            getWebView(getUIStyle, context) { notation, sa ->
+                ktm = KaTeXMenu(notation, sa)
+            }
         }
         val webScrollState = rememberScrollState()
         DisposableEffect(webView) {
@@ -88,8 +87,7 @@ class EditingCardView(
         }
         LaunchedEffect(resetOffset) {
             if (resetOffset) {
-                offset = Offset.Zero
-                editCardVM.resetDone()
+                offset = Offset.Zero; editCardVM.resetDone()
             }
         }
 
@@ -104,9 +102,14 @@ class EditingCardView(
                         .fillMaxSize()
                         .zIndex(2f)
                         .padding(6.dp),
-                    offsetProvider = { offset }, onDismiss = { editCardVM.toggleKeyboard() },
-                    onOffset = { offset += it }, getUIStyle = getUIStyle, width = pv.width,
-                    webView = webView, scrollState = webScrollState, height = pv.height
+                    offsetProvider = { offset },
+                    onDismiss = { editCardVM.toggleKeyboard() },
+                    onOffset = { offset += it },
+                    getUIStyle = getUIStyle,
+                    width = pv.width,
+                    webView = webView,
+                    scrollState = webScrollState,
+                    height = pv.height
                 ) {
                     ktm = KaTeXMenu("null", it)
                 }
@@ -132,10 +135,7 @@ class EditingCardView(
                     cardTypeChanged.value = true
                 }
                 cardTypeHandler?.HandleCardEdit(
-                    vm = editCardVM,
-                    getUIStyle = getUIStyle,
-                    onUpdate = { ktm }
-                )
+                    vm = editCardVM, getUIStyle = getUIStyle, onUpdate = { ktm })
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -144,9 +144,7 @@ class EditingCardView(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     CancelButton(
-                        onClick = {
-                            onNavigateBack()
-                        }, true, getUIStyle,
+                        onClick = { onNavigateBack() }, true, getUIStyle,
                         modifier = Modifier
                             .weight(1f)
                             .padding(2.dp)
@@ -155,7 +153,7 @@ class EditingCardView(
                         onClick = {
                             coroutineScope.launch {
                                 if (newType == ct.getCardType()) {
-                                    val success = saveCard(fields, editCardVM, ct)
+                                    val success = saveCard(fields, editCardVM, ct, newType, context)
                                     if (success) {
                                         editCardVM.clearErrorMessage()
                                         onNavigateBack()
@@ -163,7 +161,8 @@ class EditingCardView(
                                         editCardVM.setErrorMessage(fillOutfields)
                                     }
                                 } else {
-                                    val success = updateCardType(fields, editCardVM, ct, newType)
+                                    val success =
+                                        updateCardType(fields, editCardVM, ct, newType, context)
                                     if (success) {
                                         editCardVM.clearErrorMessage()
                                         onNavigateBack()
@@ -172,7 +171,10 @@ class EditingCardView(
                                     }
                                 }
                             }
-                        }, true, getUIStyle, stringResource(R.string.save),
+                        },
+                        true,
+                        getUIStyle,
+                        stringResource(R.string.save),
                         modifier = Modifier
                             .weight(1f)
                             .padding(2.dp)

@@ -12,10 +12,9 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
@@ -24,6 +23,7 @@ import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.Editin
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.model.application.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
 import io.github.jan.supabase.annotations.SupabaseInternal
@@ -46,18 +46,16 @@ class MainActivity : ComponentActivity() {
     private val navViewModel: NavViewModel by viewModels {
         AppViewModelProvider.Factory
     }
-
-    private lateinit var preferences: PreferencesManager
     private lateinit var fields: Fields
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val preferences = PreferencesManager(applicationContext, lifecycleScope)
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            preferences = rememberUpdatedState(PreferencesManager(applicationContext)).value
-
+            val pv = setPreferenceValues(preferences)
             /**
              * Making sure that if it's their first time,
              * there is no database update,
@@ -65,10 +63,7 @@ class MainActivity : ComponentActivity() {
              * this means that appStated.value will be null or false
              * so you should perform database update
              **/
-            if ((mainViewModel.appStarted.value == null ||
-                        mainViewModel.appStarted.value == false) &&
-                !preferences.getIsFirstTime()
-            ) {
+            if (mainViewModel.appStarted.value != true && !preferences.getIsFirstTime()) {
                 LaunchedEffect(Unit) {
                     coroutineScope {
                         mainViewModel.performDatabaseUpdate()
@@ -78,21 +73,18 @@ class MainActivity : ComponentActivity() {
 
             fields = rememberSaveable { Fields() }
 
-            LaunchedEffect(Unit) {
-                supabaseVM.connectSupabase()
-            }
-            val isSystemDark = isSystemInDarkTheme()
-
+            LaunchedEffect(Unit) { supabaseVM.connectSupabase() }
 
             if (preferences.getIsFirstTime()) {
+                val isSystemDark = isSystemInDarkTheme()
                 preferences.setDarkTheme(isSystemDark)
                 preferences.setIsFirstTime()
             }
 
             FlashcardsTheme(
-                darkTheme = preferences.darkTheme.collectAsStateWithLifecycle().value,
-                dynamicColor = preferences.dynamicTheme.collectAsStateWithLifecycle().value,
-                cuteTheme = preferences.cuteTheme.collectAsStateWithLifecycle().value
+                darkTheme = pv.darkTheme,
+                dynamicColor = pv.dynamicTheme,
+                cuteTheme = pv.cuteTheme
             ) {
                 AppNavHost(
                     mainNavController = navController,
@@ -107,6 +99,20 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun recreate() {
+        super.recreate()
+        lifecycle.coroutineScope.launch {
+            supabaseVM.getCurrentUserInfo()
+        }
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        lifecycle.coroutineScope.launch {
+            supabaseVM.getCurrentUserInfo()
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         lifecycle.coroutineScope.launch {
@@ -116,17 +122,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        if (::preferences.isInitialized) {
-            preferences.savePreferences()
-        }
         supabaseVM.disconnectSupabaseRT()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (::preferences.isInitialized) {
-            preferences.savePreferences()
-        }
     }
 
 }

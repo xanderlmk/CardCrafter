@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
@@ -41,16 +41,17 @@ class DeepLinkerActivity : ComponentActivity() {
     }
 
     private lateinit var callback: (String, String) -> Unit
-    private lateinit var preferences: PreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
             deepLinksVM.deepLinker(
                 intent, callback = { email, createdAt ->
-                    callback(email, createdAt.toString())
+                    callback(email, createdAt)
                 })
         }
+        val preferences = PreferencesManager(applicationContext, lifecycleScope)
+        enableEdgeToEdge()
         setContent {
             val emailState = remember { mutableStateOf("") }
             val createdAtState = remember { mutableStateOf("") }
@@ -60,11 +61,6 @@ class DeepLinkerActivity : ComponentActivity() {
                     createdAtState.value = created
                 }
             }
-            preferences = rememberUpdatedState(
-                PreferencesManager(
-                    applicationContext
-                )
-            ).value
             LaunchedEffect(Unit) {
                 callback = { email, created ->
                     emailState.value = email
@@ -105,7 +101,6 @@ class DeepLinkerActivity : ComponentActivity() {
         modifier: Modifier, getUIStyle: GetUIStyle,
         email: String, createdAt: String, onClick: () -> Unit
     ) {
-
         Column(
             modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally,

@@ -1,6 +1,6 @@
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.personalSyncedRepos
 
-import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCTList
 import com.belmontCrest.cardCrafter.localDatabase.tables.SyncedDeckInfo
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.SyncedDeckInfoDao
 import com.belmontCrest.cardCrafter.supabase.model.tables.DeckWithLotsCards
@@ -20,7 +20,7 @@ class OfflineUserSyncedInfoRepository(private val syncedDeckInfoDao: SyncedDeckI
         syncedDeckInfoDao.insertOrUpdateSyncInfo(syncInfo)
 
     override suspend fun getDB() = syncedDeckInfoDao.getDB().map { deckWithCardTypes ->
-        val cts = mapAllCardTypesToCTs(deckWithCardTypes.cardTypes)
+        val cts = deckWithCardTypes.cardTypes.toCTList()
         DeckWithLotsCards(deckWithCardTypes.deck, cts)
     }
 

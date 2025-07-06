@@ -2,12 +2,14 @@ package com.belmontCrest.cardCrafter.controller.cardHandlers
 
 import androidx.compose.runtime.Composable
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
+import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditBasicCard
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditHintCard
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditThreeCard
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditChoiceCard
+import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditCustomCard
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditNotationCard
 
 interface CardTypeHandler {
@@ -62,57 +64,69 @@ class NotationCardTypeHandler : CardTypeHandler {
     }
 }
 
+class CustomCardTypeHandler : CardTypeHandler {
+    @Composable
+    override fun HandleCardEdit(
+        vm: EditCardViewModel,
+        getUIStyle: GetUIStyle,
+        onUpdate: () -> KaTeXMenu
+    ) {
+        EditCustomCard(vm, getUIStyle, onUpdate)
+    }
+}
+
+
 fun returnCardTypeHandler(newType: String, currentType: String): CardTypeHandler? {
     return if (newType == currentType) {
         when (currentType) {
-            "basic" -> {
+            Type.BASIC -> {
                 BasicCardTypeHandler()
             }
 
-            "three" -> {
+            Type.THREE -> {
                 ThreeCardTypeHandler()
             }
 
-            "hint" -> {
+            Type.HINT -> {
                 HintCardTypeHandler()
             }
 
-            "multi" -> {
+            Type.MULTI -> {
                 ChoiceCardTypeHandler()
             }
 
-            "notation" -> {
+            Type.NOTATION -> {
                 NotationCardTypeHandler()
             }
 
             else -> {
-                null
+                CustomCardTypeHandler()
             }
         }
     } else {
         when (newType) {
-            "basic" -> {
+            Type.BASIC -> {
                 BasicCardTypeHandler()
             }
 
-            "three" -> {
+            Type.THREE -> {
                 ThreeCardTypeHandler()
             }
 
-            "hint" -> {
+            Type.HINT -> {
                 HintCardTypeHandler()
             }
 
-            "multi" -> {
+            Type.MULTI -> {
                 ChoiceCardTypeHandler()
             }
 
-            "notation" -> {
+            Type.NOTATION -> {
                 NotationCardTypeHandler()
             }
 
             else -> {
-                null
+                CustomCardTypeHandler()
             }
         }
     }

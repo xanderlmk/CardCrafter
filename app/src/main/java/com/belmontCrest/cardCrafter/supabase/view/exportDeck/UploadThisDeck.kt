@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardType
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCDetails
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.model.FSProp
@@ -52,7 +53,6 @@ import com.belmontCrest.cardCrafter.uiFunctions.buttons.CancelButton
 import com.belmontCrest.cardCrafter.uiFunctions.CustomText
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.toCardDetails
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -62,7 +62,7 @@ fun UploadThisDeck(
 ) {
     var enabled by rememberSaveable { mutableStateOf(true) }
     var description by rememberSaveable { mutableStateOf("") }
-    var failed = remember { mutableStateOf(false) }
+    val failed = remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
     var code by remember { mutableIntStateOf(-1) }
     val coroutineScope = rememberCoroutineScope()
@@ -123,9 +123,7 @@ fun UploadThisDeck(
                 horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()
             ) {
                 CancelButton(
-                    onClick = {
-                        dismiss()
-                    }, enabled, getUIStyle
+                    onClick = { dismiss() }, enabled, getUIStyle
                 )
                 SubmitButton(
                     onClick = {
@@ -137,21 +135,31 @@ fun UploadThisDeck(
                                 supabaseVM.exportDeck(
                                     deck, description
                                 ).let {
-                                    if (it == SUCCESS) {
-                                        showToastMessage(
-                                            context, "Success!", onNavigate = { dismiss() })
-                                    } else if (it == DECK_EXISTS) {
-                                        code = it; enabled = true; failed.value = true
-                                        message = "Deck already exists!"
-                                    } else if (it == CC_LESS_THAN_20) {
-                                        code = it; enabled = true; failed.value = true
-                                        message = "Card count less than 20."
-                                    } else if (it == NULL_CARDS) {
-                                        code = it; enabled = true; failed.value = true
-                                        message = "Please select at least one card to display"
-                                    } else {
-                                        code = it; enabled = true; failed.value = true
-                                        message = "Something went wrong."
+                                    when (it) {
+                                        SUCCESS -> {
+                                            showToastMessage(
+                                                context, "Success!", onNavigate = { dismiss() })
+                                        }
+
+                                        DECK_EXISTS -> {
+                                            code = it; enabled = true; failed.value = true
+                                            message = "Deck already exists!"
+                                        }
+
+                                        CC_LESS_THAN_20 -> {
+                                            code = it; enabled = true; failed.value = true
+                                            message = "Card count less than 20."
+                                        }
+
+                                        NULL_CARDS -> {
+                                            code = it; enabled = true; failed.value = true
+                                            message = "Please select at least one card to display"
+                                        }
+
+                                        else -> {
+                                            code = it; enabled = true; failed.value = true
+                                            message = "Something went wrong."
+                                        }
                                     }
                                 }
                             }
@@ -170,34 +178,34 @@ private fun ShowCardDetails(ct: CT, getUIStyle: GetUIStyle) {
         .fillMaxWidth()
         .padding(vertical = 4.dp, horizontal = 6.dp)
     var showDetails by rememberSaveable { mutableStateOf(false) }
-    val charMap = mapOf<Int, Char>(0 to 'a', 1 to 'b', 2 to 'c', 3 to 'd')
-    val cardDetails = ct.toCardDetails()
+    val charMap = mapOf(0 to 'a', 1 to 'b', 2 to 'c', 3 to 'd')
+    val cardDetails = ct.toCDetails()
     Column(
         modifier = Modifier.borderedModifier(getUIStyle),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (showDetails) {
-            CustomText("Q: ${cardDetails.question.value}", getUIStyle, defaultModifier)
+            CustomText("Q: ${cardDetails.question}", getUIStyle, defaultModifier)
             if (ct.getCardType() == Type.HINT || ct.getCardType() == Type.THREE) {
                 val label = if (ct.getCardType() == Type.HINT) "Hint" else "Middle"
-                CustomText("$label: ${cardDetails.middleField.value}", getUIStyle, defaultModifier)
+                CustomText("$label: ${cardDetails.middle}", getUIStyle, defaultModifier)
             }
             if (ct.getCardType() == Type.MULTI) {
                 cardDetails.choices.mapIndexed { index, it ->
-                    if (it.value.isNotBlank()) {
+                    if (it.isNotBlank()) {
                         val letter = charMap[index] ?: '?'
-                        CustomText("$letter. ${it.value}", getUIStyle, defaultModifier)
+                        CustomText("$letter. $it", getUIStyle, defaultModifier)
                     }
                 }
-                CustomText("Correct: ${cardDetails.correct.value}", getUIStyle, defaultModifier)
+                CustomText("Correct: ${cardDetails.correct}", getUIStyle, defaultModifier)
             }
             if (ct.getCardType() == Type.NOTATION) {
-                cardDetails.stringList.mapIndexed { index, it ->
-                    CustomText("Step ${index + 1}) ${it.value}", getUIStyle, defaultModifier)
+                cardDetails.steps.mapIndexed { index, it ->
+                    CustomText("Step ${index + 1}) $it", getUIStyle, defaultModifier)
                 }
             }
             if (ct.getCardType() != Type.MULTI) {
-                CustomText("A: ${cardDetails.answer.value}", getUIStyle, defaultModifier)
+                CustomText("A: ${cardDetails.answer}", getUIStyle, defaultModifier)
             }
             Button(
                 onClick = {
@@ -210,7 +218,7 @@ private fun ShowCardDetails(ct: CT, getUIStyle: GetUIStyle) {
                 Text("Hide card details")
             }
         } else {
-            LimitedText("Q: ${cardDetails.question.value}", getUIStyle, defaultModifier) {
+            LimitedText("Q: ${cardDetails.question}", getUIStyle, defaultModifier) {
                 showDetails = it
             }
         }

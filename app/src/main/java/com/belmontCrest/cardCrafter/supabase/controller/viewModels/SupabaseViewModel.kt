@@ -141,7 +141,6 @@ class SupabaseViewModel(
                 third = findCT(cardsTD.cardThree),
                 fourth = findCT(cardsTD.cardFour)
             )
-
         }
     }.stateIn(
         scope = viewModelScope,
@@ -209,7 +208,7 @@ class SupabaseViewModel(
                 }
             }
         }
-        viewModelScope.launch { delay(1500); updateStatus(); getOwner() }
+        getCurrentUserInfo()
     }
 
     /** Google Oauth */
@@ -297,6 +296,12 @@ class SupabaseViewModel(
             _ownerDto.update {
                 authRepository.getOwner()
             }
+        }
+    }
+
+    fun getCurrentUserInfo() {
+        viewModelScope.launch {
+            delay(1500); updateStatus(); getOwner()
         }
     }
 

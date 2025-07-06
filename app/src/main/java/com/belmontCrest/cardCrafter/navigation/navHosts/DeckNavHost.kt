@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -27,8 +28,10 @@ import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
+import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
+import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.model.application.PreferencesManager
 import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
 import com.belmontCrest.cardCrafter.model.ui.Fields
@@ -148,6 +151,7 @@ fun DeckNavHost(
                     navViewModel.toggleKeyboard(); navViewModel.resetOffset()
                 } else {
                     fields.inDeckClicked.value = false
+                    navViewModel.resetFields()
                     navViewModel.resetKeyboardStuff()
                     navViewModel.updateRoute(DeckViewDestination.route)
                     deckNavController.popBackStack(
@@ -247,15 +251,12 @@ fun DeckNavHost(
                     goToEditCard = { cardId ->
                         coroutineScope.launch { navViewModel.getCardById(cardId) }
                         navViewModel.updateRoute(EditingCardDestination.route)
-                        deckNavController.navigate(EditingCardDestination.createRoute(cardId))
+                        deckNavController.navigate(EditingCardDestination.route)
                     }
                 )
             }
         }
-        composable(
-            route = EditingCardDestination.route,
-            arguments = listOf(navArgument("card_id") { type = NavType.IntType })
-        ) { backStackEntry ->
+        composable(route = EditingCardDestination.route) { backStackEntry ->
             BackHandler {
                 if (showKB) {
                     navViewModel.toggleKeyboard(); navViewModel.resetOffset()
@@ -269,9 +270,11 @@ fun DeckNavHost(
                     )
                 }
             }
+            val editCardVM: EditCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
             sc.ct?.let {
                 editingCardView.EditFlashCardView(
                     ct = it, newType = navViewModel.type.collectAsStateWithLifecycle().value,
+                    editCardVM = editCardVM,
                     onNavigateBack = {
                         navViewModel.resetKeyboardStuff()
                         fields.navigateToCardList()

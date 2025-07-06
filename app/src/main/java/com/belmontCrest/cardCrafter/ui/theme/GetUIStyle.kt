@@ -119,14 +119,14 @@ class GetUIStyle(
         else -> Color.Gray
     }
 
-    fun defaultIconColor(): Color = if (isDarkTheme) Color.White else Color.Black
+    fun themedColor(): Color = if (isDarkTheme) Color.White else Color.Black
 
     fun katexMenuBGColor(): Color = when {
         ifDarkAndDynamic() -> {
             val red = cS.colorScheme.onTertiary.red
             val blue = cS.colorScheme.onTertiary.blue
             val green = cS.colorScheme.onTertiary.green
-            val color = Color(red, blue, green, 0.8509803922f)
+            val color = Color(red, blue, green, 0.8509804f)
             blendColors(darkSTBG, color, 0.9f)
         }
 
@@ -136,7 +136,7 @@ class GetUIStyle(
             val red = cS.colorScheme.onTertiary.red
             val blue = cS.colorScheme.onTertiary.blue
             val green = cS.colorScheme.onTertiary.green
-            val color = Color(red, blue, green, 0.8509803922f)
+            val color = Color(red, blue, green, 0.8509804f)
             blendColors(semiTransBG, color, 0.9f)
         }
 
@@ -149,7 +149,7 @@ class GetUIStyle(
             val red = cS.colorScheme.primaryContainer.red
             val blue = cS.colorScheme.primaryContainer.blue
             val green = cS.colorScheme.primaryContainer.green
-            val color = Color(red, blue, green, 0.8509803922f)
+            val color = Color(red, blue, green, 0.8509804f)
             blendColors(darkSTHeader, color, 0.25f)
         }
 
@@ -159,7 +159,7 @@ class GetUIStyle(
             val red = cS.colorScheme.primaryContainer.red
             val blue = cS.colorScheme.primaryContainer.blue
             val green = cS.colorScheme.primaryContainer.green
-            val color = Color(red, blue, green, 0.8509803922f)
+            val color = Color(red, blue, green, 0.8509804f)
             blendColors(semiTransHeader, color, 0.25f)
         }
 

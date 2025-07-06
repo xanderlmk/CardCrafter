@@ -45,6 +45,7 @@ import com.belmontCrest.cardCrafter.ui.theme.settingsButtonModifier
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.CancelButton
 import com.belmontCrest.cardCrafter.uiFunctions.ContentIcons
 import com.belmontCrest.cardCrafter.uiFunctions.CustomText
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.OrderByDropdown
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.SettingsButton
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import kotlinx.coroutines.CoroutineScope
@@ -169,12 +170,18 @@ fun MainDLRouteContent(
         }
     }
 
-    IconButton(onClick = {
-        coroutineScope.launch {
-            pdsVM.syncDecks()
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = {
+            coroutineScope.launch {
+                pdsVM.syncDecks()
+            }
+        }) {
+            ci.ContentIcon(painterResource(R.drawable.cloud_sync), "Cloud Sync")
         }
-    }) {
-        ci.ContentIcon(painterResource(R.drawable.cloud_sync), "Cloud Sync")
+        OrderByDropdown(getUIStyle, navViewModel)
     }
 }
 
@@ -199,6 +206,7 @@ fun DeckRouteContent(
             if (!fields.inDeckClicked.value) {
                 fields.inDeckClicked.value = true
                 fields.mainClicked.value = false
+                navViewModel.resetKeyboardStuff()
                 navViewModel.updateRoute(ViewAllCardsDestination.route)
                 deckNavController?.navigate(ViewAllCardsDestination.route)
             }

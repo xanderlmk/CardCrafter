@@ -1,8 +1,9 @@
 [versions]
 accompanistSwiperefresh = "0.24.13-rc"
-agp = "8.10.1" # to run on koala -> 8.6.1
+agp = "8.11.0" # to run on koala -> 8.6.1
 converterGson = "2.9.0"
 credentials = "1.5.0"
+datastorePreferences = "1.1.7"
 foundationAndroid = "1.9.0-alpha03"
 googleid = "1.1.1"
 #hiltAndroid = "2.51.1"
@@ -60,6 +61,9 @@ activity = "1.8.0"
 accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanistSwiperefresh" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-datastore-preferences-rxjava2 = { module = "androidx.datastore:datastore-preferences-rxjava2", version.ref = "datastorePreferences" }
+androidx-datastore-preferences-rxjava3 = { module = "androidx.datastore:datastore-preferences-rxjava3", version.ref = "datastorePreferences" }
 androidx-foundation-android = { module = "androidx.compose.foundation:foundation-android", version.ref = "foundationAndroid" }
 bcrypt = { module = "at.favre.lib:bcrypt", version.ref = "bcrypt" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }

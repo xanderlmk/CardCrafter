@@ -1,13 +1,16 @@
 package com.belmontCrest.cardCrafter.model.application
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.belmontCrest.cardCrafter.localDatabase.database.FlashCardDatabase
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineCardTypeRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineFlashCardRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineScienceRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.ScienceSpecificRepository
+import com.belmontCrest.cardCrafter.navigation.FieldParamRepository
+import com.belmontCrest.cardCrafter.navigation.FieldParamRepositoryImpl
 import com.belmontCrest.cardCrafter.navigation.KeyboardSelectionRepoImpl
 import com.belmontCrest.cardCrafter.navigation.KeyboardSelectionRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.CoOwnerRequestsRepository
@@ -46,7 +49,6 @@ import kotlinx.coroutines.CoroutineScope
 interface AppContainer {
     val flashCardRepository: FlashCardRepository
     val cardTypeRepository: CardTypeRepository
-    val scienceSpecificRepository: ScienceSpecificRepository
     val supabaseToRoomRepository: SupabaseToRoomRepository
     val sbTablesRepository: SBTablesRepository
     val importRepository: ImportRepository
@@ -61,7 +63,10 @@ interface AppContainer {
     val deepLinkerRepo: DeepLinkerRepository
     val fpRepository: ForgotPasswordRepository
     val kbRepository: KeyboardSelectionRepository
+    val fieldParamRepository : FieldParamRepository
 }
+
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class AppDataContainer(
     private val context: Context,
@@ -74,21 +79,13 @@ class AppDataContainer(
         OfflineFlashCardRepository(
             FlashCardDatabase.getDatabase(context, scope).deckDao(),
             FlashCardDatabase.getDatabase(context, scope).cardDao(),
-            FlashCardDatabase.getDatabase(context, scope).savedCardDao()
+            FlashCardDatabase.getDatabase(context, scope).savedCardDao(),
+            context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
         )
     }
     override val cardTypeRepository: CardTypeRepository by lazy {
         OfflineCardTypeRepository(
             FlashCardDatabase.getDatabase(context, scope).cardTypes(),
-            FlashCardDatabase.getDatabase(context, scope).basicCardDao(),
-            FlashCardDatabase.getDatabase(context, scope).hintCardDao(),
-            FlashCardDatabase.getDatabase(context, scope).threeCardDao(),
-            FlashCardDatabase.getDatabase(context, scope).multiChoiceCardDao()
-        )
-    }
-    override val scienceSpecificRepository: ScienceSpecificRepository by lazy {
-        OfflineScienceRepository(
-            FlashCardDatabase.getDatabase(context, scope).notationCardDao()
         )
     }
     override val supabaseToRoomRepository: SupabaseToRoomRepository by lazy {
@@ -147,6 +144,9 @@ class AppDataContainer(
     }
 
     override val kbRepository: KeyboardSelectionRepository by lazy {
-        KeyboardSelectionRepoImpl()
+        KeyboardSelectionRepoImpl(context, scope)
+    }
+    override val fieldParamRepository: FieldParamRepository by lazy {
+        FieldParamRepositoryImpl()
     }
 }

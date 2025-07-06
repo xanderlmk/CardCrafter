@@ -37,7 +37,7 @@ import com.belmontCrest.cardCrafter.controller.onClickActions.CopyMoveCardList
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteCard
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteCards
 import com.belmontCrest.cardCrafter.controller.onClickActions.DuplicateCards
-import com.belmontCrest.cardCrafter.localDatabase.tables.Card
+import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.ui.states.Decision
@@ -50,7 +50,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun CardOptionsButton(
-    navVM: NavViewModel, getUIStyle: GetUIStyle, card: Card,
+    navVM: NavViewModel, getUIStyle: GetUIStyle, ct: CT,
     fields: Fields, expanded: MutableState<Boolean>, modifier: Modifier,
     onDelete: () -> Unit,
 ) {
@@ -58,7 +58,10 @@ fun CardOptionsButton(
     val showDialog = remember { mutableStateOf(false) }
     val ci = ContentIcons(getUIStyle)
     val type by navVM.type.collectAsState()
-
+    val customTypes by navVM.customTypes.collectAsState()
+    val onClick: (String) -> Unit = { string ->
+        navVM.updateType(string); navVM.resetKeyboardStuff()
+    }
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -80,24 +83,29 @@ fun CardOptionsButton(
                 expanded = expanded.value, onDismissRequest = { expanded.value = false }
             ) {
                 CardItems(
-                    toBasic = { navVM.updateType(Type.BASIC); navVM.resetKeyboardStuff() },
-                    toThree = { navVM.updateType(Type.THREE); navVM.resetKeyboardStuff() },
-                    toHint = { navVM.updateType(Type.HINT); navVM.resetKeyboardStuff() },
-                    toMulti = { navVM.updateType(Type.MULTI); navVM.resetKeyboardStuff() },
-                    toNotation = { navVM.updateType(Type.NOTATION) }
+                    toBasic = { onClick(Type.BASIC) },
+                    toThree = { onClick(Type.THREE) },
+                    toHint = { onClick(Type.HINT) },
+                    toMulti = { onClick(Type.MULTI) },
+                    toNotation = { onClick(Type.NOTATION) }
                 )
                 HorizontalDivider()
+                customTypes.ts.forEach { ti ->
+                    DropdownMenuItem(
+                        onClick = { onClick(ti.t) },
+                        text = { Text(ti.t) }
+                    )
+                }
+                HorizontalDivider()
                 DropdownMenuItem(
-                    onClick = {
-                        showDialog.value = true
-                    },
+                    onClick = { showDialog.value = true },
                     text = { Text(stringResource(R.string.delete_card)) },
                     trailingIcon = { ci.DeleteIcon() }
                 )
             }
             DeleteCard(
                 navVM, coroutineScope,
-                card, fields, showDialog,
+                ct, fields, showDialog,
                 onDelete, getUIStyle
             )
         }
@@ -108,16 +116,17 @@ fun CardOptionsButton(
 fun CardTypesButton(getUIStyle: GetUIStyle, navVM: NavViewModel) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val type by navVM.type.collectAsState()
+    val customTypes by navVM.customTypes.collectAsState()
+    val onClick: (String) -> Unit = { string ->
+        navVM.updateType(string); navVM.resetKeyboardStuff()
+    }
     val ci = ContentIcons(getUIStyle)
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         ToggleKeyBoard(navVM, getUIStyle, type)
-        Box(
-            Modifier
-                .wrapContentSize(Alignment.TopEnd)
-        ) {
+        Box(Modifier.wrapContentSize(Alignment.TopEnd)) {
             IconButton(
                 onClick = { expanded = true },
                 modifier = Modifier
@@ -128,11 +137,23 @@ fun CardTypesButton(getUIStyle: GetUIStyle, navVM: NavViewModel) {
             }
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 CardItems(
-                    toBasic = { navVM.updateType(Type.BASIC); navVM.resetKeyboardStuff() },
-                    toThree = { navVM.updateType(Type.THREE); navVM.resetKeyboardStuff() },
-                    toHint = { navVM.updateType(Type.HINT); navVM.resetKeyboardStuff() },
-                    toMulti = { navVM.updateType(Type.MULTI); navVM.resetKeyboardStuff() },
-                    toNotation = { navVM.updateType(Type.NOTATION) }
+                    toBasic = { onClick(Type.BASIC) },
+                    toThree = { onClick(Type.THREE) },
+                    toHint = { onClick(Type.HINT) },
+                    toMulti = { onClick(Type.MULTI) },
+                    toNotation = { onClick(Type.NOTATION) }
+                )
+                HorizontalDivider()
+                customTypes.ts.forEach { ti ->
+                    DropdownMenuItem(
+                        onClick = { onClick(ti.t) },
+                        text = { Text(ti.t) }
+                    )
+                }
+                HorizontalDivider()
+                DropdownMenuItem(
+                    onClick = { navVM.updateType(Type.CREATE_NEW) },
+                    text = { Text("Create New") }
                 )
             }
         }
@@ -172,9 +193,12 @@ fun ToggleKeyBoard(
 ) {
     val showKB by navVM.showKatexKeyboard.collectAsStateWithLifecycle()
     val selectedKB by navVM.selectedKB.collectAsStateWithLifecycle()
+    val isNotationType by navVM.isNotationType.collectAsStateWithLifecycle()
     val ci = ContentIcons(getUIStyle)
-    LaunchedEffect(Unit) { navVM.onCreate(); delay(1400); Log.d("keyboard", "$selectedKB") }
-    if (type == Type.NOTATION && selectedKB != null) {
+    LaunchedEffect(Unit) {
+        navVM.onCreate(); delay(1400); Log.d("keyboard", "show: $showKB keyboard $selectedKB")
+    }
+    if ((type == Type.NOTATION || isNotationType) && selectedKB != null) {
         Box(
             modifier = Modifier
                 .size(30.dp)

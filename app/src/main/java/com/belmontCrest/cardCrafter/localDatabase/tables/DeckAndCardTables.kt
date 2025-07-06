@@ -120,9 +120,8 @@ data class Card(
         return id == other.id
     }
 
-    override fun hashCode(): Int {
-        return id
-    }
+    override fun hashCode(): Int = id
+
 
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
@@ -177,7 +176,7 @@ data class SavedCard(
 ) : Parcelable
 
 
-data class CIForID(val cardIdentifier : String)
+data class CIForID(val cardIdentifier: String)
 
 object DateAsLong : KSerializer<Date> {
     override val descriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)

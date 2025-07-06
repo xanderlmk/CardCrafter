@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,10 +24,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardId
 import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardType
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
@@ -62,7 +58,6 @@ class EditCardsList(
         val selectedCTL by editingCardListVM.selectedCards.collectAsStateWithLifecycle()
         val filtered = sealedCardsList.allCTs.filter { ct ->
             if (searchQuery.isBlank()) return@filter true
-
             ct.toQuestion().contains(searchQuery, ignoreCase = true)
         }
 
@@ -78,19 +73,6 @@ class EditCardsList(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val text =
-                if (isSelecting) stringResource(R.string.keyboard_disabled)
-                else stringResource(R.string.search)
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { editingCardListVM.updateQuery(it) },
-                placeholder = { Text(text, color = getUIStyle.defaultIconColor()) },
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                enabled = !isSelecting
-            )
             if (searchQuery.isNotEmpty() && filtered.isEmpty()) {
                 CustomText(
                     "No Results Found.", getUIStyle,

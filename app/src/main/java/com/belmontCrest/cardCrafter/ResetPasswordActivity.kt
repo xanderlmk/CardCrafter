@@ -21,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,8 +44,6 @@ import kotlin.getValue
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class ResetPasswordActivity : ComponentActivity() {
-
-    private lateinit var preferences: PreferencesManager
     private lateinit var callback: (String, String) -> Unit
     private val deepLinksVM: DeepLinksViewModel by viewModels {
         AppViewModelProvider.Factory
@@ -54,6 +51,7 @@ class ResetPasswordActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val preferences = PreferencesManager(applicationContext, lifecycleScope)
         handleDeepLink(intent)
         enableEdgeToEdge()
         setContent {
@@ -65,7 +63,6 @@ class ResetPasswordActivity : ComponentActivity() {
                     createdAtState.value = created
                 }
             }
-            preferences = rememberUpdatedState(PreferencesManager(applicationContext)).value
             val colorScheme = remember { ColorSchemeClass() }
             colorScheme.colorScheme = MaterialTheme.colorScheme
 
@@ -151,7 +148,7 @@ class ResetPasswordActivity : ComponentActivity() {
     private fun handleDeepLink(intent: Intent) {
         lifecycleScope.launch {
             deepLinksVM.deepLinker(intent) { email, createdAt ->
-                callback(email, createdAt.toString())
+                callback(email, createdAt)
             }
         }
     }

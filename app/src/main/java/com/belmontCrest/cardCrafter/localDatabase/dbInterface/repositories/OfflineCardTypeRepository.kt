@@ -1,20 +1,15 @@
 package com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories
 
 import android.util.Log
-import com.belmontCrest.cardCrafter.controller.cardHandlers.mapACardTypeToCT
-import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.allCardTypesDao.BasicCardDao
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.allCardTypesDao.HintCardDao
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.allCardTypesDao.MultiChoiceCardDao
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.allCardTypesDao.ThreeCardDao
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCT
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCTList
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.CardTypesDao
-import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
-import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.AnswerParam
+import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
+import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.Param
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.toQuestion
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,10 +20,6 @@ import kotlin.text.isBlank
 
 class OfflineCardTypeRepository(
     private val cardTypesDao: CardTypesDao,
-    private val basicCardDao: BasicCardDao,
-    private val hintCardDao: HintCardDao,
-    private val threeCardDao: ThreeCardDao,
-    private val multiChoiceCardDao: MultiChoiceCardDao,
 ) : CardTypeRepository {
 
     private val _selectedCards = MutableStateFlow(emptyList<CT>())
@@ -70,77 +61,74 @@ class OfflineCardTypeRepository(
 
     override fun resetQuery() = _searchQuery.update { "" }
 
-    override suspend fun deleteBasicCard(basicCard: BasicCard) =
-        basicCardDao.deleteBasicCard(basicCard)
-
-    override suspend fun deleteHintCard(hintCard: HintCard) =
-        hintCardDao.deleteHintCard(hintCard)
-
-    override suspend fun deleteThreeCard(threeFieldCard: ThreeFieldCard) =
-        threeCardDao.deleteThreeCard(threeFieldCard)
-
-    override suspend fun deleteMultiChoiceCard(multiChoiceCard: MultiChoiceCard) =
-        multiChoiceCardDao.deleteMultiChoiceCard(multiChoiceCard)
-
     override suspend fun updateBasicCard(id: Int, question: String, answer: String) =
-        basicCardDao.updateBasicCard(id, question, answer)
+        cardTypesDao.updateBasicCard(id, question, answer)
 
     override suspend fun updateThreeCard(
         id: Int, question: String, middle: String, answer: String, isQOrA: PartOfQorA
-    ) = threeCardDao.updateThreeCard(id, question, middle, answer, isQOrA)
+    ) = cardTypesDao.updateThreeCard(id, question, middle, answer, isQOrA)
 
     override suspend fun updateHintCard(
         id: Int, question: String, hint: String, answer: String
-    ) = hintCardDao.updateHintCard(id, question, hint, answer)
+    ) = cardTypesDao.updateHintCard(id, question, hint, answer)
 
     override suspend fun updateMultiChoiceCard(
         id: Int, newQuestion: String, newChoiceA: String, newChoiceB: String,
         newChoiceC: String, newChoiceD: String, newCorrect: Char
-    ) = multiChoiceCardDao.updateMultiChoiceCard(
+    ) = cardTypesDao.updateMultiChoiceCard(
         id, newQuestion, newChoiceA, newChoiceB, newChoiceC, newChoiceD, newCorrect
     )
+
+    override suspend fun updateNotationCard(
+        question: String, steps: String,
+        answer: String, cardId: Int
+    ) = cardTypesDao.updateNotationCard(question, steps, answer, cardId)
+
+    override suspend fun updateCustomCard(
+        id: Int, newQuestion: Param, newMiddle: MiddleParam, newAnswer: AnswerParam
+    ) = cardTypesDao.updateCustomCard(id, newQuestion, newMiddle, newAnswer)
 
     override fun getAllCardTypesStream(deckId: Int) =
         cardTypesDao.getAllCardTypesStream(deckId).map {
             try {
-                mapAllCardTypesToCTs(it)
+                it.toCTList()
             } catch (e: IllegalStateException) {
                 Log.d("CardTypeRepository", "$e")
-                listOf<CT>()
+                listOf()
             }
         }
 
     override suspend fun getAllCardTypes(deckId: Int) =
         try {
-            mapAllCardTypesToCTs(cardTypesDao.getAllCardTypes(deckId))
+            cardTypesDao.getAllCardTypes(deckId).toCTList()
         } catch (e: Exception) {
             Log.d("CardTypeRepository", "$e")
-            listOf<CT>()
+            listOf()
         }
 
     override fun getAllDueCardsStream(
         deckId: Int, cardAmount: Int, currentTime: Long
     ) = cardTypesDao.getDueAllCardTypesFlow(deckId, cardAmount, currentTime).map {
         try {
-            mapAllCardTypesToCTs(it)
+            it.toCTList()
         } catch (e: IllegalStateException) {
             Log.d("CardTypeRepository", "$e")
-            listOf<CT>()
+            listOf()
         }
     }
 
     override fun getAllDueCards(
         deckId: Int, cardAmount: Int, currentTime: Long
     ) = try {
-        mapAllCardTypesToCTs(cardTypesDao.getDueAllCardTypes(deckId, cardAmount, currentTime))
+        cardTypesDao.getDueAllCardTypes(deckId, cardAmount, currentTime).toCTList()
     } catch (e: IllegalStateException) {
         Log.d("CardTypeRepository", "$e")
-        listOf<CT>()
+        listOf()
     }
 
 
     override fun getACardType(id: Int) = try {
-        mapACardTypeToCT(cardTypesDao.getACardType(id))
+        cardTypesDao.getACardType(id).toCT()
     } catch (e: IllegalStateException) {
         Log.d("CardTypeRepository", "$e")
         throw e
@@ -148,7 +136,7 @@ class OfflineCardTypeRepository(
 
     /** Get flow of a single CT */
     override fun getACardTypeStream(id: Int) = try {
-        cardTypesDao.getACardTypeStream(id).map { mapACardTypeToCT(it) }
+        cardTypesDao.getACardTypeStream(id).map { it.toCT() }
     } catch (e: IllegalStateException) {
         Log.d("CardTypeRepository", "$e")
         throw e

@@ -26,7 +26,7 @@ enum class TAProp { Start, Center, End, Default }
 /** Max lines prop */
 enum class MLProp { One, Two, Three, Default }
 
-enum class TCProp { Button, Default, Disabled }
+enum class TCProp { Button, Default, Disabled, Basic }
 
 enum class TSProp { MediumTitle, LargeTitle, Body, Footer }
 
@@ -71,7 +71,7 @@ fun FSProp.toTextProp(): TextProps = when (this) {
     FSProp.Default -> TextProps(fs = FSProp.Default)
 }
 
-fun setFontSize(fsProp: FSProp): TextUnit = when (fsProp) {
+fun TextProps.setFontSize(): TextUnit = when (this.fs) {
     FSProp.Font22 -> 22.sp
     FSProp.Font20 -> 20.sp
     FSProp.Font18 -> 18.sp
@@ -82,15 +82,21 @@ fun setFontSize(fsProp: FSProp): TextUnit = when (fsProp) {
     FSProp.Default -> TextUnit.Unspecified
 }
 
+fun TextUnit.toTextProp(): TextProps = when(this) {
+    10.sp -> TextProps(fs = FSProp.Font10)
+    12.sp -> TextProps(fs = FSProp.Font12)
+    14.sp -> TextProps(fs = FSProp.Font14)
+    else -> TextProps(fs = FSProp.Default)
+}
 
-fun setFontWeight(fwProp: FWProp): FontWeight = when (fwProp) {
+fun TextProps.setFontWeight(): FontWeight = when (this.fw) {
     FWProp.Bold -> FontWeight.Bold
     FWProp.SemiBold -> FontWeight.SemiBold
     FWProp.Default -> FontWeight.Normal
 }
 
 
-fun setTextAlign(taProp: TAProp): TextAlign? = when (taProp) {
+fun TextProps.setTextAlign(): TextAlign? = when (this.ta) {
     TAProp.Center -> TextAlign.Center
     TAProp.Start -> TextAlign.Start
     TAProp.End -> TextAlign.End
@@ -98,21 +104,22 @@ fun setTextAlign(taProp: TAProp): TextAlign? = when (taProp) {
 }
 
 
-fun setMaxLines(mlProp: MLProp): Int = when (mlProp) {
+fun TextProps.setMaxLines(): Int = when (this.ml) {
     MLProp.One -> 1
     MLProp.Two -> 2
     MLProp.Three -> 3
     MLProp.Default -> Int.MAX_VALUE
 }
 
-fun setTextColor(tcProp: TCProp, getUIStyle: GetUIStyle): Color = when (tcProp) {
+fun TextProps.setTextColor(getUIStyle: GetUIStyle): Color = when (this.tc) {
     TCProp.Button -> getUIStyle.buttonTextColor()
     TCProp.Default -> getUIStyle.titleColor()
     TCProp.Disabled -> getUIStyle.disabledTextColor()
+    TCProp.Basic -> getUIStyle.themedColor()
 }
 
 @Composable
-fun setTextStyle(tsProp: TSProp): TextStyle = when (tsProp) {
+fun TextProps.setTextStyle(): TextStyle = when (this.ts) {
     TSProp.LargeTitle -> MaterialTheme.typography.titleLarge
     TSProp.MediumTitle -> MaterialTheme.typography.titleMedium
     TSProp.Body -> MaterialTheme.typography.bodyLarge
@@ -122,13 +129,6 @@ fun setTextStyle(tsProp: TSProp): TextStyle = when (tsProp) {
 fun titledTextProp() = TextProps(FSProp.Font22, FWProp.Default, TAProp.Center)
 
 fun cardListTextProp() = TextProps(ml = MLProp.Two, tc = TCProp.Button)
-
-fun FSProp.toTextProp(textUnit: TextUnit): TextProps = when (textUnit) {
-    10.sp -> TextProps(fs = FSProp.Font10)
-    12.sp -> TextProps(fs = FSProp.Font12)
-    14.sp -> TextProps(fs = FSProp.Font14)
-    else -> TextProps(fs = FSProp.Default)
-}
 
 fun FWProp.toTextProp(): TextProps = when (this) {
     FWProp.SemiBold -> TextProps(fw = FWProp.SemiBold)

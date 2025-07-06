@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,10 +34,16 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.model.FSProp
+import com.belmontCrest.cardCrafter.model.MLProp
+import com.belmontCrest.cardCrafter.model.TAProp
+import com.belmontCrest.cardCrafter.model.TSProp
+import com.belmontCrest.cardCrafter.model.TextProps
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.mainViewModifier
+import com.belmontCrest.cardCrafter.uiFunctions.CustomText
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.SmallAddButton
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -56,9 +61,8 @@ class MainView(
         goToDueCards: (Int) -> Unit,
     ) {
         val deckUiState by viewModel.deckUiState.collectAsStateWithLifecycle()
-        val cardCount by viewModel.cardCountUiState.collectAsStateWithLifecycle()
         var deckIndex by rememberSaveable { mutableIntStateOf(0) }
-        var pressed = rememberSaveable { mutableStateOf(false) }
+        val pressed = rememberSaveable { mutableStateOf(false) }
         var expanded by rememberSaveable { mutableStateOf(false) }
 
 
@@ -73,7 +77,7 @@ class MainView(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(vertical = 12.dp, horizontal = 4.dp)
             ) {
                 LazyColumn {
                     items(deckUiState.deckList.size) { index ->
@@ -106,31 +110,28 @@ class MainView(
                             Row(
                                 modifier = Modifier
                                     .mainViewModifier(getUIStyle.getColorScheme())
-                                    .align(Alignment.TopStart)
+                                    .align(Alignment.TopStart),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
+                                CustomText(
                                     text = deckUiState.deckList[index].name + " ",
-                                    textAlign = TextAlign.Start,
-                                    fontSize = 20.sp,
-                                    lineHeight = 22.sp,
-                                    color = getUIStyle.titleColor(),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    modifier = Modifier.fillMaxWidth(.85f),
-                                    softWrap = true
+                                    getUIStyle = getUIStyle,
+                                    props = TextProps(
+                                        fs = FSProp.Font22, ml = MLProp.Two, ts = TSProp.LargeTitle,
+                                        ta = TAProp.Start
+                                    ), modifier = Modifier.fillMaxWidth(.85f)
                                 )
-                                Text(
+                                CustomText(
                                     text =
-                                        if (index in 0..cardCount.cardListCount.lastIndex) {
-                                            cardCount.cardListCount[index].toString()
+                                        if (index in 0..deckUiState.cardAmount.lastIndex) {
+                                            deckUiState.cardAmount[index].toString()
                                         } else {
                                             "0"
                                         },
-                                    textAlign = TextAlign.End,
-                                    fontSize = 14.sp,
-                                    color = getUIStyle.titleColor(),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    softWrap = false
+                                    getUIStyle = getUIStyle,
+                                    props = TextProps(
+                                        fs = FSProp.Font14, ta = TAProp.End, ts = TSProp.LargeTitle
+                                    ), softWrap = false, modifier = Modifier.fillMaxWidth()
                                 )
                             }
 

@@ -2,10 +2,8 @@ package com.belmontCrest.cardCrafter.views.cardViews.addCardViews
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,45 +37,53 @@ class AddCardView(
             modifier = Modifier
                 .boxViewsModifier(getUIStyle.getColorScheme())
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                when (type) {
-                    Type.BASIC -> AddBasicCard(
-                        addCardVM, deck, getUIStyle
-                    )
 
-                    Type.THREE -> AddThreeCard(
-                        addCardVM, deck, getUIStyle
-                    )
+            when (type) {
+                Type.BASIC -> AddBasicCard(
+                    addCardVM, deck, getUIStyle
+                )
 
-                    Type.HINT -> AddHintCard(
-                        addCardVM, deck, getUIStyle
-                    )
+                Type.THREE -> AddThreeCard(
+                    addCardVM, deck, getUIStyle
+                )
 
-                    Type.MULTI -> AddMultiChoiceCard(
-                        addCardVM, deck,
-                        getUIStyle
-                    )
+                Type.HINT -> AddHintCard(
+                    addCardVM, deck, getUIStyle
+                )
 
-                    Type.NOTATION -> AddNotationCard(
-                        addCardVM, deck, preference.height, preference.width,
-                        getUIStyle, Modifier
-                            .zIndex(2f)
-                            .align(Alignment.Start)
-                            .padding(6.dp)
-                    )
+                Type.MULTI -> AddMultiChoiceCard(
+                    addCardVM, deck,
+                    getUIStyle
+                )
 
-                    else -> AddBasicCard(
-                        addCardVM, deck,
-                        getUIStyle
-                    )
-                }
+                Type.NOTATION -> AddNotationCard(
+                    addCardVM, deck, preference.height, preference.width,
+                    getUIStyle, Modifier
+                        .fillMaxSize()
+                        .zIndex(2f)
+                        .align(Alignment.TopStart)
+                        .padding(6.dp)
+                )
+
+                Type.CREATE_NEW -> AddCustomCard(
+                    addCardVM, deck, preference.height, preference.width,
+                    getUIStyle, Modifier
+                        .fillMaxSize()
+                        .zIndex(2f)
+                        .align(Alignment.TopStart)
+                        .padding(6.dp)
+                )
+
+                else -> AddSavedTypeCard(
+                    addCardVM, deck, preference.height, preference.width,
+                    getUIStyle, Modifier
+                        .fillMaxSize()
+                        .zIndex(2f)
+                        .align(Alignment.TopStart)
+                        .padding(6.dp)
+                )
             }
         }
+
     }
 }

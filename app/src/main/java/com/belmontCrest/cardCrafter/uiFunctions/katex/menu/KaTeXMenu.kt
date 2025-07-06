@@ -54,12 +54,6 @@ import kotlin.math.roundToInt
 @Serializable
 data class KaTeXMenu(val notation: String?, val sa: SelectedAnnotation) : Parcelable
 
-
-@Serializable
-data class ListOfKatexMenu(
-    val km: List<KaTeXMenu> = emptyList()
-)
-
 @Parcelize
 @Serializable
 sealed class SelectedAnnotation : Parcelable {
@@ -136,7 +130,7 @@ fun KaTeXMenu(
                         }
                     }
                     .background(getUIStyle.katexMenuHeaderColor(), RoundedCornerShape(12.dp))
-                    .border(1.5.dp, getUIStyle.defaultIconColor(), RoundedCornerShape(12.dp)),
+                    .border(1.5.dp, getUIStyle.themedColor(), RoundedCornerShape(12.dp)),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 Row(
@@ -176,7 +170,7 @@ fun KaTeXMenu(
                     )
 
                 }
-                HorizontalDivider(color = getUIStyle.defaultIconColor())
+                HorizontalDivider(color = getUIStyle.themedColor())
                 Text(
                     text = "Start Inline",
                     modifier = Modifier
@@ -188,7 +182,7 @@ fun KaTeXMenu(
                     fontSize = 16.sp,
                     color = getUIStyle.titleColor()
                 )
-                HorizontalDivider(color = getUIStyle.defaultIconColor())
+                HorizontalDivider(color = getUIStyle.themedColor())
                 Text(
                     text = "Start New Line",
                     modifier = Modifier
@@ -213,7 +207,7 @@ fun KaTeXMenu(
                         onOffset(dragAmount)
                     }
                 }
-                .border(1.5.dp, getUIStyle.defaultIconColor())
+                .border(1.5.dp, getUIStyle.themedColor())
         ) {
             Text(
                 text = if (!expanded) "Expand" else "Minimize",
@@ -245,7 +239,7 @@ fun KaTeXMenu(
                 .padding(top = 26.dp)
                 .height(height.dp)
                 .background(getUIStyle.katexMenuBGColor())
-                .border(1.5.dp, getUIStyle.defaultIconColor())
+                .border(1.5.dp, getUIStyle.themedColor())
                 .verticalScroll(scrollState),
         )
     }
