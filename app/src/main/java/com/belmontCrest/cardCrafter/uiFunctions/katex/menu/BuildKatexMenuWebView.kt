@@ -1,85 +1,81 @@
 package com.belmontCrest.cardCrafter.uiFunctions.katex.menu
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.katex.toShortHex
 
 @SuppressLint("SetJavaScriptEnabled")
-@Composable
+@Suppress("unused")
 fun getWebView(
-    getUIStyle: GetUIStyle, onSelectNotation: (String, SelectedAnnotation) -> Unit
+    getUIStyle: GetUIStyle, context: Context, onSelectNotation: (String, SelectedAnnotation) -> Unit
 ): WebView {
-    val context = LocalContext.current
     val textToHex = getUIStyle.titleColor().toShortHex()
-    return remember {
-        @Suppress("unused")
-        WebView(context).apply {
-            isFocusable = false
-            isFocusableInTouchMode = false
-            setBackgroundColor(getUIStyle.katexMenuBGColor().toArgb())
-            settings.javaScriptEnabled = true
-            // expose a Kotlin callback under “Android” in JS
-            addJavascriptInterface(object {
-                @JavascriptInterface
-                fun onSymbolSelected(symbol: String) {
-                    Handler(Looper.getMainLooper()).postAtFrontOfQueue {
-                        onSelectNotation("\\\\$symbol", SelectedAnnotation.Letter)
-                    }
+    return WebView(context).apply {
+        isFocusable = false
+        isFocusableInTouchMode = false
+        setBackgroundColor(getUIStyle.katexMenuBGColor().toArgb())
+        settings.javaScriptEnabled = true
+        // expose a Kotlin callback under “Android” in JS
+        addJavascriptInterface(object {
+            @JavascriptInterface
+            fun onSymbolSelected(symbol: String) {
+                Handler(Looper.getMainLooper()).postAtFrontOfQueue {
+                    onSelectNotation("\\\\$symbol", SelectedAnnotation.Letter)
                 }
+            }
 
-                @JavascriptInterface
-                fun onAccentSelected(accent: String) {
-                    Handler(Looper.getMainLooper()).postAtFrontOfQueue {
-                        val replaced = accent.replace("theta", "\\\\theta")
-                        onSelectNotation("\\\\$replaced", SelectedAnnotation.Accent)
-                    }
+            @JavascriptInterface
+            fun onAccentSelected(accent: String) {
+                Handler(Looper.getMainLooper()).postAtFrontOfQueue {
+                    val replaced = accent.replace("theta", "\\\\theta")
+                    onSelectNotation("\\\\$replaced", SelectedAnnotation.Accent)
                 }
+            }
 
-                @JavascriptInterface
-                fun onFracBinoSelected(eq: String) {
-                    Handler(Looper.getMainLooper()).postAtFrontOfQueue {
-                        val replaced = eq.replace("bra", "\\\\bra").replace("frac", "\\\\frac")
-                            .replace("gen", "\\\\gen").replace("bin", "\\\\bin")
-                        onSelectNotation(replaced, SelectedAnnotation.EQ)
-                    }
+            @JavascriptInterface
+            fun onFracBinoSelected(eq: String) {
+                Handler(Looper.getMainLooper()).postAtFrontOfQueue {
+                    val replaced = eq.replace("bra", "\\\\bra").replace("frac", "\\\\frac")
+                        .replace("gen", "\\\\gen").replace("bin", "\\\\bin")
+                    onSelectNotation(replaced, SelectedAnnotation.EQ)
                 }
+            }
 
-                @JavascriptInterface
-                fun onOPSelected(op: String) {
-                    Handler(Looper.getMainLooper()).postAtFrontOfQueue {
-                        val replaced =
-                            if (op == "sum_{substack{0lt{i}lt{m}0lt{j}lt{n}}}")
-                                "sum_{\\\\substack{0\\\\lt{i}\\\\lt{m}\\\\\\\\0\\\\lt{j}\\\\lt{n}}}"
-                            else op
+            @JavascriptInterface
+            fun onOPSelected(op: String) {
+                Handler(Looper.getMainLooper()).postAtFrontOfQueue {
+                    val replaced =
+                        if (op == "sum_{substack{0lt{i}lt{m}0lt{j}lt{n}}}")
+                            "sum_{\\\\substack{0\\\\lt{i}\\\\lt{m}\\\\\\\\0\\\\lt{j}\\\\lt{n}}}"
+                        else op
 
-                        onSelectNotation("\\\\$replaced", SelectedAnnotation.OP)
-                    }
+                    onSelectNotation("\\\\$replaced", SelectedAnnotation.OP)
                 }
+            }
 
-                @JavascriptInterface
-                fun onNormSelected(sel: String) {
-                    Handler(Looper.getMainLooper()).postAtFrontOfQueue {
-                        val replaced = sel.convertNormSel()
-                        onSelectNotation(replaced, SelectedAnnotation.NORM)
-                    }
+            @JavascriptInterface
+            fun onNormSelected(sel: String) {
+                Handler(Looper.getMainLooper()).postAtFrontOfQueue {
+                    val replaced = sel.convertNormSel()
+                    onSelectNotation(replaced, SelectedAnnotation.NORM)
                 }
-            }, "Android")
-            webViewClient = object : WebViewClient() {
-                override fun onPageFinished(view: WebView, url: String) {
-                    super.onPageFinished(view, url)
-                    val themeJs = "setTheme('$textToHex');"
-                    view.evaluateJavascript(themeJs, null)
-                    val list = buildKeyboardHtml()
-                    val insertLatexJs = """
+            }
+        }, "Android")
+        webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView, url: String) {
+                super.onPageFinished(view, url)
+                val themeJs = "setTheme('$textToHex');"
+                view.evaluateJavascript(themeJs, null)
+                val list = buildKeyboardHtml()
+                val insertLatexJs = """
                     | document.getElementById('list').innerHTML = `$list`;
                     | const list = document.getElementById('list');
                     | renderMathInElement(list, {
@@ -106,12 +102,12 @@ fun getWebView(
                     |       }
                     |   });
                 """.trimMargin()
-                    view.evaluateJavascript(insertLatexJs, null)
-                }
+                view.evaluateJavascript(insertLatexJs, null)
             }
-            loadUrl("file:///android_asset/katex-menu.html")
         }
+        loadUrl("file:///android_asset/katex-menu.html")
     }
+
 }
 
 private val latexNormMap = mapOf(
@@ -147,7 +143,6 @@ private val latexNormMap = mapOf(
     "0" to "0", "1" to "1", "2" to "2", "3" to "3", "4" to "4",
     "5" to "5", "6" to "6", "7" to "7", "8" to "8", "9" to "9"
 )
-
 
 
 private fun String.convertNormSel(): String = latexNormMap[this] ?: this

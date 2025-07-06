@@ -1,10 +1,12 @@
 package com.belmontCrest.cardCrafter.navigation
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCDetails
 import com.belmontCrest.cardCrafter.controller.viewModels.ReusedFunc
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckViewDestination
@@ -12,16 +14,27 @@ import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
+import com.belmontCrest.cardCrafter.localDatabase.tables.CustomCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.localDatabase.tables.deleteFiles
+import com.belmontCrest.cardCrafter.model.daoHelpers.Order
+import com.belmontCrest.cardCrafter.model.daoHelpers.OrderBy
+import com.belmontCrest.cardCrafter.model.Type
+import com.belmontCrest.cardCrafter.model.daoHelpers.reverseSort
+import com.belmontCrest.cardCrafter.model.daoHelpers.toOrderedByClass
 import com.belmontCrest.cardCrafter.model.ui.states.StringVar
 import com.belmontCrest.cardCrafter.model.ui.states.SelectedCard
 import com.belmontCrest.cardCrafter.model.ui.states.WhichDeck
+import com.belmontCrest.cardCrafter.model.ui.states.hasNotations
+import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
+import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -40,6 +53,7 @@ class NavViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val cardTypeRepository: CardTypeRepository,
     private val kbRepository: KeyboardSelectionRepository,
+    private val fieldParamRepository: FieldParamRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     companion object {
@@ -58,8 +72,7 @@ class NavViewModel(
         if (id == 0) flowOf(StringVar())
         else flashCardRepository.getDeckName(id).map { StringVar(it ?: "") }
     }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = StringVar()
     )
 
@@ -105,16 +118,20 @@ class NavViewModel(
         if (id == 0) flowOf(WhichDeck())
         else flashCardRepository.getDeckStream(id).map { WhichDeck(it) }
     }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = WhichDeck()
     )
 
-    private val _type = MutableStateFlow(savedStateHandle[CT_TYPE] ?: "basic")
-    val type = _type.asStateFlow()
+    val type = kbRepository.type
+
     fun updateType(newType: String) {
+        if (newType == type.value) return
         savedStateHandle[CT_TYPE] = newType
-        _type.update { newType }
+        val ti = kbRepository.customTypes.value.ts.find { it.t == newType }
+        val cr = _route.value.name
+        if (ti != null && (cr == AddCardDestination.route))
+            fieldParamRepository.updateCustomFields(ti)
+        kbRepository.updateType(newType)
     }
 
     val card = cardId.flatMapLatest { id ->
@@ -123,8 +140,7 @@ class NavViewModel(
             Log.d("CARD STATUS", "$it"); SelectedCard(it)
         }
     }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue =
             if (cardId.value == 0) SelectedCard(null)
             else SelectedCard(cardTypeRepository.getACardType(cardId.value))
@@ -137,53 +153,55 @@ class NavViewModel(
 
     fun deleteCard(card: Card) = viewModelScope.launch { flashCardRepository.deleteCard(card) }
 
-    suspend fun deleteCardList(): Boolean {
-        return withContext(Dispatchers.IO) {
-            try {
-                cardTypeRepository.deleteCTs()
-                deselectAll()
-                return@withContext true
-            } catch (e: Exception) {
-                Log.e(NAV_VM, "Error deleting card list: $e")
-                return@withContext false
-            }
+
+    fun deleteFiles(customCard: CustomCard, context: Context): Boolean {
+        val (message, success) = customCard.deleteFiles()
+        if (!success) showToastMessage(context, message)
+        return success
+    }
+
+    suspend fun deleteCardList(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            cardTypeRepository.deleteCTs()
+            deselectAll()
+            return@withContext true
+        } catch (e: Exception) {
+            Log.e(NAV_VM, "Error deleting card list: $e")
+            return@withContext false
         }
     }
 
-    suspend fun copyCardList(deckId: Int): Pair<Boolean, String> {
-        return withContext(Dispatchers.IO) {
-            val deck = flashCardRepository.getDeck(deckId)
-            try {
-                val size = cardTypeRepository.selectedCards.value.size
-                cardTypeRepository.copyCardList(deck)
-                rf.updateCardsLeft(deck, size)
-                deselectAll()
-                return@withContext Pair(true, deck.name)
-            } catch (e: Exception) {
-                Log.e(NAV_VM, "Error copying card list: $e")
-                return@withContext Pair(false, deck.name)
-            }
+    suspend fun copyCardList(deckId: Int): Pair<Boolean, String> = withContext(Dispatchers.IO) {
+        val deck = flashCardRepository.getDeck(deckId)
+        try {
+            val size = cardTypeRepository.selectedCards.value.size
+            cardTypeRepository.copyCardList(deck)
+            rf.updateCardsLeft(deck, size)
+            deselectAll()
+            return@withContext Pair(true, deck.name)
+        } catch (e: Exception) {
+            Log.e(NAV_VM, "Error copying card list: $e")
+            return@withContext Pair(false, deck.name)
         }
     }
 
-    suspend fun moveCardList(deckId: Int): Pair<Boolean, String> {
-        return withContext(Dispatchers.IO) {
-            val deck = flashCardRepository.getDeck(deckId)
-            try {
-                val size = cardTypeRepository.selectedCards.value.size
-                cardTypeRepository.moveCardList(deck)
-                rf.updateCardsLeft(deck, size)
-                deselectAll()
-                return@withContext Pair(true, deck.name)
-            } catch (e: Exception) {
-                Log.e(NAV_VM, "Error moving card list: $e")
-                return@withContext Pair(false, deck.name)
-            }
+    suspend fun moveCardList(deckId: Int): Pair<Boolean, String> = withContext(Dispatchers.IO) {
+        val deck = flashCardRepository.getDeck(deckId)
+        try {
+            val size = cardTypeRepository.selectedCards.value.size
+            cardTypeRepository.moveCardList(deck)
+            rf.updateCardsLeft(deck, size)
+            deselectAll()
+            return@withContext Pair(true, deck.name)
+        } catch (e: Exception) {
+            Log.e(NAV_VM, "Error moving card list: $e")
+            return@withContext Pair(false, deck.name)
         }
     }
 
     fun getCardById(id: Int) {
         savedStateHandle["cardId"] = id
+        initialCT(id)
         cardId.update { id }
     }
 
@@ -203,25 +221,28 @@ class NavViewModel(
     val showKatexKeyboard = kbRepository.showKatexKeyboard
     val selectedKB = kbRepository.selectedKB
     val selectable = cardTypeRepository.selectedCards.map { it.isNotEmpty() }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = false
     )
 
     fun toggleKeyboard() {
         savedStateHandle[SHOW_KB] = !showKatexKeyboard.value
-        kbRepository.toggleKeyboard()
+        kbRepository.toggleKeyboardIcon()
     }
 
     fun onCreate() {
         val showKB = savedStateHandle.get<Boolean>(SHOW_KB) == true
-        kbRepository.onCreate(showKB)
+        val newType = savedStateHandle.get<String>(CT_TYPE) ?: "basic"
+        kbRepository.onCreate(showKB, newType)
     }
 
     fun resetOffset() = kbRepository.resetOffset()
 
     /** Reset the selected keyboard to null and don't show the keyboard */
-    fun resetKeyboardStuff() = kbRepository.resetKeyboardStuff()
+    fun resetKeyboardStuff() {
+        savedStateHandle[SHOW_KB] = false
+        kbRepository.resetKeyboardStuff()
+    }
 
     private val _isSelecting =
         MutableStateFlow(savedStateHandle[IS_SELECTING] as Boolean? == true)
@@ -244,5 +265,57 @@ class NavViewModel(
 
     suspend fun getAllDecks(): List<Deck> = withContext(Dispatchers.IO) {
         flashCardRepository.getAllDecks()
+    }
+
+    private val _orderBy = flashCardRepository.orderedBy
+    val direction = flashCardRepository.orderedBy.map {
+        it is OrderBy.NameASC || it is OrderBy.CreatedOnASC || it is OrderBy.CardsLeftASC
+    }.stateIn(
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = _orderBy.value is OrderBy.NameASC || _orderBy.value is OrderBy.CreatedOnASC
+    )
+
+    fun updateOrder(order: Order) {
+        val orderBy = order.toOrderedByClass(direction.value)
+        flashCardRepository.updateOrder(orderBy)
+    }
+
+    fun reverseOrder() = flashCardRepository.updateOrder(_orderBy.value.reverseSort())
+
+    val searchQuery = cardTypeRepository.searchQuery.stateIn(
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = ""
+    )
+
+    fun updateQuery(query: String) {
+        savedStateHandle["query"] = query
+        cardTypeRepository.updateQuery(query)
+    }
+
+    val customTypes = kbRepository.customTypes
+
+    val isNotationType = combine(
+        kbRepository.notationParamSelected, type, customTypes
+    ) { selected, type, types ->
+        val stringTypes = types.ts.mapNotNull { if (it.hasNotations()) it.t else null }.toSet()
+        val isIt =
+            (selected && (type == Type.CREATE_NEW) || type in stringTypes || type == Type.NOTATION)
+        Log.d(NAV_VM, "isNotationType: $isIt")
+        isIt
+    }.stateIn(
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = false
+    )
+
+    fun resetFields() = fieldParamRepository.resetFields()
+
+    private fun initialCT(id: Int) = viewModelScope.launch(Dispatchers.IO) {
+        val ct = cardTypeRepository.getACardType(id)
+        fieldParamRepository.createFields(ct.toCDetails())
+
+    }
+
+    init {
+        updateQuery(savedStateHandle["query"] ?: "")
     }
 }

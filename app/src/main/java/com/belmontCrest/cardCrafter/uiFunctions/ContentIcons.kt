@@ -22,7 +22,7 @@ class ContentIcons(private val getUIStyle: GetUIStyle) {
             modifier = modifier,
             contentDescription = cd,
             tint = if (getUIStyle.getIsCuteTheme()) {
-                getUIStyle.defaultIconColor()
+                getUIStyle.themedColor()
             } else {
                 getUIStyle.iconColor()
             }
@@ -36,7 +36,7 @@ class ContentIcons(private val getUIStyle: GetUIStyle) {
             modifier = modifier,
             contentDescription = cd,
             tint = if (getUIStyle.getIsCuteTheme()) {
-                getUIStyle.defaultIconColor()
+                getUIStyle.themedColor()
             } else {
                 getUIStyle.iconColor()
             }

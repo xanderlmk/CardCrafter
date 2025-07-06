@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import com.belmontCrest.cardCrafter.model.ui.states.CardListUiCount
 import com.belmontCrest.cardCrafter.model.ui.CardUpdateError
 import com.belmontCrest.cardCrafter.model.ui.states.SavedCardUiState
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +20,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.withContext
@@ -45,28 +45,19 @@ class MainViewModel(
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
-    private val uiState: StateFlow<DeckUiState> =
-        flashCardRepository.getAllDecksStream().map { DeckUiState(it) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = DeckUiState()
-            )
-
-    private val thisCardCountUiState: StateFlow<CardListUiCount> = currentTime
-        .flatMapLatest {
-            flashCardRepository.getCardCount(it)
-        }.map {
-            CardListUiCount(it)
+    val deckUiState: StateFlow<DeckUiState> =  combine(
+        currentTime, flashCardRepository.orderedBy
+    ) { time, order ->
+        flashCardRepository.getDecksAndCC(time, order)
+    }.flatMapLatest { (decksFlow, cardCountsFlow) ->
+        combine(decksFlow, cardCountsFlow) { decks, cardCounts ->
+            DeckUiState(decks, cardCounts)
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = CardListUiCount()
-        )
-
-    val deckUiState: StateFlow<DeckUiState> = uiState
-    val cardCountUiState: StateFlow<CardListUiCount> = thisCardCountUiState
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = DeckUiState()
+    )
 
     private val savedCardUiState =
         MutableStateFlow(SavedCardUiState())

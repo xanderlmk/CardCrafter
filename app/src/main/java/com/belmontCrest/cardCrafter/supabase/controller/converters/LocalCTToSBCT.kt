@@ -1,5 +1,6 @@
 package com.belmontCrest.cardCrafter.supabase.controller.converters
 
+import android.util.Log
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
@@ -24,7 +25,7 @@ fun localCTToSBCT(
             name = deck.name,
             description = description
         ),
-        cts = cts.map { ct ->
+        cts = cts.mapNotNull { ct ->
             when (ct) {
                 is CT.Basic -> {
                     SBCTToExport.Basic(
@@ -90,6 +91,10 @@ fun localCTToSBCT(
                             answer = ct.notationCard.answer
                         )
                     )
+                }
+                is CT.Custom -> {
+                    Log.e("localCTToSBCT", "CT.Custom not yet implemented.")
+                    null
                 }
             }
         },

@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckViewDestination
@@ -143,6 +142,8 @@ fun ActionIconButton(
                 BackButton(
                     onBackClick = {
                         fields.inDeckClicked.value = false
+                        navViewModel.resetFields()
+                        navViewModel.updateQuery("")
                         navViewModel.updateRoute(DeckViewDestination.route)
                         deckNavController?.navigate(DeckViewDestination.route)
                     },
@@ -246,7 +247,7 @@ fun ActionIconButton(
 
         EditingCardDestination.route -> {
             val expanded = rememberSaveable { mutableStateOf(false) }
-            sc.ct?.toCard()?.let {
+            sc.ct?.let {
                 CardOptionsButton(
                     navViewModel, getUIStyle, it, fields,
                     expanded, Modifier, onNavigateBack
@@ -269,7 +270,7 @@ fun ActionIconButton(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = null,
-                    tint = getUIStyle.defaultIconColor(),
+                    tint = getUIStyle.themedColor(),
                     modifier = Modifier
                         .size(30.dp)
                 )

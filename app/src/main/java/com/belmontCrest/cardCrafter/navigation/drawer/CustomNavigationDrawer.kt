@@ -27,7 +27,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -46,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -63,16 +66,22 @@ import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestinat
 import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
+import com.belmontCrest.cardCrafter.model.FSProp
+import com.belmontCrest.cardCrafter.model.TCProp
+import com.belmontCrest.cardCrafter.model.TextProps
 import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.dialogHeight
 import com.belmontCrest.cardCrafter.model.dialogWidth
 import com.belmontCrest.cardCrafter.model.getIsLandScape
 import com.belmontCrest.cardCrafter.model.ui.Fields
+import com.belmontCrest.cardCrafter.model.ui.states.StringVar
 import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
+import com.belmontCrest.cardCrafter.navigation.destinations.EditDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.ContentIcons
+import com.belmontCrest.cardCrafter.uiFunctions.CustomText
 import com.belmontCrest.cardCrafter.uiFunctions.katex.SymbolDocumentation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -101,20 +110,20 @@ fun CustomNavigationDrawer(
     )
 
     /** Current route */
-    val cr = navViewModel.route.collectAsStateWithLifecycle().value
-    val stateSize = cardDeckVM.stateSize.collectAsStateWithLifecycle().value
-    val stateIndex = cardDeckVM.stateIndex.collectAsStateWithLifecycle().value
+    val (cr, type, isSelecting, _) = collectTitleStates(navViewModel)
+
+    val stateSize by cardDeckVM.stateSize.collectAsStateWithLifecycle()
+    val stateIndex by cardDeckVM.stateIndex.collectAsStateWithLifecycle()
 
     val deckName by navViewModel.deckName.collectAsStateWithLifecycle()
-    val isSelecting by navViewModel.isSelecting.collectAsStateWithLifecycle()
     val owner by supabaseVM.owner.collectAsStateWithLifecycle()
-    val type by navViewModel.type.collectAsStateWithLifecycle()
 
     // Determine the title based on the current route.
     val titleText = when (cr.name) {
         MainNavDestination.route -> stringResource(R.string.deck_list)
         DeckListDestination.route -> stringResource(R.string.deck_list)
         SettingsDestination.route -> "Settings"
+        EditDeckDestination.route -> stringResource(R.string.edit_deck) + ": ${deckName.name}"
         ViewAllCardsDestination.route -> deckName.name
         ViewDueCardsDestination.route ->
             if (stateSize == 0) "" else "Card ${stateIndex + 1} out of $stateSize"
@@ -123,11 +132,13 @@ fun CustomNavigationDrawer(
         SupabaseDestination.route -> "Online Decks"
         ExportSBDestination.route -> "Select 4 cards here "
         AddCardDestination.route -> when (type) {
+            Type.BASIC -> stringResource(R.string.basic)
             Type.HINT -> stringResource(R.string.hint)
             Type.THREE -> stringResource(R.string.three_fields)
             Type.MULTI -> stringResource(R.string.multi)
             Type.NOTATION -> "Notation"
-            else -> stringResource(R.string.basic)
+            Type.CREATE_NEW -> "Creating new"
+            else -> type
         }
 
         else -> "CardCrafter"
@@ -151,7 +162,7 @@ fun CustomNavigationDrawer(
         drawerContent = {
             ModalDrawerSheet(
                 modifier = Modifier
-                    .fillMaxWidth(0.50f)
+                    .fillMaxWidth(0.70f)
             ) {
                 modalContent.Home()
                 modalContent.Settings()
@@ -166,12 +177,13 @@ fun CustomNavigationDrawer(
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
-                    colors =
-                        TopAppBarDefaults.topAppBarColors(
-                            containerColor = getUIStyle.navBarColor(),
-                            titleContentColor = MaterialTheme.colorScheme.primary,
-                        ),
-                    title = { Title(titleText, getUIStyle, type, cr.name, helpForNotation) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = getUIStyle.navBarColor(),
+                        titleContentColor = MaterialTheme.colorScheme.primary,
+                    ),
+                    title = {
+                        Title(titleText, getUIStyle, navViewModel, helpForNotation)
+                    },
                     navigationIcon = {
                         if (isSelecting) {
                             IconButton(onClick = { navViewModel.resetSelection() }) {
@@ -188,7 +200,7 @@ fun CustomNavigationDrawer(
                             getUIStyle, cardDeckVM, fields, navViewModel,
                             supabaseVM, mainNavController
                         )
-                    }
+                    }, modifier = Modifier.fillMaxWidth()
                 )
             }
         ) { innerPadding ->
@@ -237,15 +249,16 @@ fun CustomNavigationDrawer(
 
 @Composable
 private fun Title(
-    titleText: String, getUIStyle: GetUIStyle, type: String, cr: String,
-    helpForNotation: MutableState<Boolean>,
+    titleText: String, getUIStyle: GetUIStyle,
+    navVM: NavViewModel, helpForNotation: MutableState<Boolean>,
 ) {
-    when (cr) {
+    val (cr, type, isSelecting, searchQuery) = collectTitleStates(navVM)
+    when (cr.name) {
         ExportSBDestination.route -> {
             Text(
                 text = titleText,
                 color =
-                    if (getUIStyle.getIsCuteTheme()) getUIStyle.defaultIconColor()
+                    if (getUIStyle.getIsCuteTheme()) getUIStyle.themedColor()
                     else getUIStyle.iconColor(),
                 textAlign = TextAlign.End,
                 maxLines = 2, overflow = TextOverflow.Ellipsis,
@@ -261,11 +274,31 @@ private fun Title(
             CardType(titleText, getUIStyle, type, helpForNotation)
         }
 
+        ViewAllCardsDestination.route -> {
+            val text =
+                if (isSelecting) stringResource(R.string.keyboard_disabled)
+                else stringResource(R.string.search)
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { navVM.updateQuery(it) },
+                placeholder = {
+                    CustomText(
+                        text, getUIStyle, props = TextProps(FSProp.Font18, tc = TCProp.Basic)
+                    )
+                },
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth(), enabled = !isSelecting,
+                textStyle = TextStyle(fontSize = 18.sp),
+                shape = ShapeDefaults.Large
+            )
+        }
+
         else -> {
             Text(
                 text = titleText,
                 color =
-                    if (getUIStyle.getIsCuteTheme()) getUIStyle.defaultIconColor()
+                    if (getUIStyle.getIsCuteTheme()) getUIStyle.themedColor()
                     else getUIStyle.iconColor(),
                 textAlign = TextAlign.Start,
                 maxLines = 2, overflow = TextOverflow.Ellipsis,
@@ -291,7 +324,7 @@ private fun CardType(
             fontSize = 22.sp,
             textAlign = TextAlign.Start,
             color =
-                if (getUIStyle.getIsCuteTheme()) getUIStyle.defaultIconColor()
+                if (getUIStyle.getIsCuteTheme()) getUIStyle.themedColor()
                 else getUIStyle.iconColor(),
             fontWeight = FontWeight.SemiBold,
             modifier =
@@ -306,7 +339,7 @@ private fun CardType(
                 text = "?", fontSize = 22.sp,
                 textAlign = TextAlign.Right,
                 color =
-                    if (getUIStyle.getIsCuteTheme()) getUIStyle.defaultIconColor()
+                    if (getUIStyle.getIsCuteTheme()) getUIStyle.themedColor()
                     else getUIStyle.iconColor(),
                 fontWeight = FontWeight.SemiBold,
                 fontFamily = FontFamily.Cursive,
@@ -334,3 +367,17 @@ fun launchHome(
         fields.mainClicked.value = false
     }
 }
+
+@Composable
+private fun collectTitleStates(navVM: NavViewModel): TitleValues {
+    val cr by navVM.route.collectAsStateWithLifecycle()
+    val type by navVM.type.collectAsStateWithLifecycle()
+    val isSelecting by navVM.isSelecting.collectAsStateWithLifecycle()
+    val searchQuery by navVM.searchQuery.collectAsStateWithLifecycle()
+    return TitleValues(cr, type, isSelecting, searchQuery)
+}
+
+
+private data class TitleValues(
+    val cr: StringVar, val type: String, val isSelecting: Boolean, val searchQuery: String
+)

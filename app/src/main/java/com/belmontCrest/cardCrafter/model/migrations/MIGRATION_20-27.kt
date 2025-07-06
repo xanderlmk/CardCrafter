@@ -73,7 +73,6 @@ val MIGRATION_20_21 = object : Migration(20, 21) {
 
             db.setTransactionSuccessful()
         } catch (e: Exception) {
-            // Log the error for debugging
             Log.e("Migration", "Migration 20 to 21 failed", e)
             throw RuntimeException("Migration 20 to 21 failed: ${e.message}")
         } finally {
@@ -93,7 +92,6 @@ val MIGRATION_21_22 = object : Migration(21,22) {
             """.trimIndent())
             db.setTransactionSuccessful()
         } catch (e: Exception) {
-            // Log the error for debugging
             Log.e("Migration", "Migration 21 to 22 failed", e)
             throw RuntimeException("Migration 21 to 22 failed: ${e.message}")
         } finally {
@@ -140,7 +138,6 @@ val MIGRATION_22_23 = object : Migration(22,23) {
             Log.d("MIGRATION 22-23", "SUCCESS")
             db.setTransactionSuccessful()
         }  catch (e: Exception) {
-            // Log the error for debugging
             Log.e("Migration", "Migration 22 to 23 failed", e)
             throw RuntimeException("Migration 22 to 23 failed: ${e.message}")
         } finally {
@@ -160,7 +157,6 @@ val MIGRATION_23_24 = object : Migration(23,24) {
             """.trimIndent())
             db.setTransactionSuccessful()
         }  catch (e: Exception) {
-            // Log the error for debugging
             Log.e("Migration", "Migration 23 to 24 failed", e)
             throw RuntimeException("Migration 23 to 24 failed: ${e.message}")
         } finally {
@@ -191,7 +187,6 @@ val MIGRATION_24_25 = object : Migration(24,25) {
 
             db.setTransactionSuccessful()
         }  catch (e: Exception) {
-            // Log the error for debugging
             Log.e("Migration", "Migration 24 to 25 failed", e)
             throw RuntimeException("Migration 24 to 25 failed: ${e.message}")
         } finally {
@@ -223,7 +218,6 @@ val MIGRATION_25_26 = object : Migration(25,26) {
 
             db.setTransactionSuccessful()
         }  catch (e: Exception) {
-
             Log.e("Migration", "Migration 25 to 26 failed", e)
             throw RuntimeException("Migration 25 to 26 failed: ${e.message}")
         } finally {
@@ -244,8 +238,6 @@ val MIGRATION_26_27 = object : Migration(26,27) {
             db.execSQL("""
             ALTER TABLE syncedDeckInfo_T RENAME to syncedDeckInfo
         """.trimIndent())
-
-
 
             db.setTransactionSuccessful()
         }  catch (e: Exception) {

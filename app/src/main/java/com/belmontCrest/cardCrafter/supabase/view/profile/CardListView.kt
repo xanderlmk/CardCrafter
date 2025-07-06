@@ -37,6 +37,7 @@ import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.application.PreferenceValues
 import com.belmontCrest.cardCrafter.model.cardListTextProp
 import com.belmontCrest.cardCrafter.model.toTextProp
+import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.tables.CoOwnerWithUsername
@@ -50,7 +51,6 @@ import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.PullDeck
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.CardDetails
 import com.belmontCrest.cardCrafter.views.miscFunctions.details.toCardDetails
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -260,7 +260,7 @@ class CardListView(
     }
 
     @Composable
-    private fun CardView(cd: CardDetails, type: String) {
+    private fun CardView(cd: CDetails, type: String) {
         val modifier = Modifier.padding(6.dp)
         Box(
             modifier = Modifier
@@ -273,23 +273,23 @@ class CardListView(
         ) {
             when (type) {
                 Type.BASIC -> {
-                    CustomText(cd.question.value, getUIStyle, modifier, cardListTextProp())
+                    CustomText(cd.question, getUIStyle, modifier, cardListTextProp())
                 }
 
                 Type.THREE -> {
-                    CustomText(cd.question.value, getUIStyle, modifier, cardListTextProp())
+                    CustomText(cd.question, getUIStyle, modifier, cardListTextProp())
                 }
 
                 Type.HINT -> {
-                    CustomText(cd.question.value, getUIStyle, modifier, cardListTextProp())
+                    CustomText(cd.question, getUIStyle, modifier, cardListTextProp())
                 }
 
                 Type.MULTI -> {
-                    CustomText(cd.question.value, getUIStyle, modifier, cardListTextProp())
+                    CustomText(cd.question, getUIStyle, modifier, cardListTextProp())
                 }
 
                 Type.NOTATION -> {
-                    CustomText(cd.question.value, getUIStyle, modifier, cardListTextProp())
+                    CustomText(cd.question, getUIStyle, modifier, cardListTextProp())
                 }
             }
         }

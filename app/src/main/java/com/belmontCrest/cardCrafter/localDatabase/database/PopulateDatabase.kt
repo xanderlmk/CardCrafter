@@ -1,9 +1,7 @@
 package com.belmontCrest.cardCrafter.localDatabase.database
 
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.allCardTypesDao.BasicCardDao
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.allCardTypesDao.MultiChoiceCardDao
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.allCardTypesDao.ThreeCardDao
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.CardDao
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.CardTypesDao
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.DeckDao
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
@@ -14,9 +12,7 @@ import java.util.Calendar
 
 suspend fun populateDatabase(
     deckDao: DeckDao, cardDao: CardDao,
-    basicCardDao: BasicCardDao,
-    multiChoiceCardDao: MultiChoiceCardDao,
-    threeCardDao: ThreeCardDao
+    cardTypesDao: CardTypesDao
 ) {
     val calendar = Calendar.getInstance()
     calendar.add(Calendar.DAY_OF_MONTH, -1) // Subtract 1 day
@@ -176,7 +172,7 @@ suspend fun populateDatabase(
         cardDao.insertCard(card)
     }
     for (basicCard in basicCards) {
-        basicCardDao.insertBasicCard(basicCard)
+        cardTypesDao.insertBasicCard(basicCard)
     }
 
     val motorCycleCards = List(75) {
@@ -883,7 +879,7 @@ suspend fun populateDatabase(
         cardDao.insertCard(card)
     }
     for (multiCard in multiChoiceCards) {
-        multiChoiceCardDao.insertMultiChoiceCard(multiCard)
+        cardTypesDao.insertMultiChoiceCard(multiCard)
     }
 
     cardDao.insertCard(
@@ -900,5 +896,5 @@ suspend fun populateDatabase(
             reviewsLeft = motorcycleDeck.reviewAmount
         )
     )
-    threeCardDao.insertThreeCard(threeFC)
+    cardTypesDao.insertThreeCard(threeFC)
 }

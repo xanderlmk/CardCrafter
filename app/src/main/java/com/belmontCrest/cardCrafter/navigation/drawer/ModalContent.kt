@@ -31,7 +31,6 @@ import com.belmontCrest.cardCrafter.navigation.destinations.SettingsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
-import com.belmontCrest.cardCrafter.model.FSProp
 import com.belmontCrest.cardCrafter.model.paddingForModal
 import com.belmontCrest.cardCrafter.model.returnFontSizeBasedOnDp
 import com.belmontCrest.cardCrafter.model.toTextProp
@@ -82,7 +81,7 @@ class ModalContent(
                 navController.navigate(DeckListDestination.route)
             })
         {
-            CustomText(text = "Home", getUIStyle, props = FSProp.Default.toTextProp(fontSize))
+            CustomText(text = "Home", getUIStyle, props = fontSize.toTextProp())
             ci.ContentIcon(Icons.Filled.Home, "Home", mdModifier)
         }
     }
@@ -96,7 +95,7 @@ class ModalContent(
             navViewModel.updateStartingSBRoute(UserEDDestination.route)
             navController.navigate(SBNavDestination.route)
         }) {
-            CustomText("Exported Decks", getUIStyle, props = FSProp.Default.toTextProp(fontSize))
+            CustomText("Exported Decks", getUIStyle, props = fontSize.toTextProp())
             ci.ContentIcon(
                 painterResource(R.drawable.rounded_playing_cards),
                 "Rounded Playing Cards", mdModifier
@@ -116,7 +115,7 @@ class ModalContent(
             }
         )
         {
-            CustomText("Settings", getUIStyle, props = FSProp.Default.toTextProp(fontSize))
+            CustomText("Settings", getUIStyle, props = fontSize.toTextProp())
             ci.ContentIcon(Icons.Default.Settings, "Main Settings", mdModifier)
         }
     }
@@ -141,7 +140,7 @@ class ModalContent(
                 }
             }
         ) {
-            CustomText("User Profile", getUIStyle, props = FSProp.Default.toTextProp(fontSize))
+            CustomText("User Profile", getUIStyle, props = fontSize.toTextProp())
             ci.ContentIcon(Icons.Default.AccountCircle, "User Profile", mdModifier)
         }
     }

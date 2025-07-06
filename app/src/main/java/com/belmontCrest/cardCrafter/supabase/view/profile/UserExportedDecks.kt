@@ -44,7 +44,7 @@ fun UserExportedDecks(
 ) {
     val deckList by uEDVM.allDecks.collectAsStateWithLifecycle()
     val isLoading by uEDVM.isLoading.collectAsStateWithLifecycle()
-    var pressed = rememberSaveable { mutableStateOf(false) }
+    val pressed = rememberSaveable { mutableStateOf(false) }
     val owner by supabaseVM.owner.collectAsStateWithLifecycle()
 
     LaunchedEffect(owner) {

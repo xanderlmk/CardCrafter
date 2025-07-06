@@ -1,10 +1,11 @@
-package com.belmontCrest.cardCrafter.model
+package com.belmontCrest.cardCrafter.model.daoHelpers
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
+import com.belmontCrest.cardCrafter.localDatabase.tables.NullableCustomCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
@@ -39,6 +40,9 @@ interface InsertAndReplaceDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertThreeCard(threeFieldCard: ThreeFieldCard): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCustomCard(nullableCustomCard: NullableCustomCard): Long
 }
 
 @Dao
@@ -60,6 +64,9 @@ interface InsertOrAbortDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertThreeCard(threeFieldCard: ThreeFieldCard): Long
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertCustomCard(nullableCustomCard: NullableCustomCard): Long
 }
 
 @Dao
@@ -143,6 +150,7 @@ interface TransactionCT : InsertAndReplaceDao {
             }
         }
     }
+
     private suspend fun returnCard(
         deckId: Int, newDeckCardNumber: Int, type: String, uuid: String, reviewAmount: Int
     ): Long {

@@ -1,7 +1,7 @@
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos
 
 import android.util.Log
-import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCTList
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
@@ -26,10 +26,10 @@ class OfflineExportRepository(private val exportToSBDao: ExportToSBDao) : Export
 
     override fun getAllCardTypes(deckId: Int) = exportToSBDao.getAllCardTypes(deckId).map {
         try {
-            mapAllCardTypesToCTs(it)
+            it.toCTList()
         } catch (e: IllegalStateException) {
             Log.d("CardTypeRepository", "$e")
-            listOf<CT>()
+            listOf()
         }
     }
 

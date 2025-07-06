@@ -3,13 +3,18 @@ package com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
+import com.belmontCrest.cardCrafter.model.daoHelpers.OrderBy
 import com.belmontCrest.cardCrafter.model.ui.states.DueDeckDetails
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.CDetails
+import com.belmontCrest.cardCrafter.views.miscFunctions.details.CardDetails
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.Date
 
 interface FlashCardRepository {
 
+    val orderedBy: StateFlow<OrderBy>
+
+    fun updateOrder(orderBy: OrderBy)
     suspend fun checkIfDeckExists(deckName: String): Int
 
     suspend fun checkIfDeckExists(deckName: String, deckUUID: String): Int
@@ -30,7 +35,7 @@ interface FlashCardRepository {
 
     fun updateCardAmount(cardAmount: Int, deckId: Int): Int
 
-    fun getAllDecksStream(): Flow<List<Deck>>
+    fun getDecksAndCC(currentTime: Long, orderBy: OrderBy): Pair<Flow<List<Deck>>, Flow<List<Int>>>
 
     suspend fun getAllDecks(): List<Deck>
 
@@ -39,8 +44,6 @@ interface FlashCardRepository {
     fun getDeck(id: Int): Deck
 
     fun getDeckName(id: Int): Flow<String?>
-
-    fun getCardCount(currentTime: Long): Flow<List<Int>>
 
     fun resetCardLefts()
 
@@ -94,22 +97,26 @@ interface FlashCardRepository {
     fun getDueDeckDetails(id: Int): Flow<DueDeckDetails?>
 
     suspend fun insertBasicCard(
-        deck: Deck, basicCD: CDetails.BasicCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, basicCD: CardDetails.BasicCD, isOwnerOrCoOwner: Boolean
     )
 
     suspend fun insertThreeCard(
-        deck: Deck, threeCD: CDetails.ThreeCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, threeCD: CardDetails.ThreeCD, isOwnerOrCoOwner: Boolean
     )
 
     suspend fun insertHintCard(
-        deck: Deck, hintCD: CDetails.HintCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, hintCD: CardDetails.HintCD, isOwnerOrCoOwner: Boolean
     )
 
     suspend fun insertMultiCard(
-        deck: Deck, multiCD: CDetails.MultiCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, multiCD: CardDetails.MultiCD, isOwnerOrCoOwner: Boolean
     )
 
     suspend fun insertNotationCard(
-        deck: Deck, notationCD: CDetails.NotationCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, notationCD: CardDetails.NotationCD, isOwnerOrCoOwner: Boolean
+    )
+
+    suspend fun insertCustomCard(
+        deck: Deck, customCD: CardDetails.CustomCD, type: String, isOwnerOrCoOwner: Boolean
     )
 }

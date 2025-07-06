@@ -11,19 +11,21 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.CIForID
 import com.belmontCrest.cardCrafter.localDatabase.tables.CardInfo
+import com.belmontCrest.cardCrafter.localDatabase.tables.NullableCustomCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
-import com.belmontCrest.cardCrafter.model.InsertOrAbortDao
+import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
+import com.belmontCrest.cardCrafter.model.daoHelpers.InsertOrAbortDao
 import com.belmontCrest.cardCrafter.model.Type.BASIC
 import com.belmontCrest.cardCrafter.model.Type.HINT
 import com.belmontCrest.cardCrafter.model.Type.MULTI
 import com.belmontCrest.cardCrafter.model.Type.NOTATION
 import com.belmontCrest.cardCrafter.model.Type.THREE
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.CDetails
+import com.belmontCrest.cardCrafter.views.miscFunctions.details.CardDetails
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
@@ -45,7 +47,7 @@ interface CardDao : InsertOrAbortDao {
 
     @Transaction
     suspend fun insertBasicCard(
-        deck: Deck, basicCD: CDetails.BasicCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, basicCD: CardDetails.BasicCD, isOwnerOrCoOwner: Boolean
     ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
         val cardId = returnCard(deck, newDeckCardNumber, BASIC)
@@ -63,7 +65,7 @@ interface CardDao : InsertOrAbortDao {
 
     @Transaction
     suspend fun insertThreeCard(
-        deck: Deck, threeCD: CDetails.ThreeCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, threeCD: CardDetails.ThreeCD, isOwnerOrCoOwner: Boolean
     ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
         val cardId = returnCard(deck, newDeckCardNumber, THREE)
@@ -84,7 +86,7 @@ interface CardDao : InsertOrAbortDao {
 
     @Transaction
     suspend fun insertHintCard(
-        deck: Deck, hintCD: CDetails.HintCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, hintCD: CardDetails.HintCD, isOwnerOrCoOwner: Boolean
     ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
         val cardId = returnCard(deck, newDeckCardNumber, HINT)
@@ -103,7 +105,7 @@ interface CardDao : InsertOrAbortDao {
 
     @Transaction
     suspend fun insertMultiCard(
-        deck: Deck, multiCD: CDetails.MultiCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, multiCD: CardDetails.MultiCD, isOwnerOrCoOwner: Boolean
     ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
         val cardId = returnCard(deck, newDeckCardNumber, MULTI)
@@ -125,7 +127,7 @@ interface CardDao : InsertOrAbortDao {
 
     @Transaction
     suspend fun insertNotationCard(
-        deck: Deck, notationCD: CDetails.NotationCD, isOwnerOrCoOwner: Boolean
+        deck: Deck, notationCD: CardDetails.NotationCD, isOwnerOrCoOwner: Boolean
     ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
         val cardId = returnCard(deck, newDeckCardNumber, NOTATION)
@@ -135,6 +137,25 @@ interface CardDao : InsertOrAbortDao {
                 question = notationCD.question,
                 steps = notationCD.steps,
                 answer = notationCD.answer,
+            )
+        )
+        if (isOwnerOrCoOwner) {
+            checkCardInfo(deck.uuid, cardId.toInt())
+        }
+    }
+
+    @Transaction
+    suspend fun insertCustomCard(
+        deck: Deck, customCD: CardDetails.CustomCD, type: String, isOwnerOrCoOwner: Boolean
+    ) {
+        val newDeckCardNumber = returnCardDeckNum(deck.uuid)
+        val cardId = returnCard(deck, newDeckCardNumber, type)
+        insertCustomCard(
+            NullableCustomCard(
+                cardId = cardId.toInt(),
+                question = customCD.question,
+                middle = if (customCD.middle == MiddleParam.Empty) null else customCD.middle,
+                answer = customCD.answer
             )
         )
         if (isOwnerOrCoOwner) {

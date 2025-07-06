@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.belmontCrest.cardCrafter.controller.cardHandlers.mapAllCardTypesToCTs
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCTList
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCardList
 import com.belmontCrest.cardCrafter.localDatabase.tables.AllCardTypes
@@ -15,23 +15,22 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.CardInfo
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
-import com.belmontCrest.cardCrafter.model.TransactionCT
+import com.belmontCrest.cardCrafter.localDatabase.tables.toNullableCustomCard
+import com.belmontCrest.cardCrafter.model.daoHelpers.DeckHelperDao
+import com.belmontCrest.cardCrafter.model.daoHelpers.TransactionCT
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SealedCTToImport
 import com.belmontCrest.cardCrafter.supabase.model.tables.toCard
 import java.util.Date
 
 @Dao
-interface MergeDecksDao : TransactionCT {
+interface MergeDecksDao : TransactionCT, DeckHelperDao {
 
     @Query("SELECT * from decks where uuid = :uuid")
     suspend fun getDeck(uuid: String): Deck
 
     @Query("SELECT * from decks where uuid = :uuid")
-    suspend fun doesDeckExist(uuid: String) : Deck?
-
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    fun insertDeck(deck: Deck): Long
+    suspend fun doesDeckExist(uuid: String): Deck?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertImportedDeckInfo(importedDeckInfo: ImportedDeckInfo)
@@ -90,7 +89,7 @@ interface MergeDecksDao : TransactionCT {
         onProgress: (Float) -> Unit
     ) {
         var current = 0
-        var total = cardList.size + 2
+        val total = cardList.size + 2
         val deckId = insertDeck(
             Deck(
                 name = sbDeckDto.name,
@@ -205,7 +204,7 @@ interface MergeDecksDao : TransactionCT {
         when (ct) {
             is CT.Basic -> {
                 val cardId = returnCard(
-                    deckId.toInt(), ct.card.deckCardNumber ?: 0,
+                    deckId, ct.card.deckCardNumber ?: 0,
                     ct.card.type, sbDeckDto.deckUUID, reviewAmount
                 )
                 insertBasicCard(ct.basicCard.copy(cardId = cardId.toInt()))
@@ -214,7 +213,7 @@ interface MergeDecksDao : TransactionCT {
 
             is CT.Hint -> {
                 val cardId = returnCard(
-                    deckId.toInt(), ct.card.deckCardNumber ?: 0,
+                    deckId, ct.card.deckCardNumber ?: 0,
                     ct.card.type, sbDeckDto.deckUUID, reviewAmount
                 )
                 insertHintCard(ct.hintCard.copy(cardId = cardId.toInt()))
@@ -222,7 +221,7 @@ interface MergeDecksDao : TransactionCT {
 
             is CT.ThreeField -> {
                 val cardId = returnCard(
-                    deckId.toInt(), ct.card.deckCardNumber ?: 0,
+                    deckId, ct.card.deckCardNumber ?: 0,
                     ct.card.type, sbDeckDto.deckUUID, reviewAmount
                 )
                 insertThreeCard(ct.threeFieldCard.copy(cardId = cardId.toInt()))
@@ -230,7 +229,7 @@ interface MergeDecksDao : TransactionCT {
 
             is CT.MultiChoice -> {
                 val cardId = returnCard(
-                    deckId.toInt(), ct.card.deckCardNumber ?: 0,
+                    deckId, ct.card.deckCardNumber ?: 0,
                     ct.card.type, sbDeckDto.deckUUID, reviewAmount
                 )
                 insertMultiChoiceCard(ct.multiChoiceCard.copy(cardId = cardId.toInt()))
@@ -238,10 +237,19 @@ interface MergeDecksDao : TransactionCT {
 
             is CT.Notation -> {
                 val cardId = returnCard(
-                    deckId.toInt(), ct.card.deckCardNumber ?: 0,
+                    deckId, ct.card.deckCardNumber ?: 0,
                     ct.card.type, sbDeckDto.deckUUID, reviewAmount
                 )
                 insertNotationCard(ct.notationCard.copy(cardId = cardId.toInt()))
+            }
+
+            is CT.Custom -> {
+                val cardId = returnCard(
+                    deckId, ct.card.deckCardNumber ?: 0,
+                    ct.card.type, sbDeckDto.deckUUID, reviewAmount
+                )
+
+                insertCustomCard(ct.customCard.copy(cardId = cardId.toInt()).toNullableCustomCard())
             }
         }
     }
@@ -267,10 +275,10 @@ interface MergeDecksDao : TransactionCT {
 
     private suspend fun getLocalCTs(uuid: String): List<CT> {
         return try {
-            mapAllCardTypesToCTs(getLocalCards(uuid))
+            getLocalCards(uuid).toCTList()
         } catch (e: IllegalStateException) {
             Log.d("CardTypeRepository", "$e")
-            listOf<CT>()
+            listOf()
         }
     }
 
@@ -292,6 +300,7 @@ interface MergeDecksDao : TransactionCT {
             is CT.ThreeField -> copy(card = newCard)
             is CT.MultiChoice -> copy(card = newCard)
             is CT.Notation -> copy(card = newCard)
+            is CT.Custom -> copy(card = newCard)
         }
     }
 }

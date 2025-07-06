@@ -14,23 +14,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import com.belmontCrest.cardCrafter.model.Type
+import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.CardDetails
 import com.belmontCrest.cardCrafter.uiFunctions.katex.toShortHex
 
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun DisplayCardDetails(
-    allCardDetails: List<Pair<CardDetails, String>>, getUIStyle: GetUIStyle,
+    allCardDetails: List<Pair<CDetails, String>>, getUIStyle: GetUIStyle,
     deck: SBDeckDto, onLoading: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
     val webView = remember { WebView(context) }
     val backgroundToHex = getUIStyle.background().toShortHex()
     val textToHex = getUIStyle.titleColor().toShortHex()
-    val borderColor = getUIStyle.defaultIconColor().toShortHex()
+    val borderColor = getUIStyle.themedColor().toShortHex()
     DisposableEffect(webView) {
         onDispose {
             try {
@@ -94,70 +94,70 @@ fun DisplayCardDetails(
 
 private const val line = "$$\\\\text{---------------------------}$$"
 
-fun CardDetails.toHTML(type: String): String {
+fun CDetails.toHTML(type: String): String {
     val cd = this
-    val charMap = mapOf<Int, Char>(0 to 'a', 1 to 'b', 2 to 'c', 3 to 'd')
+    val charMap = mapOf(0 to 'a', 1 to 'b', 2 to 'c', 3 to 'd')
     return when (type) {
         Type.BASIC -> {
             val longString = buildString {
-                append("<p>Question: ${cd.question.value}</p>")
+                append("<p>Question: ${cd.question}</p>")
                 append(line)
-                append("<p>Answer: ${cd.answer.value}</p>")
+                append("<p>Answer: ${cd.answer}</p>")
             }
             longString
         }
 
         Type.THREE -> {
             val longString = buildString {
-                append("<p>Question: ${cd.question.value}</p>")
+                append("<p>Question: ${cd.question}</p>")
                 append(line)
-                append("<p>Middle: ${cd.middleField.value}</p>")
-                append("<p>Answer: ${cd.answer.value}</p>")
+                append("<p>Middle: ${cd.middle}</p>")
+                append("<p>Answer: ${cd.answer}</p>")
             }
             longString
         }
 
         Type.HINT -> {
             val longString = buildString {
-                append("<p>Question: ${cd.question.value}</p>")
+                append("<p>Question: ${cd.question}</p>")
                 append(line)
-                append("<p>Hint: ${cd.middleField.value}</p>")
-                append("<p>Answer: ${cd.answer.value}</p>")
+                append("<p>Hint: ${cd.middle}</p>")
+                append("<p>Answer: ${cd.answer}</p>")
             }
             longString
         }
 
         Type.MULTI -> {
             val longString = buildString {
-                append("<p>Question: ${cd.question.value}</p>")
+                append("<p>Question: ${cd.question}</p>")
                 append(line)
                 cd.choices.mapIndexed { index, it ->
-                    if (it.value.isNotBlank()) {
+                    if (it.isNotBlank()) {
                         val letter = charMap[index] ?: '?'
-                        append("<p>$letter. ${it.value}</p>")
+                        append("<p>$letter. ${it}</p>")
                     }
                     if (index == cd.choices.lastIndex) {
                         append(line)
                     }
                 }
-                append("<p>Answer: ${cd.correct.value}</p>")
+                append("<p>Answer: ${cd.correct}</p>")
             }
             longString
         }
 
         Type.NOTATION -> {
             val longString = buildString {
-                append("<p>Question: ${cd.question.value}</p>")
+                append("<p>Question: ${cd.question}</p>")
                 append(line)
-                if (cd.stringList.isNotEmpty()) {
-                    cd.stringList.mapIndexed { index, step ->
-                        append("<p>Step ${index + 1}: ${step.value}</p>")
-                        if (index == cd.stringList.lastIndex) {
+                if (cd.steps.isNotEmpty()) {
+                    cd.steps.mapIndexed { index, step ->
+                        append("<p>Step ${index + 1}: ${step}</p>")
+                        if (index == cd.steps.lastIndex) {
                             append(line)
                         }
                     }
                 }
-                append("<p>Answer: ${cd.answer.value}</p>")
+                append("<p>Answer: ${cd.answer}</p>")
             }
             longString
         }

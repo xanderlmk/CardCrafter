@@ -5,123 +5,227 @@ import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.core.content.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
 class PreferencesManager(
-    context: Context,
+    private val context: Context, private val scope: CoroutineScope,
 ) {
-    private val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-    private val _dynamicTheme = MutableStateFlow(false)
-    val dynamicTheme = _dynamicTheme.asStateFlow()
-    private val _darkTheme = MutableStateFlow(false)
-    val darkTheme = _darkTheme.asStateFlow()
-    private val _cuteTheme = MutableStateFlow(false)
-    val cuteTheme = _cuteTheme.asStateFlow()
-    private val _cardAmount = MutableStateFlow(20)
-    val cardAmount = _cardAmount.asStateFlow()
-    private val _reviewAmount = MutableStateFlow(1)
-    val reviewAmount = _reviewAmount.asStateFlow()
-    private val _height = MutableStateFlow(200)
-    val height = _height.asStateFlow()
-    private val _width = MutableStateFlow(200)
-    val width = _width.asStateFlow()
-
-    init {
-        _dynamicTheme.update { isDynamicThemeEnabled }
-        _darkTheme.update { isDarkThemeEnabled }
-        _cuteTheme.update { isCuteThemeEnabled }
-        _cardAmount.update { allCardAmounts }
-        _reviewAmount.update { allReviewAmounts }
-        _height.update { katexMenuHeight }
-        _width.update { katexMenuWidth }
+    companion object {
+        private val FIRST_TIME = booleanPreferencesKey("first_time")
+        private val DARK_THEME = booleanPreferencesKey("dark_theme")
+        private val DYNAMIC_THEME = booleanPreferencesKey("dynamic_theme")
+        private val CUTE_THEME = booleanPreferencesKey("cute_theme")
+        private val CARD_AMOUNT = intPreferencesKey("card_amount")
+        private val REVIEW_AMOUNT = intPreferencesKey("review_amount")
+        private val HEIGHT = intPreferencesKey("height")
+        private val WIDTH = intPreferencesKey("width")
+        private const val TIMEOUT_MILLIS = 4_000L
     }
 
+    private val sharedPrefs = context.getSharedPreferences("theme", Context.MODE_PRIVATE)
+    private var isDynamicThemeEnabled: Boolean
+        get() = sharedPrefs.getBoolean("dynamic_theme", false)
+        set(value) = sharedPrefs.edit { putBoolean("dynamic_theme", value) }
+
+    private var isDarkThemeEnabled: Boolean
+        get() = sharedPrefs.getBoolean("dark_theme", false)
+        set(value) = sharedPrefs.edit { putBoolean("dark_theme", value) }
+
+    private var isCuteThemeEnabled: Boolean
+        get() = sharedPrefs.getBoolean("cute_theme", false)
+        set(value) = sharedPrefs.edit { putBoolean("cute_theme", value) }
+
+    private var isItFirstTime: Boolean
+        get() = sharedPrefs.getBoolean("first_time", false)
+        set(value) = sharedPrefs.edit { putBoolean("first_time", value) }
+
+    val darkTheme = context.dataStore.data.map { preferences ->
+        preferences[DARK_THEME] == true
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.Eagerly,
+        initialValue = isDarkThemeEnabled
+    )
+
+    val dynamicTheme = context.dataStore.data.map { preferences ->
+        preferences[DYNAMIC_THEME] == true
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.Eagerly,
+        initialValue = isDynamicThemeEnabled
+    )
+
+    val cuteTheme = context.dataStore.data.map { preferences ->
+        preferences[CUTE_THEME] == true
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.Eagerly,
+        initialValue = isCuteThemeEnabled
+    )
+
+    val cardAmount = context.dataStore.data.map { preferences ->
+        preferences[CARD_AMOUNT] ?: 20
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = 20
+    )
+
+    val reviewAmount = context.dataStore.data.map { preferences ->
+        preferences[REVIEW_AMOUNT] ?: 1
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = 1
+    )
+
+    val height = context.dataStore.data.map { preferences ->
+        preferences[HEIGHT] ?: 200
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = 200
+    )
+
+    val width = context.dataStore.data.map { preferences ->
+        preferences[WIDTH] ?: Int.MIN_VALUE
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = Int.MIN_VALUE
+    )
+
     fun saveDynamicTheme() {
-        _dynamicTheme.update { !it }; isDynamicThemeEnabled = _dynamicTheme.value
+        try {
+            scope.launch {
+                context.dataStore.edit { settings ->
+                    isDynamicThemeEnabled = !dynamicTheme.value
+                    settings[DYNAMIC_THEME] = !dynamicTheme.value
+                }
+            }
+        } catch (e: Exception) {
+            showToastMessage(context, "$e")
+        }
     }
 
     fun saveDarkTheme() {
-        _darkTheme.update { !it }; isDarkThemeEnabled = _darkTheme.value
+        try {
+            scope.launch {
+                context.dataStore.edit { settings ->
+                    isDarkThemeEnabled = !darkTheme.value
+                    settings[DARK_THEME] = !darkTheme.value
+                }
+            }
+        } catch (e: Exception) {
+            showToastMessage(context, "$e")
+        }
     }
 
-    fun saveCuteTheme(value: Boolean = !_cuteTheme.value) {
-        _cuteTheme.update { value }; isCuteThemeEnabled = _cuteTheme.value
+    fun saveCuteTheme(value: Boolean = !cuteTheme.value) {
+        try {
+            scope.launch {
+                context.dataStore.edit { settings ->
+                    isCuteThemeEnabled = value
+                    settings[CUTE_THEME] = value
+                }
+            }
+        } catch (e: Exception) {
+            showToastMessage(context, "$e")
+        }
     }
 
     fun saveCardAmount(amount: Int) {
-        _cardAmount.update { amount }; allCardAmounts = amount
+        try {
+            scope.launch {
+                context.dataStore.edit { settings ->
+                    settings[CARD_AMOUNT] = amount
+                }
+            }
+        } catch (e: Exception) {
+            showToastMessage(context, "$e")
+        }
     }
 
     fun saveReviewAmount(amount: Int) {
-        _reviewAmount.update { amount }; allReviewAmounts = amount
+        try {
+            scope.launch {
+                context.dataStore.edit { settings ->
+                    settings[REVIEW_AMOUNT] = amount
+                }
+            }
+        } catch (e: Exception) {
+            showToastMessage(context, "$e")
+        }
     }
 
     fun saveKatexMenuHeight(h: Int) {
-        _height.update { h }; katexMenuHeight = h
+        try {
+            scope.launch {
+                context.dataStore.edit { settings ->
+                    settings[HEIGHT] = h
+                }
+            }
+        } catch (e: Exception) {
+            showToastMessage(context, "$e")
+        }
     }
 
     fun saveKatexMenuWidth(w: Int) {
-        _width.update { w }; katexMenuWidth = w
+        try {
+            scope.launch {
+                context.dataStore.edit { settings ->
+                    settings[WIDTH] = w
+                }
+            }
+        } catch (e: Exception) {
+            showToastMessage(context, "$e")
+        }
     }
-
-    fun savePreferences() {
-        isDynamicThemeEnabled = _dynamicTheme.value
-        isDarkThemeEnabled = _darkTheme.value
-        isCuteThemeEnabled = _cuteTheme.value
-        allCardAmounts = _cardAmount.value
-        allReviewAmounts = _reviewAmount.value
-        katexMenuHeight = _height.value
-        katexMenuWidth = _width.value
-    }
-
-    private var isDynamicThemeEnabled: Boolean
-        get() = sharedPreferences.getBoolean("dynamic_theme", false)
-        set(value) = sharedPreferences.edit { putBoolean("dynamic_theme", value) }
-
-    private var isDarkThemeEnabled: Boolean
-        get() = sharedPreferences.getBoolean("dark_theme", false)
-        set(value) = sharedPreferences.edit { putBoolean("dark_theme", value) }
-
-    private var isCuteThemeEnabled: Boolean
-        get() = sharedPreferences.getBoolean("cute_theme", false)
-        set(value) = sharedPreferences.edit { putBoolean("cute_theme", value) }
-
 
     fun setDarkTheme(isDarkTheme: Boolean) {
-        isDarkThemeEnabled = isDarkTheme
+        try {
+            scope.launch {
+                context.dataStore.edit { settings ->
+                    settings[DARK_THEME] = isDarkTheme
+                }
+            }
+        } catch (e: Exception) {
+            showToastMessage(context, "$e")
+        }
     }
 
-    private var isFirstTime: Boolean
-        get() = sharedPreferences.getBoolean("first_time", true)
-        set(value) = sharedPreferences.edit { putBoolean("first_time", value) }
+    private val isFirstTime = context.dataStore.data.map { preferences ->
+        preferences[FIRST_TIME] ?: false
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.Eagerly,
+        initialValue = isItFirstTime
+    )
 
-    fun getIsFirstTime(): Boolean = isFirstTime
+    fun getIsFirstTime(): Boolean = isFirstTime.value
 
     fun setIsFirstTime() {
-        isFirstTime = false
+        try {
+            scope.launch {
+                context.dataStore.edit { settings ->
+                    isItFirstTime = true
+                    settings[FIRST_TIME] = true
+                }
+            }
+        } catch (e: Exception) {
+            showToastMessage(context, "$e")
+        }
     }
-
-    private var allCardAmounts: Int
-        get() = sharedPreferences.getInt("card_amount", 20)
-        set(value) = sharedPreferences.edit { putInt("card_amount", value) }
-
-
-    private var allReviewAmounts: Int
-        get() = sharedPreferences.getInt("review_amount", 1)
-        set(value) = sharedPreferences.edit { putInt("review_amount", value) }
-
-
-    private var katexMenuHeight: Int
-        get() = sharedPreferences.getInt("menu_height", 200)
-        set(value) = sharedPreferences.edit { putInt("menu_height", value) }
-
-    private var katexMenuWidth: Int
-        get() = sharedPreferences.getInt("menu_width", Int.MIN_VALUE)
-        set(value) = sharedPreferences.edit { putInt("menu_width", value) }
 }
 
 @Parcelize

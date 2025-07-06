@@ -41,8 +41,8 @@ fun AddBasicCard(
     val errorMessage by vm.errorMessage.collectAsStateWithLifecycle()
     val fields by vm.fields.collectAsStateWithLifecycle()
     var successMessage by remember { mutableStateOf("") }
-    val fillOutFields = stringResource(R.string.fill_out_all_fields).toString()
-    val cardAdded = stringResource(R.string.card_added).toString()
+    val fillOutFields = stringResource(R.string.fill_out_all_fields)
+    val cardAdded = stringResource(R.string.card_added)
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     Column(

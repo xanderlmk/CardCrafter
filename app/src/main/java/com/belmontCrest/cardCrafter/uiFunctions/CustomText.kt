@@ -18,40 +18,40 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 @Composable
 fun CustomText(
     text: String, getUIStyle: GetUIStyle, modifier: Modifier = Modifier,
-    props: TextProps = TextProps(), fontStyle: FontStyle? = null
+    props: TextProps = TextProps(), fontStyle: FontStyle? = null, softWrap : Boolean = true
 ) {
-    val fontWeight = setFontWeight(props.fw)
-    val fontSize = setFontSize(props.fs)
-    val textAlign = setTextAlign(props.ta)
-    val maxLines = setMaxLines(props.ml)
-    val textColor = setTextColor(props.tc, getUIStyle)
-    val style = setTextStyle(props.ts)
+    val fontWeight = props.setFontWeight()
+    val fontSize = props.setFontSize()
+    val textAlign = props.setTextAlign()
+    val maxLines = props.setMaxLines()
+    val textColor = props.setTextColor(getUIStyle)
+    val style = props.setTextStyle()
     Text(
         text = text, color = textColor,
         textAlign = textAlign, modifier = modifier,
         fontSize = fontSize, fontWeight = fontWeight,
         maxLines = maxLines, overflow = TextOverflow.Ellipsis,
-        style = style, fontStyle = fontStyle
+        style = style, fontStyle = fontStyle, softWrap = softWrap
     )
 }
 
 @Composable
 fun CustomText(
     text: AnnotatedString, getUIStyle: GetUIStyle, modifier: Modifier = Modifier,
-    props: TextProps = TextProps(), fontStyle: FontStyle? = null
+    props: TextProps = TextProps(), fontStyle: FontStyle? = null, softWrap: Boolean = true
 ) {
-    val fontWeight = setFontWeight(props.fw)
-    val fontSize = setFontSize(props.fs)
-    val textAlign = setTextAlign(props.ta)
-    val maxLines = setMaxLines(props.ml)
-    val textColor = setTextColor(props.tc, getUIStyle)
-    val style = setTextStyle(props.ts)
+    val fontWeight = props.setFontWeight()
+    val fontSize = props.setFontSize()
+    val textAlign = props.setTextAlign()
+    val maxLines = props.setMaxLines()
+    val textColor = props.setTextColor(getUIStyle)
+    val style = props.setTextStyle()
 
     Text(
         text = text, color = textColor,
         textAlign = textAlign, modifier = modifier,
         fontSize = fontSize, fontWeight = fontWeight,
         maxLines = maxLines, overflow = TextOverflow.Ellipsis,
-        style = style, fontStyle = fontStyle
+        style = style, fontStyle = fontStyle, softWrap = softWrap
     )
 }

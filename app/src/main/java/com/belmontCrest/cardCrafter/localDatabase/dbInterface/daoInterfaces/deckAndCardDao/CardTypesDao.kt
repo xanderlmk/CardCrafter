@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toBasicList
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCardList
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCustomList
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toHintList
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toMultiChoiceList
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toNotationList
@@ -18,19 +19,27 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.NullableCustomCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
-import com.belmontCrest.cardCrafter.model.InsertOrAbortDao
+import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
+import com.belmontCrest.cardCrafter.localDatabase.tables.deleteFiles
+import com.belmontCrest.cardCrafter.localDatabase.tables.toNullableCustomCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.toNullableCustomCards
+import com.belmontCrest.cardCrafter.model.daoHelpers.InsertOrAbortDao
 import com.belmontCrest.cardCrafter.model.Type.BASIC
 import com.belmontCrest.cardCrafter.model.Type.HINT
 import com.belmontCrest.cardCrafter.model.Type.MULTI
 import com.belmontCrest.cardCrafter.model.Type.NOTATION
 import com.belmontCrest.cardCrafter.model.Type.THREE
+import com.belmontCrest.cardCrafter.model.daoHelpers.UpdateAndDeleteHelper
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import java.util.Date
 
 @Dao
-interface CardTypesDao : InsertOrAbortDao {
+interface CardTypesDao : InsertOrAbortDao, UpdateAndDeleteHelper {
     @Transaction
     @Query(
         """SELECT * FROM cards WHERE deckId = :deckId 
@@ -76,26 +85,11 @@ interface CardTypesDao : InsertOrAbortDao {
     @Query("Update cards set type = :type where id = :cardId")
     suspend fun updateCard(cardId: Int, type: String)
 
-    @Delete
-    suspend fun deleteBasicCard(basicCard: BasicCard)
-
-    @Delete
-    suspend fun deleteThreeCard(threeFieldCard: ThreeFieldCard)
-
-    @Delete
-    suspend fun deleteHintCard(hintCard: HintCard)
-
-    @Delete
-    suspend fun deleteMultiChoiceCard(multiChoiceCard: MultiChoiceCard)
-
-    @Delete
-    suspend fun deleteNotationCard(notationCard: NotationCard)
-
     @Transaction
     suspend fun updateCT(
         cardId: Int, type: String, fields: CDetails,
         deleteCT: CT
-    ) {
+    ) = withContext(Dispatchers.IO) {
         when (type) {
             BASIC -> {
                 insertBasicCard(
@@ -155,14 +149,47 @@ interface CardTypesDao : InsertOrAbortDao {
                     )
                 )
             }
+
+            else -> {
+                insertCustomCard(
+                    NullableCustomCard(
+                        cardId = cardId,
+                        question = fields.customQuestion,
+                        middle =
+                            if (fields.customMiddle == MiddleParam.Empty) null
+                            else fields.customMiddle,
+                        answer = fields.customAnswer
+                    )
+                )
+            }
         }
         updateCard(cardId, type)
         when (deleteCT) {
-            is CT.Basic -> deleteBasicCard(deleteCT.basicCard)
-            is CT.ThreeField -> deleteThreeCard(deleteCT.threeFieldCard)
-            is CT.Hint -> deleteHintCard(deleteCT.hintCard)
-            is CT.MultiChoice -> deleteMultiChoiceCard(deleteCT.multiChoiceCard)
-            is CT.Notation -> deleteNotationCard(deleteCT.notationCard)
+            is CT.Basic -> {
+                deleteBasicCard(deleteCT.basicCard)
+            }
+
+            is CT.ThreeField -> {
+                deleteThreeCard(deleteCT.threeFieldCard)
+            }
+
+            is CT.Hint -> {
+                deleteHintCard(deleteCT.hintCard)
+            }
+
+            is CT.MultiChoice -> {
+                deleteMultiChoiceCard(deleteCT.multiChoiceCard)
+            }
+
+            is CT.Notation -> {
+                deleteNotationCard(deleteCT.notationCard)
+            }
+
+            is CT.Custom -> {
+                val (message, result) = deleteCT.customCard.deleteFiles()
+                if (!result) throw Exception(message)
+                deleteCustomCard(deleteCT.customCard.toNullableCustomCard())
+            }
         }
     }
 
@@ -184,6 +211,9 @@ interface CardTypesDao : InsertOrAbortDao {
     @Delete
     suspend fun deleteNotationCards(notationCards: List<NotationCard>)
 
+    @Delete
+    suspend fun deleteCustomCards(customCards: List<NullableCustomCard>)
+
     /** Delete the selected cards */
     @Transaction
     suspend fun deleteCardList(cts: List<CT>) {
@@ -192,10 +222,13 @@ interface CardTypesDao : InsertOrAbortDao {
         val hintCards = cts.toHintList()
         val multiCards = cts.toMultiChoiceList()
         val notationCards = cts.toNotationList()
+        val customCards = cts.toCustomList()
         val cards = cts.toCardList()
+        val (message, result) = customCards.deleteFiles()
+        if (!result) throw Exception(message)
         deleteCards(cards); deleteBasicCards(basicCards); deleteThreeCards(threeCards)
         deleteHintCards(hintCards); deleteMultiCards(multiCards)
-        deleteNotationCards(notationCards)
+        deleteNotationCards(notationCards); deleteCustomCards(customCards.toNullableCustomCards())
     }
 
 
@@ -243,6 +276,16 @@ interface CardTypesDao : InsertOrAbortDao {
                     val tc = ct.threeFieldCard
                     insertThreeCard(
                         ThreeFieldCard(cardId, tc.question, tc.middle, tc.answer, tc.field)
+                    )
+                }
+
+                is CT.Custom -> {
+                    val cardId = returnCard(deck, newDeckCardNumber, ct.card.type).toInt()
+                    val cc = ct.customCard
+                    insertCustomCard(
+                        NullableCustomCard(
+                            cardId, cc.question, cc.middle, cc.answer
+                        )
                     )
                 }
             }

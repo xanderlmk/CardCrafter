@@ -1,12 +1,11 @@
 package com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories
 
-import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
-import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.AnswerParam
+import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
+import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.Param
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,11 +22,6 @@ interface CardTypeRepository {
     fun updateQuery(query: String)
     fun resetQuery()
 
-    suspend fun deleteBasicCard(basicCard: BasicCard)
-    suspend fun deleteThreeCard(threeFieldCard: ThreeFieldCard)
-    suspend fun deleteHintCard(hintCard: HintCard)
-    suspend fun deleteMultiChoiceCard(multiChoiceCard: MultiChoiceCard)
-
     suspend fun updateBasicCard(id: Int, question: String, answer: String)
 
     suspend fun updateThreeCard(
@@ -39,6 +33,15 @@ interface CardTypeRepository {
     suspend fun updateMultiChoiceCard(
         id: Int, newQuestion: String, newChoiceA: String, newChoiceB: String,
         newChoiceC: String, newChoiceD: String, newCorrect: Char
+    )
+
+    suspend fun updateNotationCard(
+        question: String, steps: String,
+        answer: String, cardId: Int
+    )
+
+    suspend fun updateCustomCard(
+        id: Int, newQuestion: Param, newMiddle: MiddleParam, newAnswer: AnswerParam
     )
 
     suspend fun getAllCardTypes(deckId: Int): List<CT>

@@ -108,16 +108,15 @@ object Encryptor {
             KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE
         )
         val spec = KeyGenParameterSpec.Builder(
-            KEY_ALIAS,
-            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-        )
-            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+            KEY_ALIAS, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+        ).setBlockModes(KeyProperties.BLOCK_MODE_GCM)
             .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
             .setUserAuthenticationRequired(false) // No need for biometrics screen.
             .build()
         kGen.init(spec)
         return kGen.generateKey()
     }
+
     @TypeConverter
     fun encryptString(plain: String): String {
         val cipher = Cipher.getInstance(TRANSFORMATION)
@@ -131,6 +130,7 @@ object Encryptor {
         }
         return Base64.encode(combined)
     }
+
     @TypeConverter
     fun decryptString(encoded: String): String {
         val combined = Base64.decode(encoded)

@@ -37,6 +37,7 @@ object AppViewModelProvider {
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.cardTypeRepository,
                 flashCardApplication().container.kbRepository,
+                flashCardApplication().container.fieldParamRepository,
                 this.createSavedStateHandle()
             )
         }
@@ -66,6 +67,7 @@ object AppViewModelProvider {
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.isOwnerOrCoOwnerRepo,
                 flashCardApplication().container.kbRepository,
+                flashCardApplication().container.fieldParamRepository,
                 this.createSavedStateHandle(),
                 this.createSavedStateHandle().get<String>("deckUUID")!!
             )
@@ -86,10 +88,9 @@ object AppViewModelProvider {
         initializer {
             EditCardViewModel(
                 flashCardApplication().container.cardTypeRepository,
-                flashCardApplication().container.scienceSpecificRepository,
                 flashCardApplication().container.kbRepository,
+                flashCardApplication().container.fieldParamRepository,
                 this.createSavedStateHandle(),
-                this.createSavedStateHandle().get<Int>("card_id")!!
             )
         }
         initializer {
@@ -128,19 +129,13 @@ object AppViewModelProvider {
             )
         }
         initializer {
-            CoOwnerViewModel(
-                flashCardApplication().container.coOwnerRequestsRepository
-            )
+            CoOwnerViewModel(flashCardApplication().container.coOwnerRequestsRepository)
         }
         initializer {
-            DeepLinksViewModel(
-                flashCardApplication().container.deepLinkerRepo
-            )
+            DeepLinksViewModel(flashCardApplication().container.deepLinkerRepo)
         }
         initializer {
-            ForgotPasswordViewModel(
-                flashCardApplication().container.fpRepository
-            )
+            ForgotPasswordViewModel(flashCardApplication().container.fpRepository)
         }
     }
 }

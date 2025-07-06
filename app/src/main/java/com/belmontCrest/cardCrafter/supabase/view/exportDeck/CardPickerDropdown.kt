@@ -33,12 +33,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardType
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCDetails
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.toCardDetails
+import com.belmontCrest.cardCrafter.views.miscFunctions.details.toQuestion
 
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -51,14 +52,14 @@ fun CardPickerDropdown(
     var expanded by rememberSaveable { mutableStateOf(false) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var selectedCT by rememberSaveable { mutableStateOf<CT?>(null) }
-    val charMap = mapOf<Int, Char>(0 to 'a', 1 to 'b', 2 to 'c', 3 to 'd')
+    val charMap = mapOf(0 to 'a', 1 to 'b', 2 to 'c', 3 to 'd')
 
     Box(modifier = modifier) {
         // Trigger button
         IconButton(onClick = { expanded = true }) {
             Icon(
                 Icons.Default.MoreVert, contentDescription = "Pick a card",
-                tint = getUIStyle.defaultIconColor()
+                tint = getUIStyle.themedColor()
             )
         }
 
@@ -71,7 +72,7 @@ fun CardPickerDropdown(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search…", color = getUIStyle.defaultIconColor()) },
+                placeholder = { Text("Search…", color = getUIStyle.themedColor()) },
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -84,14 +85,8 @@ fun CardPickerDropdown(
                 if (searchQuery.isBlank()) {
                     return@filter true
                 }
-                val q = when (ct) {
-                    is CT.Basic -> ct.basicCard.question
-                    is CT.Hint -> ct.hintCard.question
-                    is CT.ThreeField -> ct.threeFieldCard.question
-                    is CT.MultiChoice -> ct.multiChoiceCard.question
-                    is CT.Notation -> ct.notationCard.question
-                }
-                q.contains(searchQuery, ignoreCase = true)
+
+                ct.toQuestion().contains(searchQuery, ignoreCase = true)
             }
 
             if (filtered.isEmpty()) {
@@ -102,13 +97,7 @@ fun CardPickerDropdown(
                 )
             } else {
                 filtered.map { ct ->
-                    val preview = when (ct) {
-                        is CT.Basic -> ct.basicCard.question
-                        is CT.Hint -> ct.hintCard.question
-                        is CT.ThreeField -> ct.threeFieldCard.question
-                        is CT.MultiChoice -> ct.multiChoiceCard.question
-                        is CT.Notation -> ct.notationCard.question
-                    }
+                    val preview = ct.toQuestion()
                     DropdownMenuItem(
                         text = {
                             Text(
@@ -128,37 +117,37 @@ fun CardPickerDropdown(
 
     // 3) Detail dialog when you pick one
     selectedCT?.let { ct ->
-        val cardDetails = ct.toCardDetails()
+        val cardDetails = ct.toCDetails()
         AlertDialog(
             onDismissRequest = { selectedCT = null },
             title = { Text("Card Details") },
             text = {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    CustomDialogText("Q: ${cardDetails.question.value}", getUIStyle)
+                    CustomDialogText("Q: ${cardDetails.question}", getUIStyle)
                     Spacer(Modifier.height(8.dp))
                     if (ct.getCardType() == Type.HINT || ct.getCardType() == Type.THREE) {
                         val label = if (ct.getCardType() == Type.HINT) "Hint" else "Middle"
-                        CustomDialogText("$label: ${cardDetails.middleField.value}", getUIStyle)
+                        CustomDialogText("$label: ${cardDetails.middle}", getUIStyle)
                         Spacer(Modifier.height(8.dp))
                     }
                     if (ct.getCardType() == Type.MULTI) {
                         cardDetails.choices.mapIndexed { index, it ->
-                            if (it.value.isNotBlank()) {
+                            if (it.isNotBlank()) {
                                 val letter = charMap[index] ?: '?'
-                                CustomDialogText("$letter. ${it.value}", getUIStyle)
+                                CustomDialogText("$letter. $it", getUIStyle)
                                 Spacer(Modifier.height(4.dp))
                             }
                         }
-                        CustomDialogText("Correct: ${cardDetails.correct.value}", getUIStyle)
+                        CustomDialogText("Correct: ${cardDetails.correct}", getUIStyle)
                     }
                     if (ct.getCardType() == Type.NOTATION) {
-                        cardDetails.stringList.mapIndexed { index, it ->
-                            CustomDialogText("Step ${index + 1}) ${it.value}", getUIStyle)
+                        cardDetails.steps.mapIndexed { index, it ->
+                            CustomDialogText("Step ${index + 1}) $it", getUIStyle)
                             Spacer(Modifier.height(4.dp))
                         }
                     }
                     if (ct.getCardType() != Type.MULTI) {
-                        CustomDialogText("A: ${cardDetails.answer.value}", getUIStyle)
+                        CustomDialogText("A: ${cardDetails.answer}", getUIStyle)
                     }
                 }
             },

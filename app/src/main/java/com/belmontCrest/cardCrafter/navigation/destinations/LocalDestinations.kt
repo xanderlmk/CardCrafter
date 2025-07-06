@@ -47,6 +47,5 @@ object ViewAllCardsDestination : NavigationDestination {
 
 @Serializable
 object EditingCardDestination : NavigationDestination {
-    override val route = "EditingCard/{card_id}"
-    fun createRoute(cardId: Int): String = "EditingCard/$cardId"
+    override val route = "EditingCard"
 }

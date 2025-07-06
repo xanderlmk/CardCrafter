@@ -145,8 +145,15 @@ android {
         arg("room.schemaLocation", "$projectDir/schemas")
     }
 
-
+    task("printNdkPath") {
+        val register = this.logger.log(LogLevel.WARN, "NDK in use: ${android.ndkDirectory}")
+        doLast {
+            register
+        }
+    }
 }
+
+
 
 
 dependencies {
@@ -156,6 +163,14 @@ dependencies {
     annotationProcessor (libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
      */
+
+    implementation(libs.androidx.datastore.preferences)
+
+    // optional - RxJava2 support
+    implementation (libs.androidx.datastore.preferences.rxjava2)
+
+    // optional - RxJava3 support
+    implementation(libs.androidx.datastore.preferences.rxjava3)
 
     implementation(libs.androidx.foundation.android)
 

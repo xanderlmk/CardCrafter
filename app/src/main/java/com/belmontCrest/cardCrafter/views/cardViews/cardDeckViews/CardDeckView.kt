@@ -71,20 +71,18 @@ class CardDeckView(
         val backupList by cardDeckVM.backupCardList.collectAsState()
         val errorState by cardDeckVM.errorState.collectAsState()
 
-        var dueCTs = remember {
+        val dueCTs = remember {
             derivedStateOf { sealedCL.allCTs.toMutableList() }
         }
         var show by rememberSaveable { mutableStateOf(false) }
         val index = rememberSaveable { mutableIntStateOf(0) }
         val coroutineScope = rememberCoroutineScope()
-        var clicked by remember { mutableStateOf(false) }
+        var clicked by rememberSaveable { mutableStateOf(false) }
         var started by rememberSaveable { mutableStateOf(false) }
         val clickedChoice = rememberSaveable { mutableStateOf('?') }
 
-
         val scrollState = rememberScrollState()
         val focusManager = LocalFocusManager.current
-
         val redoClicked by cardDeckVM.redoClicked.collectAsStateWithLifecycle()
 
         if (redoClicked) {
@@ -128,10 +126,7 @@ class CardDeckView(
                 if (sealedCL.allCTs.isEmpty() || dueCTs.value.isEmpty() ||
                     deck.nextReview > Date()
                 ) {
-                    if (cardDeckVM.getState() == CardState.Finished){
-                        NoDueCards(getUIStyle)
-                    }
-
+                    if (cardDeckVM.getState() == CardState.Finished) NoDueCards(getUIStyle)
                 } else {
                     if (index.intValue < dueCTs.value.size) {
                         Text(
@@ -181,7 +176,7 @@ class CardDeckView(
                                 getUIStyle, Modifier
                                     .align(Alignment.TopCenter)
                                     .padding(bottom = 62.dp, top = 80.dp),
-                                clickedChoice.value
+                                clickedChoice
                             )
                             Row(
                                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -282,7 +277,6 @@ class CardDeckView(
                                         )
                                     ) { Text(stringResource(R.string.hard)) }
                                     HardText(sealedCL, index.intValue, hard, getUIStyle)
-
                                 }
                                 Column(
                                     verticalArrangement = Arrangement.Top,

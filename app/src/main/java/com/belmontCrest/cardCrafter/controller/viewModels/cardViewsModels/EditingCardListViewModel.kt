@@ -36,26 +36,19 @@ class EditingCardListViewModel(
             }
         }
     }.stateIn(
-        scope = viewModelScope,
-        initialValue = SealedAllCTs(),
+        scope = viewModelScope, initialValue = SealedAllCTs(),
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS)
     )
 
     val searchQuery = cardTypeRepository.searchQuery.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = savedStateHandle["query"] ?: ""
     )
     val selectedCards = cardTypeRepository.selectedCards.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = emptyList()
     )
 
-    fun updateQuery(query: String) {
-        savedStateHandle["query"] = query
-        cardTypeRepository.updateQuery(query)
-    }
 
     fun updateId(
         id: Int,
@@ -64,13 +57,8 @@ class EditingCardListViewModel(
         deckId.update { id }
     }
 
-    fun toggleCard(ct: CT) {
-        cardTypeRepository.toggleCard(ct)
-    }
+    fun toggleCard(ct: CT) = cardTypeRepository.toggleCard(ct)
 
-    init {
-        updateQuery(savedStateHandle["query"] ?: "")
-    }
 }
 
 

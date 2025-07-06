@@ -1,6 +1,10 @@
 package com.belmontCrest.cardCrafter.localDatabase.tables
 
 import android.os.Parcel
+import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.AnswerParam
+import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
+import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.Param
+import kotlinx.serialization.json.Json
 import java.util.Date
 
 fun toParcelableCard(parcel: Parcel): Card? =
@@ -61,4 +65,20 @@ fun toParcelableNotationCard(parcel: Parcel): NotationCard? =
         question = parcel.readString()!!,
         steps = listOf(parcel.readString()!!),
         answer = parcel.readString()!!
+    )
+
+fun toParcelableNullableCustomCard(parcel: Parcel): NullableCustomCard? =
+    NullableCustomCard(
+        cardId = parcel.readInt(),
+        Json.decodeFromString<Param>(parcel.readString()!!),
+        parcel.readString()?.let { Json.decodeFromString<MiddleParam?>(it) },
+        Json.decodeFromString<AnswerParam>(parcel.readString()!!)
+    )
+
+fun toParcelableCustomCard(parcel: Parcel): CustomCard? =
+    CustomCard(
+        cardId = parcel.readInt(),
+        Json.decodeFromString<Param>(parcel.readString()!!),
+        Json.decodeFromString<MiddleParam>(parcel.readString()!!),
+        Json.decodeFromString<AnswerParam>(parcel.readString()!!)
     )

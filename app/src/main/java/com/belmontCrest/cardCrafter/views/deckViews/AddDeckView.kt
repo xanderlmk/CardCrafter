@@ -53,12 +53,12 @@ class AddDeckView(
         var deckReviewAmount by rememberSaveable { mutableStateOf(reviewAmount) }
         var deckCardAmount by rememberSaveable { mutableStateOf(cardAmount) }
         val coroutineScope = rememberCoroutineScope()
-        val fieldOutAllFields = stringResource(R.string.fill_out_all_fields).toString()
-        val deckNameAlreadyExists = stringResource(R.string.deck_already_exists).toString()
-        val reviewAmount0 = stringResource(R.string.review_amount_0).toString()
-        val reviewAmount10 = stringResource(R.string.review_amount_10).toString()
-        val wrongCardAmount = stringResource(R.string.card_amount_5_1000).toString()
-        val error = stringResource(R.string.error).toString()
+        val fieldOutAllFields = stringResource(R.string.fill_out_all_fields)
+        val deckNameAlreadyExists = stringResource(R.string.deck_already_exists)
+        val reviewAmount0 = stringResource(R.string.review_amount_0)
+        val reviewAmount10 = stringResource(R.string.review_amount_10)
+        val wrongCardAmount = stringResource(R.string.card_amount_5_1000)
+        val error = stringResource(R.string.error)
         val scrollState = rememberScrollState()
 
         Box(

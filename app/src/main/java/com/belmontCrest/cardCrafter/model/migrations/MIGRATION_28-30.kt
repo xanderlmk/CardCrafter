@@ -64,7 +64,6 @@ val MIGRATION_27_28 = object : Migration(27, 28) {
             db.execSQL("PRAGMA foreign_keys=ON;")
             db.setTransactionSuccessful()
         } catch (e: Exception) {
-            // Log the error for debugging
             Log.e("Migration", "Migration 27 to 28 failed", e)
             throw RuntimeException("Migration 27 to 28 failed: ${e.message}")
         } finally {
@@ -283,7 +282,6 @@ val MIGRATION_29_30 = object : Migration(29, 30) {
             db.execSQL("PRAGMA foreign_keys=ON;")
             db.setTransactionSuccessful()
         } catch (e: Exception) {
-            // Log the error for debugging
             Log.e("Migration", "Migration 29 to 30 failed", e)
             throw RuntimeException("Migration 29 to 30 failed: ${e.message}")
         } finally {
@@ -328,7 +326,6 @@ val MIGRATION_30_31 = object : Migration(30, 31) {
             db.execSQL("PRAGMA foreign_keys=ON;")
             db.setTransactionSuccessful()
         } catch (e: Exception) {
-            // Log the error for debugging
             Log.e("Migration", "Migration 30 to 31 failed", e)
             throw RuntimeException("Migration 30 to 31 failed: ${e.message}")
         } finally {

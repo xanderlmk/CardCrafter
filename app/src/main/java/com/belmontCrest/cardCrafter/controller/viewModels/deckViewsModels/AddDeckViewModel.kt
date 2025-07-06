@@ -17,7 +17,7 @@ class AddDeckViewModel(
     private val flashCardRepository: FlashCardRepository,
 ) : ViewModel() {
 
-    private val _errorMessage = MutableStateFlow<String>("")
+    private val _errorMessage = MutableStateFlow("")
 
 
     companion object {
@@ -36,10 +36,11 @@ class AddDeckViewModel(
 
     fun addDeck(name: String, reviewAmount: Int, cardAmount: Int) {
         if (name.isNotEmpty() &&
-            reviewAmount in MIN_REVIEWS .. MAX_REVIEWS &&
-            cardAmount in MIN_CARDS .. MAX_CARDS) {
-            viewModelScope.launch {
-                try {
+            reviewAmount in MIN_REVIEWS..MAX_REVIEWS &&
+            cardAmount in MIN_CARDS..MAX_CARDS
+        ) {
+            try {
+                viewModelScope.launch(Dispatchers.IO) {
                     flashCardRepository.insertDeck(
                         Deck(
                             name = name,
@@ -50,17 +51,17 @@ class AddDeckViewModel(
                             lastUpdated = Date()
                         )
                     )
-                } catch (e: SQLiteConstraintException) {
-                    handleError("A deck with this name already exists: ${e.message}")
-                } catch (e: Exception) {
-                    handleError("error adding deck: ${e.message}")
                 }
+            } catch (e: SQLiteConstraintException) {
+                handleError("A deck with this name already exists: ${e.message}")
+            } catch (e: Exception) {
+                handleError("error adding deck: ${e.message}")
             }
         }
     }
 
     private fun handleError(prefix: String): Int {
-        Log.d("AddDeckViewModel", prefix)
+        Log.e("AddDeckViewModel", prefix)
         _errorMessage.value = prefix
         return 0
     }

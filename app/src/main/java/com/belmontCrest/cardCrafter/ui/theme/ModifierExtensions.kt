@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 
 fun Modifier.borderedModifier(getUIStyle: GetUIStyle): Modifier {
     return this
-            .border(2.dp, getUIStyle.defaultIconColor(), RoundedCornerShape(12.dp))
+            .border(2.dp, getUIStyle.themedColor(), RoundedCornerShape(12.dp))
 }
 
 fun Modifier.mainViewModifier(colorScheme : ColorScheme): Modifier {

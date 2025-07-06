@@ -2,11 +2,10 @@ package com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.dec
 
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.model.daoHelpers.DeckHelperDao
 import com.belmontCrest.cardCrafter.model.ui.states.DueDeckDetails
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
@@ -18,9 +17,7 @@ data class DeckId(
 )
 
 @Dao
-interface DeckDao {
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertDeck(deck: Deck): Long
+interface DeckDao : DeckHelperDao {
 
     @Update
     suspend fun updateDeck(deck: Deck)
@@ -38,40 +35,10 @@ interface DeckDao {
     fun getDeck(id: Int): Deck
 
     @Query("SELECT * from decks ORDER BY name ASC")
-    fun getAllDecksStream(): Flow<List<Deck>>
-
-    @Query("SELECT * from decks ORDER BY name ASC")
     suspend fun getAllDecks(): List<Deck>
 
     @Query("SELECT name from decks where id = :id")
     fun getDeckName(id: Int) : Flow<String?>
-
-    @Query(
-        """
-    WITH RankedCards AS (
-    SELECT
-        c.deckId,
-        COUNT(*) AS cardCount,
-        d.cardsLeft
-    FROM cards c
-    INNER JOIN decks d ON c.deckId = d.id
-    WHERE c.nextReview <= :currentTime
-    AND d.nextReview <= :currentTime
-    GROUP BY c.deckId, d.cardsLeft
-    ORDER BY c.nextReview ASC 
-    ) -- Collecting due cards pertaining to their deck
-    SELECT 
-    COALESCE(
-        CASE 
-            WHEN rc.cardCount >= d.cardsLeft THEN d.cardsLeft
-            ELSE rc.cardCount
-        END, 0
-    ) -- if there is no cards, return 0
-    FROM decks d
-    LEFT JOIN RankedCards rc ON d.id = rc.deckId
-    ORDER BY d.name"""
-    )
-    fun getCardCount(currentTime: Long): Flow<List<Int>>
 
     @Query(
         """

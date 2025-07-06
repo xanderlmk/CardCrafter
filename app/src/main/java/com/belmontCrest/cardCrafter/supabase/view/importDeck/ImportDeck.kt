@@ -1,7 +1,6 @@
 package com.belmontCrest.cardCrafter.supabase.view.importDeck
 
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -107,14 +106,12 @@ class ImportDeck(
                                             onError = { errorMessage = it }
                                         )
                                         if (success.intValue == SUCCESS) {
-                                            Toast.makeText(
-                                                context, "Success!", Toast.LENGTH_SHORT
-                                            ).show()
-                                            onNavigate()
+                                            showToastMessage(context, "Success!", onNavigate)
                                         } else {
                                             if (success.intValue == ReturnValues.DECK_EXISTS) {
                                                 conflict.value = true
                                             }
+                                            showToastMessage(context, errorMessage)
                                             enabled = true
                                         }
                                     }
@@ -199,24 +196,29 @@ class ImportDeck(
                                             errorMessage = it
                                         })
                                     result = thisResult.first
-                                    if (result == SUCCESS) {
-                                        showToastMessage(
-                                            context, "Success!", onNavigate = {
-                                                onNavigate()
-                                            }, dismiss
-                                        )
-                                    } else if (result == REPLACED_DECK) {
-                                        showToastMessage(
-                                            context,
-                                            "Success, the deck is called:\n" + thisResult.second,
-                                            onNavigate = {
-                                                onNavigate()
-                                            },
-                                            dismiss
-                                        )
-                                    } else {
-                                        showToastMessage(context, errorMessage)
-                                        enabled = true
+                                    when (result) {
+                                        SUCCESS -> {
+                                            showToastMessage(
+                                                context, "Success!", onNavigate = {
+                                                    onNavigate()
+                                                }, dismiss
+                                            )
+                                        }
+
+                                        REPLACED_DECK -> {
+                                            showToastMessage(
+                                                context,
+                                                "Success, the deck is called:\n" + thisResult.second,
+                                                onNavigate = {
+                                                    onNavigate()
+                                                }, dismiss
+                                            )
+                                        }
+
+                                        else -> {
+                                            showToastMessage(context, errorMessage)
+                                            enabled = true
+                                        }
                                     }
                                 }
                             }, enabled, getUIStyle, "Replace"

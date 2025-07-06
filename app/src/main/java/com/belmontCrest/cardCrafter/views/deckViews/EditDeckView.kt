@@ -26,12 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteDeck
@@ -66,7 +64,7 @@ class EditDeckView(
         onNavigate: () -> Unit, onDelete: () -> Unit
     ) {
         val vm: EditDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
-        var deckDetails = createDeckDetails(deck)
+        val deckDetails = createDeckDetails(deck)
 
         val multiplierErrorMessage = remember { mutableStateOf("") }
         val reviewErrorMessage = remember { mutableStateOf("") }
@@ -77,7 +75,7 @@ class EditDeckView(
         val reviewAmountSuccessful = remember { mutableStateOf("") }
         val cardAmountSuccessful = remember { mutableStateOf("") }
         val isSubmitting = remember { mutableStateOf(false) }
-        var expanded = rememberSaveable { MutableList(4) { mutableStateOf(false) } }
+        val expanded = rememberSaveable { MutableList(4) { mutableStateOf(false) } }
 
         val deckErrors = returnDeckError()
         val reviewAmountErrors = returnReviewError()
@@ -97,22 +95,10 @@ class EditDeckView(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(top = 20.dp, start = 15.dp, end = 15.dp)
+                    .padding(start = 15.dp, end = 15.dp)
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = stringResource(R.string.edit_deck) + ": $currentName",
-                    fontSize = 30.sp,
-                    lineHeight = 32.sp,
-                    textAlign = TextAlign.Center,
-                    color = getUIStyle.titleColor(),
-                    fontWeight = Bold,
-                    modifier = Modifier.padding(
-                        top = 20.dp,
-                        start = 50.dp, end = 50.dp
-                    )
-                )
                 if (!expanded[0].value) {
                     Row(
                         modifier = Modifier
