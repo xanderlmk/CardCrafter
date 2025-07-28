@@ -1,0 +1,15 @@
+//
+//  Card+CoreDataClass.swift
+//  CardCrafter
+//
+//  Created by Assykilla on 7/28/25.
+//
+//
+
+import Foundation
+import CoreData
+
+@objc(Card)
+public class Card: NSManagedObject {
+
+}
