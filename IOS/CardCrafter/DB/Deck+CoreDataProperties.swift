@@ -27,24 +27,24 @@ extension Deck {
     @NSManaged public var goodMultiplier: Double
     @NSManaged public var lastUpdated: Date
     @NSManaged public var reviewAmount: Int16
-    @NSManaged public var deck_of: NSSet?
+    @NSManaged public var cards: NSSet
 
 }
 
-// MARK: Generated accessors for deck_of
+// MARK: Generated accessors for cards
 extension Deck {
 
-    @objc(addDeck_ofObject:)
-    @NSManaged public func addToDeck_of(_ value: Card)
+    @objc(addCardsObject:)
+    @NSManaged public func addToCards(_ value: Card)
 
-    @objc(removeDeck_ofObject:)
-    @NSManaged public func removeFromDeck_of(_ value: Card)
+    @objc(removeCardsObject:)
+    @NSManaged public func removeFromCards(_ value: Card)
 
-    @objc(addDeck_of:)
-    @NSManaged public func addToDeck_of(_ values: NSSet)
+    @objc(addCards:)
+    @NSManaged public func addToCards(_ values: NSSet)
 
-    @objc(removeDeck_of:)
-    @NSManaged public func removeFromDeck_of(_ values: NSSet)
+    @objc(removeCards:)
+    @NSManaged public func removeFromCards(_ values: NSSet)
 
 }
 

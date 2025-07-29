@@ -37,7 +37,6 @@ struct AddDeckView: View {
                         value: $cardAmount,
                         formatter: Self.intFormatter,
                     )
-                    .keyboardType(.numberPad)
 
                     // Integer TextField for reviewAmount
                     TextField(
@@ -45,7 +44,6 @@ struct AddDeckView: View {
                         value: $reviewAmount,
                         formatter: Self.intFormatter
                     )
-                    .keyboardType(.numberPad)
                 }
 
                 // Save button + error message

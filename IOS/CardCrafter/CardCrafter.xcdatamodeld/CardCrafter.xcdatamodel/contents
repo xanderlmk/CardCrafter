@@ -15,7 +15,7 @@
         <attribute name="reviewsLeft" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="totalPasses" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="type" attributeType="String"/>
-        <relationship name="card_of" maxCount="1" deletionRule="Nullify" destinationEntity="Deck" inverseName="deck_of" inverseEntity="Deck"/>
+        <relationship name="deck" maxCount="1" deletionRule="Nullify" destinationEntity="Deck" inverseName="cards" inverseEntity="Deck"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="cardIdentifier"/>
@@ -34,7 +34,7 @@
         <attribute name="goodMultiplier" attributeType="Double" defaultValueString="1.5" usesScalarValueType="YES"/>
         <attribute name="lastUpdated" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="reviewAmount" attributeType="Integer 16" defaultValueString="1" usesScalarValueType="YES"/>
-        <relationship name="deck_of" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Card" inverseName="card_of" inverseEntity="Card"/>
+        <relationship name="cards" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Card" inverseName="deck" inverseEntity="Card"/>
     </entity>
     <entity name="HintCard" representedClassName="HintCard" parentEntity="Card" syncable="YES">
         <attribute name="answer" attributeType="String"/>
