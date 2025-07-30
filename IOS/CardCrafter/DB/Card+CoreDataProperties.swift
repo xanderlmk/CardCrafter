@@ -26,7 +26,7 @@ extension Card {
     @NSManaged public var reviewsLeft: Int16
     @NSManaged public var totalPasses: Int32
     @NSManaged public var type: String
-    @NSManaged public var card_of: Deck
+    @NSManaged public var deck: Deck
 
 }
 

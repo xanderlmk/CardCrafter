@@ -77,7 +77,7 @@ struct AddCardView: View {
     private func addCard() {
         // 1) Compute next cardDeckNumber & cardIdentifier
         let fetch: NSFetchRequest<Card> = Card.fetchRequest()
-        fetch.predicate = NSPredicate(format: "card_of == %@", deck)
+        fetch.predicate = NSPredicate(format: "deck == %@", deck)
         fetch.sortDescriptors = [NSSortDescriptor(key: "cardDeckNumber", ascending: false)]
         fetch.fetchLimit = 1
 
@@ -127,13 +127,20 @@ struct AddCardView: View {
         card.reviewsLeft = Int16(deck.reviewAmount)
         card.totalPasses = 0
         card.type = kind.rawValue
-        card.card_of = deck
+        card.deck = deck
 
         do {
             try viewContext.save()
-            presentationMode.wrappedValue.dismiss()
+            resetFields()
+            
         } catch {
             errorMessage = "Save failed: \(error.localizedDescription)"
         }
+    }
+    private func resetFields() {
+        question = ""
+        middle = ""
+        answer = ""
+        errorMessage = ""
     }
 }

@@ -8,48 +8,65 @@
 import SwiftUI
 import CoreData
 
+enum Route: Hashable {
+    case deckDetail(Deck)
+    case editDeck(Deck)
+    case editCards(Deck)
+}
+
 struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
-
     
+    @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(sortDescriptors: []) private var decks: FetchedResults<Deck>
-
+    
     @State private var showingAddDeck = false
-
-        var body: some View {
-            NavigationView {
-                List {
-                    ForEach(decks) { deck in
-                        NavigationLink(deck.d_name) {
-                            DeckDetailView(deck: deck)
-                        }
-                    }
-                    .onDelete(perform: deleteDecks)
-                }
-                .navigationTitle("Decks")
-                .toolbar {
-    #if os(iOS)
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        EditButton()
-                    }
-    #endif
-                    ToolbarItem {
-                        Button(action: { showingAddDeck = true }) {
-                            Label("Add Deck", systemImage: "plus")
-                        }
+    @State private var path: [Route] = []
+    
+    
+    var body: some View {
+        NavigationStack(path: $path) {
+            List {
+                ForEach(decks) { deck in
+                    NavigationLink(value: Route.deckDetail(deck)) {
+                        Text(deck.d_name)
                     }
                 }
-                .sheet(isPresented: $showingAddDeck) {
-                    AddDeckView()
-                        .environment(\.managedObjectContext, viewContext)
+                .onDelete(perform: deleteDecks)
+            }
+            .navigationTitle("Decks")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    EditButton()
+                }
+                ToolbarItem {
+                    Button {
+                        showingAddDeck = true
+                    } label: {
+                        Label("Add Deck", systemImage: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingAddDeck) {
+                AddDeckView()
+                    .environment(\.managedObjectContext, viewContext)
+            }
+            .navigationDestination(for: Route.self) { route in
+                switch route {
+                case .deckDetail(let deck):
+                    DeckDetailView(deck: deck, path: $path)
+                case .editDeck(let deck):
+                    EditDeckView(deck: deck)
+                case .editCards(let deck):
+                    CardListView(deck: deck)
                 }
             }
         }
-
-        private func deleteDecks(offsets: IndexSet) {
-            offsets.map { decks[$0] }.forEach(viewContext.delete)
-            try? viewContext.save()
-        }
+    }
+    
+    private func deleteDecks(offsets: IndexSet) {
+        offsets.map { decks[$0] }.forEach(viewContext.delete)
+        try? viewContext.save()
+    }
 }
 
 
