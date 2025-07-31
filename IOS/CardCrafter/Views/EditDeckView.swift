@@ -19,7 +19,6 @@ struct EditDeckView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.presentationMode)    private var presentationMode
     
-    
     init(deck: Deck) {
         self.deck = deck
         _deckName = State(initialValue: deck.d_name)
@@ -37,16 +36,28 @@ struct EditDeckView: View {
                 }
                 Section(header: Text("Cards per day")) {
                     TextField("Card Amount", value: $cardAmount, formatter: Self.intFormatter)
+#if os(iOS)
+                        .keyboardType(.numberPad)
+#endif
+                    
                 }
                 Section(header: Text("Review Amount")) {
-                    TextField("Review amount",value: $reviewAmount,formatter: Self.intFormatter)
+                    TextField("Review amount",value: $reviewAmount, formatter: Self.intFormatter)
+#if os(iOS)
+                        .keyboardType(.numberPad)
+#endif
+                    
                 }
                 Section {
                     Button("Update") {
                         updateDeck()
                     }
                     // disable if name empty or numbers invalid
-                    .disabled(deckName.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .disabled(
+                        deckName.trimmingCharacters(in: .whitespaces).isEmpty ||
+                        cardAmount <= 0 ||
+                        reviewAmount <= 0
+                    )
                     
                     if let error = errorMessage {
                         Text(error)
@@ -57,6 +68,9 @@ struct EditDeckView: View {
             }
         }
         .navigationTitle("\(deck.d_name)")
+#if os(macOS)
+        .padding()
+#endif
     }
     private static let intFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -68,6 +82,14 @@ struct EditDeckView: View {
         
         guard !trimmedName.isEmpty else {
             errorMessage = "Deck name can’t be blank."
+            return
+        }
+        guard (5...1000).contains(cardAmount) else {
+            errorMessage = "Cards per day must be between 5 and 1000."
+            return
+        }
+        guard(1...40).contains(reviewAmount) else {
+            errorMessage = "Review amount must be between 1 and 40"
             return
         }
         

@@ -25,6 +25,7 @@ struct DeckDetailView: View {
                 Text("Add New Card")
             }
         }.toolbar {
+#if os(iOS)
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Button("Edit Deck"){
@@ -36,7 +37,23 @@ struct DeckDetailView: View {
                 } label: {
                     Label("Edit", systemImage: "pencil.circle.fill")
                 }
+                
             }
+            
+#else
+            ToolbarItem() {
+                Menu {
+                    Button("Edit Deck"){
+                        path.append(Route.editDeck(deck))
+                    }
+                    Button("Edit Cards") {
+                        path.append(Route.editCards(deck))
+                    }
+                } label: {
+                    Label("Edit", systemImage: "pencil.circle.fill")
+                }
+            }
+#endif
         }
         .navigationTitle("\(deck.d_name)")
         .padding()

@@ -12,48 +12,53 @@ import CoreData
 struct AddDeckView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.presentationMode) private var presentationMode
-
+    
     @State private var name: String = ""
     @State private var cardAmount: Int = 20
     @State private var reviewAmount: Int = 1
     @State private var errorMessage: String?
-
+    
     // A shared NumberFormatter for integer text fields
     private static let intFormatter: NumberFormatter = {
         let f = NumberFormatter()
         f.numberStyle = .none
         return f
     }()
-
+    
     var body: some View {
-        NavigationView {
+        VStack {
             Form {
                 Section(header: Text("Deck Info")) {
                     TextField("Name", text: $name)
-
-                    // Integer TextField for cardAmount
                     TextField(
                         "Cards per day",
                         value: $cardAmount,
                         formatter: Self.intFormatter,
                     )
-
-                    // Integer TextField for reviewAmount
+#if os(iOS)
+                    .keyboardType(.numberPad)
+#endif
                     TextField(
                         "Review amount",
                         value: $reviewAmount,
                         formatter: Self.intFormatter
                     )
+#if os(iOS)
+                    .keyboardType(.numberPad)
+#endif
                 }
-
-                // Save button + error message
+                
                 Section {
                     Button("Save") {
                         saveDeck()
                     }
                     // disable if name empty or numbers invalid
-                    .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
-
+                    .disabled(
+                        name.trimmingCharacters(in: .whitespaces).isEmpty ||
+                        cardAmount <= 0 ||
+                        reviewAmount <= 0
+                    )
+                    
                     if let error = errorMessage {
                         Text(error)
                             .foregroundColor(.red)
@@ -70,8 +75,11 @@ struct AddDeckView: View {
                 }
             }
         }
+#if os(macOS)
+        .padding()
+#endif
     }
-
+    
     private func saveDeck() {
         // Generate a new UUID
         let newUUID = UUID().uuidString
@@ -97,19 +105,19 @@ struct AddDeckView: View {
             errorMessage = "Validation error: \(error.localizedDescription)"
             return
         }
-        if (name.isEmpty) {
+        if (name.isBlank) {
             errorMessage = "Name can't be empty"
             return
         }
         guard (5...1000).contains(cardAmount) else {
             errorMessage = "Cards per day must be between 5 and 1000."
             return
-          }
+        }
         guard(1...40).contains(reviewAmount) else {
             errorMessage = "Review amount must be between 1 and 40"
             return
         }
-
+        
         // No duplicate, proceed to save
         let deck = Deck(context: viewContext)
         deck.d_name = name.trimmingCharacters(in: .whitespaces)
@@ -121,7 +129,7 @@ struct AddDeckView: View {
         deck.lastUpdated = Date()
         deck.cardsDone = 0
         deck.cardsLeft = Int16(cardAmount)
-
+        
         do {
             try viewContext.save()
             presentationMode.wrappedValue.dismiss()
