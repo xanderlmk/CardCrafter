@@ -35,9 +35,11 @@ struct ContentView: View {
             }
             .navigationTitle("Decks")
             .toolbar {
+#if os(iOS)
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
                 }
+#endif
                 ToolbarItem {
                     Button {
                         showingAddDeck = true

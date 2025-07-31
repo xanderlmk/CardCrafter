@@ -21,7 +21,9 @@ struct CardListView: View {
                     } else if let three = card as? ThreeFieldCard {
                         Text("Three-Field: \(three.question)")
                     } else if let hint = card as? HintCard {
-                        Text("Hint: \(hint.hint)")
+                        Text("Hint: \(hint.question)")
+                    } else if let multi = card as? MultiChoiceCard {
+                        Text("Multi: \(multi.question)")
                     } else {
                         Text("Unknown card type")
                     }

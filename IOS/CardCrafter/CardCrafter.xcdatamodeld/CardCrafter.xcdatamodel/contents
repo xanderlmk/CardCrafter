@@ -41,6 +41,14 @@
         <attribute name="hint" attributeType="String"/>
         <attribute name="question" attributeType="String"/>
     </entity>
+    <entity name="MultiChoiceCard" representedClassName="MultiChoiceCard" parentEntity="Card" syncable="YES">
+        <attribute name="choiceA" attributeType="String"/>
+        <attribute name="choiceB" attributeType="String"/>
+        <attribute name="choiceC" optional="YES" attributeType="String"/>
+        <attribute name="choiceD" optional="YES" attributeType="String"/>
+        <attribute name="correct" attributeType="String" minValueString="1" maxValueString="1"/>
+        <attribute name="question" attributeType="String"/>
+    </entity>
     <entity name="ThreeFieldCard" representedClassName="ThreeFieldCard" parentEntity="Card" syncable="YES">
         <attribute name="answer" attributeType="String"/>
         <attribute name="middle" attributeType="String"/>

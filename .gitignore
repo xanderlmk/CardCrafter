@@ -21,3 +21,8 @@ supabaseCredentials.txt
 *.xcuserstate
 *.xcuserdatad/
 *.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Derived & build
+DerivedData/
+build/
