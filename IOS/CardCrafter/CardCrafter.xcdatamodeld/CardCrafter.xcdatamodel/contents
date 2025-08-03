@@ -16,6 +16,7 @@
         <attribute name="totalPasses" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="type" attributeType="String"/>
         <relationship name="deck" maxCount="1" deletionRule="Nullify" destinationEntity="Deck" inverseName="cards" inverseEntity="Deck"/>
+        <relationship name="saved" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SavedCard" inverseName="details" inverseEntity="SavedCard"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="cardIdentifier"/>
@@ -48,6 +49,16 @@
         <attribute name="choiceD" optional="YES" attributeType="String"/>
         <attribute name="correct" attributeType="String" minValueString="1" maxValueString="1"/>
         <attribute name="question" attributeType="String"/>
+    </entity>
+    <entity name="SavedCard" representedClassName="SavedCard" syncable="YES">
+        <attribute name="s_createdOn" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="s_nextReview" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="s_partOfList" attributeType="Boolean" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="s_passes" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="s_prevSuccess" attributeType="Boolean" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="s_reviewsLeft" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="s_totalPasses" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="details" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Card" inverseName="saved" inverseEntity="Card"/>
     </entity>
     <entity name="ThreeFieldCard" representedClassName="ThreeFieldCard" parentEntity="Card" syncable="YES">
         <attribute name="answer" attributeType="String"/>

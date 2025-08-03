@@ -13,6 +13,7 @@ import CoreData
 struct DeckDetailView: View {
     @ObservedObject var deck: Deck
     @Binding var path: [Route]
+    @State private var index: Int = 0
     
     var body: some View {
         VStack(spacing: 20) {
@@ -23,6 +24,9 @@ struct DeckDetailView: View {
             Text("Review amount: \(deck.reviewAmount)")
             NavigationLink(destination: AddCardView(deck: deck)) {
                 Text("Add New Card")
+            }
+            NavigationLink(destination: CardDeckView(deck: deck, index: $index)) {
+                Text("Start Deck")
             }
         }.toolbar {
 #if os(iOS)
@@ -57,7 +61,6 @@ struct DeckDetailView: View {
         }
         .navigationTitle("\(deck.d_name)")
         .padding()
-        
     }
 }
 

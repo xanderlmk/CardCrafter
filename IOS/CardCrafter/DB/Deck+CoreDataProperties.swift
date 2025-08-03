@@ -2,7 +2,7 @@
 //  Deck+CoreDataProperties.swift
 //  CardCrafter
 //
-//  Created by Assykilla on 7/30/25.
+//  Created by Assykilla on 8/2/25.
 //
 //
 
@@ -49,5 +49,16 @@ extension Deck {
 }
 
 extension Deck : Identifiable {
-
+    var dueCards: [Card] {
+           Array(
+               (cards as? Set<Card> ?? [])
+                   .filter { $0.c_nextReview <= Date() }
+                   .sorted { (a: Card, b: Card) -> Bool in
+                       if a.c_nextReview != b.c_nextReview { return a.c_nextReview < b.c_nextReview }
+                       if a.partOfList   != b.partOfList   { return a.partOfList && !b.partOfList }
+                       return a.reviewsLeft > b.reviewsLeft
+                   }
+                   .prefix(Int(cardsLeft))
+           )
+       }
 }

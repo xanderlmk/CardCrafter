@@ -2,7 +2,7 @@
 //  MultiChoiceCard+CoreDataProperties.swift
 //  CardCrafter
 //
-//  Created by Assykilla on 7/30/25.
+//  Created by Assykilla on 8/2/25.
 //
 //
 
@@ -16,11 +16,11 @@ extension MultiChoiceCard {
         return NSFetchRequest<MultiChoiceCard>(entityName: "MultiChoiceCard")
     }
 
-    @NSManaged public var question: String
     @NSManaged public var choiceA: String
     @NSManaged public var choiceB: String
     @NSManaged public var choiceC: String?
     @NSManaged public var choiceD: String?
     @NSManaged public var correct: String
+    @NSManaged public var question: String
 
 }

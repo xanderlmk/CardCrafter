@@ -26,3 +26,4 @@ supabaseCredentials.txt
 # Derived & build
 DerivedData/
 build/
+DB_TEMP/

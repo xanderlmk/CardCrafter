@@ -17,7 +17,7 @@ struct EditDeckView: View {
     @State private var badMultiplier: Double
     @State private var errorMessage: String?
     @Environment(\.managedObjectContext) private var viewContext
-    @Environment(\.presentationMode)    private var presentationMode
+    @Environment(\.presentationMode) private var presentationMode
     
     init(deck: Deck) {
         self.deck = deck
