@@ -2,7 +2,7 @@
 //  Card+CoreDataClass.swift
 //  CardCrafter
 //
-//  Created by Assykilla on 7/30/25.
+//  Created by Assykilla on 8/2/25.
 //
 //
 

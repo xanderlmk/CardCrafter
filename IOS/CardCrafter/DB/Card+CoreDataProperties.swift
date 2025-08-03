@@ -2,7 +2,7 @@
 //  Card+CoreDataProperties.swift
 //  CardCrafter
 //
-//  Created by Assykilla on 7/30/25.
+//  Created by Assykilla on 8/2/25.
 //
 //
 
@@ -27,9 +27,12 @@ extension Card {
     @NSManaged public var totalPasses: Int32
     @NSManaged public var type: String
     @NSManaged public var deck: Deck
+    @NSManaged public var saved: NSSet
 
 }
 
 extension Card : Identifiable {
-
+    var savedRecords: [SavedCard] {
+        (saved as? Set<SavedCard> ?? []).sorted { $0.s_createdOn > $1.s_createdOn }
+    }
 }
