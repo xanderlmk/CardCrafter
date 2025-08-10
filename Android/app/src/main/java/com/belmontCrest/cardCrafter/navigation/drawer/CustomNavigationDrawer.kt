@@ -64,8 +64,6 @@ import com.belmontCrest.cardCrafter.navigation.destinations.SettingsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.FSProp
 import com.belmontCrest.cardCrafter.model.TCProp
 import com.belmontCrest.cardCrafter.model.TextProps
@@ -90,32 +88,26 @@ import kotlinx.coroutines.launch
 @OptIn(InternalComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CustomNavigationDrawer(
-    mainNavController: NavHostController,
-    fields: Fields,
-    getUIStyle: GetUIStyle,
-    navViewModel: NavViewModel,
-    cardDeckVM: CardDeckViewModel,
-    supabaseVM: SupabaseViewModel,
+    mainNavController: NavHostController, fields: Fields,
+    getUIStyle: GetUIStyle, navVM: NavViewModel, supabaseVM: SupabaseViewModel,
     content: @Composable () -> Unit,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     val modalContent = ModalContent(
         navController = mainNavController, fields = fields,
-        getUIStyle = getUIStyle, navViewModel = navViewModel,
-        cardDeckVM = cardDeckVM, supabaseVM = supabaseVM,
-        cr = navViewModel.route.collectAsStateWithLifecycle().value,
-        wd = navViewModel.wd.collectAsStateWithLifecycle().value,
+        getUIStyle = getUIStyle, navVM = navVM,
+        supabaseVM = supabaseVM, cr = navVM.route.collectAsStateWithLifecycle().value,
         coroutineScope = coroutineScope
     )
 
     /** Current route */
-    val (cr, type, isSelecting, _) = collectTitleStates(navViewModel)
+    val (cr, type, isSelecting, _) = collectTitleStates(navVM)
 
-    val stateSize by cardDeckVM.stateSize.collectAsStateWithLifecycle()
-    val stateIndex by cardDeckVM.stateIndex.collectAsStateWithLifecycle()
+    val stateSize by navVM.stateSize.collectAsStateWithLifecycle()
+    val stateIndex by navVM.stateIndex.collectAsStateWithLifecycle()
 
-    val deckName by navViewModel.deckName.collectAsStateWithLifecycle()
+    val deckName by navVM.deckName.collectAsStateWithLifecycle()
     val owner by supabaseVM.owner.collectAsStateWithLifecycle()
 
     // Determine the title based on the current route.
@@ -143,7 +135,7 @@ fun CustomNavigationDrawer(
 
         else -> "CardCrafter"
     }
-    val isBlocking by navViewModel.isBlocking.collectAsStateWithLifecycle()
+    val isBlocking by navVM.isBlocking.collectAsStateWithLifecycle()
     val ci = ContentIcons(getUIStyle)
     val helpForNotation = rememberSaveable { mutableStateOf(false) }
     val isLandScape = getIsLandScape()
@@ -182,11 +174,11 @@ fun CustomNavigationDrawer(
                         titleContentColor = MaterialTheme.colorScheme.primary,
                     ),
                     title = {
-                        Title(titleText, getUIStyle, navViewModel, helpForNotation)
+                        Title(titleText, getUIStyle, navVM, helpForNotation)
                     },
                     navigationIcon = {
                         if (isSelecting) {
-                            IconButton(onClick = { navViewModel.resetSelection() }) {
+                            IconButton(onClick = { navVM.resetSelection() }) {
                                 ci.ContentIcon(Icons.Filled.Clear)
                             }
                         } else {
@@ -197,7 +189,7 @@ fun CustomNavigationDrawer(
                     },
                     actions = {
                         ActionIconButton(
-                            getUIStyle, cardDeckVM, fields, navViewModel,
+                            getUIStyle, fields, navVM,
                             supabaseVM, mainNavController
                         )
                     }, modifier = Modifier.fillMaxWidth()
@@ -353,15 +345,12 @@ private fun CardType(
 }
 
 fun launchHome(
-    coroutineScope: CoroutineScope,
-    navViewModel: NavViewModel,
-    cardDeckVM: CardDeckViewModel,
-    fields: Fields
+    coroutineScope: CoroutineScope, navViewModel: NavViewModel, fields: Fields
 ) {
     coroutineScope.launch {
-        updateCurrentTime()
+        navViewModel.updateTime()
         navViewModel.resetCard()
-        cardDeckVM.updateIndex(0)
+        navViewModel.updateUIIndex(0)
         fields.scrollPosition.value = 0
         fields.inDeckClicked.value = true
         fields.mainClicked.value = false

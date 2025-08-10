@@ -51,7 +51,7 @@ import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.PullDeck
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.toCardDetails
+import com.belmontCrest.cardCrafter.views.misc.details.toCardDetails
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

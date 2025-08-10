@@ -8,12 +8,12 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * Adding a MultiChoiceCard
  * */
 val MIGRATION_7_8 = object : Migration(7, 8) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.beginTransaction()
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.beginTransaction()
         try {
-            database.execSQL("PRAGMA foreign_keys=ON;")
+            db.execSQL("PRAGMA foreign_keys=ON;")
 
-            database.execSQL(
+            db.execSQL(
                 """
                 CREATE TABLE IF NOT EXISTS multiChoiceCard (
                     cardId INTEGER NOT NULL, 
@@ -28,13 +28,13 @@ val MIGRATION_7_8 = object : Migration(7, 8) {
                     )
             """
             )
-            database.setTransactionSuccessful()
+            db.setTransactionSuccessful()
         } catch (e: Exception) {
             // Log the error for debugging
             Log.e("Migration", "Migration 7 to 8 failed", e)
             throw RuntimeException("Migration 7 to 8 failed: ${e.message}")
         } finally {
-            database.endTransaction()
+            db.endTransaction()
         }
     }
 }

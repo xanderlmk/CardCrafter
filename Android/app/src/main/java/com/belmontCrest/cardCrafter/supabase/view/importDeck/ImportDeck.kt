@@ -50,7 +50,7 @@ import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.CancelButton
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.toCardDetails
+import com.belmontCrest.cardCrafter.views.misc.details.toCardDetails
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

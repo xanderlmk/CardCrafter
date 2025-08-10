@@ -3,8 +3,8 @@ package com.belmontCrest.cardCrafter.supabase.controller.viewModels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkIfDeckExists
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.checkIfDeckUUIDExists
+import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.checkIfDeckExists
+import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.checkIfDeckUUIDExists
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.model.application.PreferenceValues
 import com.belmontCrest.cardCrafter.supabase.controller.converters.cardColsCTToSBCT

@@ -100,17 +100,17 @@ data class Deck(
 )
 data class Card(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    var deckId: Int,
+    val deckId: Int,
     val deckUUID: String,
-    var reviewsLeft: Int,
+    val reviewsLeft: Int,
     @Serializable(with = DateAsLong::class)
-    var nextReview: Date,
-    var passes: Int = 0,
-    var prevSuccess: Boolean,
-    var totalPasses: Int = 0,
+    val nextReview: Date,
+    val passes: Int = 0,
+    val prevSuccess: Boolean,
+    val totalPasses: Int = 0,
     val type: String,
     val createdOn: Long = Date().time,
-    var partOfList: Boolean = false,
+    val partOfList: Boolean = false,
     val deckCardNumber: Int?,
     val cardIdentifier: String
 ) : Parcelable {
@@ -121,7 +121,6 @@ data class Card(
     }
 
     override fun hashCode(): Int = id
-
 
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
@@ -164,17 +163,39 @@ data class Card(
 }
 
 @Parcelize
-@Entity(tableName = "savedCards")
+@Entity(
+    tableName = "saved_card",
+    foreignKeys = [
+        ForeignKey(
+            entity = Card::class,
+            parentColumns = ["id"],
+            childColumns = ["cardId"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index(value = ["cardId"])]
+)
 data class SavedCard(
-    @PrimaryKey val id: Int,
-    var reviewsLeft: Int,
-    var nextReview: Date,
-    var passes: Int,
-    var prevSuccess: Boolean,
-    var totalPasses: Int,
-    var partOfList: Boolean
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val createdOn: Date,
+    val cardId: Int,
+    val reviewsLeft: Int,
+    val nextReview: Date,
+    val passes: Int,
+    val prevSuccess: Boolean,
+    val totalPasses: Int,
+    val partOfList: Boolean
 ) : Parcelable
 
+data class CardRemains(
+    val deckId: Int,
+    val deckUUID: String,
+    val type: String,
+    val createdOn: Long,
+    val deckCardNumber: Int?,
+    val cardIdentifier: String
+)
 
 data class CIForID(val cardIdentifier: String)
 

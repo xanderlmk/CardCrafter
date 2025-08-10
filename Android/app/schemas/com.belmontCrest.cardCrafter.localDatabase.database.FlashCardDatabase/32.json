@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 32,
-    "identityHash": "fc0950a21a2d2a7277e68b0bbb13ff75",
+    "identityHash": "680f20614f970b6179501e6df113a6b2",
     "entities": [
       {
         "tableName": "decks",
@@ -562,11 +562,17 @@
       },
       {
         "tableName": "savedCards",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `reviewsLeft` INTEGER NOT NULL, `nextReview` INTEGER NOT NULL, `passes` INTEGER NOT NULL, `prevSuccess` INTEGER NOT NULL, `totalPasses` INTEGER NOT NULL, `partOfList` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `cardId` INTEGER NOT NULL, `reviewsLeft` INTEGER NOT NULL, `nextReview` INTEGER NOT NULL, `passes` INTEGER NOT NULL, `prevSuccess` INTEGER NOT NULL, `totalPasses` INTEGER NOT NULL, `partOfList` INTEGER NOT NULL, FOREIGN KEY(`cardId`) REFERENCES `cards`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardId",
+            "columnName": "cardId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -608,13 +614,35 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": false,
+          "autoGenerate": true,
           "columnNames": [
             "id"
           ]
         },
-        "indices": [],
-        "foreignKeys": []
+        "indices": [
+          {
+            "name": "index_savedCards_cardId",
+            "unique": false,
+            "columnNames": [
+              "cardId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_savedCards_cardId` ON `${TABLE_NAME}` (`cardId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "cards",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "cardId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       },
       {
         "tableName": "importedDeckInfo",
@@ -781,7 +809,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "nullableMiddle",
+            "fieldPath": "middle",
             "columnName": "middle",
             "affinity": "TEXT",
             "notNull": false
@@ -828,7 +856,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fc0950a21a2d2a7277e68b0bbb13ff75')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '680f20614f970b6179501e6df113a6b2')"
     ]
   }
 }

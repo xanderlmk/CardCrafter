@@ -8,12 +8,12 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * Adding a Multiplier
  * */
 val MIGRATION_3_5 = object : Migration(3, 5) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.beginTransaction()
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.beginTransaction()
         try {
-            database.execSQL("PRAGMA foreign_keys=ON;")
-            database.execSQL("ALTER TABLE decks ADD COLUMN multiplier DOUBLE NOT NULL DEFAULT 1.5")
-            database.execSQL(
+            db.execSQL("PRAGMA foreign_keys=ON;")
+            db.execSQL("ALTER TABLE decks ADD COLUMN multiplier DOUBLE NOT NULL DEFAULT 1.5")
+            db.execSQL(
                 """
             CREATE TABLE cards_new (
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -27,19 +27,19 @@ val MIGRATION_3_5 = object : Migration(3, 5) {
             )
             """
             )
-            database.execSQL(
+            db.execSQL(
                 "INSERT INTO cards_new (id, deckId, passes, prevSuccess, totalPasses, type, nextReview) " +
                         "SELECT id, deckId, passes, prevSuccess, totalPasses, type, nextReview FROM cards"
             )
-            database.execSQL("DROP TABLE cards")
-            database.execSQL("ALTER TABLE cards_new RENAME TO cards")
-            database.setTransactionSuccessful()
+            db.execSQL("DROP TABLE cards")
+            db.execSQL("ALTER TABLE cards_new RENAME TO cards")
+            db.setTransactionSuccessful()
         } catch (e: Exception) {
             // Log the error for debugging
             Log.e("Migration", "Migration 4 to 5 failed", e)
             throw RuntimeException("Migration 4 to 5 failed: ${e.message}")
         } finally {
-            database.endTransaction()
+            db.endTransaction()
         }
     }
 }

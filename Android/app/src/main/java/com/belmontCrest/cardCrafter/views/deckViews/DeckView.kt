@@ -34,8 +34,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.DeckViewModel
+import com.belmontCrest.cardCrafter.model.application.AppVMProvider
+import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.DeckViewModel
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.AddCardButton
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -52,10 +52,10 @@ class DeckView(
     fun ViewEditDeck(
         deck: Deck,
         goToAddCard: (Int, String) -> Unit,
-        goToDueCards: (Int) -> Unit,
+        goToDueCards: () -> Unit,
     ) {
-        val deckVM: DeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
-        var pressed = rememberSaveable { mutableStateOf(false) }
+        val deckVM: DeckViewModel = viewModel(factory = AppVMProvider.Factory)
+        val pressed = rememberSaveable { mutableStateOf(false) }
         val isLandscape =
             LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
         val widthHeight = if (isLandscape) {
@@ -103,7 +103,7 @@ class DeckView(
                                     onTap = {
                                         if (!fields.inDeckClicked.value) {
                                             fields.inDeckClicked.value = true
-                                            goToDueCards(deck.id)
+                                            goToDueCards()
                                         }
                                     },
                                     onLongPress = {

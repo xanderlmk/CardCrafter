@@ -2,19 +2,13 @@ package com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories
 
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
 import com.belmontCrest.cardCrafter.model.daoHelpers.OrderBy
 import com.belmontCrest.cardCrafter.model.ui.states.DueDeckDetails
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.CardDetails
+import com.belmontCrest.cardCrafter.views.misc.details.CardDetails
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import java.util.Date
 
 interface FlashCardRepository {
-
-    val orderedBy: StateFlow<OrderBy>
-
-    fun updateOrder(orderBy: OrderBy)
     suspend fun checkIfDeckExists(deckName: String): Int
 
     suspend fun checkIfDeckExists(deckName: String, deckUUID: String): Int
@@ -38,8 +32,6 @@ interface FlashCardRepository {
     fun getDecksAndCC(currentTime: Long, orderBy: OrderBy): Pair<Flow<List<Deck>>, Flow<List<Int>>>
 
     suspend fun getAllDecks(): List<Deck>
-
-    fun getDeckStream(id: Int): Flow<Deck>
 
     fun getDeck(id: Int): Deck
 
@@ -75,20 +67,6 @@ interface FlashCardRepository {
     fun getCardById(cardId: Int): Card
 
     suspend fun getBackupDueCards(deckId: Int, cardAmount: Int): List<Card>
-
-    fun updateSavedCards(
-        cardId: Int,
-        reviewsLeft: Int,
-        nextReview: Long,
-        passes: Int,
-        prevSuccess: Boolean,
-        totalPasses: Int,
-        partOfList: Boolean
-    )
-
-    fun deleteSavedCards()
-    fun insertSavedCard(savedCard: SavedCard)
-    fun getAllSavedCards(): Flow<List<SavedCard>>
 
     suspend fun becomePartOfList(id: Int)
 

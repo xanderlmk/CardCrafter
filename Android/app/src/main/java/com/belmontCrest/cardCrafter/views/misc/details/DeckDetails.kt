@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.views.miscFunctions.details
+package com.belmontCrest.cardCrafter.views.misc.details
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState

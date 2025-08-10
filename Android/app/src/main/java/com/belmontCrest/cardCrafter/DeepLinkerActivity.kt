@@ -22,7 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
-import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.model.application.PreferencesManager
 import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.DeepLinksViewModel
@@ -37,7 +37,7 @@ import kotlin.getValue
 @RequiresApi(Build.VERSION_CODES.Q)
 class DeepLinkerActivity : ComponentActivity() {
     private val deepLinksVM: DeepLinksViewModel by viewModels {
-        AppViewModelProvider.Factory
+        AppVMProvider.Factory
     }
 
     private lateinit var callback: (String, String) -> Unit

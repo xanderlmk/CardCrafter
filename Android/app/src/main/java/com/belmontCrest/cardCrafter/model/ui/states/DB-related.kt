@@ -6,7 +6,6 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleType
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.ParamType
-import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -24,7 +23,7 @@ data class DeckUiState(
 data class CardListUiCount(val cardListCount: List<Int> = emptyList()) : Parcelable
 
 @Parcelize
-data class SealedAllCTs(var allCTs: MutableList<CT> = mutableListOf()) : Parcelable
+data class SealedAllCTs(var allCTs: List<CT> = emptyList()) : Parcelable
 
 
 /** NavViewModel States */
@@ -80,14 +79,12 @@ data class DueDeckDetails(
     val nextReview: Date = Date()
 )
 
-/** For CardDeckVM */
-@Parcelize
-data class SealedDueCTs(
-    var allCTs: MutableList<CT> = mutableListOf(),
-    var savedCTs: MutableList<CT> = mutableListOf()
-) : Parcelable
 
-/** Also for our OnCreate MA */
-data class SavedCardUiState(
-    var savedCards: List<SavedCard> = emptyList()
+
+data class DeckId(
+    val id: Int
+)
+
+data class DeckNextReview(
+    val nextReview: Date
 )

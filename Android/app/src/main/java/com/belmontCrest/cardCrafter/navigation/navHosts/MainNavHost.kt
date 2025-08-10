@@ -23,7 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.navigation.destinations.AddDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SBNavDestination
 import com.belmontCrest.cardCrafter.navigation.drawer.CustomNavigationDrawer
@@ -35,9 +35,8 @@ import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.navigation.destinations.SettingsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditingCardListViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.model.application.PreferencesManager
 import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
@@ -55,14 +54,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun AppNavHost(
     mainNavController: NavHostController,
-    mainViewModel: MainViewModel,
-    editingCardListVM: EditingCardListViewModel,
-    navViewModel: NavViewModel,
-    supabaseVM: SupabaseViewModel,
-    fields: Fields,
-    preferences: PreferencesManager,
+    navViewModel: NavViewModel, supabaseVM: SupabaseViewModel,
+    fields: Fields, preferences: PreferencesManager,
 ) {
-    val cardDeckVM: CardDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val colorScheme = remember { ColorSchemeClass() }
     var onDeckView by remember { mutableStateOf(false) }
     colorScheme.colorScheme = MaterialTheme.colorScheme
@@ -75,12 +69,8 @@ fun AppNavHost(
     val generalSettings = GeneralSettings(getUIStyle, preferences)
     val coroutineScope = rememberCoroutineScope()
     CustomNavigationDrawer(
-        mainNavController = mainNavController,
-        fields = fields,
-        getUIStyle = getUIStyle,
-        navViewModel = navViewModel,
-        cardDeckVM = cardDeckVM,
-        supabaseVM = supabaseVM
+        mainNavController = mainNavController, fields = fields,
+        getUIStyle = getUIStyle, navVM = navViewModel, supabaseVM = supabaseVM
     ) {
         NavHost(
             navController = mainNavController,
@@ -93,16 +83,12 @@ fun AppNavHost(
                     // Exit the app when back is pressed on the main screen
                     (mainNavController.context as? Activity)?.finish()
                 }
+                val mainViewModel: MainViewModel = viewModel(factory = AppVMProvider.Factory)
                 mainView.DeckList(
                     mainViewModel,
-                    // In DeckList Composable
                     onNavigateToDeck = { id ->
-                        coroutineScope.launch {
-                            navViewModel.getDeckById(id)
-                        }
-                        coroutineScope.launch {
-                            editingCardListVM.updateId(id)
-                        }
+                        coroutineScope.launch { navViewModel.getDeckById(id) }
+                        coroutineScope.launch { navViewModel.clearSavedCards() }
                         fields.navigateToDeck()
                         onDeckView = true
                         navViewModel.updateStartingDeckRoute(DeckViewDestination.route)
@@ -119,14 +105,9 @@ fun AppNavHost(
                         mainNavController.navigate(SBNavDestination.route)
                     },
                     goToDueCards = { id ->
-                        coroutineScope.launch {
-                            navViewModel.getDeckById(id)
-                        }
-                        coroutineScope.launch {
-                            editingCardListVM.updateId(id)
-                        }
+                        coroutineScope.launch { navViewModel.getDeckById(id) }
+                        coroutineScope.launch { navViewModel.clearSavedCards() }
                         fields.navigateToDueCards()
-                        cardDeckVM.updateWhichDeck(id)
                         navViewModel.updateStartingDeckRoute(ViewDueCardsDestination.route)
                         navViewModel.updateRoute(ViewDueCardsDestination.route)
                         mainNavController.navigate(DeckNavDestination.route)
@@ -149,8 +130,7 @@ fun AppNavHost(
                     }
                 }
                 SupabaseNav(
-                    fields, mainViewModel, supabaseVM, getUIStyle,
-                    preferences, mainNavController, navViewModel
+                    fields, supabaseVM, getUIStyle, preferences, mainNavController, navViewModel
                 )
             }
             composable(
@@ -173,10 +153,7 @@ fun AppNavHost(
                 BackHandler {
                     fields.mainClicked.value = false
                     navViewModel.updateRoute(DeckListDestination.route)
-                    mainNavController.popBackStack(
-                        DeckListDestination.route,
-                        inclusive = false
-                    )
+                    mainNavController.popBackStack(DeckListDestination.route, inclusive = false)
                 }
                 addDeckView.AddDeck(
                     onNavigate = {
@@ -190,8 +167,10 @@ fun AppNavHost(
             }
             /** Our Deck Nav Controller to call*/
             composable(DeckNavDestination.route) {
+                val editingCardListVM: EditingCardListViewModel =
+                    viewModel(factory = AppVMProvider.Factory)
                 DeckNavHost(
-                    mainNavController, cardDeckVM, fields, onDeckView,
+                    mainNavController, fields, onDeckView,
                     navViewModel, getUIStyle, editingCardListVM, preferences
                 )
             }

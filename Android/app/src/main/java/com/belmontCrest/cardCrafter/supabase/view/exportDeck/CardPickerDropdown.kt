@@ -39,7 +39,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.toQuestion
+import com.belmontCrest.cardCrafter.views.misc.details.toQuestion
 
 
 @RequiresApi(Build.VERSION_CODES.Q)

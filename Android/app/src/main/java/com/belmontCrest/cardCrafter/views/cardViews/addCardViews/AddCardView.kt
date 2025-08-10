@@ -13,9 +13,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.AddCardViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.AddCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.application.PreferenceValues
@@ -30,7 +30,7 @@ class AddCardView(
     @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     fun AddCard(deck: Deck) {
-        val addCardVM: AddCardViewModel = viewModel(factory = AppViewModelProvider.Factory)
+        val addCardVM: AddCardViewModel = viewModel(factory = AppVMProvider.Factory)
         val type by navViewModel.type.collectAsStateWithLifecycle()
 
         Box(

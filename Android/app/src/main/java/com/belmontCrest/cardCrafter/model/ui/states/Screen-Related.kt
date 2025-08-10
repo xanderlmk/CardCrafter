@@ -30,6 +30,22 @@ sealed class CardState : Parcelable {
     data object Finished : CardState()
 }
 
+data object CSS {
+    const val IDLE = "idle"
+    const val LOADING = "loading"
+    const val FINISHED = "finished"
+}
+fun String.toCardState() = when (this) {
+    CSS.LOADING -> CardState.Loading
+    CSS.FINISHED -> CardState.Loading
+    else -> CardState.Idle
+}
+fun CardState.toCSString() = when (this) {
+    CardState.Finished -> CSS.FINISHED
+    CardState.Idle -> CSS.IDLE
+    CardState.Loading -> CSS.LOADING
+}
+
 /** Selected keyboard which is tied to NavVM */
 @Serializable
 @Parcelize

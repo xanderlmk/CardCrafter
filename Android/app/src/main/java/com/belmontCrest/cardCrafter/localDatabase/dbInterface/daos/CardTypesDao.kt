@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao
+package com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -25,12 +25,8 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddlePa
 import com.belmontCrest.cardCrafter.localDatabase.tables.deleteFiles
 import com.belmontCrest.cardCrafter.localDatabase.tables.toNullableCustomCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.toNullableCustomCards
+import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.daoHelpers.InsertOrAbortDao
-import com.belmontCrest.cardCrafter.model.Type.BASIC
-import com.belmontCrest.cardCrafter.model.Type.HINT
-import com.belmontCrest.cardCrafter.model.Type.MULTI
-import com.belmontCrest.cardCrafter.model.Type.NOTATION
-import com.belmontCrest.cardCrafter.model.Type.THREE
 import com.belmontCrest.cardCrafter.model.daoHelpers.UpdateAndDeleteHelper
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import kotlinx.coroutines.Dispatchers
@@ -44,20 +40,11 @@ interface CardTypesDao : InsertOrAbortDao, UpdateAndDeleteHelper {
     @Query(
         """SELECT * FROM cards WHERE deckId = :deckId 
         AND nextReview <= :currentTime 
-        ORDER BY nextReview ASC, partOfList DESC, reviewsLeft DESC
+        ORDER BY nextReview ASC, partOfList DESC, id ASC
         LIMIT :cardAmount"""
     )
     fun getDueAllCardTypesFlow(deckId: Int, cardAmount: Int, currentTime: Long):
             Flow<List<AllCardTypes>>
-
-    @Transaction
-    @Query(
-        """SELECT * FROM cards WHERE deckId = :deckId 
-        AND nextReview <= :currentTime AND reviewsLeft >= 1
-        ORDER BY nextReview ASC, partOfList DESC, reviewsLeft DESC
-        LIMIT :cardAmount"""
-    )
-    fun getDueAllCardTypes(deckId: Int, cardAmount: Int, currentTime: Long): List<AllCardTypes>
 
     @Transaction
     @Query(
@@ -91,7 +78,7 @@ interface CardTypesDao : InsertOrAbortDao, UpdateAndDeleteHelper {
         deleteCT: CT
     ) = withContext(Dispatchers.IO) {
         when (type) {
-            BASIC -> {
+            Type.BASIC -> {
                 insertBasicCard(
                     BasicCard(
                         cardId = cardId,
@@ -101,7 +88,7 @@ interface CardTypesDao : InsertOrAbortDao, UpdateAndDeleteHelper {
                 )
             }
 
-            THREE -> {
+            Type.THREE -> {
                 insertThreeCard(
                     ThreeFieldCard(
                         cardId = cardId,
@@ -114,7 +101,7 @@ interface CardTypesDao : InsertOrAbortDao, UpdateAndDeleteHelper {
 
             }
 
-            HINT -> {
+            Type.HINT -> {
                 insertHintCard(
                     HintCard(
                         cardId = cardId,
@@ -125,7 +112,7 @@ interface CardTypesDao : InsertOrAbortDao, UpdateAndDeleteHelper {
                 )
             }
 
-            MULTI -> {
+            Type.MULTI -> {
                 insertMultiChoiceCard(
                     MultiChoiceCard(
                         cardId = cardId,
@@ -139,7 +126,7 @@ interface CardTypesDao : InsertOrAbortDao, UpdateAndDeleteHelper {
                 )
             }
 
-            NOTATION -> {
+            Type.NOTATION -> {
                 insertNotationCard(
                     NotationCard(
                         cardId = cardId,
@@ -242,19 +229,19 @@ interface CardTypesDao : InsertOrAbortDao, UpdateAndDeleteHelper {
             val newDeckCardNumber = returnCardDeckNum(deck.id)
             when (ct) {
                 is CT.Basic -> {
-                    val cardId = returnCard(deck, newDeckCardNumber, BASIC).toInt()
+                    val cardId = returnCard(deck, newDeckCardNumber, Type.BASIC).toInt()
                     val bc = ct.basicCard
                     insertBasicCard(BasicCard(cardId, bc.question, bc.answer))
                 }
 
                 is CT.Hint -> {
-                    val cardId = returnCard(deck, newDeckCardNumber, HINT).toInt()
+                    val cardId = returnCard(deck, newDeckCardNumber, Type.HINT).toInt()
                     val hc = ct.hintCard
                     insertHintCard(HintCard(cardId, hc.question, hc.hint, hc.answer))
                 }
 
                 is CT.MultiChoice -> {
-                    val cardId = returnCard(deck, newDeckCardNumber, MULTI).toInt()
+                    val cardId = returnCard(deck, newDeckCardNumber, Type.MULTI).toInt()
                     val mc = ct.multiChoiceCard
                     insertMultiChoiceCard(
                         MultiChoiceCard(
@@ -266,13 +253,13 @@ interface CardTypesDao : InsertOrAbortDao, UpdateAndDeleteHelper {
                 }
 
                 is CT.Notation -> {
-                    val cardId = returnCard(deck, newDeckCardNumber, NOTATION).toInt()
+                    val cardId = returnCard(deck, newDeckCardNumber, Type.NOTATION).toInt()
                     val nc = ct.notationCard
                     insertNotationCard(NotationCard(cardId, nc.question, nc.steps, nc.answer))
                 }
 
                 is CT.ThreeField -> {
-                    val cardId = returnCard(deck, newDeckCardNumber, THREE).toInt()
+                    val cardId = returnCard(deck, newDeckCardNumber, Type.THREE).toInt()
                     val tc = ct.threeFieldCard
                     insertThreeCard(
                         ThreeFieldCard(cardId, tc.question, tc.middle, tc.answer, tc.field)

@@ -50,8 +50,6 @@ interface CardTypeRepository {
 
     fun getAllDueCardsStream(deckId: Int, cardAmount: Int, currentTime: Long): Flow<List<CT>>
 
-    fun getAllDueCards(deckId: Int, cardAmount: Int, currentTime: Long = Date().time): List<CT>
-
     fun getACardType(id: Int): CT
 
     fun getACardTypeStream(id: Int): Flow<CT>

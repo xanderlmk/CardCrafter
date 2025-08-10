@@ -17,7 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.navigation.destinations.SBNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
@@ -26,8 +26,6 @@ import com.belmontCrest.cardCrafter.navigation.destinations.ImportSBDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.updateCurrentTime
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.model.application.PreferencesManager
 import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
@@ -56,8 +54,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SupabaseNav(
-    fields: Fields, mainViewModel: MainViewModel,
-    supabaseVM: SupabaseViewModel, getUIStyle: GetUIStyle,
+    fields: Fields, supabaseVM: SupabaseViewModel, getUIStyle: GetUIStyle,
     preferences: PreferencesManager, navController: NavHostController,
     navViewModel: NavViewModel
 ) {
@@ -75,14 +72,12 @@ fun SupabaseNav(
     val coroutineScope = rememberCoroutineScope()
 
     val startingNavRoute by navViewModel.startingSBRoute.collectAsStateWithLifecycle()
-    val startDestination = if (startingNavRoute.name == SupabaseDestination.route) {
-        SupabaseDestination.route
-    } else if (startingNavRoute.name == UserProfileDestination.route) {
-        UserProfileDestination.route
-    } else {
-        UserEDDestination.route
+    val startDestination = when (startingNavRoute.name) {
+        SupabaseDestination.route -> SupabaseDestination.route
+        UserProfileDestination.route -> UserProfileDestination.route
+        else -> UserEDDestination.route
     }
-    val uEDVM: UserExportedDecksViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val uEDVM: UserExportedDecksViewModel = viewModel(factory = AppVMProvider.Factory)
     val clv = CardListView(uEDVM, getUIStyle, pc)
     NavHost(
         navController = sbNavController,
@@ -98,7 +93,7 @@ fun SupabaseNav(
             BackHandler {
                 navViewModel.updateRoute(MainNavDestination.route)
                 BackNavHandler.returnToDeckListFromSB(
-                    navController, updateCurrentTime(), fields
+                    navController, navViewModel.updateTime(), fields
                 )
             }
             onlineDatabase.SupabaseView(
@@ -173,7 +168,7 @@ fun SupabaseNav(
                 )
             }
             val importDeckVM: ImportDeckViewModel =
-                viewModel(factory = AppViewModelProvider.Factory)
+                viewModel(factory = AppVMProvider.Factory)
 
             sbDeck?.let {
                 importDeck.GetDeck(
@@ -206,7 +201,7 @@ fun SupabaseNav(
             BackHandler {
                 navViewModel.updateRoute(MainNavDestination.route)
                 BackNavHandler.returnToDeckListFromSB(
-                    navController, updateCurrentTime(), fields
+                    navController, navViewModel.updateTime(), fields
                 )
             }
             MyProfile(
@@ -223,12 +218,11 @@ fun SupabaseNav(
             BackHandler {
                 navViewModel.updateRoute(MainNavDestination.route)
                 BackNavHandler.returnToDeckListFromSB(
-                    navController, updateCurrentTime(), fields
+                    navController, navViewModel.updateTime(), fields
                 )
             }
             UserExportedDecks(
-                getUIStyle,
-                uEDVM,
+                getUIStyle, uEDVM,
                 onNavigate = { uuid ->
                     uEDVM.updateUUUID(uuid)
                     navViewModel.updateRoute(SBCardListDestination.route)
@@ -239,7 +233,7 @@ fun SupabaseNav(
                     sbNavController.navigate(ExportSBDestination.route)
                     supabaseVM.updateCardsToDisplayUUID(uuid)
                 },
-                localDeckList = mainViewModel.deckUiState.collectAsStateWithLifecycle().value.deckList,
+                localDeckList = uEDVM.deckUiState.collectAsStateWithLifecycle().value.deckList,
                 supabaseVM = supabaseVM
             )
         }
@@ -261,7 +255,7 @@ fun SupabaseNav(
                     UserProfileDestination.route, inclusive = false
                 )
             }
-            val corVM: CoOwnerViewModel = viewModel(factory = AppViewModelProvider.Factory)
+            val corVM: CoOwnerViewModel = viewModel(factory = AppVMProvider.Factory)
             val rv = RequestsView(getUIStyle, corVM)
             rv.Requests()
         }

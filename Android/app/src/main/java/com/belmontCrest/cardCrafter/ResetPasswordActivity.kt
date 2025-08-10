@@ -27,7 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
-import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.model.application.PreferencesManager
 import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.DeepLinksViewModel
@@ -46,7 +46,7 @@ import kotlin.getValue
 class ResetPasswordActivity : ComponentActivity() {
     private lateinit var callback: (String, String) -> Unit
     private val deepLinksVM: DeepLinksViewModel by viewModels {
-        AppViewModelProvider.Factory
+        AppVMProvider.Factory
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

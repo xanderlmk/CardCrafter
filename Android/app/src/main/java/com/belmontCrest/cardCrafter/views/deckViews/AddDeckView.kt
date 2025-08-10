@@ -32,8 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.AddDeckViewModel
+import com.belmontCrest.cardCrafter.model.application.AppVMProvider
+import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.AddDeckViewModel
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
@@ -47,7 +47,7 @@ class AddDeckView(
     @Composable
     fun AddDeck(onNavigate: () -> Unit, reviewAmount : String,
                 cardAmount : String) {
-        val viewModel: AddDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
+        val viewModel: AddDeckViewModel = viewModel(factory = AppVMProvider.Factory)
         var errorMessage by remember { mutableStateOf("") }
         var deckName by rememberSaveable {  mutableStateOf("") }
         var deckReviewAmount by rememberSaveable { mutableStateOf(reviewAmount) }

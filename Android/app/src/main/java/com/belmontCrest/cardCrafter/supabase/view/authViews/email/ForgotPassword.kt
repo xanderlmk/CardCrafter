@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ForgotPasswordViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
@@ -33,7 +33,7 @@ fun ForgotPassword(getUIStyle: GetUIStyle) {
     var inputEmail by rememberSaveable { mutableStateOf("") }
     var enabled by rememberSaveable { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
-    val fpVM: ForgotPasswordViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val fpVM: ForgotPasswordViewModel = viewModel(factory = AppVMProvider.Factory)
     val context = LocalContext.current
     Column(
         modifier = Modifier.boxViewsModifier(getUIStyle.getColorScheme()),

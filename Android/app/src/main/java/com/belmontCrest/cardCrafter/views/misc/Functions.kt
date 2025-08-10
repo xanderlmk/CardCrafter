@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.views.miscFunctions
+package com.belmontCrest.cardCrafter.views.misc
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -41,10 +41,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnReviewsLeft
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.AddCardViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.AddCardViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
-import com.belmontCrest.cardCrafter.model.ui.states.SealedDueCTs
 import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
@@ -53,6 +52,7 @@ import java.io.FileOutputStream
 import java.util.UUID
 import androidx.core.graphics.scale
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
+import com.belmontCrest.cardCrafter.model.ui.states.SealedAllCTs
 import com.belmontCrest.cardCrafter.uiFunctions.LatexKeyboard
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
@@ -234,7 +234,7 @@ fun AgainText(getUIStyle: GetUIStyle) {
 
 @Composable
 fun HardText(
-    updatedDueCards: SealedDueCTs,
+    updatedDueCards: SealedAllCTs,
     index: Int, hard: Int,
     getUIStyle: GetUIStyle
 ) {
@@ -254,7 +254,7 @@ fun HardText(
 
 @Composable
 fun GoodText(
-    updatedDueCards: SealedDueCTs,
+    updatedDueCards: SealedAllCTs,
     index: Int, good: Int,
     getUIStyle: GetUIStyle
 ) {
@@ -277,7 +277,7 @@ fun GoodText(
 fun NoDueCards(getUIStyle: GetUIStyle) {
     var delay by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        delay(500)
+        delay(400)
         delay = true
     }
     if (delay) {

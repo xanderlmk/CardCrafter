@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.views.miscFunctions
+package com.belmontCrest.cardCrafter.views.misc
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +12,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.toQuestion
+import com.belmontCrest.cardCrafter.views.misc.details.toQuestion
 
 @Composable
 fun CardSelector(

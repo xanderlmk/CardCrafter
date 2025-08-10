@@ -37,11 +37,11 @@ import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.cardTypeView.customCardParams.AudioPlayerButton
-import com.belmontCrest.cardCrafter.views.miscFunctions.AudioPicker
-import com.belmontCrest.cardCrafter.views.miscFunctions.ImagePicker
-import com.belmontCrest.cardCrafter.views.miscFunctions.PickAnswerChar
-import com.belmontCrest.cardCrafter.views.miscFunctions.StepListView
-import com.belmontCrest.cardCrafter.views.miscFunctions.toBitmap
+import com.belmontCrest.cardCrafter.views.misc.AudioPicker
+import com.belmontCrest.cardCrafter.views.misc.ImagePicker
+import com.belmontCrest.cardCrafter.views.misc.PickAnswerChar
+import com.belmontCrest.cardCrafter.views.misc.StepListView
+import com.belmontCrest.cardCrafter.views.misc.toBitmap
 
 @Composable
 fun CustomMiddleParamInput(

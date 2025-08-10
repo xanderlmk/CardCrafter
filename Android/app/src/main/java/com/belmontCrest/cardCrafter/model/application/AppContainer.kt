@@ -4,8 +4,13 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.TimeClass
 import com.belmontCrest.cardCrafter.localDatabase.database.FlashCardDatabase
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.DeckContentRepository
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineDeckContentRepo
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.DeckListRepository
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineDeckListRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineCardTypeRepository
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineFlashCardRepository
@@ -63,7 +68,9 @@ interface AppContainer {
     val deepLinkerRepo: DeepLinkerRepository
     val fpRepository: ForgotPasswordRepository
     val kbRepository: KeyboardSelectionRepository
-    val fieldParamRepository : FieldParamRepository
+    val fieldParamRepository: FieldParamRepository
+    val deckListRepository: DeckListRepository
+    val deckContentRepository: DeckContentRepository
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -75,12 +82,13 @@ class AppDataContainer(
     syncedSupabase: SupabaseClient
 ) : AppContainer {
 
+    private val timeClass = TimeClass()
+    private val sharedPrefs = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+
     override val flashCardRepository: FlashCardRepository by lazy {
         OfflineFlashCardRepository(
             FlashCardDatabase.getDatabase(context, scope).deckDao(),
-            FlashCardDatabase.getDatabase(context, scope).cardDao(),
-            FlashCardDatabase.getDatabase(context, scope).savedCardDao(),
-            context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+            FlashCardDatabase.getDatabase(context, scope).cardDao()
         )
     }
     override val cardTypeRepository: CardTypeRepository by lazy {
@@ -148,5 +156,18 @@ class AppDataContainer(
     }
     override val fieldParamRepository: FieldParamRepository by lazy {
         FieldParamRepositoryImpl()
+    }
+    override val deckListRepository: DeckListRepository by lazy {
+        OfflineDeckListRepository(
+            timeClass, sharedPrefs,
+            FlashCardDatabase.getDatabase(context, scope).deckDao()
+        )
+    }
+    override val deckContentRepository: DeckContentRepository by lazy {
+        OfflineDeckContentRepo(
+            FlashCardDatabase.getDatabase(context, scope).cardTypes(),
+            FlashCardDatabase.getDatabase(context, scope).deckDao(),
+            FlashCardDatabase.getDatabase(context, scope).savedCardDao(), sharedPrefs
+        )
     }
 }

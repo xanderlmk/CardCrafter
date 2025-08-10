@@ -6,7 +6,7 @@ import android.os.Parcelable
 import android.util.Log
 import androidx.core.net.toUri
 import androidx.room.TypeConverter
-import com.belmontCrest.cardCrafter.views.miscFunctions.copyFileToInternalStorage
+import com.belmontCrest.cardCrafter.views.misc.copyFileToInternalStorage
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

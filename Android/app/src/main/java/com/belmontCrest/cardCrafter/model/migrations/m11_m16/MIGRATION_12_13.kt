@@ -9,23 +9,23 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * */
 
 val MIGRATION_12_13 = object : Migration(12, 13) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.beginTransaction()
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.beginTransaction()
         try {
-            database.execSQL("PRAGMA foreign_keys=ON;")
+            db.execSQL("PRAGMA foreign_keys=ON;")
             // Add 'cardAmount' column to the 'decks' table
-            database.execSQL("""
+            db.execSQL("""
                 ALTER TABLE decks
                 ADD COLUMN cardAmount 
                 INTEGER NOT NULL DEFAULT 20
                 """)
-            database.setTransactionSuccessful()
+            db.setTransactionSuccessful()
         } catch (e: Exception) {
             // Log the error for debugging
             Log.e("Migration", "Migration 12 to 13 failed", e)
             throw RuntimeException("Migration 12 to 13 failed: ${e.message}")
         } finally {
-            database.endTransaction()
+            db.endTransaction()
         }
     }
 }

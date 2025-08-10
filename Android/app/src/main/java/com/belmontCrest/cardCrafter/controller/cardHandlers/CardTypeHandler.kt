@@ -1,7 +1,7 @@
 package com.belmontCrest.cardCrafter.controller.cardHandlers
 
 import androidx.compose.runtime.Composable
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditBasicCard
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditHintCard

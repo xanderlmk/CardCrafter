@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.DeckListRepository
+import com.belmontCrest.cardCrafter.model.ui.states.DeckUiState
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_DECK
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.MERGE_FAILED
@@ -34,6 +36,7 @@ class UserExportedDecksViewModel(
     private val sbTableRepository: SBTablesRepository,
     private val uEDRepository: UserExportedDecksRepository,
     private val mergeDecksRepository: MergeDecksRepository,
+    deckListRepository: DeckListRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     companion object {
@@ -55,6 +58,11 @@ class UserExportedDecksViewModel(
         initialValue = SBDeckListDto(),
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS)
+    )
+    val deckUiState= deckListRepository.deckUiState.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = DeckUiState()
     )
 
     private val _userCards = MutableStateFlow(SBCardList())

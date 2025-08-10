@@ -9,14 +9,14 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.AddCardViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.AddDeckViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.DeckViewModel
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.EditDeckViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditingCardListViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.MainViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.CardDeckViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.AddCardViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.AddDeckViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.DeckViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.EditDeckViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.CoOwnerViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.DeepLinksViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ForgotPasswordViewModel
@@ -30,7 +30,7 @@ import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserProfileVi
  * Provides Factory to create instance of ViewModel for the entire  app
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-object AppViewModelProvider {
+object AppVMProvider {
     val Factory = viewModelFactory {
         initializer {
             NavViewModel(
@@ -38,15 +38,12 @@ object AppViewModelProvider {
                 flashCardApplication().container.cardTypeRepository,
                 flashCardApplication().container.kbRepository,
                 flashCardApplication().container.fieldParamRepository,
+                flashCardApplication().container.deckContentRepository,
+                flashCardApplication().container.deckListRepository,
                 this.createSavedStateHandle()
             )
         }
-        initializer {
-            MainViewModel(
-                flashCardApplication().container.flashCardRepository,
-                this.createSavedStateHandle()
-            )
-        }
+        initializer { MainViewModel(flashCardApplication().container.deckListRepository) }
         initializer {
             AddDeckViewModel(
                 flashCardApplication().container.flashCardRepository,
@@ -75,14 +72,13 @@ object AppViewModelProvider {
         initializer {
             CardDeckViewModel(
                 flashCardApplication().container.flashCardRepository,
-                flashCardApplication().container.cardTypeRepository,
-                this.createSavedStateHandle()
+                flashCardApplication().container.deckContentRepository
             )
         }
         initializer {
             EditingCardListViewModel(
                 flashCardApplication().container.cardTypeRepository,
-                this.createSavedStateHandle()
+                flashCardApplication().container.deckContentRepository
             )
         }
         initializer {
@@ -119,6 +115,7 @@ object AppViewModelProvider {
                 flashCardApplication().container.sbTablesRepository,
                 flashCardApplication().container.userExportedDecksRepository,
                 flashCardApplication().container.mergeDecksRepository,
+                flashCardApplication().container.deckListRepository,
                 this.createSavedStateHandle()
             )
         }
