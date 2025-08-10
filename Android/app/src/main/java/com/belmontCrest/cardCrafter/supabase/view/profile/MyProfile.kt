@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserProfileViewModel
@@ -45,7 +45,7 @@ fun MyProfile(
     getUIStyle: GetUIStyle, supabaseVM: SupabaseViewModel,
     startingRoute: String, onSignOut: () -> Unit, onUseEmail: () -> Unit
 ) {
-    val userProfileVM: UserProfileViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val userProfileVM: UserProfileViewModel = viewModel(factory = AppVMProvider.Factory)
     val userProfile by userProfileVM.userProfile.collectAsStateWithLifecycle()
     val isLoading by userProfileVM.isLoading.collectAsStateWithLifecycle()
     var enabled by rememberSaveable { mutableStateOf(true) }

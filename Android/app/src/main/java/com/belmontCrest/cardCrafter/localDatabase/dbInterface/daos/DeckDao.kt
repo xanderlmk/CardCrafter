@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao
+package com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,15 +6,13 @@ import androidx.room.Query
 import androidx.room.Update
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.model.daoHelpers.DeckHelperDao
+import com.belmontCrest.cardCrafter.model.ui.states.DeckId
+import com.belmontCrest.cardCrafter.model.ui.states.DeckNextReview
 import com.belmontCrest.cardCrafter.model.ui.states.DueDeckDetails
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
 import java.util.Date
 
-
-data class DeckId(
-    val id: Int
-)
 
 @Dao
 interface DeckDao : DeckHelperDao {
@@ -29,7 +27,7 @@ interface DeckDao : DeckHelperDao {
     suspend fun deleteDeckById(vararg id: DeckId)
 
     @Query("SELECT * from decks WHERE id = :id")
-    fun getDeckFlow(id: Int): Flow<Deck>
+    fun getDeckFlow(id: Int): Flow<Deck?>
 
     @Query("SELECT * from decks where id = :id")
     fun getDeck(id: Int): Deck
@@ -213,4 +211,9 @@ interface DeckDao : DeckHelperDao {
         """
     )
     fun getDueDeckDetails(id: Int): Flow<DueDeckDetails?>
+
+    @Query(
+        """SELECT nextReview FROM decks where id = :id"""
+    )
+    suspend fun getNextReview(id: Int): DeckNextReview
 }

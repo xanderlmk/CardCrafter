@@ -1,5 +1,6 @@
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos
 
+import android.util.Log
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -7,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toBasicList
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCardList
+import com.belmontCrest.cardCrafter.controller.cardHandlers.toCustomList
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toHintList
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toMultiChoiceList
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toNotationList
@@ -18,8 +20,10 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.NullableCustomCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.SyncedDeckInfo
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.toNullableCustomCards
 import com.belmontCrest.cardCrafter.supabase.model.tables.DeckWithCardTypes
 import com.belmontCrest.cardCrafter.supabase.model.tables.ListOfDecks
 
@@ -77,6 +81,9 @@ interface SyncedDeckInfoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNotationCards(cardList: List<NotationCard>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCustomCards(cardList: List<NullableCustomCard>)
+
     @Query("DELETE FROM decks WHERE id NOT IN (:keepIds)")
     suspend fun dropDecksNotIn(keepIds: List<Int>)
 
@@ -103,6 +110,9 @@ interface SyncedDeckInfoDao {
             insertHintCards(cts.toHintList())
             insertMultiCards(cts.toMultiChoiceList())
             insertNotationCards(cts.toNotationList())
+            val customCards = cts.toCustomList().toNullableCustomCards()
+            Log.i("hi", "$customCards")
+            insertCustomCards(customCards)
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels
+package com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

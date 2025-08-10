@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.AddCardViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.AddCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.isBlank
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.saveFiles
@@ -44,7 +44,7 @@ import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.getWebView
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.views.miscFunctions.collectNotationFieldsAsStates
+import com.belmontCrest.cardCrafter.views.misc.collectNotationFieldsAsStates
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

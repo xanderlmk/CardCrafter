@@ -23,20 +23,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.controller.cardHandlers.updateDecksCardList
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckListDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SBNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SettingsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
-import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.model.paddingForModal
 import com.belmontCrest.cardCrafter.model.returnFontSizeBasedOnDp
 import com.belmontCrest.cardCrafter.model.toTextProp
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.model.ui.states.StringVar
-import com.belmontCrest.cardCrafter.model.ui.states.WhichDeck
 import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.EditingCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
@@ -47,19 +43,13 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.ContentIcons
 import com.belmontCrest.cardCrafter.uiFunctions.CustomText
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
 class ModalContent(
-    private val navController: NavHostController,
-    private val fields: Fields,
-    private val getUIStyle: GetUIStyle,
-    private val navViewModel: NavViewModel,
-    private val cardDeckVM: CardDeckViewModel,
-    private val supabaseVM: SupabaseViewModel,
-    private val cr: StringVar,
-    private val wd: WhichDeck,
+    private val navController: NavHostController, private val fields: Fields,
+    private val getUIStyle: GetUIStyle, private val navVM: NavViewModel,
+    private val supabaseVM: SupabaseViewModel, private val cr: StringVar,
     private val coroutineScope: CoroutineScope
 ) {
     private val mdModifier = Modifier
@@ -76,8 +66,8 @@ class ModalContent(
             onClick = {
                 launchUpdates()
                 fields.mainClicked.value = false
-                launchHome(coroutineScope, navViewModel, cardDeckVM, fields)
-                navViewModel.updateRoute(DeckListDestination.route)
+                launchHome(coroutineScope, navVM, fields)
+                navVM.updateRoute(DeckListDestination.route)
                 navController.navigate(DeckListDestination.route)
             })
         {
@@ -91,8 +81,8 @@ class ModalContent(
         val fontSize = returnFontSizeBasedOnDp()
         CustomRow(onClick = {
             launchUpdates()
-            navViewModel.updateRoute(UserEDDestination.route)
-            navViewModel.updateStartingSBRoute(UserEDDestination.route)
+            navVM.updateRoute(UserEDDestination.route)
+            navVM.updateStartingSBRoute(UserEDDestination.route)
             navController.navigate(SBNavDestination.route)
         }) {
             CustomText("Exported Decks", getUIStyle, props = fontSize.toTextProp())
@@ -109,8 +99,8 @@ class ModalContent(
         CustomRow(
             onClick = {
                 launchUpdates()
-                cardDeckVM.updateIndex(0)
-                navViewModel.updateRoute(SettingsDestination.route)
+                navVM.updateUIIndex(0)
+                navVM.updateRoute(SettingsDestination.route)
                 navController.navigate(SettingsDestination.route)
             }
         )
@@ -129,8 +119,8 @@ class ModalContent(
             onClick = {
                 if (cr.name != UserProfileDestination.route) {
                     launchUpdates()
-                    navViewModel.updateStartingSBRoute(UserProfileDestination.route)
-                    navViewModel.updateRoute(UserProfileDestination.route)
+                    navVM.updateStartingSBRoute(UserProfileDestination.route)
+                    navVM.updateRoute(UserProfileDestination.route)
                     navController.navigate(SBNavDestination.route)
                     coroutineScope.launch {
                         val result = supabaseVM.getGoogleId()
@@ -145,36 +135,23 @@ class ModalContent(
         }
     }
 
-    private fun updateCards() {
-        if (cr.name == ViewDueCardsDestination.route) {
-            wd.deck?.let {
-                /** If the list is empty, no cards
-                 *  have been due even before the user joined,
-                 *  or the user finished the deck.
-                 */
-                println("updating cards!")
-                coroutineScope.launch(Dispatchers.IO) { updateDecksCardList(it, cardDeckVM) }
-            }
-        }
-    }
-
     /** Reset the offset, which keyboard is selected and if it should show. */
     private fun resetKeyboardStuff() {
         if (cr.name == AddCardDestination.route || cr.name == EditingCardDestination.route) {
-            navViewModel.resetKeyboardStuff()
+            navVM.resetKeyboardStuff()
         }
     }
 
     private fun resetSelectionAndQuery() {
         if (cr.name == ViewAllCardsDestination.route) {
-            navViewModel.resetSelection()
-            navViewModel.resetSearchQuery()
+            navVM.resetSelection()
+            navVM.resetSearchQuery()
         }
     }
 
     private fun launchUpdates() {
+        coroutineScope.launch { navVM.clearSavedCards() }
         resetKeyboardStuff()
-        updateCards()
         resetSelectionAndQuery()
     }
 }

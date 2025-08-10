@@ -31,13 +31,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.controller.onClickActions.DeleteDeck
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateCardAmount
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateDeckName
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateMultipliers
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateReviewAmount
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.EditDeckViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.EditDeckViewModel
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.uiFunctions.EditDoubleField
@@ -45,11 +45,11 @@ import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
 import com.belmontCrest.cardCrafter.uiFunctions.EditIntField
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.createDeckDetails
-import com.belmontCrest.cardCrafter.views.miscFunctions.returnCardAmountError
-import com.belmontCrest.cardCrafter.views.miscFunctions.returnDeckError
-import com.belmontCrest.cardCrafter.views.miscFunctions.returnMultiplierError
-import com.belmontCrest.cardCrafter.views.miscFunctions.returnReviewError
+import com.belmontCrest.cardCrafter.views.misc.details.createDeckDetails
+import com.belmontCrest.cardCrafter.views.misc.returnCardAmountError
+import com.belmontCrest.cardCrafter.views.misc.returnDeckError
+import com.belmontCrest.cardCrafter.views.misc.returnMultiplierError
+import com.belmontCrest.cardCrafter.views.misc.returnReviewError
 import kotlinx.coroutines.delay
 import kotlin.String
 
@@ -63,7 +63,7 @@ class EditDeckView(
         currentName: String, deck: Deck,
         onNavigate: () -> Unit, onDelete: () -> Unit
     ) {
-        val vm: EditDeckViewModel = viewModel(factory = AppViewModelProvider.Factory)
+        val vm: EditDeckViewModel = viewModel(factory = AppVMProvider.Factory)
         val deckDetails = createDeckDetails(deck)
 
         val multiplierErrorMessage = remember { mutableStateOf("") }

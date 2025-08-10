@@ -8,10 +8,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * Creating a savedCards table
  * */
 val MIGRATION_10_11 = object : Migration(10, 11) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.beginTransaction()
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.beginTransaction()
         try {
-            database.execSQL(
+            db.execSQL(
                 """
             CREATE TABLE IF NOT EXISTS savedCards (
                 id INTEGER NOT NULL, 
@@ -26,13 +26,13 @@ val MIGRATION_10_11 = object : Migration(10, 11) {
             )
 
 
-            database.setTransactionSuccessful()
+            db.setTransactionSuccessful()
         } catch (e: Exception) {
             // Log the error for debugging
             Log.e("Migration", "Migration 10 to 11 failed", e)
             throw RuntimeException("Migration 10 to 11 failed: ${e.message}")
         } finally {
-            database.endTransaction()
+            db.endTransaction()
         }
     }
 }

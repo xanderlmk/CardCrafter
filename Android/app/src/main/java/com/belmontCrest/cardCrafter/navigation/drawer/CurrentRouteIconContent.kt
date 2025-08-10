@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -31,7 +33,7 @@ import com.belmontCrest.cardCrafter.model.FSProp
 import com.belmontCrest.cardCrafter.model.FWProp
 import com.belmontCrest.cardCrafter.model.TAProp
 import com.belmontCrest.cardCrafter.model.TextProps
-import com.belmontCrest.cardCrafter.model.application.AppViewModelProvider
+import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.navigation.destinations.EditDeckDestination
@@ -59,14 +61,20 @@ fun MainDLRouteContent(
     navViewModel: NavViewModel, navController: NavHostController
 ) {
     val ci = ContentIcons(getUIStyle)
-    val pdsVM: PersonalDeckSyncViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val pdsVM: PersonalDeckSyncViewModel = viewModel(factory = AppVMProvider.Factory)
     val syncStatus by pdsVM.syncStatus.collectAsStateWithLifecycle()
     when (val status = syncStatus) {
         is SyncStatus.Error -> {
             AlertDialog(
                 onDismissRequest = { pdsVM.resetSyncStatus(); navViewModel.resetIsBlocking() },
                 title = { Text("Error") },
-                text = { CustomText(status.message, getUIStyle) },
+                text = {
+                    Column(Modifier.verticalScroll(rememberScrollState())) {
+                        CustomText(
+                            status.message, getUIStyle
+                        )
+                    }
+                },
                 confirmButton = {
                     if (status.message == "Null user") {
                         SubmitButton(

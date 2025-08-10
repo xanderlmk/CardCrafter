@@ -1,8 +1,8 @@
 package com.belmontCrest.cardCrafter.localDatabase.database
 
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.CardDao
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.CardTypesDao
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.DeckDao
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.CardDao
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.CardTypesDao
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.DeckDao
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck

@@ -1,10 +1,10 @@
-package com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels
+package com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels
 
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.belmontCrest.cardCrafter.controller.viewModels.ReusedFunc
+import com.belmontCrest.cardCrafter.controller.view.models.ReusedFunc
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.AnswerParam
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
@@ -21,7 +21,7 @@ import com.belmontCrest.cardCrafter.model.ui.states.hasNotationParam
 import com.belmontCrest.cardCrafter.navigation.FieldParamRepository
 import com.belmontCrest.cardCrafter.navigation.KeyboardSelectionRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.IsOwnerOrCoOwnerRepo
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.CardDetails
+import com.belmontCrest.cardCrafter.views.misc.details.CardDetails
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow

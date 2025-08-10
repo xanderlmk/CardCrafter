@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels
+package com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels
 
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.ViewModel

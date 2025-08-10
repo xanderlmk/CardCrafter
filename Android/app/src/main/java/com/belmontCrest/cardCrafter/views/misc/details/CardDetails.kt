@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.views.miscFunctions.details
+package com.belmontCrest.cardCrafter.views.misc.details
 
 import android.os.Parcelable
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.AnswerParam

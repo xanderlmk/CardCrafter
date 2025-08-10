@@ -1,51 +1,55 @@
 package com.belmontCrest.cardCrafter.controller.cardHandlers
 
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
+import android.util.Log
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
-import com.belmontCrest.cardCrafter.model.ui.states.CardState
 import java.util.Calendar
 import java.util.Date
 
 
+@Suppress("KotlinConstantConditions")
 fun updateCard(
     card: Card, isSuccess: Boolean,
     deckGoodMultiplier: Double,
     deckBadMultiplier: Double, deckReviewAmount: Int,
     again: Boolean
 ): Card {
-    val temp = card
-    if (temp.reviewsLeft <= 1) {
+    var passes = card.passes
+    var totalPasses = card.totalPasses
+    var prevSuccess = card.prevSuccess
+    var reviewsLeft = card.reviewsLeft
+    var nextReview = card.nextReview
+    if (card.reviewsLeft <= 1) {
         if (isSuccess) {
-            temp.passes += 1
-            temp.prevSuccess = true
-            temp.reviewsLeft = deckReviewAmount
+            passes += 1
+            prevSuccess = true
+            reviewsLeft = deckReviewAmount
         } else {
             if (!again) {
-                temp.reviewsLeft = deckReviewAmount
+                reviewsLeft = deckReviewAmount
             }
-            temp.prevSuccess = false
+            prevSuccess = false
         }
-        temp.nextReview = timeCalculator(
-            temp.passes, isSuccess,
-            deckGoodMultiplier, deckBadMultiplier
-        )
+        nextReview = timeCalculator(passes, isSuccess, deckGoodMultiplier, deckBadMultiplier)
 
-        if (!isSuccess && !temp.prevSuccess && temp.passes > 0) {
-            temp.passes -= 1
+        if (!isSuccess && !prevSuccess && passes > 0) {
+            passes -= 1
         }
     } else {
         /** When the user reviews a card x amount of times
          *  Default value is 1
          */
-        if (isSuccess) {
-            temp.reviewsLeft -= 1
-        }
+        if (isSuccess) reviewsLeft -= 1
     }
-    temp.totalPasses += 1
-    temp.partOfList = true
-    return temp
+    totalPasses += 1
+    return Card(
+        id = card.id, deckCardNumber = card.deckCardNumber, createdOn = card.createdOn,
+        deckId = card.deckId, deckUUID = card.deckUUID, cardIdentifier = card.cardIdentifier,
+        passes = passes, totalPasses = totalPasses, partOfList = true, type = card.type,
+        reviewsLeft = reviewsLeft, prevSuccess = prevSuccess, nextReview = nextReview,
+    )
 }
 
 fun timeCalculator(
@@ -62,7 +66,7 @@ fun timeCalculator(
         )
     // Calculate days to add
     val daysToAdd = (passes * multiplier).toInt()
-    println("days to add: $daysToAdd")
+    Log.d("CardCrafter","days to add: $daysToAdd")
     // Add days to the current date
     calendar.add(Calendar.DAY_OF_YEAR, daysToAdd)
 
@@ -83,31 +87,25 @@ private fun calculateReviewMultiplier(
     return if (isSuccess) deckGoodMultiplier else baseMultiplier
 }
 
-fun handleCardUpdate(
+suspend fun handleCardUpdate(
     card: Card, success: Boolean,
     viewModel: CardDeckViewModel,
-    deckGoodMultiplier: Double, deckBadMultiplier: Double,
-    deckReviewAmount: Int, again: Boolean
-): Card {
-    return updateCard(
-        card, success, deckGoodMultiplier,
-        deckBadMultiplier, deckReviewAmount,
-        again
-    ).also {
-        viewModel.transitionTo(CardState.Finished)
-        viewModel.addCardToUpdate(it)
+    deck: Deck, again: Boolean
+): Boolean {
+    try {
+        val new = updateCard(
+            card, success, deck.goodMultiplier, deck.badMultiplier, deck.reviewAmount, again
+        )
+        viewModel.addCardToUpdate(new, card.toSavedCard(), deck)
+        return true
+    } catch (e: Exception) {
+        Log.e("CardCrafter", "Failed to update card: $e")
+        return false
     }
 }
-
-suspend fun updateDecksCardList(
-    deck: Deck,
-    cardDeckViewModel: CardDeckViewModel,
-): Boolean {
-    return cardDeckViewModel.updateCards(deck)
-}
-
 fun Card.toSavedCard(): SavedCard = SavedCard(
-    id = this.id,
+    cardId = this.id,
+    createdOn = Date(),
     reviewsLeft = this.reviewsLeft,
     nextReview = this.nextReview,
     prevSuccess = this.prevSuccess,

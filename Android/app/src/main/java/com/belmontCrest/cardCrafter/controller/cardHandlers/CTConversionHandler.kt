@@ -1,14 +1,16 @@
 package com.belmontCrest.cardCrafter.controller.cardHandlers
 
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.AllCardTypes
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.AnswerParam
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
+import com.belmontCrest.cardCrafter.localDatabase.tables.CardRemains
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.Param
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
+import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.toCustomCard
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 
@@ -104,129 +106,12 @@ fun CT.toCDetails(): CDetails = when (this) {
     )
 }
 
-fun updateCTCard(
-    ct: CT, dueCT: CT, deck: Deck, vm: CardDeckViewModel, success: Boolean, again: Boolean
-): CT {
-    return when (ct) {
-        is CT.Basic -> {
-            ct.copy(
-                card = handleCardUpdate(
-                    dueCT.toCard(),
-                    success = success,
-                    vm,
-                    deck.goodMultiplier,
-                    deck.badMultiplier,
-                    deck.reviewAmount,
-                    again = again
-                ), basicCard = ct.basicCard
-            )
-        }
+suspend fun updateCTCard(
+    ct: CT, deck: Deck, vm: CardDeckViewModel, success: Boolean, again: Boolean
+) = handleCardUpdate(
+    ct.toCard(), success = success, vm, deck, again = again
+)
 
-        is CT.Hint -> {
-            ct.copy(
-                card = handleCardUpdate(
-                    dueCT.toCard(),
-                    success = success,
-                    vm,
-                    deck.goodMultiplier,
-                    deck.badMultiplier,
-                    deck.reviewAmount,
-                    again = again
-                ), hintCard = ct.hintCard
-            )
-        }
-
-        is CT.ThreeField -> {
-            ct.copy(
-                card = handleCardUpdate(
-                    dueCT.toCard(),
-                    success = success,
-                    vm,
-                    deck.goodMultiplier,
-                    deck.badMultiplier,
-                    deck.reviewAmount,
-                    again = again
-                ), threeFieldCard = ct.threeFieldCard
-            )
-        }
-
-        is CT.MultiChoice -> {
-            ct.copy(
-                card = handleCardUpdate(
-                    dueCT.toCard(),
-                    success = success,
-                    vm,
-                    deck.goodMultiplier,
-                    deck.badMultiplier,
-                    deck.reviewAmount,
-                    again = again
-                ), multiChoiceCard = ct.multiChoiceCard
-            )
-        }
-
-        is CT.Notation -> {
-            ct.copy(
-                card = handleCardUpdate(
-                    dueCT.toCard(),
-                    success = success,
-                    vm,
-                    deck.goodMultiplier,
-                    deck.badMultiplier,
-                    deck.reviewAmount,
-                    again = again
-                )
-            )
-        }
-
-        is CT.Custom -> {
-            ct.copy(
-                card = handleCardUpdate(
-                    dueCT.toCard(),
-                    success = success,
-                    vm,
-                    deck.goodMultiplier,
-                    deck.badMultiplier,
-                    deck.reviewAmount,
-                    again = again
-                )
-            )
-        }
-    }
-}
-
-suspend fun redoACard(
-    ct: CT, cardDeckVM: CardDeckViewModel, index: Int, dueCTs: MutableList<CT>
-) {
-    when (ct) {
-        /** Even though it seems like getting the new card isn't necessary,
-         * it is because we want to replace the savedCard with a new savedCard
-         * (the redo card) hence we call this getRedoCard.
-         */
-        is CT.Basic -> {
-            ct.card = cardDeckVM.getRedoCardType(ct.card.id, index).also { dueCTs[index] = ct }
-        }
-
-        is CT.Hint -> {
-            ct.card = cardDeckVM.getRedoCardType(ct.card.id, index).also { dueCTs[index] = ct }
-        }
-
-        is CT.ThreeField -> {
-            ct.card = cardDeckVM.getRedoCardType(ct.card.id, index).also { dueCTs[index] = ct }
-        }
-
-        is CT.MultiChoice -> {
-            ct.card = cardDeckVM.getRedoCardType(ct.card.id, index).also { dueCTs[index] = ct }
-        }
-
-        is CT.Notation -> {
-            ct.card = cardDeckVM.getRedoCardType(ct.card.id, index).also { dueCTs[index] = ct }
-        }
-
-        is CT.Custom -> {
-            ct.card = cardDeckVM.getRedoCardType(ct.card.id, index).also { dueCTs[index] = ct }
-        }
-    }
-}
 
 fun showReviewsLeft(ct: CT): String {
     return when (ct) {
@@ -250,44 +135,42 @@ fun returnReviewsLeft(ct: CT): Int {
     }
 }
 
-// The mapping function
-fun List<AllCardTypes>.toCTList(): List<CT> {
-    return this.map { allCardTypes ->
-        when {
-            allCardTypes.basicCard != null -> CT.Basic(
-                allCardTypes.card, allCardTypes.basicCard
-            )
+fun List<AllCardTypes>.toCTList() = this.map { allCardTypes ->
+    when {
+        allCardTypes.basicCard != null -> CT.Basic(
+            allCardTypes.card, allCardTypes.basicCard
+        )
 
-            allCardTypes.hintCard != null -> CT.Hint(
-                allCardTypes.card, allCardTypes.hintCard
-            )
+        allCardTypes.hintCard != null -> CT.Hint(
+            allCardTypes.card, allCardTypes.hintCard
+        )
 
-            allCardTypes.threeFieldCard != null -> CT.ThreeField(
-                allCardTypes.card, allCardTypes.threeFieldCard
-            )
+        allCardTypes.threeFieldCard != null -> CT.ThreeField(
+            allCardTypes.card, allCardTypes.threeFieldCard
+        )
 
-            allCardTypes.multiChoiceCard != null -> CT.MultiChoice(
-                allCardTypes.card, allCardTypes.multiChoiceCard
-            )
+        allCardTypes.multiChoiceCard != null -> CT.MultiChoice(
+            allCardTypes.card, allCardTypes.multiChoiceCard
+        )
 
-            allCardTypes.notationCard != null -> CT.Notation(
-                allCardTypes.card, allCardTypes.notationCard
-            )
+        allCardTypes.notationCard != null -> CT.Notation(
+            allCardTypes.card, allCardTypes.notationCard
+        )
 
-            allCardTypes.nullableCustomCard != null -> CT.Custom(
-                allCardTypes.card, allCardTypes.nullableCustomCard.toCustomCard()
-            )
-            /** This error will probably only happen when you add a new card. */
-            else -> throw IllegalStateException(
-                """Mapping error for AllCardTypes element: 
+        allCardTypes.nullableCustomCard != null -> CT.Custom(
+            allCardTypes.card, allCardTypes.nullableCustomCard.toCustomCard()
+        )
+        /** This error will probably only happen when you add a new card. */
+        else -> throw IllegalStateException(
+            """Mapping error for AllCardTypes element: 
                 card=${allCardTypes.card}, 
                 basicCard=${allCardTypes.basicCard}, 
                 hintCard=${allCardTypes.hintCard},
                 threeFieldCard=${allCardTypes.threeFieldCard},
                 multiChoiceCard=${allCardTypes.multiChoiceCard},
-                notationCard=${allCardTypes.notationCard}"""
-            )
-        }
+                notationCard=${allCardTypes.notationCard},
+                nullableCustomCard=${allCardTypes.nullableCustomCard}"""
+        )
     }
 }
 
@@ -301,3 +184,13 @@ fun AllCardTypes.toCT(): CT = when {
     /** This error will probably only happen when you add a new card. */
     else -> throw IllegalStateException("Invalid AllCardTypes: all card types are null")
 }
+
+
+fun SavedCard.toCard(cr: CardRemains): Card =
+    Card(
+        id = this.cardId, deckId = cr.deckId, deckUUID = cr.deckUUID,
+        reviewsLeft = this.reviewsLeft, nextReview = this.nextReview, passes = this.passes,
+        totalPasses = this.totalPasses, partOfList = partOfList, createdOn = cr.createdOn,
+        prevSuccess = this.prevSuccess, type = cr.type, deckCardNumber = cr.deckCardNumber,
+        cardIdentifier = cr.cardIdentifier
+    )

@@ -197,15 +197,12 @@ fun BackButton(
 
 @Composable
 fun RedoCardButton(
-    onRedoClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    getUIStyle: GetUIStyle
+    onRedoClick: () -> Unit, enabled: Boolean,
+    modifier: Modifier = Modifier, getUIStyle: GetUIStyle
 ) {
     val ci = ContentIcons(getUIStyle)
     IconButton(
-        onClick = {
-            onRedoClick()
-        },
+        onClick = onRedoClick, enabled = enabled,
         modifier = modifier
     ) {
         ci.ContentIcon(painterResource(R.drawable.return_arrow), "Redo", Modifier.size(22.dp))

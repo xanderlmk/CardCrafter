@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao
+package com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -8,24 +8,20 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.CIForID
+import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.CardInfo
-import com.belmontCrest.cardCrafter.localDatabase.tables.NullableCustomCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
 import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
+import com.belmontCrest.cardCrafter.localDatabase.tables.NullableCustomCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
+import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.daoHelpers.InsertOrAbortDao
-import com.belmontCrest.cardCrafter.model.Type.BASIC
-import com.belmontCrest.cardCrafter.model.Type.HINT
-import com.belmontCrest.cardCrafter.model.Type.MULTI
-import com.belmontCrest.cardCrafter.model.Type.NOTATION
-import com.belmontCrest.cardCrafter.model.Type.THREE
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.CardDetails
+import com.belmontCrest.cardCrafter.views.misc.details.CardDetails
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
@@ -39,7 +35,7 @@ interface CardDao : InsertOrAbortDao {
     @Query("""SELECT * FROM importedDeckInfo WHERE uuid = :uuid""")
     fun getDeckInfo(uuid: String): ImportedDeckInfo?
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.Companion.ABORT)
     suspend fun insertCardInfo(cardInfo: CardInfo)
 
     @Query("""SELECT cardIdentifier FROM cards WHERE id = :cardId""")
@@ -50,7 +46,7 @@ interface CardDao : InsertOrAbortDao {
         deck: Deck, basicCD: CardDetails.BasicCD, isOwnerOrCoOwner: Boolean
     ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
-        val cardId = returnCard(deck, newDeckCardNumber, BASIC)
+        val cardId = returnCard(deck, newDeckCardNumber, Type.BASIC)
         insertBasicCard(
             BasicCard(
                 cardId = cardId.toInt(),
@@ -68,7 +64,7 @@ interface CardDao : InsertOrAbortDao {
         deck: Deck, threeCD: CardDetails.ThreeCD, isOwnerOrCoOwner: Boolean
     ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
-        val cardId = returnCard(deck, newDeckCardNumber, THREE)
+        val cardId = returnCard(deck, newDeckCardNumber, Type.THREE)
         insertThreeCard(
             ThreeFieldCard(
                 cardId = cardId.toInt(),
@@ -89,7 +85,7 @@ interface CardDao : InsertOrAbortDao {
         deck: Deck, hintCD: CardDetails.HintCD, isOwnerOrCoOwner: Boolean
     ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
-        val cardId = returnCard(deck, newDeckCardNumber, HINT)
+        val cardId = returnCard(deck, newDeckCardNumber, Type.HINT)
         insertHintCard(
             HintCard(
                 cardId = cardId.toInt(),
@@ -108,7 +104,7 @@ interface CardDao : InsertOrAbortDao {
         deck: Deck, multiCD: CardDetails.MultiCD, isOwnerOrCoOwner: Boolean
     ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
-        val cardId = returnCard(deck, newDeckCardNumber, MULTI)
+        val cardId = returnCard(deck, newDeckCardNumber, Type.MULTI)
         insertMultiChoiceCard(
             MultiChoiceCard(
                 cardId = cardId.toInt(),
@@ -130,7 +126,7 @@ interface CardDao : InsertOrAbortDao {
         deck: Deck, notationCD: CardDetails.NotationCD, isOwnerOrCoOwner: Boolean
     ) {
         val newDeckCardNumber = returnCardDeckNum(deck.uuid)
-        val cardId = returnCard(deck, newDeckCardNumber, NOTATION)
+        val cardId = returnCard(deck, newDeckCardNumber, Type.NOTATION)
         insertNotationCard(
             NotationCard(
                 cardId = cardId.toInt(),

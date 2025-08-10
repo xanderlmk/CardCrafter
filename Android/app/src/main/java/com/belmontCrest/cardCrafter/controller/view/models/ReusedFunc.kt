@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.controller.viewModels
+package com.belmontCrest.cardCrafter.controller.view.models
 
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck

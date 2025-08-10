@@ -7,15 +7,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCDetails
-import com.belmontCrest.cardCrafter.controller.viewModels.ReusedFunc
+import com.belmontCrest.cardCrafter.controller.view.models.ReusedFunc
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.DeckContentRepository
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.DeckListRepository
 import com.belmontCrest.cardCrafter.navigation.destinations.DeckViewDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.CustomCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.deleteFiles
 import com.belmontCrest.cardCrafter.model.daoHelpers.Order
 import com.belmontCrest.cardCrafter.model.daoHelpers.OrderBy
@@ -43,7 +44,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
 /**
  * This will provide the navigation of a single deck, where it will be saved
  * by the savedStateHandle
@@ -54,6 +54,8 @@ class NavViewModel(
     private val cardTypeRepository: CardTypeRepository,
     private val kbRepository: KeyboardSelectionRepository,
     private val fieldParamRepository: FieldParamRepository,
+    private val deckContentRepository: DeckContentRepository,
+    private val deckListRepository: DeckListRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     companion object {
@@ -65,13 +67,9 @@ class NavViewModel(
     }
 
     private val rf = ReusedFunc(flashCardRepository)
-    private val deckId = MutableStateFlow(savedStateHandle["id"] ?: 0)
     private val cardId = MutableStateFlow(savedStateHandle["cardId"] ?: 0)
 
-    val deckName = deckId.flatMapLatest { id ->
-        if (id == 0) flowOf(StringVar())
-        else flashCardRepository.getDeckName(id).map { StringVar(it ?: "") }
-    }.stateIn(
+    val deckName = deckContentRepository.deckName.stateIn(
         scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = StringVar()
     )
@@ -114,11 +112,8 @@ class NavViewModel(
         _startingSBRoute.update { StringVar(newRoute) }
     }
 
-    val wd: StateFlow<WhichDeck> = deckId.flatMapLatest { id ->
-        if (id == 0) flowOf(WhichDeck())
-        else flashCardRepository.getDeckStream(id).map { WhichDeck(it) }
-    }.stateIn(
-        scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+    val wd: StateFlow<WhichDeck> = deckContentRepository.wd.stateIn(
+        scope = viewModelScope, started = SharingStarted.Lazily,
         initialValue = WhichDeck()
     )
 
@@ -146,13 +141,19 @@ class NavViewModel(
             else SelectedCard(cardTypeRepository.getACardType(cardId.value))
     )
 
+    val localDecks = deckListRepository.deckUiState.map { it.deckList }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = emptyList()
+    )
+
+    /** Update the deckId to get the deck */
     fun getDeckById(id: Int) {
-        savedStateHandle["id"] = id
-        deckId.update { id }
+        deckContentRepository.updateDeckId(id)
+        viewModelScope.launch { deckContentRepository.updateDeckNextReview(id) }
     }
 
     fun deleteCard(card: Card) = viewModelScope.launch { flashCardRepository.deleteCard(card) }
-
 
     fun deleteFiles(customCard: CustomCard, context: Context): Boolean {
         val (message, success) = customCard.deleteFiles()
@@ -263,12 +264,8 @@ class NavViewModel(
         _isSelecting.update { false }
     }
 
-    suspend fun getAllDecks(): List<Deck> = withContext(Dispatchers.IO) {
-        flashCardRepository.getAllDecks()
-    }
-
-    private val _orderBy = flashCardRepository.orderedBy
-    val direction = flashCardRepository.orderedBy.map {
+    private val _orderBy = deckListRepository.orderedBy
+    val direction = deckListRepository.orderedBy.map {
         it is OrderBy.NameASC || it is OrderBy.CreatedOnASC || it is OrderBy.CardsLeftASC
     }.stateIn(
         scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -277,10 +274,10 @@ class NavViewModel(
 
     fun updateOrder(order: Order) {
         val orderBy = order.toOrderedByClass(direction.value)
-        flashCardRepository.updateOrder(orderBy)
+        deckListRepository.updateOrder(orderBy)
     }
 
-    fun reverseOrder() = flashCardRepository.updateOrder(_orderBy.value.reverseSort())
+    fun reverseOrder() = deckListRepository.updateOrder(_orderBy.value.reverseSort())
 
     val searchQuery = cardTypeRepository.searchQuery.stateIn(
         scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
@@ -312,8 +309,30 @@ class NavViewModel(
     private fun initialCT(id: Int) = viewModelScope.launch(Dispatchers.IO) {
         val ct = cardTypeRepository.getACardType(id)
         fieldParamRepository.createFields(ct.toCDetails())
-
     }
+
+    fun updateTime() = deckListRepository.updateTime()
+
+    val savedCardUiState = deckContentRepository.savedCards.stateIn(
+        scope = viewModelScope, started = SharingStarted.Eagerly,
+        initialValue = emptyList()
+    )
+
+    val stateSize = deckContentRepository.stateSize.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = 0
+    )
+    val stateIndex = deckContentRepository.stateIndex
+
+    fun updateUIIndex(index: Int) = deckContentRepository.updateIndex(index)
+
+    fun updateRedoClicked(clicked: Boolean) = deckContentRepository.updateRedoClicked(clicked)
+
+    /**
+     * Upon going into a new deck (or due cards view), reset all saved cards
+     */
+    fun clearSavedCards() = viewModelScope.launch { deckContentRepository.deleteSavedCards() }
 
     init {
         updateQuery(savedStateHandle["query"] ?: "")

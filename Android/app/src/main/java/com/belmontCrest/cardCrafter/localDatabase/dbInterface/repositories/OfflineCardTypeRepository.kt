@@ -3,7 +3,7 @@ package com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories
 import android.util.Log
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCT
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCTList
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.CardTypesDao
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.CardTypesDao
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
@@ -11,7 +11,7 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.AnswerPa
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.Param
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.toQuestion
+import com.belmontCrest.cardCrafter.views.misc.details.toQuestion
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
@@ -116,16 +116,6 @@ class OfflineCardTypeRepository(
             listOf()
         }
     }
-
-    override fun getAllDueCards(
-        deckId: Int, cardAmount: Int, currentTime: Long
-    ) = try {
-        cardTypesDao.getDueAllCardTypes(deckId, cardAmount, currentTime).toCTList()
-    } catch (e: IllegalStateException) {
-        Log.d("CardTypeRepository", "$e")
-        listOf()
-    }
-
 
     override fun getACardType(id: Int) = try {
         cardTypesDao.getACardType(id).toCT()

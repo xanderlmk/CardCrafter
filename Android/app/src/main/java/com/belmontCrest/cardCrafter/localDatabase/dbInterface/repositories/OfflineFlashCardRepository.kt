@@ -1,45 +1,19 @@
 package com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories
 
-import android.content.SharedPreferences
-import androidx.core.content.edit
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.CardDao
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.DeckDao
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.DeckId
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.SavedCardDao
+
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.CardDao
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.DeckDao
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
-import com.belmontCrest.cardCrafter.model.daoHelpers.OBS
 import com.belmontCrest.cardCrafter.model.daoHelpers.OrderBy
-import com.belmontCrest.cardCrafter.model.daoHelpers.toOrderedByClass
-import com.belmontCrest.cardCrafter.model.daoHelpers.toOrderedString
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.CardDetails
+import com.belmontCrest.cardCrafter.model.ui.states.DeckId
+import com.belmontCrest.cardCrafter.views.misc.details.CardDetails
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import java.util.Date
 
 class OfflineFlashCardRepository(
-    private val deckDao: DeckDao,
-    private val cardDao: CardDao,
-    private val savedCardDao: SavedCardDao,
-    private val appPref: SharedPreferences
+    private val deckDao: DeckDao, private val cardDao: CardDao,
 ) : FlashCardRepository {
-    private var isOrderedBy: String
-        get() = appPref.getString("ordered_by", OBS.NAME_ASC) ?: OBS.NAME_ASC
-        set(value) = appPref.edit { putString("ordered_by", value) }
-
-    private val _orderedBy: MutableStateFlow<OrderBy> =
-        MutableStateFlow(isOrderedBy.toOrderedByClass())
-
-    override val orderedBy = _orderedBy.asStateFlow()
-
-    override fun updateOrder(orderBy: OrderBy) {
-        _orderedBy.update { orderBy }
-        isOrderedBy = orderBy.toOrderedString()
-    }
-
     override suspend fun checkIfDeckExists(deckName: String): Int =
         try {
             deckDao.checkIfDeckExists(deckName)
@@ -105,8 +79,6 @@ class OfflineFlashCardRepository(
     }
 
     override suspend fun getAllDecks() = deckDao.getAllDecks()
-
-    override fun getDeckStream(id: Int) = deckDao.getDeckFlow(id)
 
     override fun getDeck(id: Int) = deckDao.getDeck(id)
 
@@ -189,17 +161,6 @@ class OfflineFlashCardRepository(
 
     override suspend fun getBackupDueCards(deckId: Int, cardAmount: Int): List<Card> =
         cardDao.getBackupDueCards(deckId, cardAmount)
-
-    override fun updateSavedCards(
-        cardId: Int, reviewsLeft: Int, nextReview: Long, passes: Int,
-        prevSuccess: Boolean, totalPasses: Int, partOfList: Boolean
-    ) = savedCardDao.updateCardsOnStart(
-        cardId, reviewsLeft, nextReview, passes, prevSuccess, totalPasses, partOfList
-    )
-
-    override fun deleteSavedCards() = savedCardDao.deleteSavedCards()
-    override fun insertSavedCard(savedCard: SavedCard) = savedCardDao.insertSavedCard(savedCard)
-    override fun getAllSavedCards() = savedCardDao.getAllSavedCards()
 
     override suspend fun becomePartOfList(id: Int) = cardDao.becomePartOfList(id)
 

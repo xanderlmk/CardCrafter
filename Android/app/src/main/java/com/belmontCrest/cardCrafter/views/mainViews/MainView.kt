@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels.MainViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.MainViewModel
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.pointer.pointerInput

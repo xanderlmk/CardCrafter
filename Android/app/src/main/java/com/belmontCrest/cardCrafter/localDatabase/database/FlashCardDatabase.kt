@@ -8,10 +8,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.CardDao
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.CardTypesDao
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.DeckDao
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daoInterfaces.deckAndCardDao.SavedCardDao
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.CardDao
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.CardTypesDao
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.DeckDao
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.SavedCardDao
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.CardInfo
@@ -52,6 +52,8 @@ import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_28_29
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_29_30
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_30_31
 import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_31_32
+import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_32_33
+import com.belmontCrest.cardCrafter.model.migrations.MIGRATION_33_34
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_3_5
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_5_6
 import com.belmontCrest.cardCrafter.model.migrations.m1_m10.MIGRATION_6_7
@@ -73,7 +75,7 @@ import kotlinx.coroutines.CoroutineScope
         ImportedDeckInfo::class, SyncedDeckInfo::class, Pwd::class, CardInfo::class,
         NullableCustomCard::class
     ],
-    version = 32, exportSchema = true
+    version = 34, exportSchema = true
 )
 @TypeConverters(
     TimeConverter::class, ListStringConverter::class, EncryptionConverter::class,
@@ -106,7 +108,8 @@ abstract class FlashCardDatabase : RoomDatabase() {
                             MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20,
                             MIGRATION_20_21, MIGRATION_21_22, MIGRATION_22_23, MIGRATION_23_24,
                             MIGRATION_24_25, MIGRATION_25_26, MIGRATION_26_27, MIGRATION_27_28,
-                            MIGRATION_28_29, MIGRATION_29_30, MIGRATION_30_31, MIGRATION_31_32
+                            MIGRATION_28_29, MIGRATION_29_30, MIGRATION_30_31, MIGRATION_31_32,
+                            MIGRATION_32_33, MIGRATION_33_34
                         )
                         .fallbackToDestructiveMigration()
                         .addCallback(FlashCardDatabaseCallback(scope))

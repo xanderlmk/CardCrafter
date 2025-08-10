@@ -38,7 +38,7 @@ import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardType
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnCardTypeHandler
 import com.belmontCrest.cardCrafter.controller.onClickActions.saveCard
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateCardType
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.model.application.PreferenceValues
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
@@ -49,7 +49,7 @@ import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.getWebView
-import com.belmontCrest.cardCrafter.views.miscFunctions.collectNotationFieldsAsStates
+import com.belmontCrest.cardCrafter.views.misc.collectNotationFieldsAsStates
 import kotlinx.coroutines.launch
 
 class EditingCardView(

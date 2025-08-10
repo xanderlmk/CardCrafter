@@ -8,11 +8,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
 import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
-import com.belmontCrest.cardCrafter.views.miscFunctions.PickAnswerChar
+import com.belmontCrest.cardCrafter.views.misc.PickAnswerChar
 
 @Composable
 fun EditChoiceCard(vm: EditCardViewModel, getUIStyle: GetUIStyle) {

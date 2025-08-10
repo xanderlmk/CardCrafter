@@ -9,7 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditCardViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.uiFunctions.customParameters.CustomAnswerParamInput
@@ -18,7 +18,7 @@ import com.belmontCrest.cardCrafter.uiFunctions.customParameters.CustomParamInpu
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
 import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.views.miscFunctions.collectNotationFieldsAsStates
+import com.belmontCrest.cardCrafter.views.misc.collectNotationFieldsAsStates
 
 @Composable
 fun EditCustomCard(vm: EditCardViewModel, getUIStyle: GetUIStyle, onUpdate: () -> KaTeXMenu) {

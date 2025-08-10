@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -30,8 +29,6 @@ import com.belmontCrest.cardCrafter.navigation.destinations.EditingCardDestinati
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewDueCardsDestination
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.model.ui.states.Decision
 import com.belmontCrest.cardCrafter.model.ui.states.Dialogs
 import com.belmontCrest.cardCrafter.model.ui.Fields
@@ -59,44 +56,41 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun ActionIconButton(
-    getUIStyle: GetUIStyle,
-    cardDeckVM: CardDeckViewModel,
-    fields: Fields,
-    navViewModel: NavViewModel,
-    supabaseVM: SupabaseViewModel,
-    mainNavController: NavHostController
+    getUIStyle: GetUIStyle, fields: Fields, navVM: NavViewModel,
+    supabaseVM: SupabaseViewModel, mainNavController: NavHostController
 ) {
-    val deckNavController by navViewModel.deckNav.collectAsStateWithLifecycle()
-    val sbNavController by navViewModel.sbNav.collectAsStateWithLifecycle()
-    val sc by navViewModel.card.collectAsStateWithLifecycle()
-    val wd by navViewModel.wd.collectAsStateWithLifecycle()
+    val deckNavController by navVM.deckNav.collectAsStateWithLifecycle()
+    val sbNavController by navVM.sbNav.collectAsStateWithLifecycle()
+    val sc by navVM.card.collectAsStateWithLifecycle()
+    val wd by navVM.wd.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-    val isSelecting by navViewModel.isSelecting.collectAsStateWithLifecycle()
+    val isSelecting by navVM.isSelecting.collectAsStateWithLifecycle()
     val onNavigateBack: () -> Unit = {
         fields.isEditing.value = false
         fields.inDeckClicked.value = false
-        coroutineScope.launch { navViewModel.getCardById(0) }
-        navViewModel.updateRoute(ViewAllCardsDestination.route)
+        coroutineScope.launch { navVM.getCardById(0) }
+        navVM.updateRoute(ViewAllCardsDestination.route)
         deckNavController?.navigate(ViewAllCardsDestination.route)
     }
-    val cr by navViewModel.route.collectAsStateWithLifecycle()
-    val selectable by navViewModel.selectable.collectAsStateWithLifecycle()
+    val cr by navVM.route.collectAsStateWithLifecycle()
+    val selectable by navVM.selectable.collectAsStateWithLifecycle()
+    val localDecks by navVM.localDecks.collectAsStateWithLifecycle()
 
     when (cr.name) {
         MainNavDestination.route -> {
-            MainDLRouteContent(getUIStyle, coroutineScope, navViewModel, mainNavController)
+            MainDLRouteContent(getUIStyle, coroutineScope, navVM, mainNavController)
         }
 
         DeckListDestination.route -> {
-            MainDLRouteContent(getUIStyle, coroutineScope, navViewModel, mainNavController)
+            MainDLRouteContent(getUIStyle, coroutineScope, navVM, mainNavController)
         }
 
         AddDeckDestination.route -> {
             BackButton(
                 onBackClick = {
                     fields.mainClicked.value = false
-                    navViewModel.updateRoute(DeckListDestination.route)
+                    navVM.updateRoute(DeckListDestination.route)
                     mainNavController.navigate(DeckListDestination.route)
                 },
                 modifier = Modifier
@@ -108,22 +102,21 @@ fun ActionIconButton(
 
         DeckNavDestination.route -> {
             wd.deck?.let {
-                DeckRouteContent(fields, navViewModel, it, deckNavController, getUIStyle)
+                DeckRouteContent(fields, navVM, it, deckNavController, getUIStyle)
             }
         }
 
         DeckViewDestination.route -> {
             wd.deck?.let {
-                DeckRouteContent(fields, navViewModel, it, deckNavController, getUIStyle)
+                DeckRouteContent(fields, navVM, it, deckNavController, getUIStyle)
             }
         }
 
         EditDeckDestination.route -> {
             BackButton(
                 onBackClick = {
-                    cardDeckVM.updateWhichDeck(0)
                     fields.inDeckClicked.value = false
-                    navViewModel.updateRoute(DeckViewDestination.route)
+                    navVM.updateRoute(DeckViewDestination.route)
                     deckNavController?.navigate(DeckViewDestination.route)
                 },
                 modifier = Modifier
@@ -134,17 +127,13 @@ fun ActionIconButton(
         }
 
         ViewAllCardsDestination.route -> {
-            var deckList by rememberSaveable { mutableStateOf(emptyList<Deck>()) }
-            LaunchedEffect(Unit) {
-                coroutineScope.launch { deckList = navViewModel.getAllDecks() }
-            }
             if (!isSelecting) {
                 BackButton(
                     onBackClick = {
                         fields.inDeckClicked.value = false
-                        navViewModel.resetFields()
-                        navViewModel.updateQuery("")
-                        navViewModel.updateRoute(DeckViewDestination.route)
+                        navVM.resetFields()
+                        navVM.updateQuery("")
+                        navVM.updateRoute(DeckViewDestination.route)
                         deckNavController?.navigate(DeckViewDestination.route)
                     },
                     modifier = Modifier
@@ -166,7 +155,7 @@ fun ActionIconButton(
                     onDelete = {
                         coroutineScope.launch {
                             enabled = false
-                            val success = navViewModel.deleteCardList()
+                            val success = navVM.deleteCardList()
                             if (!success) showToastMessage(context, "Failed to delete cards")
                             onFinished()
                         }
@@ -175,7 +164,7 @@ fun ActionIconButton(
                         wd.deck?.let { deck ->
                             coroutineScope.launch {
                                 enabled = false
-                                val (success, _) = navViewModel.copyCardList(deck.id)
+                                val (success, _) = navVM.copyCardList(deck.id)
                                 if (!success) showToastMessage(context, "Failed to duplicate cards")
                                 else showToastMessage(context, "Duplicated cards successfully!")
                                 onFinished()
@@ -187,7 +176,7 @@ fun ActionIconButton(
                             Decision.Copy -> {
                                 coroutineScope.launch {
                                     enabled = false
-                                    val (success, deckName) = navViewModel.copyCardList(deckId)
+                                    val (success, deckName) = navVM.copyCardList(deckId)
                                     if (!success) showToastMessage(
                                         context, "Failed to copy cards to $$**", deckName
                                     )
@@ -205,7 +194,7 @@ fun ActionIconButton(
                             Decision.Move -> {
                                 coroutineScope.launch {
                                     enabled = false
-                                    val (success, deckName) = navViewModel.moveCardList(deckId)
+                                    val (success, deckName) = navVM.moveCardList(deckId)
                                     if (!success) showToastMessage(
                                         context, "Failed to move cards to $$**", deckName
                                     )
@@ -216,9 +205,9 @@ fun ActionIconButton(
                                 }
                             }
                         }
-                    }, deckList = deckList, selectedDeck = wd.deck, getUIStyle = getUIStyle,
-                    onSelectAll = { coroutineScope.launch { navViewModel.selectAll() } },
-                    onDeselectAll = { navViewModel.deselectAll() }, selectable = selectable,
+                    }, deckList = localDecks, selectedDeck = wd.deck, getUIStyle = getUIStyle,
+                    onSelectAll = { coroutineScope.launch { navVM.selectAll() } },
+                    onDeselectAll = { navVM.deselectAll() }, selectable = selectable,
                     onCORMDialogToggle = { showCORMDialog = it }, expanded = expanded,
                     onDelDialogToggle = { showDelDialog = it }, enabled = enabled,
                     onDupDialogToggle = { showDupDialog = it },
@@ -231,14 +220,14 @@ fun ActionIconButton(
         }
 
         AddCardDestination.route -> {
-            CardTypesButton(getUIStyle, navViewModel)
+            CardTypesButton(getUIStyle, navVM)
         }
 
         ViewDueCardsDestination.route -> {
+            val savedList by navVM.savedCardUiState.collectAsStateWithLifecycle()
             RedoCardButton(
-                onRedoClick = {
-                    cardDeckVM.updateRedoClicked(true)
-                },
+                onRedoClick = { navVM.updateRedoClicked(true) },
+                enabled = savedList.isNotEmpty(),
                 modifier = Modifier
                     .redoButtonModifier(),
                 getUIStyle = getUIStyle
@@ -249,7 +238,7 @@ fun ActionIconButton(
             val expanded = rememberSaveable { mutableStateOf(false) }
             sc.ct?.let {
                 CardOptionsButton(
-                    navViewModel, getUIStyle, it, fields,
+                    navVM, getUIStyle, it, fields,
                     expanded, Modifier, onNavigateBack
                 )
             }
@@ -258,7 +247,7 @@ fun ActionIconButton(
         UserProfileDestination.route -> {
             MailButton(onClick = {
                 sbNavController?.navigate(CoOwnerRequestsDestination.route)
-                navViewModel.updateRoute(CoOwnerRequestsDestination.route)
+                navVM.updateRoute(CoOwnerRequestsDestination.route)
             }, getUIStyle)
         }
 

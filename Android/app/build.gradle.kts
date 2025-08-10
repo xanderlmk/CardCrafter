@@ -14,11 +14,13 @@ plugins {
 android {
     namespace = "com.belmontCrest.cardCrafter"
     // For sdk 34 just change compileSdk and targetSdk.
+    //noinspection GradleDependency
     compileSdk = 35
 
     defaultConfig {
         applicationId = "com.belmontCrest.cardCrafter"
         minSdk = 28
+        //noinspection OldTargetApi
         targetSdk = 35
         versionCode = 12
         versionName = "1.0.5"
@@ -145,12 +147,6 @@ android {
         arg("room.schemaLocation", "$projectDir/schemas")
     }
 
-    task("printNdkPath") {
-        val register = this.logger.log(LogLevel.WARN, "NDK in use: ${android.ndkDirectory}")
-        doLast {
-            register
-        }
-    }
 }
 
 

@@ -28,17 +28,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardId
 import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardType
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.EditingCardListViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.model.TAProp
 import com.belmontCrest.cardCrafter.model.toTextProp
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
-import com.belmontCrest.cardCrafter.views.miscFunctions.CardSelector
+import com.belmontCrest.cardCrafter.views.misc.CardSelector
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.CustomText
-import com.belmontCrest.cardCrafter.views.miscFunctions.details.toQuestion
+import com.belmontCrest.cardCrafter.views.misc.details.toQuestion
 
 class EditCardsList(
     private var editingCardListVM: EditingCardListViewModel,

@@ -1,4 +1,4 @@
-package com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels
+package com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle

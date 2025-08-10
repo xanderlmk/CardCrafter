@@ -1,10 +1,11 @@
-package com.belmontCrest.cardCrafter.controller.viewModels.deckViewsModels
+package com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels
 
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -13,12 +14,10 @@ import java.util.Date
 private const val SQLITE_CONSTRAINT_EXCEPTION = 20
 
 
-val time = MutableStateFlow(Date().time)
-
-fun updateCurrentTime() {
-    time.update {
-        Date().time
-    }
+class TimeClass() {
+    private val _time = MutableStateFlow(Date().time)
+    val time = _time.asStateFlow()
+    fun updateCurrentTime() { _time.update { Date().time } }
 }
 
 suspend fun checkIfDeckExists(name: String, uuid: String, fCR: FlashCardRepository): Int {

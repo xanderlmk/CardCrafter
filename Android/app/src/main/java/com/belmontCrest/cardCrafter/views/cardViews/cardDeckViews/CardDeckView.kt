@@ -1,7 +1,6 @@
 package com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,12 +16,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -37,21 +34,20 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.controller.cardHandlers.redoACard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.showReviewsLeft
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.updateCTCard
-import com.belmontCrest.cardCrafter.controller.cardHandlers.updateDecksCardList
-import com.belmontCrest.cardCrafter.controller.viewModels.cardViewsModels.CardDeckViewModel
+import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.model.ui.states.CardState
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.views.miscFunctions.AgainText
-import com.belmontCrest.cardCrafter.views.miscFunctions.GoodText
-import com.belmontCrest.cardCrafter.views.miscFunctions.HardText
-import com.belmontCrest.cardCrafter.views.miscFunctions.NoDueCards
+import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.views.misc.AgainText
+import com.belmontCrest.cardCrafter.views.misc.GoodText
+import com.belmontCrest.cardCrafter.views.misc.HardText
+import com.belmontCrest.cardCrafter.views.misc.NoDueCards
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import java.util.Date
@@ -67,53 +63,46 @@ class CardDeckView(
         deck: Deck
     ) {
         val sealedCL by cardDeckVM.cardListUiState.collectAsStateWithLifecycle()
-
-        val backupList by cardDeckVM.backupCardList.collectAsState()
         val errorState by cardDeckVM.errorState.collectAsState()
-
-        val dueCTs = remember {
-            derivedStateOf { sealedCL.allCTs.toMutableList() }
-        }
         var show by rememberSaveable { mutableStateOf(false) }
         val index = rememberSaveable { mutableIntStateOf(0) }
         val coroutineScope = rememberCoroutineScope()
         var clicked by rememberSaveable { mutableStateOf(false) }
-        var started by rememberSaveable { mutableStateOf(false) }
         val clickedChoice = rememberSaveable { mutableStateOf('?') }
-
         val scrollState = rememberScrollState()
         val focusManager = LocalFocusManager.current
         val redoClicked by cardDeckVM.redoClicked.collectAsStateWithLifecycle()
-
-        if (redoClicked) {
-            coroutineScope.launch(Dispatchers.Default) {
-                cardDeckVM.updateRedoClicked(false)
-                if (index.intValue > 0) {
-                    index.intValue -= 1
-                    cardDeckVM.updateIndex(index.intValue)
-                    val ct = sealedCL.allCTs[index.intValue]
-                    redoACard(ct, cardDeckVM, index.intValue, dueCTs.value)
-                    clickedChoice.value = '?'
-                    show = false
-                } else {
-                    if (sealedCL.allCTs.isNotEmpty() && started) {
-                        index.intValue = sealedCL.allCTs.size - 1
-                        val ct = sealedCL.allCTs[index.intValue]
-                        redoACard(ct, cardDeckVM, index.intValue, dueCTs.value)
-                        clickedChoice.value = '?'
-                        show = false
-                    } else if (backupList.isNotEmpty() && started) {
-                        clickedChoice.value = '?'
-                        Log.d("CardDeckView", "Backup logic not implemented yet.")
+        val cardState by cardDeckVM.cardState.collectAsStateWithLifecycle()
+        var enabled by rememberSaveable { mutableStateOf(true) }
+        if (redoClicked && enabled) {
+            coroutineScope.launch(Dispatchers.IO) {
+                val beforeSize = sealedCL.allCTs.size
+                enabled = false
+                val result = cardDeckVM.getRedoCardType(deck)
+                delay(100)
+                val afterSize = sealedCL.allCTs.size
+                if (result) {
+                    if ((beforeSize == afterSize) && sealedCL.allCTs.isNotEmpty()) {
+                        if (index.intValue > 0) {
+                            index.intValue -= 1
+                            cardDeckVM.updateIndex(index.intValue)
+                        } else {
+                            index.intValue = sealedCL.allCTs.size - 1
+                            cardDeckVM.updateIndex(index.intValue)
+                        }
                     }
                 }
+                clickedChoice.value = '?'
+                show = false
                 focusManager.clearFocus()
+                cardDeckVM.updateRedoClicked(false)
+                enabled = true
             }
         }
 
         Box(
             contentAlignment =
-                if (sealedCL.allCTs.isEmpty() || dueCTs.value.isEmpty()) {
+                if (sealedCL.allCTs.isEmpty()) {
                     Alignment.Center
                 } else {
                     Alignment.TopCenter
@@ -123,15 +112,15 @@ class CardDeckView(
                 .verticalScroll(scrollState)
         ) {
             if (!fields.leftDueCardView.value) {
-                if (sealedCL.allCTs.isEmpty() || dueCTs.value.isEmpty() ||
+                if (sealedCL.allCTs.isEmpty() ||
                     deck.nextReview > Date()
                 ) {
-                    if (cardDeckVM.getState() == CardState.Finished) NoDueCards(getUIStyle)
+                    if (cardState == CardState.Finished) NoDueCards(getUIStyle)
                 } else {
-                    if (index.intValue < dueCTs.value.size) {
+                    if (index.intValue < sealedCL.allCTs.size) {
                         Text(
                             text = stringResource(R.string.reviews_left) +
-                                    showReviewsLeft(sealedCL.savedCTs[index.intValue]),
+                                    showReviewsLeft(sealedCL.allCTs[index.intValue]),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
@@ -144,9 +133,9 @@ class CardDeckView(
                                 .zIndex(1f)
                         )
                         if (!show) {
-                            if (cardDeckVM.getState() == CardState.Finished) {
+                            if (cardState == CardState.Finished) {
                                 FrontCard(
-                                    dueCTs.value[index.intValue],
+                                    sealedCL.allCTs[index.intValue],
                                     getUIStyle,
                                     clickedChoice,
                                     Modifier
@@ -155,8 +144,7 @@ class CardDeckView(
                                 )
                                 Button(
                                     onClick = {
-                                        show = true
-                                        focusManager.clearFocus()
+                                        show = true; focusManager.clearFocus()
                                     },
                                     modifier = Modifier
                                         .align(Alignment.BottomCenter)
@@ -172,7 +160,7 @@ class CardDeckView(
                             }
                         } else {
                             BackCard(
-                                dueCTs.value[index.intValue],
+                                sealedCL.allCTs[index.intValue],
                                 getUIStyle, Modifier
                                     .align(Alignment.TopCenter)
                                     .padding(bottom = 62.dp, top = 80.dp),
@@ -186,168 +174,107 @@ class CardDeckView(
                                     .align(Alignment.BottomCenter)
                             ) {
                                 val good =
-                                    ((dueCTs.value[index.intValue].toCard().passes + 1) *
+                                    ((sealedCL.allCTs[index.intValue].toCard().passes + 1) *
                                             deck.goodMultiplier).toInt()
-                                val hard = if (dueCTs.value[index.intValue].toCard().passes > 0)
-                                    ((dueCTs.value[index.intValue].toCard().passes + 1) *
+                                val hard = if (sealedCL.allCTs[index.intValue].toCard().passes > 0)
+                                    ((sealedCL.allCTs[index.intValue].toCard().passes + 1) *
                                             deck.badMultiplier).toInt()
-                                else (dueCTs.value[index.intValue].toCard().passes *
+                                else (sealedCL.allCTs[index.intValue].toCard().passes *
                                         deck.badMultiplier).toInt()
-                                Column(
-                                    verticalArrangement = Arrangement.Top,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Button(
-                                        onClick = {
-                                            if (!clicked) {
-                                                coroutineScope.launch {
-                                                    cardDeckVM.transitionTo(CardState.Loading)
-                                                    clicked = true
-                                                    sealedCL.savedCTs[index.intValue] =
-                                                        updateCTCard(
-                                                            sealedCL.savedCTs[index.intValue],
-                                                            dueCTs.value[index.intValue],
-                                                            deck,
-                                                            cardDeckVM,
-                                                            success = false,
-                                                            again = true
-                                                        )
-                                                    clickedChoice.value = '?'
-                                                    show = !show
-                                                }
-                                                coroutineScope.launch {
-                                                    while (cardDeckVM.getState() ==
-                                                        CardState.Loading
-                                                    ) {
-                                                        delay(36)
-                                                    }
-                                                    scrollState.animateScrollTo(0)
-                                                    clicked = false
-                                                }
-                                            }
-                                        },
-                                        modifier = Modifier,
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = getUIStyle.secondaryButtonColor(),
-                                            contentColor = getUIStyle.buttonTextColor()
-                                        )
-                                    ) { Text(stringResource(R.string.again)) }
-                                    AgainText(getUIStyle)
-                                }
-                                Column(
-                                    verticalArrangement = Arrangement.Top,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Button(
-                                        onClick = {
-                                            if (!clicked) {
-                                                coroutineScope.launch {
-                                                    cardDeckVM.transitionTo(CardState.Loading)
-                                                    clicked = true
-                                                    sealedCL.savedCTs[index.intValue] =
-                                                        updateCTCard(
-                                                            sealedCL.savedCTs[index.intValue],
-                                                            dueCTs.value[index.intValue],
-                                                            deck,
-                                                            cardDeckVM,
-                                                            success = false,
-                                                            again = false
-                                                        )
-                                                    clickedChoice.value = '?'
-                                                    show = !show
-                                                }
-                                                coroutineScope.launch {
-                                                    while (cardDeckVM.getState() ==
-                                                        CardState.Loading
-                                                    ) {
-                                                        delay(36)
-                                                    }
+                                ResultButton(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            clicked = true
+                                            cardDeckVM.transitionTo(CardState.Loading)
+                                            updateCTCard(
+                                                sealedCL.allCTs[index.intValue],
+                                                deck, cardDeckVM,
+                                                success = false, again = true
+                                            )
+                                            clickedChoice.value = '?'
+                                            show = false
+                                            scrollState.animateScrollTo(0)
+                                            clicked = false
+                                            cardDeckVM.transitionTo(CardState.Finished)
+                                        }
+                                    }, enabled = !clicked, getUIStyle = getUIStyle,
+                                    string = stringResource(R.string.again)
+                                ) { AgainText(getUIStyle) }
+                                ResultButton(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            clicked = true
+                                            val beforeSize = sealedCL.allCTs.size
+                                            cardDeckVM.transitionTo(CardState.Loading)
+                                            val result = updateCTCard(
+                                                sealedCL.allCTs[index.intValue],
+                                                deck, cardDeckVM,
+                                                success = false, again = false
+                                            )
+                                            delay(50)
+                                            val afterSize = sealedCL.allCTs.size
+                                            if (result) {
+                                                if (beforeSize == afterSize) {
                                                     index.intValue =
                                                         ((index.intValue + 1))
                                                     cardDeckVM.updateIndex(index.intValue)
-                                                    scrollState.animateScrollTo(0)
-                                                    clicked = false
                                                 }
                                             }
-                                        },
-                                        modifier = Modifier,
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = getUIStyle.secondaryButtonColor(),
-                                            contentColor = getUIStyle.buttonTextColor()
-                                        )
-                                    ) { Text(stringResource(R.string.hard)) }
-                                    HardText(sealedCL, index.intValue, hard, getUIStyle)
-                                }
-                                Column(
-                                    verticalArrangement = Arrangement.Top,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Button(
-                                        onClick = {
-                                            if (!clicked) {
-                                                clicked = true
-                                                coroutineScope.launch {
-                                                    cardDeckVM.transitionTo(CardState.Loading)
-                                                    sealedCL.savedCTs[index.intValue] =
-                                                        updateCTCard(
-                                                            sealedCL.savedCTs[index.intValue],
-                                                            dueCTs.value[index.intValue],
-                                                            deck,
-                                                            cardDeckVM,
-                                                            success = true,
-                                                            again = false
-                                                        )
-                                                    clickedChoice.value = '?'
-                                                    show = !show
-                                                }
-                                                coroutineScope.launch {
-                                                    while (cardDeckVM.getState() ==
-                                                        CardState.Loading
-                                                    ) {
-                                                        delay(36)
-                                                    }
+                                            clickedChoice.value = '?'
+                                            show = false
+                                            scrollState.animateScrollTo(0)
+                                            clicked = false
+                                            cardDeckVM.transitionTo(CardState.Finished)
+                                        }
+                                    },enabled = !clicked, getUIStyle = getUIStyle,
+                                    string = stringResource(R.string.hard)
+                                ) { HardText(sealedCL, index.intValue, hard, getUIStyle) }
+                                ResultButton(
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            clicked = true
+                                            val beforeSize = sealedCL.allCTs.size
+                                            cardDeckVM.transitionTo(CardState.Loading)
+                                            val result = updateCTCard(
+                                                sealedCL.allCTs[index.intValue],
+                                                deck, cardDeckVM,
+                                                success = true, again = false
+                                            )
+                                            delay(50)
+                                            val afterSize = sealedCL.allCTs.size
+                                            if (result) {
+                                                if (beforeSize == afterSize) {
                                                     index.intValue =
                                                         ((index.intValue + 1))
                                                     cardDeckVM.updateIndex(index.intValue)
-                                                    scrollState.animateScrollTo(0)
-                                                    clicked = false
                                                 }
                                             }
-                                        },
-                                        modifier = Modifier,
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = getUIStyle.secondaryButtonColor(),
-                                            contentColor = getUIStyle.buttonTextColor()
-                                        )
-                                    ) { Text(stringResource(R.string.good)) }
-                                    GoodText(sealedCL, index.intValue, good, getUIStyle)
-                                }
+                                            clickedChoice.value = '?'
+                                            show = false
+                                            scrollState.animateScrollTo(0)
+                                            clicked = false
+                                            cardDeckVM.transitionTo(CardState.Finished)
+                                        }
+                                    }, enabled = !clicked,
+                                    string = stringResource(R.string.good), getUIStyle = getUIStyle
+                                ) { GoodText(sealedCL, index.intValue, good, getUIStyle) }
                             }
                         }
                     } else {
                         LaunchedEffect(Unit) {
-                            if (cardDeckVM.getState() != CardState.Loading) {
+                            if (cardState != CardState.Loading) {
                                 coroutineScope.launch {
                                     cardDeckVM.updateIndex(0)
                                     cardDeckVM.transitionTo(CardState.Loading)
-                                    updateDecksCardList(
-                                        deck,
-                                        cardDeckVM
-                                    )
-                                    while (cardDeckVM.getState() == CardState.Loading) {
-                                        delay(50)
-                                    }
                                     cardDeckVM.updateWhichDeck(0)
-                                    if ((sealedCL.allCTs.isEmpty()) && deck.nextReview >= Date()) {
-                                        dueCTs.value.clear()
-                                    }
-                                    if (!errorState?.message.isNullOrEmpty()) {
+                                    if (!errorState?.message.isNullOrEmpty())
                                         println(errorState?.message)
-                                    }
+
                                     /** Forcefully updating the decks */
-                                    started = true
                                     cardDeckVM.updateWhichDeck(deck.id)
                                     index.intValue = 0
+                                    cardDeckVM.transitionTo(CardState.Finished)
+
                                 }
                             }
                         }
@@ -355,5 +282,21 @@ class CardDeckView(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ResultButton(
+    onClick: () -> Unit, string: String, enabled: Boolean,
+    getUIStyle: GetUIStyle, content: @Composable () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        SubmitButton(
+            onClick = onClick, enabled = enabled, getUIStyle = getUIStyle, string = string
+        )
+        content()
     }
 }
