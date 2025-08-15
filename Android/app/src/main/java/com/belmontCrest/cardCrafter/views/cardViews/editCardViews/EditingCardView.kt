@@ -40,7 +40,7 @@ import com.belmontCrest.cardCrafter.controller.onClickActions.saveCard
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateCardType
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.localDatabase.tables.CT
-import com.belmontCrest.cardCrafter.model.application.PreferenceValues
+import com.belmontCrest.cardCrafter.model.application.preferences.PreferenceValues
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.editCardModifier

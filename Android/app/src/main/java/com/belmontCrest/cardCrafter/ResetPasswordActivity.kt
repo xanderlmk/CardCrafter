@@ -28,8 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import com.belmontCrest.cardCrafter.model.application.AppVMProvider
-import com.belmontCrest.cardCrafter.model.application.PreferencesManager
-import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
+import com.belmontCrest.cardCrafter.model.application.preferences.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.preferences.PrefRepository
+import com.belmontCrest.cardCrafter.model.application.preferences.PrefRepositoryImpl
+import com.belmontCrest.cardCrafter.model.application.preferences.setPreferenceValues
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.DeepLinksViewModel
 import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
@@ -39,24 +41,28 @@ import com.belmontCrest.cardCrafter.uiFunctions.CustomText
 import com.belmontCrest.cardCrafter.uiFunctions.PasswordTextField
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class ResetPasswordActivity : ComponentActivity() {
     private lateinit var callback: (String, String) -> Unit
-    private val deepLinksVM: DeepLinksViewModel by viewModels {
-        AppVMProvider.Factory
-    }
+    private val deepLinksVM: DeepLinksViewModel by viewModels { AppVMProvider.Factory }
+    private val applicationScope = CoroutineScope(SupervisorJob())
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val sharedPrefs = applicationContext.getSharedPreferences("app_preferences", MODE_PRIVATE)
+        val prefRepository: PrefRepository = PrefRepositoryImpl(applicationContext, sharedPrefs)
+        val preferences = PreferencesManager(prefRepository, applicationScope)
         super.onCreate(savedInstanceState)
-        val preferences = PreferencesManager(applicationContext, lifecycleScope)
         handleDeepLink(intent)
         enableEdgeToEdge()
         setContent {
-            val emailState = remember { mutableStateOf("") }
-            val createdAtState = remember { mutableStateOf("") }
+            val emailState = rememberSaveable { mutableStateOf("") }
+            val createdAtState = rememberSaveable { mutableStateOf("") }
             LaunchedEffect(Unit) {
                 callback = { email, created ->
                     emailState.value = email

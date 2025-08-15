@@ -34,7 +34,7 @@ import com.belmontCrest.cardCrafter.model.FWProp
 import com.belmontCrest.cardCrafter.model.TAProp
 import com.belmontCrest.cardCrafter.model.TextProps
 import com.belmontCrest.cardCrafter.model.Type
-import com.belmontCrest.cardCrafter.model.application.PreferenceValues
+import com.belmontCrest.cardCrafter.model.application.preferences.PreferenceValues
 import com.belmontCrest.cardCrafter.model.cardListTextProp
 import com.belmontCrest.cardCrafter.model.toTextProp
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails

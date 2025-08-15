@@ -18,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.model.application.PreferencesManager
-import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
+import com.belmontCrest.cardCrafter.model.application.preferences.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.preferences.setPreferenceValues
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
 import kotlinx.coroutines.delay

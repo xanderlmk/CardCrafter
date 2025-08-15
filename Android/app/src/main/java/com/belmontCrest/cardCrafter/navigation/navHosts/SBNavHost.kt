@@ -27,8 +27,8 @@ import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.model.ui.Fields
-import com.belmontCrest.cardCrafter.model.application.PreferencesManager
-import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
+import com.belmontCrest.cardCrafter.model.application.preferences.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.preferences.setPreferenceValues
 import com.belmontCrest.cardCrafter.navigation.destinations.CoOwnerRequestsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ForgotPasswordDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SBCardListDestination
