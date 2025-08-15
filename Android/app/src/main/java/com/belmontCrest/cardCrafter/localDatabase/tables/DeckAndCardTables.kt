@@ -114,7 +114,6 @@ data class Card(
     val deckCardNumber: Int?,
     val cardIdentifier: String
 ) : Parcelable {
-    
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readInt(),

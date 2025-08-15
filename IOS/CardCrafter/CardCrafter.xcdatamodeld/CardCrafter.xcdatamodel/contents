@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788.4" systemVersion="24E263" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="BasicCard" representedClassName="BasicCard" parentEntity="Card" syncable="YES">
+        <attribute name="answer" attributeType="String"/>
+        <attribute name="question" attributeType="String"/>
+    </entity>
+    <entity name="Card" representedClassName="Card" isAbstract="YES" syncable="YES">
+        <attribute name="c_createdOn" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="c_nextReview" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="cardDeckNumber" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="cardIdentifier" attributeType="String"/>
+        <attribute name="partOfList" attributeType="Boolean" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="passes" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="prevSuccess" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="reviewsLeft" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="totalPasses" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="type" attributeType="String"/>
+        <relationship name="deck" maxCount="1" deletionRule="Nullify" destinationEntity="Deck" inverseName="cards" inverseEntity="Deck"/>
+        <relationship name="saved" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SavedCard" inverseName="details" inverseEntity="SavedCard"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="cardIdentifier"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="Deck" representedClassName="Deck" syncable="YES">
+        <attribute name="badMultiplier" attributeType="Double" defaultValueString="0.5" usesScalarValueType="YES"/>
+        <attribute name="cardAmount" attributeType="Integer 16" defaultValueString="20" usesScalarValueType="YES"/>
+        <attribute name="cardsDone" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="cardsLeft" attributeType="Integer 16" defaultValueString="20" usesScalarValueType="YES"/>
+        <attribute name="d_createdOn" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="d_name" attributeType="String"/>
+        <attribute name="d_nextReview" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="d_uuid" attributeType="String"/>
+        <attribute name="goodMultiplier" attributeType="Double" defaultValueString="1.5" usesScalarValueType="YES"/>
+        <attribute name="lastUpdated" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="reviewAmount" attributeType="Integer 16" defaultValueString="1" usesScalarValueType="YES"/>
+        <relationship name="cards" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Card" inverseName="deck" inverseEntity="Card"/>
+    </entity>
+    <entity name="HintCard" representedClassName="HintCard" parentEntity="Card" syncable="YES">
+        <attribute name="answer" attributeType="String"/>
+        <attribute name="hint" attributeType="String"/>
+        <attribute name="question" attributeType="String"/>
+    </entity>
+    <entity name="MultiChoiceCard" representedClassName="MultiChoiceCard" parentEntity="Card" syncable="YES">
+        <attribute name="choiceA" attributeType="String"/>
+        <attribute name="choiceB" attributeType="String"/>
+        <attribute name="choiceC" optional="YES" attributeType="String"/>
+        <attribute name="choiceD" optional="YES" attributeType="String"/>
+        <attribute name="correct" attributeType="String" minValueString="1" maxValueString="1"/>
+        <attribute name="question" attributeType="String"/>
+    </entity>
+    <entity name="SavedCard" representedClassName="SavedCard" syncable="YES">
+        <attribute name="s_createdOn" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="s_nextReview" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="s_partOfList" attributeType="Boolean" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="s_passes" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="s_prevSuccess" attributeType="Boolean" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="s_reviewsLeft" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="s_totalPasses" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="details" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Card" inverseName="saved" inverseEntity="Card"/>
+    </entity>
+    <entity name="ThreeFieldCard" representedClassName="ThreeFieldCard" parentEntity="Card" syncable="YES">
+        <attribute name="answer" attributeType="String"/>
+        <attribute name="middle" attributeType="String"/>
+        <attribute name="partOfQorA" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="question" attributeType="String"/>
+    </entity>
+</model>

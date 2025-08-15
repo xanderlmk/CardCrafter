@@ -134,7 +134,6 @@ class OfflineDeckContentRepo(
             SealedAllCTs(it)
         }
     }
-
     private val _deckNextReview = MutableStateFlow(
         if (savedDate <= 0L) null else DeckNextReview(Date(savedDate))
     )
@@ -155,7 +154,6 @@ class OfflineDeckContentRepo(
     override suspend fun getCardRemains(cardId: Int) = savedCardDao.getCardRemains(cardId)
     override suspend fun updateCard(card: Card, savedCard: SavedCard) =
         dueCardsDao.updateCardWithSavedCard(card, savedCard)
-
 
     override suspend fun redoCard(
         card: Card, savedCard: SavedCard, id: Int, nextReview: Date, cardsLeft: Int, cardsDone: Int

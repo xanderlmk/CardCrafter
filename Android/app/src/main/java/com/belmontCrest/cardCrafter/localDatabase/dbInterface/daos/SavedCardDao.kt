@@ -11,7 +11,6 @@ interface SavedCardDao {
 
     @Query("SELECT * from saved_card ORDER BY id DESC")
     fun getAllSavedCards(): Flow<List<SavedCard>>
-
     @Query(
         """
         update cards
@@ -41,5 +40,4 @@ interface SavedCardDao {
         FROM cards WHERE id = :cardId
         """)
     suspend fun getCardRemains(cardId: Int): CardRemains
-
 }
