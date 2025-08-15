@@ -6,12 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.cardHandlers.callError
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.DeckContentRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
 import com.belmontCrest.cardCrafter.model.ui.states.CardState
 import com.belmontCrest.cardCrafter.model.ui.CardUpdateError
+import com.belmontCrest.cardCrafter.model.ui.states.DeckDetails
 import com.belmontCrest.cardCrafter.model.ui.states.SealedAllCTs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,13 +21,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Date
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardDeckViewModel(
-    private val flashCardRepository: FlashCardRepository,
     private val deckContentRepository: DeckContentRepository,
 ) : ViewModel() {
 
@@ -35,7 +35,7 @@ class CardDeckViewModel(
     val errorState: StateFlow<CardUpdateError?> = _errorState.asStateFlow()
 
     val cardListUiState = deckContentRepository.dueCardsState.stateIn(
-        scope = viewModelScope, started = SharingStarted.Eagerly,
+        scope = viewModelScope, started = SharingStarted.Lazily,
         initialValue = SealedAllCTs()
     )
     val savedCardUiState = deckContentRepository.savedCards.stateIn(
@@ -55,16 +55,14 @@ class CardDeckViewModel(
             val savedCard = savedCardUiState.value.first()
             val cardRemains = deckContentRepository.getCardRemains(savedCard.cardId)
             val card = savedCard.toCard(cardRemains)
-            if (card.reviewsLeft <= 1) {
-                deck.cardsLeft += 1
-                deck.cardsDone -= 1
-            }
-            if (deck.nextReview > Date())
-                deckNRState.value?.let {
-                    flashCardRepository.updateNextReview(it.nextReview, deck.id)
-                }
-            flashCardRepository.updateCardsLeft(deck.id, deck.cardsLeft, deck.cardsDone)
-            deckContentRepository.redoCard(card, savedCard)
+            val cardsLeft = if (card.reviewsLeft <= 1) deck.cardsLeft + 1 else deck.cardsLeft
+            val cardsDone = if (card.reviewsLeft <= 1) deck.cardsDone - 1 else deck.cardsDone
+            val nextReview = deckNRState.value?.nextReview
+            deckContentRepository.redoCard(
+                card, savedCard, id = deck.id, cardsDone = cardsDone, cardsLeft = cardsLeft,
+                nextReview = if (deck.nextReview > Date() && nextReview != null)
+                    nextReview else deck.nextReview
+            )
             clearErrorState()
             return@withContext true
         } catch (e: Exception) {
@@ -79,13 +77,16 @@ class CardDeckViewModel(
     suspend fun addCardToUpdate(card: Card, savedCard: SavedCard, deck: Deck) =
         withContext(Dispatchers.IO) {
             if (card.nextReview > Date()) {
-                deck.cardsLeft -= 1
-                deck.cardsDone += 1
-                flashCardRepository.updateCardsLeft(deck.id, deck.cardsLeft, deck.cardsDone)
+                val dd = DeckDetails(
+                    id = deck.id,
+                    cardsDone = (deck.cardsDone + 1),
+                    cardsLeft = (deck.cardsLeft - 1),
+                    nextReview = updateNextReview(deck)
+                )
+                deckContentRepository.updateCardWithDeck(card, savedCard, dd)
+            } else {
+                deckContentRepository.updateCard(card, savedCard)
             }
-            if (deck.cardsLeft <= 0 && deck.nextReview <= Date())
-                updateNextReview(deck)
-            deckContentRepository.updateCard(card, savedCard)
         }
 
     fun transitionTo(newState: CardState) = deckContentRepository.transitionTo(newState)
@@ -98,18 +99,22 @@ class CardDeckViewModel(
 
     fun updateRedoClicked(clicked: Boolean) = deckContentRepository.updateRedoClicked(clicked)
 
-    fun updateIndex(index: Int) = deckContentRepository.updateIndex(index)
-
     /** Updating the nextReview for the deck which will only be
      * to the next day (++1 day). */
-    private suspend fun updateNextReview(deck: Deck) = withContext(Dispatchers.IO) {
-        val time = Calendar.getInstance()
-        time.add(Calendar.DAY_OF_YEAR, 1)
-        deck.nextReview = time.time
-        flashCardRepository.updateNextReview(
-            deck.nextReview, deck.id
-        )
+    private fun updateNextReview(deck: Deck) = with(Dispatchers.IO) {
+        if (deck.cardsLeft <= 0 && deck.nextReview <= Date()) {
+            val time = Calendar.getInstance()
+            time.add(Calendar.DAY_OF_YEAR, 1)
+            time.time
+        } else {
+            deck.nextReview
+        }
     }
 
-    fun updateWhichDeck(i: Int) = deckContentRepository.updateDeckId(i)
+    fun updateTime() = deckContentRepository.updateInnerTime()
+
+    init {
+        updateTime()
+        deckContentRepository.transitionTo(CardState.Finished)
+    }
 }

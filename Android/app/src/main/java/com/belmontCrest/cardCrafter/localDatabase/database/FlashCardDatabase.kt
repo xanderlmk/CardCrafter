@@ -11,6 +11,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.CardDao
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.CardTypesDao
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.DeckDao
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.DueCardsDao
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.SavedCardDao
 import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
@@ -91,6 +92,7 @@ abstract class FlashCardDatabase : RoomDatabase() {
     abstract fun syncedDeckInfoDao(): SyncedDeckInfoDao
     abstract fun exportToSBDao(): ExportToSBDao
     abstract fun mergeDecksDao(): MergeDecksDao
+    abstract fun dueCardsDao(): DueCardsDao
 
     companion object {
         @Volatile

@@ -70,10 +70,7 @@ object AppVMProvider {
             )
         }
         initializer {
-            CardDeckViewModel(
-                flashCardApplication().container.flashCardRepository,
-                flashCardApplication().container.deckContentRepository
-            )
+            CardDeckViewModel(flashCardApplication().container.deckContentRepository)
         }
         initializer {
             EditingCardListViewModel(

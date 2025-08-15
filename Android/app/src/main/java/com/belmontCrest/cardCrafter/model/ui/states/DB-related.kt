@@ -70,13 +70,9 @@ private fun ParamType.hasNotations(): Boolean =
                     (this.first is ParamType.LT.NOTATION ||
                             this.second is ParamType.LT.NOTATION))
 
-/** DueCards States */
-data class DueDeckDetails(
-    val id: Int = 0,
-    var cardsLeft: Int = 0,
-    val cardAmount: Int = 0,
-    val reviewAmount: Int = 0,
-    val nextReview: Date = Date()
+data class DeckDetails(
+    val id: Int = 0, val cardsLeft: Int = 0, val cardAmount: Int = 0, val cardsDone: Int = 0,
+    val reviewAmount: Int = 0, val nextReview: Date = Date()
 )
 
 

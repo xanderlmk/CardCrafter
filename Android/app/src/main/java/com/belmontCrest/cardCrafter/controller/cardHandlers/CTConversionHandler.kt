@@ -13,6 +13,8 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.toCustomCard
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 
 fun CT.toCard(): Card = when (this) {
@@ -136,34 +138,35 @@ fun returnReviewsLeft(ct: CT): Int {
 }
 
 fun List<AllCardTypes>.toCTList() = this.map { allCardTypes ->
+    val updatedCard = allCardTypes.card.copy()
     when {
         allCardTypes.basicCard != null -> CT.Basic(
-            allCardTypes.card, allCardTypes.basicCard
+            updatedCard, allCardTypes.basicCard
         )
 
         allCardTypes.hintCard != null -> CT.Hint(
-            allCardTypes.card, allCardTypes.hintCard
+            updatedCard, allCardTypes.hintCard
         )
 
         allCardTypes.threeFieldCard != null -> CT.ThreeField(
-            allCardTypes.card, allCardTypes.threeFieldCard
+            updatedCard, allCardTypes.threeFieldCard
         )
 
         allCardTypes.multiChoiceCard != null -> CT.MultiChoice(
-            allCardTypes.card, allCardTypes.multiChoiceCard
+            updatedCard, allCardTypes.multiChoiceCard
         )
 
         allCardTypes.notationCard != null -> CT.Notation(
-            allCardTypes.card, allCardTypes.notationCard
+            updatedCard, allCardTypes.notationCard
         )
 
         allCardTypes.nullableCustomCard != null -> CT.Custom(
-            allCardTypes.card, allCardTypes.nullableCustomCard.toCustomCard()
+            updatedCard, allCardTypes.nullableCustomCard.toCustomCard()
         )
         /** This error will probably only happen when you add a new card. */
         else -> throw IllegalStateException(
             """Mapping error for AllCardTypes element: 
-                card=${allCardTypes.card}, 
+                card=${updatedCard}, 
                 basicCard=${allCardTypes.basicCard}, 
                 hintCard=${allCardTypes.hintCard},
                 threeFieldCard=${allCardTypes.threeFieldCard},
@@ -173,6 +176,7 @@ fun List<AllCardTypes>.toCTList() = this.map { allCardTypes ->
         )
     }
 }
+fun Flow<List<AllCardTypes>>.toCTList(): Flow<List<CT>> = this.map { it.toCTList() }
 
 fun AllCardTypes.toCT(): CT = when {
     this.basicCard != null -> CT.Basic(this.card, this.basicCard)

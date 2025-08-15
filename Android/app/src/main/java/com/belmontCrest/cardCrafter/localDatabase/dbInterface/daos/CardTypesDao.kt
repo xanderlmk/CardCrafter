@@ -40,11 +40,20 @@ interface CardTypesDao : InsertOrAbortDao, UpdateAndDeleteHelper {
     @Query(
         """SELECT * FROM cards WHERE deckId = :deckId 
         AND nextReview <= :currentTime 
-        ORDER BY nextReview ASC, partOfList DESC, id ASC
+        ORDER BY nextReview ASC, partOfList DESC
         LIMIT :cardAmount"""
     )
     fun getDueAllCardTypesFlow(deckId: Int, cardAmount: Int, currentTime: Long):
             Flow<List<AllCardTypes>>
+
+    @Transaction
+    @Query(
+        """SELECT * FROM cards WHERE deckId = :deckId 
+        AND nextReview <= :currentTime 
+        ORDER BY nextReview ASC, partOfList DESC, id ASC
+        LIMIT :cardAmount"""
+    )
+    suspend fun getDueAllCardTypes(deckId: Int, cardAmount: Int, currentTime: Long): List<AllCardTypes>
 
     @Transaction
     @Query(

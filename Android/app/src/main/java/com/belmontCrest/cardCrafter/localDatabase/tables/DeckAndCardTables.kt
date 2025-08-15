@@ -38,11 +38,11 @@ data class Deck(
     val createdOn: Long = Date().time,
     val cardAmount: Int = 20,
     @Serializable(with = DateAsLong::class)
-    var nextReview: Date,
-    var cardsLeft: Int = 20,
-    var cardsDone: Int = 0,
+    val nextReview: Date,
+    val cardsLeft: Int = 20,
+    val cardsDone: Int = 0,
     @Serializable(with = DateAsLong::class)
-    var lastUpdated: Date,
+    val lastUpdated: Date,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
@@ -114,14 +114,7 @@ data class Card(
     val deckCardNumber: Int?,
     val cardIdentifier: String
 ) : Parcelable {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Card) return false
-        return id == other.id
-    }
-
-    override fun hashCode(): Int = id
-
+    
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readInt(),
