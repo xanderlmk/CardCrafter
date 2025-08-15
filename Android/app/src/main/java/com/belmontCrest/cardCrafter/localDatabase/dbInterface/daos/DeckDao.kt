@@ -92,7 +92,6 @@ interface DeckDao : DeckHelperDao {
         }.timeInMillis
     )
 
-
     @Query("SELECT COUNT(*) FROM decks WHERE LOWER(name) = LOWER(:deckName)")
     suspend fun checkIfDeckExists(deckName: String): Int
 
