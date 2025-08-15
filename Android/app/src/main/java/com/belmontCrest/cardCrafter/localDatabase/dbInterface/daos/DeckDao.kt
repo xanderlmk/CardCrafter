@@ -83,7 +83,14 @@ interface DeckDao : DeckHelperDao {
     """
     )
     suspend fun resetCardLefts(
-
+        currentTime: Long = Date().time,
+        startOfDay: Long = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+    )
 
     @Query("SELECT COUNT(*) FROM decks WHERE LOWER(name) = LOWER(:deckName)")
     suspend fun checkIfDeckExists(deckName: String): Int
