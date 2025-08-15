@@ -104,8 +104,7 @@ fun CustomNavigationDrawer(
     /** Current route */
     val (cr, type, isSelecting, _) = collectTitleStates(navVM)
 
-    val stateSize by navVM.stateSize.collectAsStateWithLifecycle()
-    val stateIndex by navVM.stateIndex.collectAsStateWithLifecycle()
+    val stateSize by navVM.dueCardSize.collectAsStateWithLifecycle()
 
     val deckName by navVM.deckName.collectAsStateWithLifecycle()
     val owner by supabaseVM.owner.collectAsStateWithLifecycle()
@@ -118,7 +117,7 @@ fun CustomNavigationDrawer(
         EditDeckDestination.route -> stringResource(R.string.edit_deck) + ": ${deckName.name}"
         ViewAllCardsDestination.route -> deckName.name
         ViewDueCardsDestination.route ->
-            if (stateSize == 0) "" else "Card ${stateIndex + 1} out of $stateSize"
+            if (stateSize == 0) "" else "$stateSize cards left"
 
         SBNavDestination.route -> "Online Decks"
         SupabaseDestination.route -> "Online Decks"
@@ -350,7 +349,6 @@ fun launchHome(
     coroutineScope.launch {
         navViewModel.updateTime()
         navViewModel.resetCard()
-        navViewModel.updateUIIndex(0)
         fields.scrollPosition.value = 0
         fields.inDeckClicked.value = true
         fields.mainClicked.value = false

@@ -3,7 +3,7 @@ package com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.model.daoHelpers.OrderBy
-import com.belmontCrest.cardCrafter.model.ui.states.DueDeckDetails
+import com.belmontCrest.cardCrafter.model.ui.states.DeckDetails
 import com.belmontCrest.cardCrafter.views.misc.details.CardDetails
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
@@ -17,27 +17,25 @@ interface FlashCardRepository {
 
     suspend fun updateDeckName(newName: String, deckId: Int): Int
 
-    fun updateDeckGoodMultiplier(newMultiplier: Double, deckId: Int): Int
+    suspend fun updateDeckGoodMultiplier(newMultiplier: Double, deckId: Int): Int
 
-    fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int): Int
+    suspend fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int): Int
 
-    fun updateDeckReviewAmount(newReviewAmount: Int, deckId: Int): Int
+    suspend fun updateDeckReviewAmount(newReviewAmount: Int, deckId: Int): Int
 
-    suspend fun updateNextReview(nextReview: Date, deckId: Int)
+    suspend fun updateCardReviewAmount(newReviewAmount: Int, deckId: Int): Int
 
-    fun updateCardReviewAmount(newReviewAmount: Int, deckId: Int): Int
-
-    fun updateCardAmount(cardAmount: Int, deckId: Int): Int
+    suspend fun updateCardAmount(cardAmount: Int, deckId: Int): Int
 
     fun getDecksAndCC(currentTime: Long, orderBy: OrderBy): Pair<Flow<List<Deck>>, Flow<List<Int>>>
 
     suspend fun getAllDecks(): List<Deck>
 
-    fun getDeck(id: Int): Deck
+    suspend fun getDeck(id: Int): Deck
 
     fun getDeckName(id: Int): Flow<String?>
 
-    fun resetCardLefts()
+    suspend fun resetCardLefts()
 
     suspend fun insertDeck(deck: Deck): Long
 
@@ -46,6 +44,8 @@ interface FlashCardRepository {
     suspend fun deleteDeckById(id: Int)
 
     suspend fun updateDeck(deck: Deck)
+
+    suspend fun updateDeckDetails(id: Int, nextReview: Date,cardsLeft: Int, cardsDone: Int)
 
     suspend fun insertCard(card: Card): Long
 
@@ -57,11 +57,6 @@ interface FlashCardRepository {
 
     fun getCardStream(cardId: Int): Flow<Card>
 
-    suspend fun getDueCards(
-        deckId: Int,
-        currentTime: Long = Date().time
-    ): Flow<List<Card>>
-
     suspend fun deleteAllCards(deckId: Int)
 
     fun getCardById(cardId: Int): Card
@@ -70,9 +65,7 @@ interface FlashCardRepository {
 
     suspend fun becomePartOfList(id: Int)
 
-    fun updateCardsLeft(deckId: Int, cardsLeft: Int, cardsDone: Int)
-
-    fun getDueDeckDetails(id: Int): Flow<DueDeckDetails?>
+    fun getDueDeckDetails(id: Int): Flow<DeckDetails?>
 
     suspend fun insertBasicCard(
         deck: Deck, basicCD: CardDetails.BasicCD, isOwnerOrCoOwner: Boolean
@@ -97,4 +90,6 @@ interface FlashCardRepository {
     suspend fun insertCustomCard(
         deck: Deck, customCD: CardDetails.CustomCD, type: String, isOwnerOrCoOwner: Boolean
     )
+
+    suspend fun updateCardsLeft(deckId: Int, cardsDone: Int, cardsLeft: Int)
 }

@@ -317,15 +317,10 @@ class NavViewModel(
         scope = viewModelScope, started = SharingStarted.Eagerly,
         initialValue = emptyList()
     )
-
-    val stateSize = deckContentRepository.stateSize.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+    val dueCardSize = deckContentRepository.dueCardsState.map { it.allCTs.size }.stateIn(
+        scope = viewModelScope, started = SharingStarted.Lazily,
         initialValue = 0
     )
-    val stateIndex = deckContentRepository.stateIndex
-
-    fun updateUIIndex(index: Int) = deckContentRepository.updateIndex(index)
 
     fun updateRedoClicked(clicked: Boolean) = deckContentRepository.updateRedoClicked(clicked)
 

@@ -99,7 +99,6 @@ class ModalContent(
         CustomRow(
             onClick = {
                 launchUpdates()
-                navVM.updateUIIndex(0)
                 navVM.updateRoute(SettingsDestination.route)
                 navController.navigate(SettingsDestination.route)
             }

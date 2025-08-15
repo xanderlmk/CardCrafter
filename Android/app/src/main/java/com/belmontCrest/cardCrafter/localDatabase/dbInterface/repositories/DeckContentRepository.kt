@@ -6,23 +6,29 @@ import androidx.core.content.edit
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCTList
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.CardTypesDao
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.DeckDao
+import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.DueCardsDao
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos.SavedCardDao
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.CardRemains
 import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
 import com.belmontCrest.cardCrafter.model.ui.states.CSS
 import com.belmontCrest.cardCrafter.model.ui.states.CardState
+import com.belmontCrest.cardCrafter.model.ui.states.DeckDetails
 import com.belmontCrest.cardCrafter.model.ui.states.DeckNextReview
 import com.belmontCrest.cardCrafter.model.ui.states.SealedAllCTs
 import com.belmontCrest.cardCrafter.model.ui.states.StringVar
 import com.belmontCrest.cardCrafter.model.ui.states.WhichDeck
 import com.belmontCrest.cardCrafter.model.ui.states.toCSString
 import com.belmontCrest.cardCrafter.model.ui.states.toCardState
+import com.belmontCrest.cardCrafter.views.misc.CARD_CRAFTER
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -32,8 +38,6 @@ import java.util.Date
 interface DeckContentRepository {
     val sealedAllCTs: Flow<SealedAllCTs>
     val dueCardsState: Flow<SealedAllCTs>
-    val stateSize: Flow<Int>
-    val stateIndex: StateFlow<Int>
     val savedCards: Flow<List<SavedCard>>
     val wd: Flow<WhichDeck>
     val deckName: Flow<StringVar>
@@ -43,24 +47,29 @@ interface DeckContentRepository {
     fun transitionTo(newState: CardState)
     fun updateDeckId(id: Int)
     suspend fun updateDeckNextReview(id: Int)
-    fun getAllSavedCards(): Flow<List<SavedCard>>
     fun updateSavedCards(
         cardId: Int, reviewsLeft: Int, nextReview: Long, passes: Int,
         prevSuccess: Boolean, totalPasses: Int, partOfList: Boolean
     )
 
+    suspend fun updateCardWithDeck(card: Card, savedCard: SavedCard, dd: DeckDetails)
+
     suspend fun deleteSavedCards()
     fun updateRedoClicked(clicked: Boolean)
-    fun updateIndex(index: Int)
     suspend fun getCardRemains(cardId: Int): CardRemains
-    suspend fun redoCard(card: Card, savedCard: SavedCard)
+    suspend fun redoCard(
+        card: Card, savedCard: SavedCard, id: Int, nextReview: Date, cardsLeft: Int, cardsDone: Int
+    )
+
     suspend fun updateCard(card: Card, savedCard: SavedCard)
+    fun updateInnerTime()
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OfflineDeckContentRepo(
     private val cardTypesDao: CardTypesDao, private val deckDao: DeckDao,
-    private val savedCardDao: SavedCardDao, val appPref: SharedPreferences
+    private val savedCardDao: SavedCardDao, private val dueCardsDao: DueCardsDao,
+    val appPref: SharedPreferences
 ) : DeckContentRepository {
     private var savedId: Int
         get() = appPref.getInt("deck_id", 0)
@@ -84,7 +93,6 @@ class OfflineDeckContentRepo(
     }
 
     override val savedCards = savedCardDao.getAllSavedCards()
-    override fun getAllSavedCards() = savedCardDao.getAllSavedCards()
     override fun updateSavedCards(
         cardId: Int, reviewsLeft: Int, nextReview: Long, passes: Int,
         prevSuccess: Boolean, totalPasses: Int, partOfList: Boolean
@@ -94,6 +102,9 @@ class OfflineDeckContentRepo(
 
     override suspend fun deleteSavedCards() = savedCardDao.deleteSavedCards()
 
+    private val _time = MutableStateFlow(System.currentTimeMillis())
+
+    override fun updateInnerTime() = _time.update { Date().time }
     override val sealedAllCTs = deckId.flatMapLatest { id ->
         if (id == 0) {
             flowOf(SealedAllCTs())
@@ -109,37 +120,27 @@ class OfflineDeckContentRepo(
         }
     }
 
-    override val dueCardsState = deckId.flatMapLatest { id ->
-        deckDao.getDueDeckDetails(id)
-    }.flatMapLatest { dueDetails ->
-        if (dueDetails == null) {
-            flowOf(SealedAllCTs())
-        } else {
-            try {
-                cardTypesDao.getDueAllCardTypesFlow(
-                    dueDetails.id, dueDetails.cardsLeft, Date().time
-                ).map {
-                    transitionTo(CardState.Finished)
-                    SealedAllCTs(allCTs = it.toCTList())
-                }
-            } catch (_: Exception) {
-                flowOf(SealedAllCTs())
-            }
-        }
-    }
     override val wd = deckId.flatMapLatest { id ->
         if (id == 0) flowOf(WhichDeck())
         else deckDao.getDeckFlow(id).map { WhichDeck(it) }
     }
 
+    override val dueCardsState = combine(wd, _time) { d, time ->
+        d to time
+    }.flatMapLatest { (d, time) ->
+        val deck = d.deck
+        if (deck == null) flowOf(SealedAllCTs())
+        else  cardTypesDao.getDueAllCardTypesFlow(deck.id, deck.cardsLeft, time).toCTList().map {
+            SealedAllCTs(it)
+        }
+    }
     private val _deckNextReview = MutableStateFlow(
         if (savedDate <= 0L) null else DeckNextReview(Date(savedDate))
     )
     override val deckNextReview = _deckNextReview.asStateFlow()
     override suspend fun updateDeckNextReview(id: Int) =
         if (id > 0) _deckNextReview.update { deckDao.getNextReview(id) }
-        else {
-        }
+        else { }
 
     override val deckName = deckId.flatMapLatest { id ->
         if (id == 0) flowOf(StringVar())
@@ -148,18 +149,20 @@ class OfflineDeckContentRepo(
     private val _redoClicked = MutableStateFlow(false)
     override val redoClicked = _redoClicked.asStateFlow()
 
-    override val stateSize = dueCardsState.map { it.allCTs.size }
-
-    private val _stateIndex = MutableStateFlow(0)
-    override val stateIndex = _stateIndex.asStateFlow()
-    override fun updateIndex(index: Int) = _stateIndex.update { index }
-
     override fun updateRedoClicked(clicked: Boolean) = _redoClicked.update { clicked }
 
     override suspend fun getCardRemains(cardId: Int) = savedCardDao.getCardRemains(cardId)
     override suspend fun updateCard(card: Card, savedCard: SavedCard) =
-        savedCardDao.updateCardWithSavedCard(card, savedCard)
+        dueCardsDao.updateCardWithSavedCard(card, savedCard)
 
-    override suspend fun redoCard(card: Card, savedCard: SavedCard) =
-        savedCardDao.getCardAndRemoveSavedOne(card, savedCard)
+    override suspend fun redoCard(
+        card: Card, savedCard: SavedCard, id: Int, nextReview: Date, cardsLeft: Int, cardsDone: Int
+    ) = dueCardsDao.getCardAndRemoveSavedOne(
+        card, savedCard, id, cardsLeft = cardsLeft, cardsDone = cardsDone, nextReview
+    )
+
+    override suspend fun updateCardWithDeck(card: Card, savedCard: SavedCard, dd: DeckDetails) =
+        dueCardsDao.updateDeckAndCard(
+            dd.id, dd.nextReview, dd.cardsLeft, dd.cardsDone, card, savedCard
+        )
 }

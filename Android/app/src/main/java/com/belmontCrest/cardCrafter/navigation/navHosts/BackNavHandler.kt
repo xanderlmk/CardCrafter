@@ -17,7 +17,7 @@ object BackNavHandler {
     fun returnToDeckListFromDeck(
         navController: NavHostController,
         updateCurrentTime: Unit,
-        updateIndex: Unit,
+        updateIndex: Unit = Unit,
         fields: Fields
     ){
         fields.scrollPosition.value = 0

@@ -5,6 +5,7 @@ import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.CardD
 import com.belmontCrest.cardCrafter.localDatabase.tables.Card
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
+import com.belmontCrest.cardCrafter.views.misc.CARD_CRAFTER
 import java.util.Calendar
 import java.util.Date
 
@@ -41,7 +42,7 @@ fun updateCard(
         /** When the user reviews a card x amount of times
          *  Default value is 1
          */
-        if (isSuccess) reviewsLeft -= 1
+        if (!again) reviewsLeft -= 1
     }
     totalPasses += 1
     return Card(
@@ -61,12 +62,10 @@ fun timeCalculator(
     // Determine the multiplier based on success or hard pass
     val multiplier =
         calculateReviewMultiplier(
-            passes, isSuccess,
-            deckGoodMultiplier, deckBadMultiplier
+            passes, isSuccess, deckGoodMultiplier, deckBadMultiplier
         )
     // Calculate days to add
     val daysToAdd = (passes * multiplier).toInt()
-    Log.d("CardCrafter","days to add: $daysToAdd")
     // Add days to the current date
     calendar.add(Calendar.DAY_OF_YEAR, daysToAdd)
 
@@ -99,8 +98,10 @@ suspend fun handleCardUpdate(
         viewModel.addCardToUpdate(new, card.toSavedCard(), deck)
         return true
     } catch (e: Exception) {
-        Log.e("CardCrafter", "Failed to update card: $e")
+        Log.e(CARD_CRAFTER, "Failed to update card: ${e.printStackTrace()}")
         return false
+    } finally {
+        viewModel.updateTime()
     }
 }
 fun Card.toSavedCard(): SavedCard = SavedCard(

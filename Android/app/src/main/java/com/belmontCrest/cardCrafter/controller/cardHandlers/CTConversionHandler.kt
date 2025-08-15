@@ -13,6 +13,8 @@ import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
 import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
 import com.belmontCrest.cardCrafter.localDatabase.tables.toCustomCard
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 
 fun CT.toCard(): Card = when (this) {
@@ -173,6 +175,7 @@ fun List<AllCardTypes>.toCTList() = this.map { allCardTypes ->
         )
     }
 }
+fun Flow<List<AllCardTypes>>.toCTList(): Flow<List<CT>> = this.map { it.toCTList() }
 
 fun AllCardTypes.toCT(): CT = when {
     this.basicCard != null -> CT.Basic(this.card, this.basicCard)

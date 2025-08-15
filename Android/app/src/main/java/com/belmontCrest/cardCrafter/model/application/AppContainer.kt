@@ -167,7 +167,9 @@ class AppDataContainer(
         OfflineDeckContentRepo(
             FlashCardDatabase.getDatabase(context, scope).cardTypes(),
             FlashCardDatabase.getDatabase(context, scope).deckDao(),
-            FlashCardDatabase.getDatabase(context, scope).savedCardDao(), sharedPrefs
+            FlashCardDatabase.getDatabase(context, scope).savedCardDao(),
+            FlashCardDatabase.getDatabase(context, scope).dueCardsDao(),
+            sharedPrefs
         )
     }
 }

@@ -51,6 +51,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
 import androidx.core.graphics.scale
+import com.belmontCrest.cardCrafter.localDatabase.tables.CT
 import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
 import com.belmontCrest.cardCrafter.model.ui.states.SealedAllCTs
 import com.belmontCrest.cardCrafter.uiFunctions.LatexKeyboard
@@ -233,17 +234,13 @@ fun AgainText(getUIStyle: GetUIStyle) {
 }
 
 @Composable
-fun HardText(
-    updatedDueCards: SealedAllCTs,
-    index: Int, hard: Int,
-    getUIStyle: GetUIStyle
-) {
+fun HardText(ct:CT, hard: Int, getUIStyle: GetUIStyle) {
     Text(
         text =
-            if (returnReviewsLeft(updatedDueCards.allCTs[index]) == 1) {
+            if (returnReviewsLeft(ct) == 1) {
                 "$hard " + stringResource(R.string.days)
             } else {
-                "${returnReviewsLeft(updatedDueCards.allCTs[index])} " + "reviews left"
+                "${returnReviewsLeft(ct)} " + "reviews left"
             },
         color = getUIStyle.titleColor(),
         fontSize = 12.sp,
@@ -253,18 +250,14 @@ fun HardText(
 }
 
 @Composable
-fun GoodText(
-    updatedDueCards: SealedAllCTs,
-    index: Int, good: Int,
-    getUIStyle: GetUIStyle
-) {
+fun GoodText(ct: CT, good: Int, getUIStyle: GetUIStyle) {
     Text(
         text =
-            if (returnReviewsLeft(updatedDueCards.allCTs[index]) == 1) {
+            if (returnReviewsLeft(ct) == 1) {
                 "$good " + stringResource(R.string.days)
             } else {
                 "${
-                    returnReviewsLeft(updatedDueCards.allCTs[index]) - 1
+                    returnReviewsLeft(ct) - 1
                 } " + "reviews left"
             },
         color = getUIStyle.titleColor(),
@@ -492,3 +485,5 @@ fun collectNotationFieldsAsStates(
     val selectedKB by vm.selectedKB.collectAsStateWithLifecycle()
     return Triple(fields, showKB, selectedKB)
 }
+
+const val CARD_CRAFTER = "CardCrafter"

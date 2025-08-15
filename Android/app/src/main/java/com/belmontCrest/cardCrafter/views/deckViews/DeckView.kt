@@ -194,10 +194,8 @@ class DeckView(
                             }
                             Button(
                                 onClick = {
-                                    deckVM.updateDueDate(deck.id, deck.cardAmount, deck.cardsDone)
-                                        .also {
-                                            pressed.value = false
-                                        }
+                                    deckVM.updateDueDate(deck.id, deck.cardAmount)
+                                        .also { pressed.value = false }
                                 },
                                 modifier = Modifier
                                     .padding(horizontal = 10.dp)

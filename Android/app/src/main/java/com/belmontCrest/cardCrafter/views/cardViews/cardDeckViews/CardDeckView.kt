@@ -45,10 +45,10 @@ import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.views.misc.AgainText
+import com.belmontCrest.cardCrafter.views.misc.CARD_CRAFTER
 import com.belmontCrest.cardCrafter.views.misc.GoodText
 import com.belmontCrest.cardCrafter.views.misc.HardText
 import com.belmontCrest.cardCrafter.views.misc.NoDueCards
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import java.util.Date
 
@@ -65,7 +65,7 @@ class CardDeckView(
         val sealedCL by cardDeckVM.cardListUiState.collectAsStateWithLifecycle()
         val errorState by cardDeckVM.errorState.collectAsState()
         var show by rememberSaveable { mutableStateOf(false) }
-        val index = rememberSaveable { mutableIntStateOf(0) }
+        var index by rememberSaveable { mutableIntStateOf(0) }
         val coroutineScope = rememberCoroutineScope()
         var clicked by rememberSaveable { mutableStateOf(false) }
         val clickedChoice = rememberSaveable { mutableStateOf('?') }
@@ -75,28 +75,32 @@ class CardDeckView(
         val cardState by cardDeckVM.cardState.collectAsStateWithLifecycle()
         var enabled by rememberSaveable { mutableStateOf(true) }
         if (redoClicked && enabled) {
-            coroutineScope.launch(Dispatchers.IO) {
+            coroutineScope.launch {
                 val beforeSize = sealedCL.allCTs.size
                 enabled = false
-                val result = cardDeckVM.getRedoCardType(deck)
-                delay(100)
-                val afterSize = sealedCL.allCTs.size
-                if (result) {
-                    if ((beforeSize == afterSize) && sealedCL.allCTs.isNotEmpty()) {
-                        if (index.intValue > 0) {
-                            index.intValue -= 1
-                            cardDeckVM.updateIndex(index.intValue)
-                        } else {
-                            index.intValue = sealedCL.allCTs.size - 1
-                            cardDeckVM.updateIndex(index.intValue)
+                try {
+                    val result = cardDeckVM.getRedoCardType(deck)
+                    delay(50)
+                    val afterSize = sealedCL.allCTs.size
+                    if (result) {
+                        if ((beforeSize == afterSize) && sealedCL.allCTs.isNotEmpty()) {
+                            if (index > 0) {
+                                index -= 1
+                            } else {
+                                index = sealedCL.allCTs.size - 1
+                            }
                         }
                     }
+                } catch (e: Exception) {
+                    Log.e(CARD_CRAFTER, "Failed to redo: $e")
+                } finally {
+                    cardDeckVM.updateTime()
+                    clickedChoice.value = '?'
+                    show = false
+                    focusManager.clearFocus()
+                    cardDeckVM.updateRedoClicked(false)
+                    enabled = true
                 }
-                clickedChoice.value = '?'
-                show = false
-                focusManager.clearFocus()
-                cardDeckVM.updateRedoClicked(false)
-                enabled = true
             }
         }
 
@@ -117,10 +121,10 @@ class CardDeckView(
                 ) {
                     if (cardState == CardState.Finished) NoDueCards(getUIStyle)
                 } else {
-                    if (index.intValue < sealedCL.allCTs.size) {
+                    if (index < sealedCL.allCTs.size) {
                         Text(
                             text = stringResource(R.string.reviews_left) +
-                                    showReviewsLeft(sealedCL.allCTs[index.intValue]),
+                                    showReviewsLeft(sealedCL.allCTs[index]),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
@@ -135,7 +139,7 @@ class CardDeckView(
                         if (!show) {
                             if (cardState == CardState.Finished) {
                                 FrontCard(
-                                    sealedCL.allCTs[index.intValue],
+                                    sealedCL.allCTs[index],
                                     getUIStyle,
                                     clickedChoice,
                                     Modifier
@@ -160,7 +164,7 @@ class CardDeckView(
                             }
                         } else {
                             BackCard(
-                                sealedCL.allCTs[index.intValue],
+                                sealedCL.allCTs[index],
                                 getUIStyle, Modifier
                                     .align(Alignment.TopCenter)
                                     .padding(bottom = 62.dp, top = 80.dp),
@@ -174,12 +178,12 @@ class CardDeckView(
                                     .align(Alignment.BottomCenter)
                             ) {
                                 val good =
-                                    ((sealedCL.allCTs[index.intValue].toCard().passes + 1) *
+                                    ((sealedCL.allCTs[index].toCard().passes + 1) *
                                             deck.goodMultiplier).toInt()
-                                val hard = if (sealedCL.allCTs[index.intValue].toCard().passes > 0)
-                                    ((sealedCL.allCTs[index.intValue].toCard().passes + 1) *
+                                val hard = if (sealedCL.allCTs[index].toCard().passes > 0)
+                                    ((sealedCL.allCTs[index].toCard().passes + 1) *
                                             deck.badMultiplier).toInt()
-                                else (sealedCL.allCTs[index.intValue].toCard().passes *
+                                else (sealedCL.allCTs[index].toCard().passes *
                                         deck.badMultiplier).toInt()
                                 ResultButton(
                                     onClick = {
@@ -187,7 +191,7 @@ class CardDeckView(
                                             clicked = true
                                             cardDeckVM.transitionTo(CardState.Loading)
                                             updateCTCard(
-                                                sealedCL.allCTs[index.intValue],
+                                                sealedCL.allCTs[index],
                                                 deck, cardDeckVM,
                                                 success = false, again = true
                                             )
@@ -207,17 +211,15 @@ class CardDeckView(
                                             val beforeSize = sealedCL.allCTs.size
                                             cardDeckVM.transitionTo(CardState.Loading)
                                             val result = updateCTCard(
-                                                sealedCL.allCTs[index.intValue],
+                                                sealedCL.allCTs[index],
                                                 deck, cardDeckVM,
                                                 success = false, again = false
                                             )
-                                            delay(50)
                                             val afterSize = sealedCL.allCTs.size
                                             if (result) {
                                                 if (beforeSize == afterSize) {
-                                                    index.intValue =
-                                                        ((index.intValue + 1))
-                                                    cardDeckVM.updateIndex(index.intValue)
+                                                    index =
+                                                        ((index + 1))
                                                 }
                                             }
                                             clickedChoice.value = '?'
@@ -226,9 +228,9 @@ class CardDeckView(
                                             clicked = false
                                             cardDeckVM.transitionTo(CardState.Finished)
                                         }
-                                    },enabled = !clicked, getUIStyle = getUIStyle,
+                                    }, enabled = !clicked, getUIStyle = getUIStyle,
                                     string = stringResource(R.string.hard)
-                                ) { HardText(sealedCL, index.intValue, hard, getUIStyle) }
+                                ) { HardText(sealedCL.allCTs[index], hard, getUIStyle) }
                                 ResultButton(
                                     onClick = {
                                         coroutineScope.launch {
@@ -236,17 +238,15 @@ class CardDeckView(
                                             val beforeSize = sealedCL.allCTs.size
                                             cardDeckVM.transitionTo(CardState.Loading)
                                             val result = updateCTCard(
-                                                sealedCL.allCTs[index.intValue],
+                                                sealedCL.allCTs[index],
                                                 deck, cardDeckVM,
                                                 success = true, again = false
                                             )
-                                            delay(50)
                                             val afterSize = sealedCL.allCTs.size
                                             if (result) {
                                                 if (beforeSize == afterSize) {
-                                                    index.intValue =
-                                                        ((index.intValue + 1))
-                                                    cardDeckVM.updateIndex(index.intValue)
+                                                    index =
+                                                        ((index + 1))
                                                 }
                                             }
                                             clickedChoice.value = '?'
@@ -257,25 +257,16 @@ class CardDeckView(
                                         }
                                     }, enabled = !clicked,
                                     string = stringResource(R.string.good), getUIStyle = getUIStyle
-                                ) { GoodText(sealedCL, index.intValue, good, getUIStyle) }
+                                ) { GoodText(sealedCL.allCTs[index], good, getUIStyle) }
                             }
                         }
                     } else {
                         LaunchedEffect(Unit) {
-                            if (cardState != CardState.Loading) {
-                                coroutineScope.launch {
-                                    cardDeckVM.updateIndex(0)
-                                    cardDeckVM.transitionTo(CardState.Loading)
-                                    cardDeckVM.updateWhichDeck(0)
-                                    if (!errorState?.message.isNullOrEmpty())
-                                        println(errorState?.message)
-
-                                    /** Forcefully updating the decks */
-                                    cardDeckVM.updateWhichDeck(deck.id)
-                                    index.intValue = 0
-                                    cardDeckVM.transitionTo(CardState.Finished)
-
-                                }
+                            coroutineScope.launch {
+                                if (!errorState?.message.isNullOrEmpty())
+                                    println(errorState?.message)
+                                /** Forcefully updating the decks */
+                                index = 0
                             }
                         }
                     }

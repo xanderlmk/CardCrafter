@@ -3,12 +3,13 @@ package com.belmontCrest.cardCrafter.localDatabase.dbInterface.daos
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
 import com.belmontCrest.cardCrafter.model.daoHelpers.DeckHelperDao
 import com.belmontCrest.cardCrafter.model.ui.states.DeckId
 import com.belmontCrest.cardCrafter.model.ui.states.DeckNextReview
-import com.belmontCrest.cardCrafter.model.ui.states.DueDeckDetails
+import com.belmontCrest.cardCrafter.model.ui.states.DeckDetails
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
 import java.util.Date
@@ -30,13 +31,13 @@ interface DeckDao : DeckHelperDao {
     fun getDeckFlow(id: Int): Flow<Deck?>
 
     @Query("SELECT * from decks where id = :id")
-    fun getDeck(id: Int): Deck
+    suspend fun getDeck(id: Int): Deck
 
     @Query("SELECT * from decks ORDER BY name ASC")
     suspend fun getAllDecks(): List<Deck>
 
     @Query("SELECT name from decks where id = :id")
-    fun getDeckName(id: Int) : Flow<String?>
+    fun getDeckName(id: Int): Flow<String?>
 
     @Query(
         """
@@ -81,18 +82,10 @@ interface DeckDao : DeckHelperDao {
         )
     """
     )
-    fun resetCardLefts(
-        currentTime: Long = Date().time,
-        startOfDay: Long = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
-    )
+    suspend fun resetCardLefts(
 
     @Query("SELECT COUNT(*) FROM decks WHERE LOWER(name) = LOWER(:deckName)")
-    fun checkIfDeckExists(deckName: String): Int
+    suspend fun checkIfDeckExists(deckName: String): Int
 
     @Query(
         """
@@ -101,7 +94,7 @@ interface DeckDao : DeckHelperDao {
         OR uuid = :deckUUID
         """
     )
-    fun checkIfDeckExists(deckName: String, deckUUID: String): Int
+    suspend fun checkIfDeckExists(deckName: String, deckUUID: String): Int
 
     @Query(
         """
@@ -109,7 +102,7 @@ interface DeckDao : DeckHelperDao {
         FROM decks WHERE uuid = :deckUUID
     """
     )
-    fun checkIfDeckUUIDExists(deckUUID: String): Int
+    suspend fun checkIfDeckUUIDExists(deckUUID: String): Int
 
     @Query(
         """
@@ -124,7 +117,7 @@ interface DeckDao : DeckHelperDao {
         )
     """
     )
-    fun updateDeckName(newName: String, deckId: Int): Int
+    suspend fun updateDeckName(newName: String, deckId: Int): Int
 
     @Query(
         """
@@ -134,7 +127,7 @@ interface DeckDao : DeckHelperDao {
         and :newMultiplier > 1.0
     """
     )
-    fun updateDeckGoodMultiplier(newMultiplier: Double, deckId: Int): Int
+    suspend fun updateDeckGoodMultiplier(newMultiplier: Double, deckId: Int): Int
 
     @Query(
         """
@@ -145,7 +138,7 @@ interface DeckDao : DeckHelperDao {
         and :newMultiplier > 0.0
     """
     )
-    fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int): Int
+    suspend fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int): Int
 
     @Query(
         """
@@ -154,7 +147,7 @@ interface DeckDao : DeckHelperDao {
         where id = :deckId
     """
     )
-    fun updateReviewAmount(newReviewAmount: Int, deckId: Int): Int
+    suspend fun updateReviewAmount(newReviewAmount: Int, deckId: Int): Int
 
     @Query(
         """
@@ -163,7 +156,13 @@ interface DeckDao : DeckHelperDao {
         where id = :deckId
     """
     )
-    fun updateNextReview(nextReview: Date, deckId: Int)
+    suspend fun updateNextReview(nextReview: Date, deckId: Int)
+
+    @Transaction
+    suspend fun updateDeckDetails(id: Int, nextReview: Date,cardsLeft: Int, cardsDone: Int) {
+            updateCardsLeft(id, cardsLeft = cardsLeft, cardsDone)
+            updateNextReview(nextReview, id)
+        }
 
     @Query(
         """ 
@@ -206,11 +205,11 @@ interface DeckDao : DeckHelperDao {
 
     @Query(
         """
-        SELECT id, cardsLeft, cardAmount, reviewAmount, nextReview
+        SELECT id, cardsLeft, cardAmount, cardsDone, reviewAmount, nextReview
         FROM decks WHERE id = :id
         """
     )
-    fun getDueDeckDetails(id: Int): Flow<DueDeckDetails?>
+    fun getDueDeckDetails(id: Int): Flow<DeckDetails?>
 
     @Query(
         """SELECT nextReview FROM decks where id = :id"""

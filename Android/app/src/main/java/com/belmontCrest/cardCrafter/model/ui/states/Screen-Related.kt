@@ -37,7 +37,7 @@ data object CSS {
 }
 fun String.toCardState() = when (this) {
     CSS.LOADING -> CardState.Loading
-    CSS.FINISHED -> CardState.Loading
+    CSS.FINISHED -> CardState.Finished
     else -> CardState.Idle
 }
 fun CardState.toCSString() = when (this) {

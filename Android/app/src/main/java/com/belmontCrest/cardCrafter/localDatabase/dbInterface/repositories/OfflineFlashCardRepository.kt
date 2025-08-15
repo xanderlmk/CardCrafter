@@ -80,11 +80,11 @@ class OfflineFlashCardRepository(
 
     override suspend fun getAllDecks() = deckDao.getAllDecks()
 
-    override fun getDeck(id: Int) = deckDao.getDeck(id)
+    override suspend fun getDeck(id: Int) = deckDao.getDeck(id)
 
     override fun getDeckName(id: Int) = deckDao.getDeckName(id)
 
-    override fun resetCardLefts() = deckDao.resetCardLefts()
+    override suspend fun resetCardLefts() = deckDao.resetCardLefts()
 
     override suspend fun insertDeck(deck: Deck) = deckDao.insertDeck(deck)
 
@@ -100,47 +100,47 @@ class OfflineFlashCardRepository(
             throw e
         }
 
-    override fun updateDeckGoodMultiplier(newMultiplier: Double, deckId: Int) =
+    override suspend fun updateDeckGoodMultiplier(newMultiplier: Double, deckId: Int) =
         try {
             deckDao.updateDeckGoodMultiplier(newMultiplier, deckId)
         } catch (e: Exception) {
             throw e
         }
 
-    override fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int) =
+    override suspend fun updateDeckBadMultiplier(newMultiplier: Double, deckId: Int) =
         try {
             deckDao.updateDeckBadMultiplier(newMultiplier, deckId)
         } catch (e: Exception) {
             throw e
         }
 
-    override fun updateDeckReviewAmount(newReviewAmount: Int, deckId: Int) =
+    override suspend fun updateDeckReviewAmount(newReviewAmount: Int, deckId: Int) =
         try {
             deckDao.updateReviewAmount(newReviewAmount, deckId)
         } catch (e: Exception) {
             throw (e)
         }
 
-    override fun updateCardReviewAmount(newReviewAmount: Int, deckId: Int) =
+    override suspend fun updateCardReviewAmount(newReviewAmount: Int, deckId: Int) =
         try {
             cardDao.updateReviewAmount(newReviewAmount, deckId)
         } catch (e: Exception) {
             throw (e)
         }
 
-    override suspend fun updateNextReview(nextReview: Date, deckId: Int) =
-        try {
-            deckDao.updateNextReview(nextReview, deckId)
-        } catch (e: Exception) {
-            throw (e)
-        }
-
-    override fun updateCardAmount(cardAmount: Int, deckId: Int) =
+    override suspend fun updateCardAmount(cardAmount: Int, deckId: Int) =
         try {
             deckDao.updateCardAmount(cardAmount, deckId)
         } catch (e: Exception) {
             throw (e)
         }
+
+    override suspend fun updateDeckDetails(
+        id: Int, nextReview: Date, cardsLeft: Int, cardsDone: Int
+    ) = deckDao.updateDeckDetails(id, nextReview, cardsLeft, cardsDone = cardsDone)
+
+    override suspend fun updateCardsLeft(deckId: Int, cardsDone: Int, cardsLeft: Int) =
+        deckDao.updateCardsLeft(deckId, cardsLeft = cardsLeft, cardsDone = cardsDone)
 
     override suspend fun insertCard(card: Card) = cardDao.insertCard(card)
 
@@ -152,9 +152,6 @@ class OfflineFlashCardRepository(
 
     override fun getCardStream(cardId: Int) = cardDao.getCardStream(cardId)
 
-    override suspend fun getDueCards(deckId: Int, currentTime: Long) =
-        cardDao.getDueCards(deckId, currentTime)
-
     override suspend fun deleteAllCards(deckId: Int) = cardDao.deleteAllCards(deckId)
 
     override fun getCardById(cardId: Int) = cardDao.getCardById(cardId)
@@ -163,9 +160,6 @@ class OfflineFlashCardRepository(
         cardDao.getBackupDueCards(deckId, cardAmount)
 
     override suspend fun becomePartOfList(id: Int) = cardDao.becomePartOfList(id)
-
-    override fun updateCardsLeft(deckId: Int, cardsLeft: Int, cardsDone: Int) =
-        deckDao.updateCardsLeft(deckId, cardsLeft, cardsDone)
 
     override fun getDueDeckDetails(id: Int) = deckDao.getDueDeckDetails(id)
 

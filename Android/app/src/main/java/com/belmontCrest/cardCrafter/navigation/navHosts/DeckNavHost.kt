@@ -168,15 +168,13 @@ fun DeckNavHost(
                 if (startingDeckRoute.name == ViewDueCardsDestination.route) {
                     navViewModel.updateRoute(DeckListDestination.route)
                     BackNavHandler.returnToDeckListFromDeck(
-                        navController, navViewModel.updateTime(),
-                        cardDeckVM.updateIndex(0), fields
+                        navController, navViewModel.updateTime(), fields = fields
                     )
                 } else {
                     fields.inDeckClicked.value = false
                     navViewModel.updateRoute(DeckViewDestination.route)
                     deckNavController.popBackStack(
-                        DeckViewDestination.route,
-                        inclusive = false
+                        DeckViewDestination.route, inclusive = false
                     )
                 }
                 fields.leftDueCardView.value = true
