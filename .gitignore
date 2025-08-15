@@ -19,3 +19,12 @@ local.properties
 supabaseCredentials.txt
 /flascard-release-key.keystore
 /Android/app/schemas/*
+*.xcuserstate
+*.xcuserdatad/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Derived & build
+DerivedData/
+build/
+DB_TEMP/
