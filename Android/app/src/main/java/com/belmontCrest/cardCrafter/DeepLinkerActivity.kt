@@ -23,26 +23,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.belmontCrest.cardCrafter.model.application.AppVMProvider
-import com.belmontCrest.cardCrafter.model.application.PreferencesManager
-import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
+import com.belmontCrest.cardCrafter.model.application.preferences.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.preferences.PrefRepository
+import com.belmontCrest.cardCrafter.model.application.preferences.PrefRepositoryImpl
+import com.belmontCrest.cardCrafter.model.application.preferences.setPreferenceValues
 import com.belmontCrest.cardCrafter.supabase.controller.viewModels.DeepLinksViewModel
 import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class DeepLinkerActivity : ComponentActivity() {
-    private val deepLinksVM: DeepLinksViewModel by viewModels {
-        AppVMProvider.Factory
-    }
+    private val deepLinksVM: DeepLinksViewModel by viewModels { AppVMProvider.Factory }
+    private val applicationScope = CoroutineScope(SupervisorJob())
 
     private lateinit var callback: (String, String) -> Unit
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val sharedPrefs = applicationContext.getSharedPreferences("app_preferences", MODE_PRIVATE)
+        val prefRepository: PrefRepository = PrefRepositoryImpl(applicationContext, sharedPrefs)
+        val preferences = PreferencesManager(prefRepository, applicationScope)
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
             deepLinksVM.deepLinker(
@@ -50,7 +56,6 @@ class DeepLinkerActivity : ComponentActivity() {
                     callback(email, createdAt)
                 })
         }
-        val preferences = PreferencesManager(applicationContext, lifecycleScope)
         enableEdgeToEdge()
         setContent {
             val emailState = remember { mutableStateOf("") }

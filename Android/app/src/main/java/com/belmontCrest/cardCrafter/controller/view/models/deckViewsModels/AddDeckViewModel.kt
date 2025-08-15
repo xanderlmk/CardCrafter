@@ -18,8 +18,6 @@ class AddDeckViewModel(
 ) : ViewModel() {
 
     private val _errorMessage = MutableStateFlow("")
-
-
     companion object {
         private const val MIN_CARDS = 5
         private const val MAX_CARDS = 1000

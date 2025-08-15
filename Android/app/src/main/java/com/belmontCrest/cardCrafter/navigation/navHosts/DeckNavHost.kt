@@ -30,8 +30,8 @@ import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.CardD
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.model.application.AppVMProvider
-import com.belmontCrest.cardCrafter.model.application.PreferencesManager
-import com.belmontCrest.cardCrafter.model.application.setPreferenceValues
+import com.belmontCrest.cardCrafter.model.application.preferences.PreferencesManager
+import com.belmontCrest.cardCrafter.model.application.preferences.setPreferenceValues
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
 import com.belmontCrest.cardCrafter.views.cardViews.addCardViews.AddCardView

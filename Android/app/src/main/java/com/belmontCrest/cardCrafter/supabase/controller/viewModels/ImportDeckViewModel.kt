@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.checkIfDeckExists
 import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.checkIfDeckUUIDExists
 import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.model.application.PreferenceValues
+import com.belmontCrest.cardCrafter.model.application.preferences.PreferenceValues
 import com.belmontCrest.cardCrafter.supabase.controller.converters.cardColsCTToSBCT
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.BASIC_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CANCELLED

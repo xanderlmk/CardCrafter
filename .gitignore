@@ -18,3 +18,4 @@ local.properties
 /.kotlin
 supabaseCredentials.txt
 /flascard-release-key.keystore
+/Android/app/schemas/*

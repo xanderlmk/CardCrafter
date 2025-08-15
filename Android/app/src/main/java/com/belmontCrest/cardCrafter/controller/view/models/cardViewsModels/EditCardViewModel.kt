@@ -188,7 +188,6 @@ class EditCardViewModel(
 
     fun setErrorMessage(message: String) = _errorMessage.update { message }
 
-
     fun clearErrorMessage() = _errorMessage.update { "" }
 
     /** Whether the fields have a notation parameter */

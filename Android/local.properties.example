@@ -1,0 +1,20 @@
+## local.properties EXAMPLE
+## local.properties must *NOT* be checked into Version Control Systems,
+# as it contains information specific to your local configuration.
+#
+# Location of the SDK. This is only used by Gradle.
+# For customization when using a Version Control System, please read the
+# header note.
+# You can merge your supabase databases for ease and more centralization,
+# but less organization.
+# Or you can separate them for more complexity, but also more organization.
+sdk.dir=/auto_generated/
+SUPABASE_URL=https://your_url.supabase.co
+SUPABASE_KEY=your_supabase_key
+SB_DECK_TN=deck_tb_name
+SB_CARD_TN=card_tb_name
+SB_OWNER_TN=owner_tb_name
+SB_CTD_TN=displayed_cards_tb_name
+SB_DACO_TN=co_owner_and_deck_tb_name
+SYNCED_SB_URL=https://other_url.supabase.co
+SYNCED_SB_KEY=other_supabase_key
