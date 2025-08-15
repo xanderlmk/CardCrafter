@@ -93,6 +93,7 @@ fun DeckNavHost(
             enterTransition = { null }, exitTransition = { null }
         ) {
             BackHandler {
+                navViewModel.updateUIIndex(0)
                 navViewModel.updateRoute(DeckListDestination.route)
                 BackNavHandler.returnToDeckListFromDeck(
                     navController, navViewModel.updateTime(),

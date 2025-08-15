@@ -18,3 +18,12 @@ local.properties
 /.kotlin
 supabaseCredentials.txt
 /flascard-release-key.keystore
+*.xcuserstate
+*.xcuserdatad/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Derived & build
+DerivedData/
+build/
+DB_TEMP/
