@@ -215,6 +215,7 @@ class CardDeckView(
                                                 deck, cardDeckVM,
                                                 success = false, again = false
                                             )
+                                            delay(50)
                                             val afterSize = sealedCL.allCTs.size
                                             if (result) {
                                                 if (beforeSize == afterSize) {
@@ -242,6 +243,7 @@ class CardDeckView(
                                                 deck, cardDeckVM,
                                                 success = true, again = false
                                             )
+                                            delay(50)
                                             val afterSize = sealedCL.allCTs.size
                                             if (result) {
                                                 if (beforeSize == afterSize) {
