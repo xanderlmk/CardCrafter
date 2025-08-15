@@ -35,7 +35,7 @@ class CardDeckViewModel(
     val errorState: StateFlow<CardUpdateError?> = _errorState.asStateFlow()
 
     val cardListUiState = deckContentRepository.dueCardsState.stateIn(
-        scope = viewModelScope, started = SharingStarted.Lazily,
+        scope = viewModelScope, started = SharingStarted.Eagerly,
         initialValue = SealedAllCTs()
     )
     val savedCardUiState = deckContentRepository.savedCards.stateIn(
@@ -98,7 +98,6 @@ class CardDeckViewModel(
     )
 
     fun updateRedoClicked(clicked: Boolean) = deckContentRepository.updateRedoClicked(clicked)
-
     /** Updating the nextReview for the deck which will only be
      * to the next day (++1 day). */
     private fun updateNextReview(deck: Deck) = with(Dispatchers.IO) {

@@ -138,35 +138,34 @@ fun returnReviewsLeft(ct: CT): Int {
 }
 
 fun List<AllCardTypes>.toCTList() = this.map { allCardTypes ->
-    val updatedCard = allCardTypes.card.copy()
     when {
         allCardTypes.basicCard != null -> CT.Basic(
-            updatedCard, allCardTypes.basicCard
+            allCardTypes.card, allCardTypes.basicCard
         )
 
         allCardTypes.hintCard != null -> CT.Hint(
-            updatedCard, allCardTypes.hintCard
+            allCardTypes.card, allCardTypes.hintCard
         )
 
         allCardTypes.threeFieldCard != null -> CT.ThreeField(
-            updatedCard, allCardTypes.threeFieldCard
+            allCardTypes.card, allCardTypes.threeFieldCard
         )
 
         allCardTypes.multiChoiceCard != null -> CT.MultiChoice(
-            updatedCard, allCardTypes.multiChoiceCard
+            allCardTypes.card, allCardTypes.multiChoiceCard
         )
 
         allCardTypes.notationCard != null -> CT.Notation(
-            updatedCard, allCardTypes.notationCard
+            allCardTypes.card, allCardTypes.notationCard
         )
 
         allCardTypes.nullableCustomCard != null -> CT.Custom(
-            updatedCard, allCardTypes.nullableCustomCard.toCustomCard()
+            allCardTypes.card, allCardTypes.nullableCustomCard.toCustomCard()
         )
         /** This error will probably only happen when you add a new card. */
         else -> throw IllegalStateException(
             """Mapping error for AllCardTypes element: 
-                card=${updatedCard}, 
+                card=${allCardTypes.card}, 
                 basicCard=${allCardTypes.basicCard}, 
                 hintCard=${allCardTypes.hintCard},
                 threeFieldCard=${allCardTypes.threeFieldCard},
