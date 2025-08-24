@@ -16,7 +16,6 @@ struct DeckDetailView: View {
     var onDismiss: (() -> Void)
     @State private var index: Int = 0
     
-    
     var body: some View {
         VStack(spacing: 20) {
             Text(deck.d_name)
