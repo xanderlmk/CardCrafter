@@ -13,6 +13,7 @@ import CoreData
 struct DeckDetailView: View {
     @ObservedObject var deck: Deck
     @Binding var path: [Route]
+    var onDismiss: (() -> Void)
     @State private var index: Int = 0
     
     var body: some View {
@@ -59,6 +60,7 @@ struct DeckDetailView: View {
             }
 #endif
         }
+        .onDisappear{ onDismiss() }
         .navigationTitle("\(deck.d_name)")
         .padding()
     }
