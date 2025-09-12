@@ -13,8 +13,7 @@
 - Custom Themes based off Light/Dark Theme
 - Spanish and English Language Support
 - KaTeX for NotationCard.
-### For releases please check [releases](https://github.com/xanderlmk/Flashcards/tags)
-### In order to run the application through Android Studio, you will need local.properties set up correctly.
+### In order to run the application through Android Studio, you will need local.properties set up correctly and set up your supabase client.
 ### To see what other features to add, please view the [TODO List](./TODO.md)
 ### For logs and changes, please view the [LOG](./LOG.md)
 
