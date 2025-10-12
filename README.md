@@ -14,6 +14,7 @@
 - Spanish and English Language Support
 - KaTeX for NotationCard.
 ### In order to run the application through Android Studio, you will need local.properties set up correctly and set up your supabase client.
+- If you do not set up supabase correctly, the application will CRASH!
 ### To see what other features to add, please view the [TODO List](./TODO.md)
 ### For logs and changes, please view the [LOG](./LOG.md)
 
