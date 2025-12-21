@@ -5,9 +5,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.belmontCrest.cardCrafter.localDatabase.tables.AllCardTypes
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
+import com.belmontCrest.cardCrafter.local.db.tables.AllCardTypes
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.ImportedDeckInfo
 import kotlinx.coroutines.flow.Flow
 
 
@@ -23,7 +23,7 @@ interface ExportToSBDao {
     fun insertImportedDeckInfo(importedDeckInfo: ImportedDeckInfo)
 
     @Query("SELECT * from decks WHERE id = :id")
-    fun getDeckFlow(id: Int): Flow<Deck>
+    fun getDeckFlow(id: Int): Flow<Deck?>
 
     @Transaction
     @Query(

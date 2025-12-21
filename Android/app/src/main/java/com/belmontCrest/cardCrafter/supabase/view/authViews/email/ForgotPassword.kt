@@ -18,13 +18,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.model.application.AppVMProvider
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ForgotPasswordViewModel
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.ForgotPasswordViewModel
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.uiFunctions.CustomText
-import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import com.belmontCrest.cardCrafter.ui.functions.CustomText
+import com.belmontCrest.cardCrafter.ui.functions.EditTextField
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)

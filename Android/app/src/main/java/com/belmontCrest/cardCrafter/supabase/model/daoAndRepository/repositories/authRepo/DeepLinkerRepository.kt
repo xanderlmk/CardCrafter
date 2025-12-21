@@ -3,7 +3,7 @@ package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositorie
 import android.content.Intent
 import android.util.Log
 import com.belmontCrest.cardCrafter.supabase.model.AuthRepoVals
-import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSharedSBUrl
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.getSBUrl
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.exceptions.HttpRequestException
 import io.github.jan.supabase.gotrue.auth
@@ -74,15 +74,6 @@ class DeepLinkerRepositoryImpl(
                     return@withContext "No token"
                 }
                 sharedSupabase.auth.updateUser { password = inputPassword }
-                val response =
-                    sharedSupabase.httpClient.post("${getSharedSBUrl()}/${VS.POST_FUNCTION_RESET}") {
-                        header(HttpHeaders.Authorization, "Bearer $jwt")
-                        header(HttpHeaders.ContentType, "application/json")
-                        setBody(
-                            """{ "password": "$inputPassword", "user_id": "$userId" } """
-                        )
-                    }
-                Log.i(VS.AUTH_REPO, "${response.status.value}: ${response.status.description}")
                 VS.SUCCESS
             } catch (e: Exception) {
                 Log.e(VS.AUTH_REPO, "$e")

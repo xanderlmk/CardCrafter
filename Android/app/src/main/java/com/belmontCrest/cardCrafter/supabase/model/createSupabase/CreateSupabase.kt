@@ -41,44 +41,14 @@ fun createSharedSupabase(
         }
     }
 }
-@OptIn(SupabaseInternal::class)
-fun createSyncedSupabase(
-    supabaseUrl: String,
-    supabaseKey: String
-): SupabaseClient {
-    return createSupabaseClient(
-        supabaseUrl = supabaseUrl,
-        supabaseKey = supabaseKey,
-    ) {
-        install(Realtime)
-        install(Postgrest)
-        install(Auth)
-        httpConfig {
-            install(WebSockets)
-            engine {
-                OkHttp.create()
-            }
-        }
-    }
-}
-private const val sharedSupabaseUrl = BuildConfig.SUPABASE_URL
-private const val sharedSupabaseKey = BuildConfig.SUPABASE_KEY
-private const val syncedSupabaseUrl = BuildConfig.SYNCED_SB_URL
-private const val syncedSupabaseKey = BuildConfig.SYNCED_SB_KEY
+private const val supabaseUrl = BuildConfig.SUPABASE_URL
+private const val supabaseKey = BuildConfig.SUPABASE_KEY
 
-fun getSharedSBUrl(): String {
-    return sharedSupabaseUrl
+fun getSBUrl(): String {
+    return supabaseUrl
 }
 
-fun getSharedSBKey(): String {
-    return sharedSupabaseKey
-}
-
-fun getSyncedSBUrl(): String {
-    return syncedSupabaseUrl
-}
-
-fun getSyncedSBKey(): String {
-    return syncedSupabaseKey
+fun getSBKey(): String {
+    return supabaseKey
 }
 

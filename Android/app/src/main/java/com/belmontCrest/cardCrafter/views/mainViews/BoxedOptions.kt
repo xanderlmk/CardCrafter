@@ -16,10 +16,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.generalSettingsOptionsModifier
-import com.belmontCrest.cardCrafter.uiFunctions.EditIntField
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.EditIntField
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
 
 @Composable
 fun ExpandedIntBoxedOptions(

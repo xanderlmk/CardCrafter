@@ -1,13 +1,17 @@
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo
 
-import com.belmontCrest.cardCrafter.supabase.model.MergedUserInfo
 import com.belmontCrest.cardCrafter.supabase.model.createSupabase.GoogleCredentials
 import com.belmontCrest.cardCrafter.supabase.model.tables.OwnerDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.UserProfile
+import io.github.jan.supabase.gotrue.user.UserInfo
+import kotlinx.coroutines.flow.StateFlow
 
 interface AuthRepository {
 
-    fun getCurrentUser() : MergedUserInfo?
+    val googleClientId: StateFlow<String>
+
+    fun updateGoogleId(s: String)
+    fun getCurrentUser()
 
     suspend fun closeSupabase() : Boolean
 
@@ -15,7 +19,7 @@ interface AuthRepository {
 
     suspend fun createOwner(username: String, fName: String, lName: String): Boolean
 
-    suspend fun getOwner(): OwnerDto?
+    suspend fun getOwner()
 
     suspend fun getGoogleCredentials(): GoogleCredentials
 
@@ -31,5 +35,6 @@ interface AuthRepository {
 
     suspend fun signOut(): Boolean
 
-    suspend fun signInSyncedDBUser(): String
+    val owner: StateFlow<OwnerDto?>
+    val currentUser: StateFlow<UserInfo?>
 }

@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ColorScheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 
 /**
  *
@@ -24,6 +26,7 @@ import androidx.compose.ui.unit.dp
  *
  * */
 
+@Composable
 fun Modifier.borderedModifier(getUIStyle: GetUIStyle): Modifier {
     return this
             .border(2.dp, getUIStyle.themedColor(), RoundedCornerShape(12.dp))

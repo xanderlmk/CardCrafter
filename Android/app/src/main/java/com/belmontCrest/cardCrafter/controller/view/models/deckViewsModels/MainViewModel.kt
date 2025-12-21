@@ -2,7 +2,7 @@ package com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.DeckListRepository
+import com.belmontCrest.cardCrafter.local.db.repositories.DeckListRepository
 import com.belmontCrest.cardCrafter.model.ui.states.DeckUiState
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn

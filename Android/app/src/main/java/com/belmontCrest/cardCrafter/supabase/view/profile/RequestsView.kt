@@ -35,16 +35,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.model.titledTextProp
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.CoOwnerViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.CoOwnerViewModel
 import com.belmontCrest.cardCrafter.supabase.model.RequestStatus
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCoOwnerWithDeck
 import com.belmontCrest.cardCrafter.supabase.model.tables.Status
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.CancelButton
-import com.belmontCrest.cardCrafter.uiFunctions.CustomText
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import com.belmontCrest.cardCrafter.ui.functions.buttons.CancelButton
+import com.belmontCrest.cardCrafter.ui.functions.CustomText
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

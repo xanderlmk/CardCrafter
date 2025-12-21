@@ -2,9 +2,9 @@ package com.belmontCrest.cardCrafter.controller.cardHandlers
 
 import android.util.Log
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.CardDeckViewModel
-import com.belmontCrest.cardCrafter.localDatabase.tables.Card
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
+import com.belmontCrest.cardCrafter.local.db.tables.Card
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.SavedCard
 import com.belmontCrest.cardCrafter.views.misc.CARD_CRAFTER
 import java.util.Calendar
 import java.util.Date

@@ -13,8 +13,6 @@ plugins {
 
 android {
     namespace = "com.belmontCrest.cardCrafter"
-    // For sdk 34 just change compileSdk and targetSdk.
-    //noinspection GradleDependency
     compileSdk = 35
 
     defaultConfig {
@@ -27,55 +25,59 @@ android {
         ndk { this.debugSymbolLevel = "SYMBOL_TABLE" }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
+        vectorDrawables { useSupportLibrary = true }
         buildConfigField(
-            "String",
-            "SUPABASE_URL", "\"" + gradleLocalProperties(rootDir, providers)
+            "String", "SUPABASE_URL", "\"" + gradleLocalProperties(rootDir, providers)
                 .getProperty("SUPABASE_URL", "") + "\""
         )
         buildConfigField(
-            "String",
-            "SUPABASE_KEY", "\"" + gradleLocalProperties(rootDir, providers)
+            "String", "SUPABASE_KEY", "\"" + gradleLocalProperties(rootDir, providers)
                 .getProperty("SUPABASE_KEY", "") + "\""
         )
         buildConfigField(
-            "String",
-            "SB_DECK_TN", "\"" + gradleLocalProperties(rootDir, providers)
+            "String", "SB_DECK_TN", "\"" + gradleLocalProperties(rootDir, providers)
                 .getProperty("SB_DECK_TN", "") + "\""
         )
         buildConfigField(
-            "String",
-            "SB_CARD_TN", "\"" + gradleLocalProperties(rootDir, providers)
+            "String", "SB_CARD_TN", "\"" + gradleLocalProperties(rootDir, providers)
                 .getProperty("SB_CARD_TN", "") + "\""
         )
         buildConfigField(
-            "String",
-            "SB_OWNER_TN", "\"" + gradleLocalProperties(rootDir, providers)
+            "String", "SB_OWNER_TN", "\"" + gradleLocalProperties(rootDir, providers)
                 .getProperty("SB_OWNER_TN", "") + "\""
         )
         buildConfigField(
-            "String",
-            "SB_CTD_TN", "\"" + gradleLocalProperties(rootDir, providers)
+            "String", "SB_CTD_TN", "\"" + gradleLocalProperties(rootDir, providers)
                 .getProperty("SB_CTD_TN", "") + "\""
         )
         buildConfigField(
-            "String",
-            "SB_DACO_TN", "\"" + gradleLocalProperties(rootDir, providers)
+            "String", "SB_DACO_TN", "\"" + gradleLocalProperties(rootDir, providers)
                 .getProperty("SB_DACO_TN", "") + "\""
         )
         buildConfigField(
-            "String",
-            "SYNCED_SB_URL", "\"" + gradleLocalProperties(rootDir, providers)
-                .getProperty("SYNCED_SB_URL", "") + "\""
+            "String", "SB_BASIC_TN", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SB_BASIC_TN", "") + "\""
         )
         buildConfigField(
-            "String",
-            "SYNCED_SB_KEY", "\"" + gradleLocalProperties(rootDir, providers)
-                .getProperty("SYNCED_SB_KEY", "") + "\""
+            "String", "SB_THREE_TN", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SB_THREE_TN", "") + "\""
         )
-
+        buildConfigField(
+            "String", "SB_HINT_TN", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SB_HINT_TN", "") + "\""
+        )
+        buildConfigField(
+            "String", "SB_MULTI_TN", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SB_MULTI_TN", "") + "\""
+        )
+        buildConfigField(
+            "String", "SB_NOTATION_TN", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SB_NOTATION_TN", "") + "\""
+        )
+        buildConfigField(
+            "String", "SB_PD_TN", "\"" + gradleLocalProperties(rootDir, providers)
+                .getProperty("SB_PD_TN", "") + "\""
+        )
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments["room.schemaLocation"] = "$projectDir/schemas"
@@ -88,6 +90,7 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -117,7 +120,6 @@ android {
         }
     }
 
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -128,24 +130,16 @@ android {
             languageVersion.set(JavaLanguageVersion.of(17))
         }
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    kotlinOptions { jvmTarget = "17" }
     buildFeatures {
         compose = true
         buildConfig = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.2"
-    }
+    composeOptions { kotlinCompilerExtensionVersion = "1.4.2" }
     packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
+        resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     }
-    ksp {
-        arg("room.schemaLocation", "$projectDir/schemas")
-    }
+    ksp { arg("room.schemaLocation", "$projectDir/schemas") }
 
 }
 
@@ -163,7 +157,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
 
     // optional - RxJava2 support
-    implementation (libs.androidx.datastore.preferences.rxjava2)
+    implementation(libs.androidx.datastore.preferences.rxjava2)
 
     // optional - RxJava3 support
     implementation(libs.androidx.datastore.preferences.rxjava3)

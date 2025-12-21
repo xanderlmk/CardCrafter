@@ -5,19 +5,21 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.TimeClass
-import com.belmontCrest.cardCrafter.localDatabase.database.FlashCardDatabase
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.DeckContentRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineDeckContentRepo
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.DeckListRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineDeckListRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineCardTypeRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.OfflineFlashCardRepository
-import com.belmontCrest.cardCrafter.navigation.FieldParamRepository
-import com.belmontCrest.cardCrafter.navigation.FieldParamRepositoryImpl
+import com.belmontCrest.cardCrafter.local.db.FlashCardDatabase
+import com.belmontCrest.cardCrafter.local.db.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.local.db.repositories.DeckContentRepository
+import com.belmontCrest.cardCrafter.local.db.repositories.OfflineDeckContentRepo
+import com.belmontCrest.cardCrafter.local.db.repositories.DeckListRepository
+import com.belmontCrest.cardCrafter.local.db.repositories.OfflineDeckListRepository
+import com.belmontCrest.cardCrafter.local.db.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.local.db.repositories.OfflineCardTypeRepository
+import com.belmontCrest.cardCrafter.local.db.repositories.OfflineFlashCardRepository
+import com.belmontCrest.cardCrafter.navigation.FieldParamRepo
+import com.belmontCrest.cardCrafter.navigation.FieldParamRepoImpl
 import com.belmontCrest.cardCrafter.navigation.KeyboardSelectionRepoImpl
-import com.belmontCrest.cardCrafter.navigation.KeyboardSelectionRepository
+import com.belmontCrest.cardCrafter.navigation.KeyboardSelectionRepo
+import com.belmontCrest.cardCrafter.navigation.NavHostRepo
+import com.belmontCrest.cardCrafter.navigation.NavHostRepoImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.CoOwnerRequestsRepository
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.CoOwnerRequestsRepositoryImpl
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.ExportRepository
@@ -67,10 +69,11 @@ interface AppContainer {
     val isOwnerOrCoOwnerRepo: IsOwnerOrCoOwnerRepo
     val deepLinkerRepo: DeepLinkerRepository
     val fpRepository: ForgotPasswordRepository
-    val kbRepository: KeyboardSelectionRepository
-    val fieldParamRepository: FieldParamRepository
+    val kbRepository: KeyboardSelectionRepo
+    val fieldParamRepo: FieldParamRepo
     val deckListRepository: DeckListRepository
     val deckContentRepository: DeckContentRepository
+    val navHostRepo : NavHostRepo
 }
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -78,8 +81,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 class AppDataContainer(
     private val context: Context,
     scope: CoroutineScope,
-    sharedSupabase: SupabaseClient,
-    syncedSupabase: SupabaseClient
+    supabase: SupabaseClient,
 ) : AppContainer {
 
     private val timeClass = TimeClass()
@@ -102,19 +104,16 @@ class AppDataContainer(
         )
     }
     override val importRepository: ImportRepository by lazy {
-        ImportRepositoryImpl(sharedSupabase)
+        ImportRepositoryImpl(supabase)
     }
     override val sbTablesRepository: SBTablesRepository by lazy {
-        SBTableRepositoryImpl(sharedSupabase, syncedSupabase = syncedSupabase)
+        SBTableRepositoryImpl(supabase)
     }
     override val authRepository: AuthRepository by lazy {
-        AuthRepositoryImpl(
-            sharedSupabase, syncedSupabase,
-            FlashCardDatabase.getDatabase(context, scope).pwdDao()
-        )
+        AuthRepositoryImpl(supabase)
     }
     override val userExportedDecksRepository: UserExportedDecksRepository by lazy {
-        UserExportDecksRepositoryImpl(sharedSupabase)
+        UserExportDecksRepositoryImpl(supabase)
     }
 
     override val userSyncedInfoRepository: UserSyncedInfoRepository by lazy {
@@ -123,10 +122,10 @@ class AppDataContainer(
         )
     }
     override val personalDeckSyncRepository: PersonalDeckSyncRepository by lazy {
-        PersonalDeckSyncRepositoryImpl(syncedSupabase)
+        PersonalDeckSyncRepositoryImpl(supabase)
     }
     override val coOwnerRequestsRepository: CoOwnerRequestsRepository by lazy {
-        CoOwnerRequestsRepositoryImpl(sharedSupabase)
+        CoOwnerRequestsRepositoryImpl(supabase)
     }
     override val exportRepository: ExportRepository by lazy {
         OfflineExportRepository(
@@ -141,21 +140,21 @@ class AppDataContainer(
     }
 
     override val isOwnerOrCoOwnerRepo: IsOwnerOrCoOwnerRepo by lazy {
-        IsOwnerOrCoOwnerRepoImpl(sharedSupabase)
+        IsOwnerOrCoOwnerRepoImpl(supabase)
     }
     override val deepLinkerRepo: DeepLinkerRepository by lazy {
-        DeepLinkerRepositoryImpl(sharedSupabase)
+        DeepLinkerRepositoryImpl(supabase)
     }
 
     override val fpRepository: ForgotPasswordRepository by lazy {
-        ForgotPasswordRepoImpl(sharedSupabase)
+        ForgotPasswordRepoImpl(supabase)
     }
 
-    override val kbRepository: KeyboardSelectionRepository by lazy {
+    override val kbRepository: KeyboardSelectionRepo by lazy {
         KeyboardSelectionRepoImpl(context, scope)
     }
-    override val fieldParamRepository: FieldParamRepository by lazy {
-        FieldParamRepositoryImpl()
+    override val fieldParamRepo: FieldParamRepo by lazy {
+        FieldParamRepoImpl()
     }
     override val deckListRepository: DeckListRepository by lazy {
         OfflineDeckListRepository(
@@ -172,4 +171,5 @@ class AppDataContainer(
             sharedPrefs
         )
     }
+    override val navHostRepo: NavHostRepo by lazy { NavHostRepoImpl() }
 }

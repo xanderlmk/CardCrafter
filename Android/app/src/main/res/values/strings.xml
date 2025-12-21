@@ -35,9 +35,14 @@
     <string name="empty_deck_name">Deck name cannot be empty</string>
     <string name="deck_name_exists">A deck with this name already exists</string>
     <string name="deck_name_failed">Failed to update deck name</string>
-    <string name="system_theme">System Theme</string>
-    <string name="custom_theme">Custom Theme</string>
-    <string name="dark_theme">Dark Theme</string>
+    <string name="theme">Theme</string>
+    <string name="system_theme">System</string>
+    <string name="dark_theme">Dark</string>
+    <string name="light_theme">Light</string>
+    <string name="coloring">Coloring</string>
+    <string name="cute">Cute</string>
+    <string name="dynamic">Dynamic</string>
+    <string name="original">Original</string>
     <string name="basic_card">Basic Card</string>
     <string name="three_field_card">Three Field Card</string>
     <string name="hint_card">Hint Card</string>
@@ -79,8 +84,6 @@
     <string name="failed_card_amount">Failed to update card amount</string>
     <string name="card_amount_5_1000">Card amount must be in between 5 and 1000!</string>
     <string name="review_amount_1_40">Review amount must be between 1 and 40!</string>
-    <string name="cute_theme">Cute Theme</string>
-    <string name="dark_cute_theme">Dark Cute Theme</string>
     <string name="signed_in">You are signed in</string>
     <string name="could_not_sign_in">Couldn\'t sign in.</string>
     <string name="no_credentials_available">No credentials available</string>

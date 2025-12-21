@@ -32,24 +32,23 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.AddCardViewModel
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.isBlank
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.saveFiles
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.isBlank
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.saveFiles
 import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
-import com.belmontCrest.cardCrafter.uiFunctions.customParameters.CustomParamInputs
-import com.belmontCrest.cardCrafter.uiFunctions.customParameters.ParamChooser
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
-import com.belmontCrest.cardCrafter.uiFunctions.customParameters.AnswerParamChooser
-import com.belmontCrest.cardCrafter.uiFunctions.customParameters.CustomAnswerParamInput
-import com.belmontCrest.cardCrafter.uiFunctions.customParameters.CustomMiddleParamInput
-import com.belmontCrest.cardCrafter.uiFunctions.customParameters.MiddleParamChooser
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.getWebView
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.views.misc.collectNotationFieldsAsStates
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.EditTextField
+import com.belmontCrest.cardCrafter.ui.functions.customParameters.CustomParamInputs
+import com.belmontCrest.cardCrafter.ui.functions.customParameters.ParamChooser
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.customParameters.AnswerParamChooser
+import com.belmontCrest.cardCrafter.ui.functions.customParameters.CustomAnswerParamInput
+import com.belmontCrest.cardCrafter.ui.functions.customParameters.CustomMiddleParamInput
+import com.belmontCrest.cardCrafter.ui.functions.customParameters.MiddleParamChooser
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.KaTeXMenu
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.SelectedAnnotation
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.getWebView
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -64,7 +63,7 @@ fun AddCustomCard(
     getUIStyle: GetUIStyle, modifier: Modifier
 ) {
     val errorMessage by vm.errorMessage.collectAsStateWithLifecycle()
-    val (fields, showKB, selectedKB) = collectNotationFieldsAsStates(vm)
+    val (fields, showKB, selectedKB) = vm.triple.collectAsStateWithLifecycle().value
     var successMessage by remember { mutableStateOf("") }
     val fillOutFields = stringResource(R.string.fill_out_all_fields)
     val cardAdded = stringResource(R.string.card_added)
@@ -74,7 +73,9 @@ fun AddCustomCard(
         mutableStateOf(KaTeXMenu(null, SelectedAnnotation.Idle))
     }
     var enabled by rememberSaveable { mutableStateOf(true) }
-    val expanded = rememberSaveable { MutableList(3) { false } }
+    var questionExpanded by rememberSaveable { mutableStateOf(false) }
+    var middleExpanded by rememberSaveable { mutableStateOf(false) }
+    var answerExpanded by rememberSaveable { mutableStateOf(false) }
     var type by rememberSaveable { mutableStateOf("") }
     val context = LocalContext.current
     val resetOffset by vm.resetOffset.collectAsStateWithLifecycle()
@@ -127,7 +128,7 @@ fun AddCustomCard(
             .zIndex(-1f)
     ) {
         ParamChooser(
-            expanded = expanded[0], onExpanded = { expanded[0] = it },
+            expanded = questionExpanded, onExpanded = { questionExpanded = it },
             string = stringResource(R.string.question),
             onClick = { vm.updateQ(it) }, getUIStyle = getUIStyle
         )
@@ -142,7 +143,7 @@ fun AddCustomCard(
             actualKB = SelectedKeyboard.Question, selectedKB = selectedKB
         )
         MiddleParamChooser(
-            expanded = expanded[1], onExpanded = { expanded[1] = it },
+            expanded = middleExpanded, onExpanded = { middleExpanded = it },
             string = stringResource(R.string.middle_field),
             onClick = { vm.updateM(it) }, getUIStyle = getUIStyle
         )
@@ -157,7 +158,7 @@ fun AddCustomCard(
             actualKB = SelectedKeyboard.Middle, selectedKB = selectedKB
         )
         AnswerParamChooser(
-            expanded = expanded[2], onExpanded = { expanded[2] = it },
+            expanded = answerExpanded, onExpanded = { answerExpanded = it },
             string = stringResource(R.string.answer),
             onClick = { vm.updateA(it) }, getUIStyle = getUIStyle
         )

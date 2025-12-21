@@ -27,9 +27,9 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.SupabaseViewModel
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 import java.security.MessageDigest
 import java.util.UUID
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
@@ -58,18 +58,14 @@ fun SignUp(
             .padding(4.dp)
     ) {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            Text(
-                text = "Use Google to Sign In/Sign Up",
-                color = getUIStyle.titleColor(),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                fontSize = 22.sp
-            )
-            GoogleSignInButton(supabaseVM, clientId, getUIStyle) {
-                onRefresh(it)
-            }
-        }
+        Text(
+            text = "Use Google to Sign In/Sign Up",
+            color = getUIStyle.titleColor(),
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            fontSize = 22.sp
+        )
+        GoogleSignInButton(supabaseVM, clientId, getUIStyle) { onRefresh(it) }
 
         Text(
             text = "Sign in with email",
@@ -84,7 +80,6 @@ fun SignUp(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun GoogleSignInButton(
     supabaseVM: SupabaseViewModel,
@@ -109,7 +104,7 @@ fun GoogleSignInButton(
                 .toString()
             // Generate a random String. UUID should be sufficient,
             // but can also be any other random string.
-            val bytes = rawNonce.toString().toByteArray()
+            val bytes = rawNonce.toByteArray()
             val md = MessageDigest.getInstance("SHA-256")
             val digest = md.digest(bytes)
 
@@ -145,13 +140,9 @@ fun GoogleSignInButton(
                     } else {
                         showToastMessage(context, couldNotSignIn)
                     }
-                } catch (e: GetCredentialException) {
-                    showToastMessage(context, "Invalid Credentials.")
-                    Log.d("GOOGLE SIGN IN", "$e")
-                    //showGoogleOneTap()
                 } catch (e: GoogleIdTokenParsingException) {
                     showToastMessage(context, "Couldn't parse Google ID Token correctly.")
-                    Log.d("GOOGLE SIGN IN", "$e")
+                    Log.e("GOOGLE SIGN IN", "$e")
                 } catch (e: RestException) {
                     showToastMessage(
                         context, e.message ?: "Rest Exception. Error Code: ${e.statusCode}"
@@ -161,8 +152,15 @@ fun GoogleSignInButton(
                     showToastMessage(context, "Sign in was canceled.")
                     Log.e("GOOGLE SIGN IN", "GetCredentialCancellationException: $e")
                 } catch (e: Exception) {
-                    showToastMessage(context, "An unknown error occurred.")
-                    Log.d("GOOGLE SIGN IN", "Exception: $e")
+                    if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) &&
+                        e is GetCredentialException
+                    ) {
+                        showToastMessage(context, "Invalid Credentials.")
+                        Log.e("GOOGLE SIGN IN", "$e")
+                    } else {
+                        showToastMessage(context, "An unknown error occurred.")
+                        Log.e("GOOGLE SIGN IN", "Exception: $e")
+                    }
                 } finally {
                     enabled = true
                 }

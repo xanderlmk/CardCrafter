@@ -1,8 +1,8 @@
 package com.belmontCrest.cardCrafter.supabase.controller.converters
 
-import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
-import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
+import com.belmontCrest.cardCrafter.local.db.tables.ListStringConverter
+import com.belmontCrest.cardCrafter.local.db.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.local.db.tables.NotationCard
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsBasic
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardDto
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsHint

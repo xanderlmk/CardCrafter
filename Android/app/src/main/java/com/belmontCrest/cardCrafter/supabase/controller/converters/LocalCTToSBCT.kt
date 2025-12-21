@@ -1,9 +1,9 @@
 package com.belmontCrest.cardCrafter.supabase.controller.converters
 
 import android.util.Log
-import com.belmontCrest.cardCrafter.localDatabase.tables.CT
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
+import com.belmontCrest.cardCrafter.local.db.tables.CT
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.ListStringConverter
 import com.belmontCrest.cardCrafter.supabase.model.tables.CardsToDisplay
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCTToExport
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardDto

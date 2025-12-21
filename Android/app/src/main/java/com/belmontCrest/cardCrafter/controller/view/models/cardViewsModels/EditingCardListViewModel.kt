@@ -4,9 +4,9 @@ package com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.DeckContentRepository
-import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.local.db.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.local.db.repositories.DeckContentRepository
+import com.belmontCrest.cardCrafter.local.db.tables.CT
 import com.belmontCrest.cardCrafter.model.ui.states.SealedAllCTs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted

@@ -21,8 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.SupabaseViewModel
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable

@@ -39,12 +39,12 @@ import com.belmontCrest.cardCrafter.controller.onClickActions.updateMultipliers
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateReviewAmount
 import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.EditDeckViewModel
 import com.belmontCrest.cardCrafter.model.ui.Fields
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.uiFunctions.EditDoubleField
-import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
+import com.belmontCrest.cardCrafter.ui.functions.EditDoubleField
+import com.belmontCrest.cardCrafter.ui.functions.EditTextField
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
-import com.belmontCrest.cardCrafter.uiFunctions.EditIntField
+import com.belmontCrest.cardCrafter.ui.functions.EditIntField
 import com.belmontCrest.cardCrafter.views.misc.details.createDeckDetails
 import com.belmontCrest.cardCrafter.views.misc.returnCardAmountError
 import com.belmontCrest.cardCrafter.views.misc.returnDeckError

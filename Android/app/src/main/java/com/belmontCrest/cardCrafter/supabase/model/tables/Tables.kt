@@ -1,24 +1,25 @@
-@file:Suppress("PropertyName")
 
 package com.belmontCrest.cardCrafter.supabase.model.tables
 
-import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
-import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
+import com.belmontCrest.cardCrafter.local.db.tables.BasicCard
+import com.belmontCrest.cardCrafter.local.db.tables.HintCard
+import com.belmontCrest.cardCrafter.local.db.tables.ListStringConverter
+import com.belmontCrest.cardCrafter.local.db.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.local.db.tables.NotationCard
+import com.belmontCrest.cardCrafter.local.db.tables.ThreeFieldCard
 import io.github.jan.supabase.gotrue.user.UserInfo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 
 private val StringToList = ListStringConverter()
+private const val CARD_ID = "card_id"
+private const val USER_ID = "user_id"
 
 @Serializable
 data class SBDeckDto(
     val deckUUID: String,
-    @SerialName("user_id")
+    @SerialName(USER_ID)
     val userId: String,
     val name: String,
     val description: String,
@@ -37,6 +38,7 @@ data class SBCardDto(
 
 @Serializable
 data class SBMultiCardDto(
+    @SerialName(CARD_ID)
     val cardId: Int = -1,
     val question: String,
     val choiceA: String,
@@ -61,6 +63,7 @@ fun SBDeckListDto.toUUIDs(): List<String> = this.list.map {
 
 @Serializable
 data class SBNotationCardDto(
+    @SerialName(CARD_ID)
     val cardId: Int = -1,
     val question: String,
     val steps: String,
@@ -75,7 +78,7 @@ fun SBNotationCardDto.toNotationCard(): NotationCard = NotationCard(
 data class SBDeckUUIDDto(val deckUUID: String)
 
 @Serializable
-data class SBDeckOwnerDto(val user_id: String)
+data class SBDeckOwnerDto(@SerialName(USER_ID) val userId: String)
 
 @Serializable
 data class SBDeckUpdatedOnDto(
@@ -85,10 +88,13 @@ data class SBDeckUpdatedOnDto(
 
 @Serializable
 data class OwnerDto(
-    val user_id: String,
+    @SerialName(USER_ID)
+    val userId: String,
     val username: String,
-    val f_name: String,
-    val l_name: String
+    @SerialName("f_name")
+    val fName: String,
+    @SerialName("l_name")
+    val lName: String
 )
 
 @Serializable

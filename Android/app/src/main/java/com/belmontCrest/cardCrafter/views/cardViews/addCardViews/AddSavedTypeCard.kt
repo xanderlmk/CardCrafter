@@ -31,20 +31,19 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.AddCardViewModel
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.isBlank
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.saveFiles
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.isBlank
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.saveFiles
 import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
-import com.belmontCrest.cardCrafter.uiFunctions.customParameters.CustomAnswerParamInput
-import com.belmontCrest.cardCrafter.uiFunctions.customParameters.CustomMiddleParamInput
-import com.belmontCrest.cardCrafter.uiFunctions.customParameters.CustomParamInputs
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.getWebView
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.views.misc.collectNotationFieldsAsStates
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.customParameters.CustomAnswerParamInput
+import com.belmontCrest.cardCrafter.ui.functions.customParameters.CustomMiddleParamInput
+import com.belmontCrest.cardCrafter.ui.functions.customParameters.CustomParamInputs
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.KaTeXMenu
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.SelectedAnnotation
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.getWebView
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -54,7 +53,7 @@ fun AddSavedTypeCard(
     getUIStyle: GetUIStyle, modifier: Modifier
 ) {
     val errorMessage by vm.errorMessage.collectAsStateWithLifecycle()
-    val (fields, showKB, selectedKB) = collectNotationFieldsAsStates(vm)
+    val (fields, showKB, selectedKB) = vm.triple.collectAsStateWithLifecycle().value
     val type by vm.type.collectAsStateWithLifecycle()
     var successMessage by remember { mutableStateOf("") }
     val fillOutFields = stringResource(R.string.fill_out_all_fields)

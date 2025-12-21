@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,21 +27,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.model.application.preferences.PreferencesManager
 import com.belmontCrest.cardCrafter.model.application.preferences.PrefRepository
 import com.belmontCrest.cardCrafter.model.application.preferences.PrefRepositoryImpl
-import com.belmontCrest.cardCrafter.model.application.preferences.setPreferenceValues
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.DeepLinksViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.DeepLinksViewModel
 import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass
 import com.belmontCrest.cardCrafter.ui.theme.FlashcardsTheme
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
-import com.belmontCrest.cardCrafter.uiFunctions.CustomText
-import com.belmontCrest.cardCrafter.uiFunctions.PasswordTextField
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import com.belmontCrest.cardCrafter.ui.functions.CustomText
+import com.belmontCrest.cardCrafter.ui.functions.PasswordTextField
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -54,8 +55,8 @@ class ResetPasswordActivity : ComponentActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val sharedPrefs = applicationContext.getSharedPreferences("app_preferences", MODE_PRIVATE)
-        val prefRepository: PrefRepository = PrefRepositoryImpl(applicationContext, sharedPrefs)
+        //val sharedPrefs = applicationContext.getSharedPreferences("app_preferences", MODE_PRIVATE)
+        val prefRepository: PrefRepository = PrefRepositoryImpl(applicationContext)
         val preferences = PreferencesManager(prefRepository, applicationScope)
         super.onCreate(savedInstanceState)
         handleDeepLink(intent)
@@ -72,19 +73,17 @@ class ResetPasswordActivity : ComponentActivity() {
             val colorScheme = remember { ColorSchemeClass() }
             colorScheme.colorScheme = MaterialTheme.colorScheme
 
-            val pc = setPreferenceValues(preferences)
-            val getUIStyle = GetUIStyle(
-                colorScheme, pc.darkTheme, pc.dynamicTheme, pc.cuteTheme
-            )
+            val pv by preferences.pv.collectAsStateWithLifecycle()
+            val getUIStyle = GetUIStyle(colorScheme, pv.theme)
             var password by rememberSaveable { mutableStateOf("") }
             var confirmPass by rememberSaveable { mutableStateOf("") }
             var enabled by rememberSaveable { mutableStateOf(true) }
             val coroutineScope = rememberCoroutineScope()
             val context = LocalContext.current
             FlashcardsTheme(
-                darkTheme = pc.darkTheme,
-                dynamicColor = pc.dynamicTheme,
-                cuteTheme = pc.cuteTheme
+                darkTheme = pv.theme.isDark() || (pv.theme.isSystem() && isSystemInDarkTheme()),
+                dynamicColor = pv.theme.isDynamic() || pv.theme.isSystem(),
+                cuteTheme = pv.theme.isCute()
             ) {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -164,7 +163,6 @@ class ResetPasswordActivity : ComponentActivity() {
         val hasUppercase = password.any { it.isUpperCase() }
         val hasDigit = password.any { it.isDigit() }
         val hasSymbol = password.any { !it.isLetterOrDigit() }
-
         return hasLowercase && hasUppercase && hasDigit && hasSymbol
     }
 

@@ -8,21 +8,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.customParameters.CustomAnswerParamInput
-import com.belmontCrest.cardCrafter.uiFunctions.customParameters.CustomMiddleParamInput
-import com.belmontCrest.cardCrafter.uiFunctions.customParameters.CustomParamInputs
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.views.misc.collectNotationFieldsAsStates
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.customParameters.CustomAnswerParamInput
+import com.belmontCrest.cardCrafter.ui.functions.customParameters.CustomMiddleParamInput
+import com.belmontCrest.cardCrafter.ui.functions.customParameters.CustomParamInputs
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.KaTeXMenu
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.SelectedAnnotation
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 
 @Composable
 fun EditCustomCard(vm: EditCardViewModel, getUIStyle: GetUIStyle, onUpdate: () -> KaTeXMenu) {
-    val (fields, _, selectedKB) = collectNotationFieldsAsStates(vm)
+    val (fields, _, selectedKB) = vm.triple.collectAsStateWithLifecycle().value
     var selectedSymbol by rememberSaveable {
         mutableStateOf(KaTeXMenu(null, SelectedAnnotation.Idle))
     }

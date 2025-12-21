@@ -28,15 +28,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserProfileViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.UserProfileViewModel
 import com.belmontCrest.cardCrafter.supabase.view.authViews.EnterAccountDetails
 import com.belmontCrest.cardCrafter.supabase.view.authViews.SignUp
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -84,7 +84,7 @@ fun MyProfile(
                     ProfileText("Email:", userProfile?.user?.email ?: "", getUIStyle)
                     userProfile?.owner.let { owner ->
                         if (owner != null) {
-                            ProfileText("Name:", owner.f_name + " " + owner.l_name, getUIStyle)
+                            ProfileText("Name:", owner.fName + " " + owner.lName, getUIStyle)
                             ProfileText("Username:", owner.username, getUIStyle)
                         } else {
                             var inputUsername by rememberSaveable { mutableStateOf("") }

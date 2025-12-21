@@ -87,3 +87,19 @@ val MIGRATION_33_34 = object : Migration(33, 34) {
         }
     }
 }
+
+val MIGRATION_34_35 = object : Migration(34, 35) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        try {
+            db.execSQL("PRAGMA foreign_keys=OFF;")
+            db.execSQL("""DROP TABLE IF EXISTS pwd;""".trimIndent())
+            db.execSQL("PRAGMA foreign_keys=ON;")
+            db.setTransactionSuccessful()
+        } catch (e: Exception) {
+            Log.e("Migration", "Migration 34 to 35 failed", e)
+            throw RuntimeException("Migration 34 to 35 failed: ${e.message}")
+        } finally {
+            db.endTransaction()
+        }
+    }
+}

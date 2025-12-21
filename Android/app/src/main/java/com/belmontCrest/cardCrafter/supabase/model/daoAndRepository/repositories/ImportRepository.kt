@@ -2,6 +2,7 @@ package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositorie
 
 import android.util.Log
 import com.belmontCrest.cardCrafter.BuildConfig
+import com.belmontCrest.cardCrafter.supabase.controller.converters.RawColumns
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.BASIC_CT_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.CTD_ERROR
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.HINT_CT_ERROR
@@ -51,12 +52,7 @@ class ImportRepositoryImpl(
         return withContext(Dispatchers.IO) {
             try {
                 val data = sharedSupabase.from(SB_CARD_TN)
-                    .select(
-                        Columns.raw(
-                            "id, type, deckUUID, cardIdentifier," +
-                                    " basicCard(cardId, question, answer)"
-                        )
-                    )
+                    .select(RawColumns.Basic)
                     {
                         filter {
                             eq("deckUUID", uuid)
@@ -76,12 +72,7 @@ class ImportRepositoryImpl(
         return withContext(Dispatchers.IO) {
             try {
                 val data = sharedSupabase.from(SB_CARD_TN)
-                    .select(
-                        Columns.raw(
-                            "id, type, deckUUID, cardIdentifier," +
-                                    " hintCard(cardId, question, hint, answer)"
-                        )
-                    )
+                    .select(RawColumns.Hint)
                     {
                         filter {
                             eq("deckUUID", uuid)
@@ -100,12 +91,7 @@ class ImportRepositoryImpl(
         return withContext(Dispatchers.IO) {
             try {
                 val data = sharedSupabase.from(SB_CARD_TN)
-                    .select(
-                        Columns.raw(
-                            "id, type, deckUUID, cardIdentifier," +
-                                    " threeCard(cardId, question, middle, answer)"
-                        )
-                    )
+                    .select(RawColumns.Three)
                     {
                         filter {
                             eq("deckUUID", uuid)
@@ -124,13 +110,7 @@ class ImportRepositoryImpl(
         return withContext(Dispatchers.IO) {
             try {
                 val data = sharedSupabase.from(SB_CARD_TN)
-                    .select(
-                        Columns.raw(
-                            "id, type, deckUUID, cardIdentifier," +
-                                    " multiCard(cardId, question, choiceA, choiceB, " +
-                                    " choiceC, choiceD, correct)"
-                        )
-                    )
+                    .select(RawColumns.Multi)
                     {
                         filter {
                             eq("deckUUID", uuid)
@@ -149,12 +129,7 @@ class ImportRepositoryImpl(
         return withContext(Dispatchers.IO) {
             try {
                 val data = sharedSupabase.from(SB_CARD_TN)
-                    .select(
-                        Columns.raw(
-                            "id, type, deckUUID, cardIdentifier," +
-                                    " notationCard(cardId, question, steps, answer)"
-                        )
-                    )
+                    .select(RawColumns.Notation)
                     {
                         filter {
                             eq("deckUUID", uuid)

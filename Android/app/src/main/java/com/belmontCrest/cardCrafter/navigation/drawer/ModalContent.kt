@@ -37,11 +37,10 @@ import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.EditingCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.ContentIcons
-import com.belmontCrest.cardCrafter.uiFunctions.CustomText
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.ContentIcons
+import com.belmontCrest.cardCrafter.ui.functions.CustomText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -49,8 +48,7 @@ import kotlinx.coroutines.launch
 class ModalContent(
     private val navController: NavHostController, private val fields: Fields,
     private val getUIStyle: GetUIStyle, private val navVM: NavViewModel,
-    private val supabaseVM: SupabaseViewModel, private val cr: StringVar,
-    private val coroutineScope: CoroutineScope
+    private val cr: StringVar, private val coroutineScope: CoroutineScope
 ) {
     private val mdModifier = Modifier
         .padding(horizontal = 4.dp)
@@ -122,7 +120,7 @@ class ModalContent(
                     navVM.updateRoute(UserProfileDestination.route)
                     navController.navigate(SBNavDestination.route)
                     coroutineScope.launch {
-                        val result = supabaseVM.getGoogleId()
+                        val result = navVM.getGoogleId()
                         if (!result.first) showToastMessage(context, result.second)
 
                     }

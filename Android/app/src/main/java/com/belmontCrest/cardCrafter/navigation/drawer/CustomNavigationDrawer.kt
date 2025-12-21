@@ -76,11 +76,10 @@ import com.belmontCrest.cardCrafter.model.ui.states.StringVar
 import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.EditDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.ContentIcons
-import com.belmontCrest.cardCrafter.uiFunctions.CustomText
-import com.belmontCrest.cardCrafter.uiFunctions.katex.SymbolDocumentation
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.ContentIcons
+import com.belmontCrest.cardCrafter.ui.functions.CustomText
+import com.belmontCrest.cardCrafter.ui.functions.katex.SymbolDocumentation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -89,7 +88,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CustomNavigationDrawer(
     mainNavController: NavHostController, fields: Fields,
-    getUIStyle: GetUIStyle, navVM: NavViewModel, supabaseVM: SupabaseViewModel,
+    getUIStyle: GetUIStyle, navVM: NavViewModel,
     content: @Composable () -> Unit,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -97,7 +96,7 @@ fun CustomNavigationDrawer(
     val modalContent = ModalContent(
         navController = mainNavController, fields = fields,
         getUIStyle = getUIStyle, navVM = navVM,
-        supabaseVM = supabaseVM, cr = navVM.route.collectAsStateWithLifecycle().value,
+        cr = navVM.route.collectAsStateWithLifecycle().value,
         coroutineScope = coroutineScope
     )
 
@@ -107,7 +106,7 @@ fun CustomNavigationDrawer(
     val stateSize by navVM.dueCardSize.collectAsStateWithLifecycle()
 
     val deckName by navVM.deckName.collectAsStateWithLifecycle()
-    val owner by supabaseVM.owner.collectAsStateWithLifecycle()
+    val owner by navVM.owner.collectAsStateWithLifecycle()
 
     // Determine the title based on the current route.
     val titleText = when (cr.name) {
@@ -171,6 +170,7 @@ fun CustomNavigationDrawer(
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = getUIStyle.navBarColor(),
                         titleContentColor = MaterialTheme.colorScheme.primary,
+                        actionIconContentColor = getUIStyle.themedColor()
                     ),
                     title = {
                         Title(titleText, getUIStyle, navVM, helpForNotation)
@@ -187,10 +187,7 @@ fun CustomNavigationDrawer(
                         }
                     },
                     actions = {
-                        ActionIconButton(
-                            getUIStyle, fields, navVM,
-                            supabaseVM, mainNavController
-                        )
+                        ActionIconButton(getUIStyle, fields, navVM, mainNavController)
                     }, modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -274,7 +271,7 @@ private fun Title(
                 onValueChange = { navVM.updateQuery(it) },
                 placeholder = {
                     CustomText(
-                        text, getUIStyle, props = TextProps(FSProp.Font18, tc = TCProp.Basic)
+                        text, getUIStyle, props = TextProps(FSProp.Font18, tc = TCProp.Themed)
                     )
                 },
                 singleLine = true,

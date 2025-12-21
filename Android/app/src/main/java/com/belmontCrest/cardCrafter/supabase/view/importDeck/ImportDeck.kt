@@ -38,18 +38,18 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.model.application.preferences.PreferenceValues
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.ImportDeckViewModel
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.EMPTY_STRING
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.REPLACED_DECK
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.CancelButton
-import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.buttons.CancelButton
+import com.belmontCrest.cardCrafter.ui.functions.EditTextField
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.views.misc.details.toCardDetails
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -111,7 +111,9 @@ class ImportDeck(
                                             if (success.intValue == ReturnValues.DECK_EXISTS) {
                                                 conflict.value = true
                                             }
-                                            showToastMessage(context, errorMessage)
+                                            val message = errorMessage.takeIf { it.isNotBlank() }
+                                                ?: "Failed to import"
+                                            showToastMessage(context, message)
                                             enabled = true
                                         }
                                     }

@@ -28,15 +28,14 @@ import com.belmontCrest.cardCrafter.navigation.destinations.UserEDDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.model.application.preferences.PreferencesManager
-import com.belmontCrest.cardCrafter.model.application.preferences.setPreferenceValues
 import com.belmontCrest.cardCrafter.navigation.destinations.CoOwnerRequestsDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ForgotPasswordDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SBCardListDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UseEmailDestination
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.CoOwnerViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.CoOwnerViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.ImportDeckViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.view.profile.UserExportedDecks
 import com.belmontCrest.cardCrafter.supabase.view.profile.MyProfile
 import com.belmontCrest.cardCrafter.supabase.view.importDeck.ImportDeck
@@ -46,7 +45,7 @@ import com.belmontCrest.cardCrafter.supabase.view.authViews.email.EmailView
 import com.belmontCrest.cardCrafter.supabase.view.authViews.email.ForgotPassword
 import com.belmontCrest.cardCrafter.supabase.view.profile.CardListView
 import com.belmontCrest.cardCrafter.supabase.view.profile.RequestsView
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import kotlinx.coroutines.launch
 
 
@@ -60,13 +59,12 @@ fun SupabaseNav(
 ) {
     val sbNavController = rememberNavController()
 
-    LaunchedEffect(Unit) { supabaseVM.signInSyncedDBUser() }
     LaunchedEffect(Unit) { navViewModel.updateSBNav(sbNavController) }
-    val pc = setPreferenceValues(preferences)
+    val pv by preferences.pv.collectAsStateWithLifecycle()
 
     /** Our Supabase Client and Views. */
     val onlineDatabase = OnlineDatabase(getUIStyle, supabaseVM)
-    val importDeck = ImportDeck(getUIStyle, pc)
+    val importDeck = ImportDeck(getUIStyle, pv)
     val sbDeck by supabaseVM.deck.collectAsStateWithLifecycle()
     val pickedDeck by supabaseVM.pickedDeck.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
@@ -78,7 +76,7 @@ fun SupabaseNav(
         else -> UserEDDestination.route
     }
     val uEDVM: UserExportedDecksViewModel = viewModel(factory = AppVMProvider.Factory)
-    val clv = CardListView(uEDVM, getUIStyle, pc)
+    val clv = CardListView(uEDVM, getUIStyle, pv)
     NavHost(
         navController = sbNavController,
         startDestination = startDestination,
@@ -100,9 +98,7 @@ fun SupabaseNav(
                 onImportDeck = { uuid ->
                     navViewModel.updateRoute(ImportSBDestination.route)
                     sbNavController.navigate(ImportSBDestination.createRoute(uuid))
-                    coroutineScope.launch {
-                        supabaseVM.updateUUID(uuid)
-                    }
+                    coroutineScope.launch { supabaseVM.updateUUID(uuid) }
                 },
                 onUseEmail = {
                     navViewModel.updateRoute(UseEmailDestination.route)
@@ -240,6 +236,7 @@ fun SupabaseNav(
 
         composable(SBCardListDestination.route) {
             BackHandler {
+                uEDVM.updateUUUID("")
                 navViewModel.updateRoute(UserEDDestination.route)
                 sbNavController.popBackStack(
                     UserEDDestination.route, inclusive = false

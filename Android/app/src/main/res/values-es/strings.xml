@@ -35,9 +35,14 @@
     <string name="empty_deck_name">El nombre del mazo no puede estar vacío</string>
     <string name="deck_name_exists">Existe un mazo con ese nombre</string>
     <string name="deck_name_failed">La actualización del nombre falló</string>
-    <string name="system_theme">Tema Del Sistema</string>
-    <string name="custom_theme">Tema Personalizado</string>
-    <string name="dark_theme">Tema Oscuro</string>
+    <string name="theme">Tema</string>
+    <string name="system_theme">Sistema</string>
+    <string name="dark_theme">Oscuro</string>
+    <string name="light_theme">Claro</string>
+    <string name="coloring">Colores</string>
+    <string name="cute">Tiernito</string>
+    <string name="dynamic">Dinámico</string>
+    <string name="original">Original</string>
     <string name="basic_card">Carta Basica</string>
     <string name="three_field_card">Carta de Tres Campos</string>
     <string name="hint_card">Carta con Indicación</string>
@@ -47,6 +52,7 @@
     <string name="edit_multiplier">Modificar Multiplicador</string>
     <string name="good_multiplier">Multiplicador Bueno</string>
     <string name="bad_multiplier">Multiplicador Malo</string>
+
     <string name="multi_choice_card">Carta de Múltiples Opciones</string>
     <string name="multi">Múltiple Opciones</string>
     <string name="choice_a">Opción A</string>
@@ -78,8 +84,6 @@
     <string name="failed_card_amount">Fracaso en actualizar la cantidad de cartas</string>
     <string name="card_amount_5_1000">Cantidad de cartas debe de estar entre 5 y 1000!</string>
     <string name="review_amount_1_40">Numero de revisions debe estar entre 1 y 40!</string>
-    <string name="cute_theme">Tema Tiernito</string>
-    <string name="dark_cute_theme">Oscuro Tema Tiernito</string>
     <string name="signed_in">Ha iniciado sesión</string>
     <string name="could_not_sign_in">No se puede iniciar sesión</string>
     <string name="no_credentials_available">No hay credenciales</string>

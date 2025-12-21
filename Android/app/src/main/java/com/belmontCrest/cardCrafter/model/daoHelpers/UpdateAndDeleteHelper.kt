@@ -3,16 +3,16 @@ package com.belmontCrest.cardCrafter.model.daoHelpers
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
-import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.NullableCustomCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
-import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.AnswerParam
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.Param
+import com.belmontCrest.cardCrafter.local.db.tables.BasicCard
+import com.belmontCrest.cardCrafter.local.db.tables.HintCard
+import com.belmontCrest.cardCrafter.local.db.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.local.db.tables.NotationCard
+import com.belmontCrest.cardCrafter.local.db.tables.NullableCustomCard
+import com.belmontCrest.cardCrafter.local.db.tables.PartOfQorA
+import com.belmontCrest.cardCrafter.local.db.tables.ThreeFieldCard
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.AnswerParam
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.MiddleParam
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.Param
 
 @Dao
 interface UpdateAndDeleteHelper {

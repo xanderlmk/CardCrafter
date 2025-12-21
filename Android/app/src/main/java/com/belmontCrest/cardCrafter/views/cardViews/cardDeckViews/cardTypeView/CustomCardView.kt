@@ -11,12 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.zIndex
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.AnswerParam
-import com.belmontCrest.cardCrafter.localDatabase.tables.CustomCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.Param
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.katex.KaTeXWebView
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.AnswerParam
+import com.belmontCrest.cardCrafter.local.db.tables.CustomCard
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.MiddleParam
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.Param
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.katex.KaTeXWebView
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.cardTypeView.customCardParams.AudioPlayerButton
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.cardTypeView.customCardParams.BackChoiceListView
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.cardTypeView.customCardParams.CardStringView
@@ -27,9 +27,7 @@ import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.cardTypeView.c
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.cardTypeView.customCardParams.StringListView
 
 @Composable
-fun CustomFrontCard(
-    customCard: CustomCard, getUIStyle: GetUIStyle, clickedChoice: MutableState<Char>
-) {
+fun CustomFrontCard(customCard: CustomCard, getUIStyle: GetUIStyle) {
     val focusManager = LocalFocusManager.current // Get focus manager
     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
         SelectionContainer(
@@ -38,7 +36,7 @@ fun CustomFrontCard(
             ) { focusManager.clearFocus() }) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 ParamedView(customCard.question, getUIStyle)
-                CustomCardMiddle(customCard.middle, getUIStyle, true, clickedChoice)
+                CustomCardMiddle(customCard.middle, getUIStyle, true)
             }
         }
     }
@@ -57,8 +55,8 @@ fun CustomBackCard(
             ) { focusManager.clearFocus() }) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 ParamedView(customCard.question, getUIStyle)
-                CustomCardMiddle(customCard.middle, getUIStyle, false, clickedChoice)
-                CustomCardAnswer(customCard.answer, getUIStyle)
+                CustomCardMiddle(customCard.middle, getUIStyle, false)
+                CustomCardAnswer(customCard.answer, getUIStyle, false, clickedChoice)
             }
         }
     }
@@ -68,8 +66,17 @@ private const val line = "$$\\\\text{---}\\\\text{---}\\\\text{---}\\\\text{---}
         "\\\\text{---}\\\\text{---}\\\\text{---}$$"
 
 @Composable
-fun CustomCardAnswer(answer: AnswerParam, getUIStyle: GetUIStyle) {
+fun CustomCardAnswer(
+    answer: AnswerParam, getUIStyle: GetUIStyle, front: Boolean, clickedChoice: MutableState<Char>
+) {
+    val focusManager = LocalFocusManager.current
+
     when (val a = answer) {
+        is AnswerParam.Choice -> {
+            if (front) FrontChoiceListView(a.choices, clickedChoice, getUIStyle, focusManager)
+            else BackChoiceListView(a.choices, clickedChoice.value, a.correct, getUIStyle)
+        }
+
         is AnswerParam.NotationList -> {
             val longString = buildString {
                 append(line)
@@ -96,17 +103,11 @@ fun CustomCardAnswer(answer: AnswerParam, getUIStyle: GetUIStyle) {
 
 @Composable
 fun CustomCardMiddle(
-    middle: MiddleParam, getUIStyle: GetUIStyle,
-    front: Boolean, clickedChoice: MutableState<Char>
+    middle: MiddleParam, getUIStyle: GetUIStyle, front: Boolean
 ) {
     val focusManager = LocalFocusManager.current
 
     when (val m = middle) {
-        is MiddleParam.Choice -> {
-            if (front) FrontChoiceListView(m.choices, clickedChoice, getUIStyle, focusManager)
-            else BackChoiceListView(m.choices, clickedChoice.value, m.correct, getUIStyle)
-        }
-
         MiddleParam.Empty -> return
         is MiddleParam.Hint -> {
             if (front) HintStringView(m.h, getUIStyle, focusManager) else return

@@ -11,7 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 
 
 /** Font size prop */
@@ -26,11 +26,19 @@ enum class TAProp { Start, Center, End, Default }
 /** Max lines prop */
 enum class MLProp { One, Two, Three, Default }
 
-enum class TCProp { Button, Default, Disabled, Basic }
+enum class TCProp { Button, OnBackground, Disabled, Themed }
 
 enum class TSProp { MediumTitle, LargeTitle, Body, Footer }
 
-/** Defining our text props */
+/**
+ * Defining our text props
+ * @param fs Font Size Prop
+ * @param fw Font Weight Prop
+ * @param ta Text Align Prop
+ * @param ml Max Lines Prop
+ * @param tc Text Color Prop
+ * @param ts Text Style Prop
+ */
 data class TextProps(
     /** Font size */
     val fs: FSProp = FSProp.Default,
@@ -41,7 +49,7 @@ data class TextProps(
     /** Max lines */
     val ml: MLProp = MLProp.Default,
     /** Text Colors */
-    val tc: TCProp = TCProp.Default,
+    val tc: TCProp = TCProp.OnBackground,
     /** Text Style */
     val ts: TSProp = TSProp.Body
 )
@@ -111,11 +119,12 @@ fun TextProps.setMaxLines(): Int = when (this.ml) {
     MLProp.Default -> Int.MAX_VALUE
 }
 
+@Composable
 fun TextProps.setTextColor(getUIStyle: GetUIStyle): Color = when (this.tc) {
     TCProp.Button -> getUIStyle.buttonTextColor()
-    TCProp.Default -> getUIStyle.titleColor()
+    TCProp.OnBackground -> getUIStyle.titleColor()
     TCProp.Disabled -> getUIStyle.disabledTextColor()
-    TCProp.Basic -> getUIStyle.themedColor()
+    TCProp.Themed -> getUIStyle.themedColor()
 }
 
 @Composable

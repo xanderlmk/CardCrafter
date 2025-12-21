@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.navigation.destinations.AddDeckDestination
@@ -39,12 +40,11 @@ import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.Editi
 import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.model.ui.Fields
 import com.belmontCrest.cardCrafter.model.application.preferences.PreferencesManager
-import com.belmontCrest.cardCrafter.model.application.preferences.setPreferenceValues
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.SupabaseViewModel
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 import com.belmontCrest.cardCrafter.ui.theme.ColorSchemeClass
 import com.belmontCrest.cardCrafter.views.mainViews.GeneralSettings
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import kotlinx.coroutines.launch
 
 
@@ -54,15 +54,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun AppNavHost(
     mainNavController: NavHostController,
-    navViewModel: NavViewModel, supabaseVM: SupabaseViewModel,
-    fields: Fields, preferences: PreferencesManager,
+    navViewModel: NavViewModel, fields: Fields, preferences: PreferencesManager,
 ) {
     val colorScheme = remember { ColorSchemeClass() }
     var onDeckView by remember { mutableStateOf(false) }
     colorScheme.colorScheme = MaterialTheme.colorScheme
-    val pc = setPreferenceValues(preferences)
+    val pv by preferences.pv.collectAsStateWithLifecycle()
     val getUIStyle = rememberUpdatedState(
-        GetUIStyle(colorScheme, pc.darkTheme, pc.dynamicTheme, pc.cuteTheme)
+        GetUIStyle(colorScheme, pv.theme)
     ).value
     val mainView = MainView(getUIStyle, fields)
     val addDeckView = AddDeckView(getUIStyle)
@@ -70,7 +69,7 @@ fun AppNavHost(
     val coroutineScope = rememberCoroutineScope()
     CustomNavigationDrawer(
         mainNavController = mainNavController, fields = fields,
-        getUIStyle = getUIStyle, navVM = navViewModel, supabaseVM = supabaseVM
+        getUIStyle = getUIStyle, navVM = navViewModel,
     ) {
         NavHost(
             navController = mainNavController,
@@ -117,6 +116,7 @@ fun AppNavHost(
             /** Our Supabase Nav Controller to call*/
             composable(SBNavDestination.route) {
                 val context = LocalContext.current
+                val supabaseVM: SupabaseViewModel = viewModel(factory = AppVMProvider.Factory)
                 LaunchedEffect(Unit) {
                     coroutineScope.launch {
                         supabaseVM.updateStatus()
@@ -161,8 +161,8 @@ fun AppNavHost(
                         navViewModel.updateRoute(DeckListDestination.route)
                         mainNavController.navigate(DeckListDestination.route)
                     },
-                    reviewAmount = pc.reviewAmount.toString(),
-                    cardAmount = pc.cardAmount.toString()
+                    reviewAmount = pv.reviewAmount.toString(),
+                    cardAmount = pv.cardAmount.toString()
                 )
             }
             /** Our Deck Nav Controller to call*/

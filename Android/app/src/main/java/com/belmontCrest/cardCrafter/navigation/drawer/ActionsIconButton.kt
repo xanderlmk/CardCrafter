@@ -39,25 +39,24 @@ import com.belmontCrest.cardCrafter.navigation.destinations.EditDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ExportSBDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.view.exportDeck.CardPickerDropdown
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.backButtonModifier
 import com.belmontCrest.cardCrafter.ui.theme.redoButtonModifier
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.BackButton
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.CardListOptions
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.CardOptionsButton
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.CardTypesButton
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.MailButton
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.RedoCardButton
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import com.belmontCrest.cardCrafter.ui.functions.buttons.BackButton
+import com.belmontCrest.cardCrafter.ui.functions.buttons.CardListOptions
+import com.belmontCrest.cardCrafter.ui.functions.buttons.CardOptionsButton
+import com.belmontCrest.cardCrafter.ui.functions.buttons.CardTypesButton
+import com.belmontCrest.cardCrafter.ui.functions.buttons.MailButton
+import com.belmontCrest.cardCrafter.ui.functions.buttons.RedoCardButton
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun ActionIconButton(
     getUIStyle: GetUIStyle, fields: Fields, navVM: NavViewModel,
-    supabaseVM: SupabaseViewModel, mainNavController: NavHostController
+    mainNavController: NavHostController
 ) {
     val deckNavController by navVM.deckNav.collectAsStateWithLifecycle()
     val sbNavController by navVM.sbNav.collectAsStateWithLifecycle()
@@ -252,6 +251,7 @@ fun ActionIconButton(
         }
 
         ExportSBDestination.route -> {
+            val cts by navVM.sealedAllCTs.collectAsStateWithLifecycle()
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
@@ -263,9 +263,9 @@ fun ActionIconButton(
                     modifier = Modifier
                         .size(30.dp)
                 )
-                CardPickerDropdown(
-                    getUIStyle, supabaseVM, Modifier.wrapContentSize(Alignment.TopEnd)
-                )
+                CardPickerDropdown(cts, getUIStyle, Modifier.wrapContentSize(Alignment.TopEnd)) {
+                    navVM.addCardsToDisplay(it)
+                }
             }
         }
     }
