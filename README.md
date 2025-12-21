@@ -1,5 +1,5 @@
 ## Moving to CodeBerg because We hate Microsoft frfr 💯
-### [New Account:](https://codeberg.org/xanderlmk) 
+### [My New Codeberg Account](https://codeberg.org/xanderlmk) 
 
 
 # WELCOME TO OUR FLASHCARDS APPLICATION
