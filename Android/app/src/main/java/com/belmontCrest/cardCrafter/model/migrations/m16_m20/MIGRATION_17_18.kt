@@ -9,11 +9,11 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  *  I forgot to add the MathCard to the database :/
  */
 val MIGRATION_17_18 = object : Migration(17, 18) {
-    override fun migrate(database: SupportSQLiteDatabase) {
-        database.beginTransaction()
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.beginTransaction()
         try {
-            database.execSQL("PRAGMA foreign_keys=OFF;")
-            database.execSQL("""
+            db.execSQL("PRAGMA foreign_keys=OFF;")
+            db.execSQL("""
                CREATE TABLE IF NOT EXISTS mathCard(
                     cardId INTEGER NOT NULL,
                     question TEXT NOT NULL, 
@@ -23,16 +23,16 @@ val MIGRATION_17_18 = object : Migration(17, 18) {
                     FOREIGN KEY(cardId) REFERENCES cards(id) ON DELETE CASCADE)
             """)
             // Create index
-            database.execSQL("CREATE INDEX index_mathCard_cardId ON mathCard (cardId)")
+            db.execSQL("CREATE INDEX index_mathCard_cardId ON mathCard (cardId)")
 
-            database.execSQL("PRAGMA foreign_keys=ON;")
-            database.setTransactionSuccessful()
+            db.execSQL("PRAGMA foreign_keys=ON;")
+            db.setTransactionSuccessful()
         } catch (e: Exception) {
             // Log the error for debugging
             Log.e("Migration", "Migration 17 to 18 failed", e)
             throw RuntimeException("Migration 17 to 18 failed: ${e.message}")
         } finally {
-            database.endTransaction()
+            db.endTransaction()
         }
     }
 }

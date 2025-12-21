@@ -8,10 +8,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
-import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
-import com.belmontCrest.cardCrafter.uiFunctions.IsPartOfQOrA
+import com.belmontCrest.cardCrafter.local.db.tables.PartOfQorA
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.EditTextFieldNonDone
+import com.belmontCrest.cardCrafter.ui.functions.IsPartOfQOrA
 
 @Composable
 fun EditThreeCard(vm: EditCardViewModel, getUIStyle: GetUIStyle) {

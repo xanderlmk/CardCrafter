@@ -21,12 +21,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.CancelButton
-import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.SupabaseViewModel
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.buttons.CancelButton
+import com.belmontCrest.cardCrafter.ui.functions.EditTextField
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.Q)

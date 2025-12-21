@@ -10,17 +10,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.model.application.preferences.PreferencesManager
-import com.belmontCrest.cardCrafter.model.application.preferences.setPreferenceValues
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
 import kotlinx.coroutines.delay
 
@@ -30,28 +30,19 @@ class GeneralSettings(
 ) {
     @Composable
     fun SettingsView() {
-        val pc = setPreferenceValues(preferences)
-        val darkToggled = if (pc.darkTheme)
-            painterResource(R.drawable.toggle_on) else
-            painterResource(R.drawable.toggle_off)
-        val customToggled = if (!pc.dynamicTheme)
-            painterResource(R.drawable.toggle_on) else
-            painterResource(R.drawable.toggle_off)
-        val cuteToggled = if (pc.cuteTheme)
-            painterResource(R.drawable.toggle_on) else
-            painterResource(R.drawable.toggle_off)
-        val reviewAmount = rememberSaveable { mutableStateOf(pc.reviewAmount.toString()) }
-        val cardAmount = rememberSaveable { mutableStateOf(pc.cardAmount.toString()) }
-        val height = rememberSaveable { mutableStateOf(pc.height.toString()) }
+        val pv by preferences.pv.collectAsStateWithLifecycle()
+        val reviewAmount = rememberSaveable { mutableStateOf(pv.reviewAmount.toString()) }
+        val cardAmount = rememberSaveable { mutableStateOf(pv.cardAmount.toString()) }
+        val height = rememberSaveable { mutableStateOf(pv.height.toString()) }
         val width = rememberSaveable {
-            mutableStateOf(if (pc.width == Int.MIN_VALUE) "200" else pc.width.toString())
+            mutableStateOf(if (pv.width == Int.MIN_VALUE) "200" else pv.width.toString())
         }
         val invalid = rememberSaveable { mutableStateOf(false) }
         val errorMessage = rememberSaveable { mutableStateOf("") }
         val invalidReview = stringResource(R.string.review_amount_1_40)
         val invalidCards = stringResource(R.string.card_amount_5_1000)
 
-        val (cardSuccess, reviewSuccess, heightSuccess, widthSuccess) = Infinite(
+        val (cardSuccess, reviewSuccess, heightSuccess, widthSuccess) = Quad(
             remember { mutableStateOf(false) }, remember { mutableStateOf(false) },
             remember { mutableStateOf(false) }, remember { mutableStateOf(false) }
         )
@@ -68,18 +59,7 @@ class GeneralSettings(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 SystemThemeOptions(
-                    toggleDynamicTheme = {
-                        if (!pc.dynamicTheme) {
-                            preferences.saveCuteTheme(false)
-                        }
-                        preferences.saveDynamicTheme()
-                    },
-                    toggleDarkTheme = { preferences.saveDarkTheme() },
-                    toggleCuteTheme = { preferences.saveCuteTheme() },
-                    customToggled = customToggled,
-                    darkToggled = darkToggled,
-                    cuteToggled = cuteToggled,
-                    isDynamicTheme = pc.dynamicTheme,
+                    theme = pv.theme, onChangeTheme = { preferences.saveTheme(it) },
                     getUIStyle = getUIStyle
                 )
                 DefaultDeckOptions(
@@ -170,7 +150,7 @@ private fun InvalidXXAmount(
 }
 
 
-private data class Infinite<out A, out B, out C, out D>(
+private data class Quad<out A, out B, out C, out D>(
     val first: A,
     val second: B,
     val third: C,

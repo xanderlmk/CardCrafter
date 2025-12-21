@@ -8,8 +8,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.belmontCrest.cardCrafter.localDatabase.tables.CT
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.local.db.tables.CT
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.cardTypeView.BasicBackCard
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.cardTypeView.ChoiceBackCard
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.cardTypeView.CustomBackCard

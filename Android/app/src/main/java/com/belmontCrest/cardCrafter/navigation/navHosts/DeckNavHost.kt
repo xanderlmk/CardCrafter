@@ -31,9 +31,8 @@ import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditC
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.model.application.preferences.PreferencesManager
-import com.belmontCrest.cardCrafter.model.application.preferences.setPreferenceValues
 import com.belmontCrest.cardCrafter.model.ui.Fields
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.views.cardViews.addCardViews.AddCardView
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.CardDeckView
 import com.belmontCrest.cardCrafter.views.cardViews.editCardViews.EditCardsList
@@ -52,15 +51,14 @@ fun DeckNavHost(
 ) {
     val deckNavController = rememberNavController()
     val listState = rememberLazyListState()
-    val pc = setPreferenceValues(preferences)
+    val pv by preferences.pv.collectAsStateWithLifecycle()
     val startingDeckRoute by navViewModel.startingDeckRoute.collectAsStateWithLifecycle()
     val deckView = DeckView(
         fields, getUIStyle,
     )
-    val addCardView = AddCardView(getUIStyle, pc, navViewModel)
-
+    val addCardView = AddCardView(getUIStyle, pv, navViewModel)
     val editDeckView = EditDeckView(fields, getUIStyle)
-    val editingCardView = EditingCardView(getUIStyle, pc)
+    val editingCardView = EditingCardView(getUIStyle, pv)
     val editCardsList =
         EditCardsList(
             editingCardListVM,

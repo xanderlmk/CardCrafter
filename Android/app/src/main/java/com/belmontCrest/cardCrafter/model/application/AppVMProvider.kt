@@ -8,7 +8,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.SupabaseViewModel
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditingCardListViewModel
 import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.MainViewModel
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.CardDeckViewModel
@@ -17,13 +17,13 @@ import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditC
 import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.AddDeckViewModel
 import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.DeckViewModel
 import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.EditDeckViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.CoOwnerViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.DeepLinksViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ForgotPasswordViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.ImportDeckViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.PersonalDeckSyncViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserProfileViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.CoOwnerViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.DeepLinksViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.ForgotPasswordViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.ImportDeckViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.PersonalDeckSyncViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.UserExportedDecksViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.UserProfileViewModel
 
 
 /**
@@ -37,34 +37,33 @@ object AppVMProvider {
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.cardTypeRepository,
                 flashCardApplication().container.kbRepository,
-                flashCardApplication().container.fieldParamRepository,
+                flashCardApplication().container.fieldParamRepo,
                 flashCardApplication().container.deckContentRepository,
                 flashCardApplication().container.deckListRepository,
-                this.createSavedStateHandle()
+                flashCardApplication().container.navHostRepo,
+                flashCardApplication().container.authRepository,
+                flashCardApplication().container.sbTablesRepository,
+                flashCardApplication().container.exportRepository,
+                this.createSavedStateHandle(),
+                flashCardApplication()
             )
         }
         initializer { MainViewModel(flashCardApplication().container.deckListRepository) }
         initializer {
-            AddDeckViewModel(
-                flashCardApplication().container.flashCardRepository,
-            )
+            AddDeckViewModel(flashCardApplication().container.flashCardRepository)
         }
         initializer {
-            DeckViewModel(
-                flashCardApplication().container.flashCardRepository
-            )
+            DeckViewModel(flashCardApplication().container.flashCardRepository)
         }
         initializer {
-            EditDeckViewModel(
-                flashCardApplication().container.flashCardRepository,
-            )
+            EditDeckViewModel(flashCardApplication().container.flashCardRepository)
         }
         initializer {
             AddCardViewModel(
                 flashCardApplication().container.flashCardRepository,
                 flashCardApplication().container.isOwnerOrCoOwnerRepo,
                 flashCardApplication().container.kbRepository,
-                flashCardApplication().container.fieldParamRepository,
+                flashCardApplication().container.fieldParamRepo,
                 this.createSavedStateHandle(),
                 this.createSavedStateHandle().get<String>("deckUUID")!!
             )
@@ -82,7 +81,7 @@ object AppVMProvider {
             EditCardViewModel(
                 flashCardApplication().container.cardTypeRepository,
                 flashCardApplication().container.kbRepository,
-                flashCardApplication().container.fieldParamRepository,
+                flashCardApplication().container.fieldParamRepo,
                 this.createSavedStateHandle(),
             )
         }
@@ -90,8 +89,7 @@ object AppVMProvider {
             SupabaseViewModel(
                 flashCardApplication().container.exportRepository,
                 flashCardApplication().container.sbTablesRepository,
-                flashCardApplication().container.authRepository,
-                flashCardApplication()
+                flashCardApplication().container.authRepository
             )
         }
         initializer {

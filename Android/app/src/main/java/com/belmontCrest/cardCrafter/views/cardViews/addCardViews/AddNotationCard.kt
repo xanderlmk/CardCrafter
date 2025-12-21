@@ -32,17 +32,16 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.AddCardViewModel
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
 import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
-import com.belmontCrest.cardCrafter.uiFunctions.LatexKeyboard
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.getWebView
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.KaTeXMenu
+import com.belmontCrest.cardCrafter.ui.functions.LatexKeyboard
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.SelectedAnnotation
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.getWebView
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 import com.belmontCrest.cardCrafter.views.misc.StepListView
-import com.belmontCrest.cardCrafter.views.misc.collectNotationFieldsAsStates
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -58,7 +57,7 @@ fun AddNotationCard(
     val cardAdded = stringResource(R.string.card_added)
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
-    val (fields, showKB, selectedKB) = collectNotationFieldsAsStates(vm)
+    val (fields, showKB, selectedKB) = vm.triple.collectAsStateWithLifecycle().value
     var selectedSymbol by rememberSaveable {
         mutableStateOf(KaTeXMenu(null, SelectedAnnotation.Idle))
     }

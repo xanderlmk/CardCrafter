@@ -5,21 +5,21 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.view.models.ReusedFunc
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.AnswerParam
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.Param
-import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.isNotBlankOrEmpty
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.toParamType
+import com.belmontCrest.cardCrafter.local.db.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.AnswerParam
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.MiddleParam
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.Param
+import com.belmontCrest.cardCrafter.local.db.tables.PartOfQorA
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.isNotBlankOrEmpty
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.toParamType
 import com.belmontCrest.cardCrafter.model.isPrimitiveType
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
 import com.belmontCrest.cardCrafter.model.ui.states.TypeInfo
 import com.belmontCrest.cardCrafter.model.ui.states.hasNotationParam
-import com.belmontCrest.cardCrafter.navigation.FieldParamRepository
-import com.belmontCrest.cardCrafter.navigation.KeyboardSelectionRepository
+import com.belmontCrest.cardCrafter.navigation.FieldParamRepo
+import com.belmontCrest.cardCrafter.navigation.KeyboardSelectionRepo
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.IsOwnerOrCoOwnerRepo
 import com.belmontCrest.cardCrafter.views.misc.details.CardDetails
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +27,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -37,8 +38,8 @@ import kotlinx.serialization.json.Json
 class AddCardViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val isOwnerOrCoOwnerRepo: IsOwnerOrCoOwnerRepo,
-    private val kbRepository: KeyboardSelectionRepository,
-    private val fieldParamRepository: FieldParamRepository,
+    private val kbRepository: KeyboardSelectionRepo,
+    private val fieldParamRepo: FieldParamRepo,
     private val savedStateHandle: SavedStateHandle,
     private val deckUUID: String
 ) : ViewModel() {
@@ -53,68 +54,69 @@ class AddCardViewModel(
      *
      * If there's a savedStateHandle, update it on initialValue
      */
-    val fields = fieldParamRepository.fields.stateIn(
+    val fields = fieldParamRepo.fields.stateIn(
         scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
         initialValue = savedStateHandle.get<String>(CD)?.let {
             val init = Json.decodeFromString(CDetails.serializer(), it)
-            fieldParamRepository.createFields(init)
+            fieldParamRepo.createFields(init)
             init
         } ?: CDetails()
     )
     val type = kbRepository.type
 
-    fun updateQ(q: String) = fieldParamRepository.updateQ(q).also {
+
+    fun updateQ(q: String) = fieldParamRepo.updateQ(q).also {
         savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
     }
 
-    fun updateA(a: String) = fieldParamRepository.updateA(a).also {
+    fun updateA(a: String) = fieldParamRepo.updateA(a).also {
         savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
     }
 
-    fun updateM(m: String) = fieldParamRepository.updateM(m).also {
+    fun updateM(m: String) = fieldParamRepo.updateM(m).also {
         savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
     }
 
-    fun updateCh(c: String, idx: Int) = fieldParamRepository.updateCh(c, idx).also {
+    fun updateCh(c: String, idx: Int) = fieldParamRepo.updateCh(c, idx).also {
         savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
     }
 
-    fun updateCor(c: Char) = fieldParamRepository.updateCor(c).also {
+    fun updateCor(c: Char) = fieldParamRepo.updateCor(c).also {
         savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
     }
 
-    fun addStep() = fieldParamRepository.addStep().also {
+    fun addStep() = fieldParamRepo.addStep().also {
         savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
     }
 
-    fun removeStep() = fieldParamRepository.removeStep().also {
+    fun removeStep() = fieldParamRepo.removeStep().also {
         savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
     }
 
-    fun updateStep(s: String, idx: Int) = fieldParamRepository.updateStep(s, idx).also {
+    fun updateStep(s: String, idx: Int) = fieldParamRepo.updateStep(s, idx).also {
         savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
     }
 
-    fun updateQA(qa: PartOfQorA) = fieldParamRepository.updateQA(qa).also {
+    fun updateQA(qa: PartOfQorA) = fieldParamRepo.updateQA(qa).also {
         savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
     }
 
-    fun updateQ(q: Param) = fieldParamRepository.updateQ(q).also {
-        savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
-        isNotationType()
-    }
-
-    fun updateA(a: AnswerParam) = fieldParamRepository.updateA(a).also {
+    fun updateQ(q: Param) = fieldParamRepo.updateQ(q).also {
         savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
         isNotationType()
     }
 
-    fun updateM(m: MiddleParam) = fieldParamRepository.updateM(m).also {
+    fun updateA(a: AnswerParam) = fieldParamRepo.updateA(a).also {
         savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
         isNotationType()
     }
 
-    private fun resetFields() = fieldParamRepository.resetFields().also {
+    fun updateM(m: MiddleParam) = fieldParamRepo.updateM(m).also {
+        savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
+        isNotationType()
+    }
+
+    private fun resetFields() = fieldParamRepo.resetFields().also {
         savedStateHandle[CD] = Json.encodeToString(CDetails.serializer(), it)
         isNotationType()
     }
@@ -129,6 +131,13 @@ class AddCardViewModel(
     val showKatexKeyboard = kbRepository.showKatexKeyboard
     val selectedKB = kbRepository.selectedKB
     val resetOffset = kbRepository.resetOffset
+
+    val triple = combine(fields, showKatexKeyboard, selectedKB) { field, show, kb ->
+        Triple(field, show, kb)
+    }.stateIn(
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = Triple(fields.value, showKatexKeyboard.value, selectedKB.value)
+    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val types = kbRepository.customTypes.flatMapLatest { types ->

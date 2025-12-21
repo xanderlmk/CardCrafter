@@ -16,10 +16,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.AddCardViewModel
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
 import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.application.preferences.PreferenceValues
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 
 class AddCardView(

@@ -32,14 +32,14 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.Param
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.Param
 import com.belmontCrest.cardCrafter.model.FSProp
 import com.belmontCrest.cardCrafter.model.TAProp
 import com.belmontCrest.cardCrafter.model.TSProp
 import com.belmontCrest.cardCrafter.model.TextProps
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.ContentIcons
-import com.belmontCrest.cardCrafter.uiFunctions.CustomText
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.ContentIcons
+import com.belmontCrest.cardCrafter.ui.functions.CustomText
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.cardTypeView.ParamedView
 
 @Composable

@@ -7,8 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.local.db.tables.CT
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.cardTypeView.BasicFrontCard
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.cardTypeView.ChoiceFrontCard
 import com.belmontCrest.cardCrafter.views.cardViews.cardDeckViews.cardTypeView.CustomFrontCard
@@ -34,7 +34,7 @@ fun FrontCard(
             is CT.Hint -> HintFrontCard(ct.hintCard, getUIStyle)
             is CT.MultiChoice -> ChoiceFrontCard(ct.multiChoiceCard, getUIStyle, clickedChoice)
             is CT.Notation -> NotationFrontCard(ct.notationCard, getUIStyle)
-            is CT.Custom -> CustomFrontCard(ct.customCard, getUIStyle, clickedChoice)
+            is CT.Custom -> CustomFrontCard(ct.customCard, getUIStyle)
         }
     }
 }

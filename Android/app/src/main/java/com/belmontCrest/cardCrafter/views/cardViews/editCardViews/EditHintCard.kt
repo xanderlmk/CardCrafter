@@ -8,7 +8,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
-import com.belmontCrest.cardCrafter.uiFunctions.EditTextFieldNonDone
+import com.belmontCrest.cardCrafter.ui.functions.EditTextFieldNonDone
 
 @Composable
 fun EditHintCard(vm: EditCardViewModel) {

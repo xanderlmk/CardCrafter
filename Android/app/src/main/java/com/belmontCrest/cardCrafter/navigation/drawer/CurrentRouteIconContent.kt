@@ -28,7 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
 import com.belmontCrest.cardCrafter.model.FSProp
 import com.belmontCrest.cardCrafter.model.FWProp
 import com.belmontCrest.cardCrafter.model.TAProp
@@ -40,16 +40,16 @@ import com.belmontCrest.cardCrafter.navigation.destinations.EditDeckDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.SBNavDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.UserProfileDestination
 import com.belmontCrest.cardCrafter.navigation.destinations.ViewAllCardsDestination
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.PersonalDeckSyncViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.PersonalDeckSyncViewModel
 import com.belmontCrest.cardCrafter.supabase.model.SyncStatus
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.settingsButtonModifier
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.CancelButton
-import com.belmontCrest.cardCrafter.uiFunctions.ContentIcons
-import com.belmontCrest.cardCrafter.uiFunctions.CustomText
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.OrderByDropdown
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SettingsButton
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.buttons.CancelButton
+import com.belmontCrest.cardCrafter.ui.functions.ContentIcons
+import com.belmontCrest.cardCrafter.ui.functions.CustomText
+import com.belmontCrest.cardCrafter.ui.functions.buttons.OrderByDropdown
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SettingsButton
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

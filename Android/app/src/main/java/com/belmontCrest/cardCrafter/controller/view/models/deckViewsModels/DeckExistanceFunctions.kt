@@ -2,7 +2,7 @@ package com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels
 
 import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.local.db.repositories.FlashCardRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

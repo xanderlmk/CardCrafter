@@ -20,7 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.ColumnContentWithBorder
 
 @Composable
 fun KatexMenuOptions(
@@ -28,41 +29,16 @@ fun KatexMenuOptions(
     height: MutableState<String>, width: MutableState<String>,
     heightSuccess: Boolean, widthSuccess: Boolean
 ) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(12.dp)
-            .border(
-                width = 2.dp,
-                shape = RoundedCornerShape(12.dp),
-                color = if (getUIStyle.getIsDarkTheme()) Color.Gray else Color.Black
-            )
-    ) {
-        Text(
-            text = "Katex Menu Options",
-            fontSize = 20.sp,
-            lineHeight = 22.sp,
-            fontWeight = FontWeight.Bold,
-            color = getUIStyle.titleColor(),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(vertical = 4.dp)
-                .fillMaxWidth()
-                .clickable { expanded = !expanded }
+    ColumnContentWithBorder(getUIStyle, "Katex Menu Options") {
+        ExpandedIntBoxedOptions(
+            onClick = changeMenuHeight, getUIStyle = getUIStyle,
+            string = height, success = heightSuccess,
+            text = "Height"
         )
-        if (expanded) {
-            ExpandedIntBoxedOptions(
-                onClick = changeMenuHeight, getUIStyle = getUIStyle,
-                string = height, success = heightSuccess,
-                text = "Height"
-            )
-            ExpandedIntBoxedOptions(
-                onClick = changeMenuWidth, getUIStyle = getUIStyle,
-                string = width, success = widthSuccess,
-                text = "Width"
-            )
-        }
+        ExpandedIntBoxedOptions(
+            onClick = changeMenuWidth, getUIStyle = getUIStyle,
+            string = width, success = widthSuccess,
+            text = "Width"
+        )
     }
 }

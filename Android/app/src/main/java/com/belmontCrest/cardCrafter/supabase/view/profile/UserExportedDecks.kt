@@ -25,15 +25,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.UserExportedDecksViewModel
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.SupabaseViewModel
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.UserExportedDecksViewModel
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
 import com.belmontCrest.cardCrafter.supabase.view.authViews.CreateAccount
 import com.belmontCrest.cardCrafter.supabase.view.exportDeck.LocalDecks
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.ExportDeckButton
+import com.belmontCrest.cardCrafter.ui.functions.buttons.ExportDeckButton
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable

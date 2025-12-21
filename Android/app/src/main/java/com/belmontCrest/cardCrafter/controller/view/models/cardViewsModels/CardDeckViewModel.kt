@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.belmontCrest.cardCrafter.controller.cardHandlers.callError
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.DeckContentRepository
-import com.belmontCrest.cardCrafter.localDatabase.tables.Card
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.SavedCard
+import com.belmontCrest.cardCrafter.local.db.repositories.DeckContentRepository
+import com.belmontCrest.cardCrafter.local.db.tables.Card
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.SavedCard
 import com.belmontCrest.cardCrafter.model.ui.states.CardState
 import com.belmontCrest.cardCrafter.model.ui.CardUpdateError
 import com.belmontCrest.cardCrafter.model.ui.states.DeckDetails

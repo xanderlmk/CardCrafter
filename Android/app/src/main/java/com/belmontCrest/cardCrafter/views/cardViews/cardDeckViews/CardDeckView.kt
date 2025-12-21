@@ -39,11 +39,11 @@ import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.updateCTCard
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.CardDeckViewModel
 import com.belmontCrest.cardCrafter.model.ui.states.CardState
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
 import com.belmontCrest.cardCrafter.model.ui.Fields
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
 import com.belmontCrest.cardCrafter.views.misc.AgainText
 import com.belmontCrest.cardCrafter.views.misc.CARD_CRAFTER
 import com.belmontCrest.cardCrafter.views.misc.GoodText

@@ -6,16 +6,17 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCTList
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCardList
-import com.belmontCrest.cardCrafter.localDatabase.tables.AllCardTypes
-import com.belmontCrest.cardCrafter.localDatabase.tables.CT
-import com.belmontCrest.cardCrafter.localDatabase.tables.Card
-import com.belmontCrest.cardCrafter.localDatabase.tables.CardInfo
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.ImportedDeckInfo
-import com.belmontCrest.cardCrafter.localDatabase.tables.toNullableCustomCard
+import com.belmontCrest.cardCrafter.local.db.tables.AllCardTypes
+import com.belmontCrest.cardCrafter.local.db.tables.CT
+import com.belmontCrest.cardCrafter.local.db.tables.Card
+import com.belmontCrest.cardCrafter.local.db.tables.CardInfo
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.ImportedDeckInfo
+import com.belmontCrest.cardCrafter.local.db.tables.toNullableCustomCard
 import com.belmontCrest.cardCrafter.model.daoHelpers.DeckHelperDao
 import com.belmontCrest.cardCrafter.model.daoHelpers.TransactionCT
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
@@ -32,7 +33,7 @@ interface MergeDecksDao : TransactionCT, DeckHelperDao {
     @Query("SELECT * from decks where uuid = :uuid")
     suspend fun doesDeckExist(uuid: String): Deck?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertImportedDeckInfo(importedDeckInfo: ImportedDeckInfo)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

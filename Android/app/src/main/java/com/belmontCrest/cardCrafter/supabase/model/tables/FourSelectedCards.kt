@@ -1,7 +1,7 @@
 package com.belmontCrest.cardCrafter.supabase.model.tables
 
 import android.os.Parcelable
-import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.local.db.tables.CT
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

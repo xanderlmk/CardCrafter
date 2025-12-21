@@ -20,8 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.belmontCrest.cardCrafter.R
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
+import com.belmontCrest.cardCrafter.supabase.controller.view.models.SupabaseViewModel
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.DECK_EXISTS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NOT_DECK_OWNER
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_CARDS
@@ -29,10 +29,10 @@ import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.NULL_UPDATED_ON
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.STATIC_NUM
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.SUCCESS
 import com.belmontCrest.cardCrafter.supabase.model.ReturnValues.UPDATED_ON_CONFLICT
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.CustomText
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.CustomText
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 import kotlinx.coroutines.launch
 
 

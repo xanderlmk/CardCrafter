@@ -39,24 +39,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.cardHandlers.returnReviewsLeft
-import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.AddCardViewModel
-import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
 import androidx.core.graphics.scale
-import com.belmontCrest.cardCrafter.localDatabase.tables.CT
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
-import com.belmontCrest.cardCrafter.model.ui.states.SealedAllCTs
-import com.belmontCrest.cardCrafter.uiFunctions.LatexKeyboard
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import com.belmontCrest.cardCrafter.local.db.tables.CT
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.AnswerParam
+import com.belmontCrest.cardCrafter.ui.functions.LatexKeyboard
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.KaTeXMenu
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 
 @Composable
 fun StepListView(
@@ -375,7 +371,7 @@ fun PickAnswerChar(fields: CDetails, getUIStyle: GetUIStyle, onUpdate: (Char) ->
 
 @Composable
 fun PickAnswerChar(
-    choiceParam: MiddleParam.Choice, getUIStyle: GetUIStyle, onUpdate: (Char) -> Unit
+    choiceParam: AnswerParam.Choice, getUIStyle: GetUIStyle, onUpdate: (Char) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     Column(
@@ -464,26 +460,6 @@ fun returnCardAmountError(): List<String> {
         stringResource(R.string.card_amount_same),
         stringResource(R.string.failed_card_amount)
     )
-}
-
-@Composable
-fun collectNotationFieldsAsStates(
-    vm: AddCardViewModel
-): Triple<CDetails, Boolean, SelectedKeyboard?> {
-    val fields by vm.fields.collectAsStateWithLifecycle()
-    val showKB by vm.showKatexKeyboard.collectAsStateWithLifecycle()
-    val selectedKB by vm.selectedKB.collectAsStateWithLifecycle()
-    return Triple(fields, showKB, selectedKB)
-}
-
-@Composable
-fun collectNotationFieldsAsStates(
-    vm: EditCardViewModel
-): Triple<CDetails, Boolean, SelectedKeyboard?> {
-    val fields by vm.fields.collectAsStateWithLifecycle()
-    val showKB by vm.showKatexKeyboard.collectAsStateWithLifecycle()
-    val selectedKB by vm.selectedKB.collectAsStateWithLifecycle()
-    return Triple(fields, showKB, selectedKB)
 }
 
 const val CARD_CRAFTER = "CardCrafter"

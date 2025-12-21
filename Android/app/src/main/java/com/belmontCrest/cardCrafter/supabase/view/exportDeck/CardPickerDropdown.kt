@@ -31,24 +31,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.controller.cardHandlers.getCardType
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCDetails
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.local.db.tables.CT
 import com.belmontCrest.cardCrafter.model.Type
-import com.belmontCrest.cardCrafter.supabase.controller.viewModels.SupabaseViewModel
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.model.ui.states.SealedAllCTs
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.views.misc.details.toQuestion
 
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-fun CardPickerDropdown(
-    getUIStyle: GetUIStyle,
-    supabaseVM: SupabaseViewModel, modifier: Modifier
-) {
-    val cts by supabaseVM.sealedAllCTs.collectAsStateWithLifecycle()
+fun CardPickerDropdown(cts: SealedAllCTs, getUIStyle: GetUIStyle, modifier: Modifier, onAddCTD: (String) -> Unit) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var selectedCT by rememberSaveable { mutableStateOf<CT?>(null) }
@@ -155,7 +150,7 @@ fun CardPickerDropdown(
                 TextButton(
                     onClick = {
                         // 4) Slot the card ID into the next free spot
-                        supabaseVM.addCardsToDisplay(ct.toCard().cardIdentifier)
+                        onAddCTD(ct.toCard().cardIdentifier)
                         selectedCT = null
                     },
                     colors = ButtonDefaults.buttonColors(

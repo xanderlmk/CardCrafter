@@ -34,10 +34,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.model.application.AppVMProvider
 import com.belmontCrest.cardCrafter.controller.view.models.deckViewsModels.AddDeckViewModel
-import com.belmontCrest.cardCrafter.uiFunctions.EditTextField
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.EditTextField
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.scrollableBoxViewModifier
-import com.belmontCrest.cardCrafter.uiFunctions.EditIntField
+import com.belmontCrest.cardCrafter.ui.functions.EditIntField
 
 
 class AddDeckView(

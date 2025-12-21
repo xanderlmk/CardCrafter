@@ -39,17 +39,16 @@ import com.belmontCrest.cardCrafter.controller.cardHandlers.returnCardTypeHandle
 import com.belmontCrest.cardCrafter.controller.onClickActions.saveCard
 import com.belmontCrest.cardCrafter.controller.onClickActions.updateCardType
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
-import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.local.db.tables.CT
 import com.belmontCrest.cardCrafter.model.application.preferences.PreferenceValues
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import com.belmontCrest.cardCrafter.ui.theme.boxViewsModifier
 import com.belmontCrest.cardCrafter.ui.theme.editCardModifier
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.CancelButton
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.getWebView
-import com.belmontCrest.cardCrafter.views.misc.collectNotationFieldsAsStates
+import com.belmontCrest.cardCrafter.ui.functions.buttons.CancelButton
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.KaTeXMenu
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.SelectedAnnotation
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.getWebView
 import kotlinx.coroutines.launch
 
 class EditingCardView(
@@ -61,7 +60,7 @@ class EditingCardView(
     fun EditFlashCardView(
         ct: CT, newType: String, onNavigateBack: () -> Unit, editCardVM: EditCardViewModel
     ) {
-        val (fields, showKB, selectedKB) = collectNotationFieldsAsStates(editCardVM)
+        val (fields, showKB, selectedKB) = editCardVM.triple.collectAsStateWithLifecycle().value
         val fillOutfields = stringResource(R.string.fill_out_all_fields)
         val errorMessage by editCardVM.errorMessage.collectAsStateWithLifecycle()
         val coroutineScope = rememberCoroutineScope()

@@ -1,7 +1,7 @@
 package com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.personalSyncedRepos
 
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCTList
-import com.belmontCrest.cardCrafter.localDatabase.tables.SyncedDeckInfo
+import com.belmontCrest.cardCrafter.local.db.tables.SyncedDeckInfo
 import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.daos.SyncedDeckInfoDao
 import com.belmontCrest.cardCrafter.supabase.model.tables.DeckWithLotsCards
 import com.belmontCrest.cardCrafter.supabase.model.tables.ListOfDecks

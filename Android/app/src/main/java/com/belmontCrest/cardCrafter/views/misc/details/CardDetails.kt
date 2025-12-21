@@ -1,13 +1,13 @@
 package com.belmontCrest.cardCrafter.views.misc.details
 
 import android.os.Parcelable
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.AnswerParam
-import com.belmontCrest.cardCrafter.localDatabase.tables.CT
-import com.belmontCrest.cardCrafter.localDatabase.tables.ListStringConverter
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleParam
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.Param
-import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.toQuestion
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.AnswerParam
+import com.belmontCrest.cardCrafter.local.db.tables.CT
+import com.belmontCrest.cardCrafter.local.db.tables.ListStringConverter
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.MiddleParam
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.Param
+import com.belmontCrest.cardCrafter.local.db.tables.PartOfQorA
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.toQuestion
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsBasic
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBCardColsHint

@@ -1,40 +1,47 @@
 package com.belmontCrest.cardCrafter.navigation
 
+import android.app.Application
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCDetails
 import com.belmontCrest.cardCrafter.controller.view.models.ReusedFunc
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.CardTypeRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.DeckContentRepository
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.DeckListRepository
-import com.belmontCrest.cardCrafter.navigation.destinations.DeckViewDestination
-import com.belmontCrest.cardCrafter.navigation.destinations.MainNavDestination
-import com.belmontCrest.cardCrafter.navigation.destinations.SupabaseDestination
-import com.belmontCrest.cardCrafter.localDatabase.dbInterface.repositories.FlashCardRepository
-import com.belmontCrest.cardCrafter.localDatabase.tables.Card
-import com.belmontCrest.cardCrafter.localDatabase.tables.CustomCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.deleteFiles
+import com.belmontCrest.cardCrafter.local.db.repositories.CardTypeRepository
+import com.belmontCrest.cardCrafter.local.db.repositories.DeckContentRepository
+import com.belmontCrest.cardCrafter.local.db.repositories.DeckListRepository
+import com.belmontCrest.cardCrafter.local.db.repositories.FlashCardRepository
+import com.belmontCrest.cardCrafter.local.db.tables.Card
+import com.belmontCrest.cardCrafter.local.db.tables.CustomCard
+import com.belmontCrest.cardCrafter.local.db.tables.deleteFiles
 import com.belmontCrest.cardCrafter.model.daoHelpers.Order
 import com.belmontCrest.cardCrafter.model.daoHelpers.OrderBy
 import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.daoHelpers.reverseSort
 import com.belmontCrest.cardCrafter.model.daoHelpers.toOrderedByClass
+import com.belmontCrest.cardCrafter.model.ui.states.CDetails
+import com.belmontCrest.cardCrafter.model.ui.states.SealedAllCTs
 import com.belmontCrest.cardCrafter.model.ui.states.StringVar
 import com.belmontCrest.cardCrafter.model.ui.states.SelectedCard
 import com.belmontCrest.cardCrafter.model.ui.states.WhichDeck
 import com.belmontCrest.cardCrafter.model.ui.states.hasNotations
 import com.belmontCrest.cardCrafter.navigation.destinations.AddCardDestination
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import com.belmontCrest.cardCrafter.supabase.controller.networkConnectivityFlow
+import com.belmontCrest.cardCrafter.supabase.model.createSupabase.GoogleCredentials
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.SBTablesRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.authRepo.AuthRepository
+import com.belmontCrest.cardCrafter.supabase.model.daoAndRepository.repositories.ownerRepos.ExportRepository
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -52,19 +59,29 @@ import kotlinx.coroutines.withContext
 class NavViewModel(
     private val flashCardRepository: FlashCardRepository,
     private val cardTypeRepository: CardTypeRepository,
-    private val kbRepository: KeyboardSelectionRepository,
-    private val fieldParamRepository: FieldParamRepository,
+    private val kbRepository: KeyboardSelectionRepo,
+    private val fieldParamRepo: FieldParamRepo,
     private val deckContentRepository: DeckContentRepository,
     private val deckListRepository: DeckListRepository,
-    private val savedStateHandle: SavedStateHandle
-) : ViewModel() {
+    private val navHostRepo: NavHostRepo,
+    private val authRepository: AuthRepository,
+    private val sbTablesRepository: SBTablesRepository,
+    private val exportRepository: ExportRepository,
+    private val savedStateHandle: SavedStateHandle,
+    application: Application
+) : AndroidViewModel(application) {
     companion object {
         private const val NAV_VM = "NavViewModel"
         private const val TIMEOUT_MILLIS = 4_000L
         private const val CT_TYPE = "CT_type"
         private const val IS_SELECTING = "is_selecting"
         private const val SHOW_KB = "show_kb"
+        private const val ROUTE = "route"
+        private const val START_DECK_ROUTE = "start_deck_route"
+        private const val START_SB_ROUTE = "start_sb_route"
     }
+
+    private var isClientActive = true
 
     private val rf = ReusedFunc(flashCardRepository)
     private val cardId = MutableStateFlow(savedStateHandle["cardId"] ?: 0)
@@ -74,42 +91,32 @@ class NavViewModel(
         initialValue = StringVar()
     )
 
-    private val _deckNav: MutableStateFlow<NavHostController?> = MutableStateFlow(null)
-    val deckNav = _deckNav.asStateFlow()
-    fun updateDeckNav(navHostController: NavHostController) = _deckNav.update { navHostController }
+    val deckNav = navHostRepo.deckNav
+    fun updateDeckNav(navHostController: NavHostController) =
+        navHostRepo.updateDeckNav(navHostController)
 
-    private val _sbNav: MutableStateFlow<NavHostController?> = MutableStateFlow(null)
-    val sbNav = _sbNav.asStateFlow()
-    fun updateSBNav(navHostController: NavHostController) = _sbNav.update { navHostController }
+    val sbNav = navHostRepo.sbNav
+    fun updateSBNav(navHostController: NavHostController) =
+        navHostRepo.updateSBNav(navHostController)
 
-    private val _route = MutableStateFlow(
-        StringVar(savedStateHandle["route"] ?: MainNavDestination.route)
-    )
-    val route = _route.asStateFlow()
+    val route = navHostRepo.route
 
     fun updateRoute(newRoute: String) {
-        savedStateHandle["route"] = newRoute
-        _route.update { StringVar(newRoute) }
+        savedStateHandle[ROUTE] = newRoute
+        navHostRepo.updateRoute(newRoute)
     }
 
-    private val _startingDeckRoute = MutableStateFlow(
-        StringVar(savedStateHandle["startDeckRoute"] ?: DeckViewDestination.route)
-    )
-    val startingDeckRoute = _startingDeckRoute.asStateFlow()
+    val startingDeckRoute = navHostRepo.startingDeckRoute
 
     fun updateStartingDeckRoute(newRoute: String) {
-        savedStateHandle["startDeckRoute"] = newRoute
-        _startingDeckRoute.update { StringVar(newRoute) }
+        savedStateHandle[START_DECK_ROUTE] = newRoute
+        navHostRepo.updateStartingDeckRoute(newRoute)
     }
 
-    private val _startingSBRoute = MutableStateFlow(
-        StringVar(savedStateHandle["startSBRoute"] ?: SupabaseDestination.route)
-    )
-    val startingSBRoute = _startingSBRoute.asStateFlow()
-
+    val startingSBRoute = navHostRepo.startingSBRoute
     fun updateStartingSBRoute(newRoute: String) {
-        savedStateHandle["startSBRoute"] = newRoute
-        _startingSBRoute.update { StringVar(newRoute) }
+        savedStateHandle[START_SB_ROUTE] = newRoute
+        navHostRepo.updateStartingSBRoute(newRoute)
     }
 
     val wd: StateFlow<WhichDeck> = deckContentRepository.wd.stateIn(
@@ -123,9 +130,9 @@ class NavViewModel(
         if (newType == type.value) return
         savedStateHandle[CT_TYPE] = newType
         val ti = kbRepository.customTypes.value.ts.find { it.t == newType }
-        val cr = _route.value.name
+        val cr = route.value.name
         if (ti != null && (cr == AddCardDestination.route))
-            fieldParamRepository.updateCustomFields(ti)
+            fieldParamRepo.updateCustomFields(ti)
         kbRepository.updateType(newType)
     }
 
@@ -206,10 +213,7 @@ class NavViewModel(
         cardId.update { id }
     }
 
-    fun resetCard() {
-        savedStateHandle["cardId"] = 0
-        cardId.update { 0 }
-    }
+    fun resetCard() = cardId.update { savedStateHandle["cardId"] = 0; 0 }
 
     /** Value to check is the user is syncing the deck */
     private val _isBlocking = MutableStateFlow(false)
@@ -304,11 +308,11 @@ class NavViewModel(
         initialValue = false
     )
 
-    fun resetFields() = fieldParamRepository.resetFields()
+    fun resetFields() = fieldParamRepo.resetFields()
 
     private fun initialCT(id: Int) = viewModelScope.launch(Dispatchers.IO) {
-        val ct = cardTypeRepository.getACardType(id)
-        fieldParamRepository.createFields(ct.toCDetails())
+        val cd = cardTypeRepository.getACardType(id)?.toCDetails() ?: CDetails()
+        fieldParamRepo.createFields(cd)
     }
 
     fun updateTime() = deckListRepository.updateTime()
@@ -329,7 +333,78 @@ class NavViewModel(
      */
     fun clearSavedCards() = viewModelScope.launch { deckContentRepository.deleteSavedCards() }
 
+    /* <-- SUPABASE --> */
+    val sealedAllCTs = exportRepository.sealedAllCTs.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Companion.WhileSubscribed(TIMEOUT_MILLIS),
+        initialValue = SealedAllCTs()
+    )
+
+
+    fun addCardsToDisplay(cardIdentifier: String) =
+        exportRepository.addCardsToDisplay(cardIdentifier)
+
+    /** Google Oauth ID */
+    suspend fun getGoogleId(): Pair<Boolean, String> = withContext(Dispatchers.IO) {
+        authRepository.getGoogleCredentials().let { credentials ->
+            when (credentials) {
+                is GoogleCredentials.Success -> {
+                    authRepository.updateGoogleId(credentials.credentials)
+                    Pair(true, "")
+                }
+
+                is GoogleCredentials.Failure -> {
+                    Pair(false, credentials.errorMessage)
+                }
+            }
+        }
+    }
+
+    fun getOwner() = viewModelScope.launch { authRepository.getOwner() }
+
+    fun updateStatus() = authRepository.getCurrentUser()
+
+    fun disconnectSupabaseRT() = sbTablesRepository.disconnectRealtime()
+
+    fun connectSupabase() = viewModelScope.launch { sbTablesRepository.connectRealtime() }
+    fun getCurrentUserInfo() {
+        updateStatus(); getOwner()
+    }
+
+    val owner = authRepository.owner
+
+
+    private fun getDeckList() = viewModelScope.launch {
+        sbTablesRepository.getDeckList().collectLatest { list ->
+            sbTablesRepository.updateSBDeckList(list)
+        }
+    }
+
     init {
         updateQuery(savedStateHandle["query"] ?: "")
+        navHostRepo.onInit(
+            savedStateHandle.get<String>(ROUTE), savedStateHandle.get<String>(START_DECK_ROUTE),
+            savedStateHandle.get<String>(START_SB_ROUTE)
+        )
+        viewModelScope.launch {
+            application.networkConnectivityFlow().collectLatest { isConnected ->
+                if (!isConnected && isClientActive) {
+                    Log.d("NETWORK", "NETWORK HAS BEEN DISCONNECTED")
+                    authRepository.closeSupabase()
+                    delay(2000)
+                    sbTablesRepository.updateSBDeckList(emptyList())
+                    getOwner()
+                    isClientActive = false
+                } else if (isConnected && !isClientActive) {
+                    // Reinitialize the client only if it's not active
+                    authRepository.reCreateSupabase()
+                    Log.d("NETWORK", "RECONNECTED!")
+                    getDeckList()
+                    getOwner()
+                    isClientActive = true
+                }
+            }
+        }
+        getCurrentUserInfo()
     }
 }

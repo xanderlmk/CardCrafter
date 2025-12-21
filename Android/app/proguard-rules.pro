@@ -30,7 +30,3 @@
 
 # Keep annotations
 -keepattributes Signature, *Annotation*
-
-# For JSON conversion, also add:
--keep class com.google.gson.** { *; }
--dontwarn com.google.gson.**

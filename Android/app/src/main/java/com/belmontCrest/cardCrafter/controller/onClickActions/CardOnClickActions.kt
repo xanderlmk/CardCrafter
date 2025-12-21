@@ -23,15 +23,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
-import com.belmontCrest.cardCrafter.localDatabase.tables.CT
+import com.belmontCrest.cardCrafter.local.db.tables.CT
 import com.belmontCrest.cardCrafter.model.ui.Fields
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 import kotlinx.coroutines.CoroutineScope
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.cardHandlers.toCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.isNotBlankOrEmpty
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.saveFiles
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.isNotBlankOrEmpty
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.saveFiles
 import com.belmontCrest.cardCrafter.model.TAProp
 import com.belmontCrest.cardCrafter.model.TCProp
 import com.belmontCrest.cardCrafter.model.TextProps
@@ -39,10 +39,10 @@ import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import com.belmontCrest.cardCrafter.navigation.NavViewModel
 import com.belmontCrest.cardCrafter.ui.theme.mainViewModifier
-import com.belmontCrest.cardCrafter.uiFunctions.CustomText
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.CancelButton
-import com.belmontCrest.cardCrafter.uiFunctions.buttons.SubmitButton
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
+import com.belmontCrest.cardCrafter.ui.functions.CustomText
+import com.belmontCrest.cardCrafter.ui.functions.buttons.CancelButton
+import com.belmontCrest.cardCrafter.ui.functions.buttons.SubmitButton
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 import kotlinx.coroutines.launch
 
 fun saveCard(
@@ -362,7 +362,7 @@ fun CopyMoveCardList(
                                 },
                             props = TextProps(
                                 ta = TAProp.Center,
-                                tc = if (deck.id != selectedDeck?.id) TCProp.Default
+                                tc = if (deck.id != selectedDeck?.id) TCProp.OnBackground
                                 else TCProp.Disabled
                             )
                         )

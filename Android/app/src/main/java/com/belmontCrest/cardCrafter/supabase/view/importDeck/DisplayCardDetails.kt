@@ -16,8 +16,8 @@ import androidx.compose.ui.zIndex
 import com.belmontCrest.cardCrafter.model.Type
 import com.belmontCrest.cardCrafter.model.ui.states.CDetails
 import com.belmontCrest.cardCrafter.supabase.model.tables.SBDeckDto
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.katex.toShortHex
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.katex.toShortHex
 
 
 @SuppressLint("SetJavaScriptEnabled")

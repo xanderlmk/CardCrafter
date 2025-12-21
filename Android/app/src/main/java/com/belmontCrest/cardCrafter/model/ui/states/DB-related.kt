@@ -1,11 +1,11 @@
 package com.belmontCrest.cardCrafter.model.ui.states
 
 import android.os.Parcelable
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.AnswerType
-import com.belmontCrest.cardCrafter.localDatabase.tables.CT
-import com.belmontCrest.cardCrafter.localDatabase.tables.Deck
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.MiddleType
-import com.belmontCrest.cardCrafter.localDatabase.tables.customCardInit.ParamType
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.AnswerType
+import com.belmontCrest.cardCrafter.local.db.tables.CT
+import com.belmontCrest.cardCrafter.local.db.tables.Deck
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.MiddleType
+import com.belmontCrest.cardCrafter.local.db.tables.customCardInit.ParamType
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

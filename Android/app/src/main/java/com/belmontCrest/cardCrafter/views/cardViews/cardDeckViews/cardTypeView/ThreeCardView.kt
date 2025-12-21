@@ -15,9 +15,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.belmontCrest.cardCrafter.localDatabase.tables.PartOfQorA
-import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
+import com.belmontCrest.cardCrafter.local.db.tables.PartOfQorA
+import com.belmontCrest.cardCrafter.local.db.tables.ThreeFieldCard
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
 
 @Composable
 fun ThreeFrontCard(

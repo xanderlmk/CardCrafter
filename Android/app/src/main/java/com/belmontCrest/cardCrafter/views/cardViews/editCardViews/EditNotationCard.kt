@@ -17,16 +17,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.belmontCrest.cardCrafter.R
 import com.belmontCrest.cardCrafter.controller.view.models.cardViewsModels.EditCardViewModel
 import com.belmontCrest.cardCrafter.model.ui.states.SelectedKeyboard
-import com.belmontCrest.cardCrafter.ui.theme.GetUIStyle
-import com.belmontCrest.cardCrafter.uiFunctions.LatexKeyboard
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.KaTeXMenu
-import com.belmontCrest.cardCrafter.uiFunctions.katex.menu.SelectedAnnotation
-import com.belmontCrest.cardCrafter.uiFunctions.showToastMessage
-import com.belmontCrest.cardCrafter.views.misc.collectNotationFieldsAsStates
-
+import com.belmontCrest.cardCrafter.ui.GetUIStyle
+import com.belmontCrest.cardCrafter.ui.functions.LatexKeyboard
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.KaTeXMenu
+import com.belmontCrest.cardCrafter.ui.functions.katex.menu.SelectedAnnotation
+import com.belmontCrest.cardCrafter.ui.functions.showToastMessage
 
 private object KeyboardInputs {
     const val KK = "KatexKeyBoard"
@@ -36,7 +35,7 @@ private object KeyboardInputs {
 fun EditNotationCard(
     vm: EditCardViewModel, getUIStyle: GetUIStyle, onUpdate: () -> KaTeXMenu
 ) {
-    val (fields, _, selectedKB) = collectNotationFieldsAsStates(vm)
+    val (fields, _, selectedKB) = vm.triple.collectAsStateWithLifecycle().value
     val kk = KeyboardInputs.KK
     var selectedSymbol by rememberSaveable {
         mutableStateOf(KaTeXMenu(null, SelectedAnnotation.Idle))

@@ -1,15 +1,15 @@
 package com.belmontCrest.cardCrafter.supabase.model.tables
 
 import com.belmontCrest.cardCrafter.BuildConfig
-import com.belmontCrest.cardCrafter.localDatabase.tables.BasicCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.HintCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.MultiChoiceCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.NotationCard
-import com.belmontCrest.cardCrafter.localDatabase.tables.ThreeFieldCard
+import com.belmontCrest.cardCrafter.local.db.tables.BasicCard
+import com.belmontCrest.cardCrafter.local.db.tables.HintCard
+import com.belmontCrest.cardCrafter.local.db.tables.MultiChoiceCard
+import com.belmontCrest.cardCrafter.local.db.tables.NotationCard
+import com.belmontCrest.cardCrafter.local.db.tables.ThreeFieldCard
 import com.belmontCrest.cardCrafter.model.Type
+import com.belmontCrest.cardCrafter.supabase.controller.converters.RawColumns
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -79,55 +79,28 @@ fun List<SBCardColsWithCT>.toListOfSealedCTToImport(): List<SealedCTToImport> =
     }
 
 suspend fun SBCardDto.toSBCardColsWithCT(
-    sharedSupabase: SupabaseClient
+    supabase: SupabaseClient
 ): SBCardColsWithCT = when (this.type) {
     Type.BASIC -> {
-        sharedSupabase.from(SB_CARD_TN).select(
-            Columns.raw(
-                "id, type, deckUUID, cardIdentifier," +
-                        " basicCard(cardId, question, answer)"
-            )
-        ) {
-            filter {
-                eq("id", id)
-            }
+        supabase.from(SB_CARD_TN).select(RawColumns.Basic) {
+            filter { eq("id", id) }
         }.decodeSingle<SBCardColsBasic>()
     }
 
     Type.HINT -> {
-        sharedSupabase.from(SB_CARD_TN).select(
-            Columns.raw(
-                "id, type, deckUUID, cardIdentifier," +
-                        " hintCard(cardId, question, hint, answer)"
-            )
-        ) {
-            filter {
-                eq("id", id)
-            }
+        supabase.from(SB_CARD_TN).select(RawColumns.Hint) {
+            filter { eq("id", id) }
         }.decodeSingle<SBCardColsHint>()
     }
 
     Type.THREE -> {
-        sharedSupabase.from(SB_CARD_TN).select(
-            Columns.raw(
-                "id, type, deckUUID, cardIdentifier," +
-                        " threeCard(cardId, question, middle, answer)"
-            )
-        ) {
-            filter {
-                eq("id", id)
-            }
+        supabase.from(SB_CARD_TN).select(RawColumns.Three) {
+            filter { eq("id", id) }
         }.decodeSingle<SBCardColsThree>()
     }
 
     Type.MULTI -> {
-        sharedSupabase.from(SB_CARD_TN).select(
-            Columns.raw(
-                "id, type, deckUUID, cardIdentifier," +
-                        " multiCard(cardId, question, choiceA, choiceB, " +
-                        " choiceC, choiceD, correct)"
-            )
-        ) {
+        supabase.from(SB_CARD_TN).select(RawColumns.Multi) {
             filter {
                 eq("id", id)
             }
@@ -135,12 +108,7 @@ suspend fun SBCardDto.toSBCardColsWithCT(
     }
 
     Type.NOTATION -> {
-        sharedSupabase.from(SB_CARD_TN).select(
-            Columns.raw(
-                "id, type, deckUUID, cardIdentifier," +
-                        " notationCard(cardId, question, steps, answer)"
-            )
-        ) {
+        supabase.from(SB_CARD_TN).select(RawColumns.Notation) {
             filter {
                 eq("id", id)
             }
@@ -152,6 +120,11 @@ suspend fun SBCardDto.toSBCardColsWithCT(
     }
 }
 
+private const val BASIC = BuildConfig.SB_BASIC_TN
+private const val THREE = BuildConfig.SB_THREE_TN
+private const val HINT = BuildConfig.SB_HINT_TN
+private const val MULTI = BuildConfig.SB_MULTI_TN
+private const val NOTATION = BuildConfig.SB_NOTATION_TN
 
 @Serializable
 data class SBCardColsBasic(
@@ -161,6 +134,7 @@ data class SBCardColsBasic(
     override val type: String,
     @SerialName("cardIdentifier")
     override val cardIdentifier: String,
+    @SerialName(BASIC)
     val basicCard: BasicCard
 ) : SBCardColsWithCT()
 
@@ -172,6 +146,7 @@ data class SBCardColsHint(
     override val type: String,
     @SerialName("cardIdentifier")
     override val cardIdentifier: String,
+    @SerialName(HINT)
     val hintCard: HintCard
 ) : SBCardColsWithCT()
 
@@ -183,6 +158,7 @@ data class SBCardColsThree(
     override val type: String,
     @SerialName("cardIdentifier")
     override val cardIdentifier: String,
+    @SerialName(THREE)
     val threeCard: ThreeFieldCard
 ) : SBCardColsWithCT()
 
@@ -194,6 +170,7 @@ data class SBCardColsMulti(
     override val type: String,
     @SerialName("cardIdentifier")
     override val cardIdentifier: String,
+    @SerialName(MULTI)
     val multiCard: SBMultiCardDto
 ) : SBCardColsWithCT()
 
@@ -205,6 +182,7 @@ data class SBCardColsNotation(
     override val type: String,
     @SerialName("cardIdentifier")
     override val cardIdentifier: String,
+    @SerialName(NOTATION)
     val notationCard: SBNotationCardDto
 ) : SBCardColsWithCT()
 
@@ -217,30 +195,36 @@ sealed class SealedCTToImport {
     @Serializable
     data class Basic(
         val card: SBCardDto,
+        @SerialName(BASIC)
         val basicCard: BasicCard
     ) : SealedCTToImport()
 
     @Serializable
     data class Three(
         val card: SBCardDto,
+        @SerialName(THREE)
         val threeCard: ThreeFieldCard,
     ) : SealedCTToImport()
 
     @Serializable
     data class Hint(
         val card: SBCardDto,
+        @SerialName(HINT)
+
         val hintCard: HintCard
     ) : SealedCTToImport()
 
     @Serializable
     data class Multi(
         val card: SBCardDto,
+        @SerialName(MULTI)
         val multiCard: MultiChoiceCard
     ) : SealedCTToImport()
 
     @Serializable
     data class Notation(
         val card: SBCardDto,
+        @SerialName(NOTATION)
         val notationCard: NotationCard
     ) : SealedCTToImport()
 }
